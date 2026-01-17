@@ -15,10 +15,11 @@ import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.signals.InvertedValue;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import frc.robot.Constants;
 
-public class Intake extends SubsystemBase {
+public class IntakeRoller extends SubsystemBase {
   private final TalonFXConfiguration talonFXConfigs = new TalonFXConfiguration();  
   private final TalonFX m_motor;
 
@@ -29,8 +30,8 @@ public class Intake extends SubsystemBase {
 
   private double rpm = 3000; //target rpm for intake 
   
-  /** Creates a new realIntakeWheels. */
-  public Intake() {
+  //Creates a new IntakeWheel
+  public IntakeRoller() {
     m_motor = new TalonFX(Constants.INTAKE_CAN_ID);
     Slot0Configs slot0configs = talonFXConfigs.Slot0;
     slot0configs.kP = K_P;  // start small!!!
@@ -51,7 +52,11 @@ public class Intake extends SubsystemBase {
   }
   @Override
   public void periodic() {
-    // This method will be called once per scheduler run
+    
+  }
+
+  public void getRPM(){
+    SmartDashboard.putNumber("Intake/currentRPM", m_motor.getVelocity().getValueAsDouble());
   }
 
   public void run(){
