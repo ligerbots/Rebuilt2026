@@ -20,7 +20,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 
 public class IntakeRoller extends SubsystemBase {
-  private final TalonFXConfiguration talonFXConfigs = new TalonFXConfiguration();  
+  
   private final TalonFX m_motor;
 
   //need to calibrate the P value for the velocity loop, start small and increase until you get good response
@@ -31,8 +31,10 @@ public class IntakeRoller extends SubsystemBase {
   
   //Creates a new IntakeWheel
   public IntakeRoller() {
+    TalonFXConfiguration m_talonFXConfigs = new TalonFXConfiguration();  
+
     m_motor = new TalonFX(Constants.INTAKE_CAN_ID);
-    Slot0Configs slot0configs = talonFXConfigs.Slot0;
+    Slot0Configs slot0configs = m_talonFXConfigs.Slot0;
     slot0configs.kP = K_P;  // start small!!!
     slot0configs.kI = 0.0;
     slot0configs.kD = 0.0;
@@ -40,10 +42,10 @@ public class IntakeRoller extends SubsystemBase {
     CurrentLimitsConfigs currentLimits = new CurrentLimitsConfigs()
             .withSupplyCurrentLimit(CURRENT_LIMIT)
             .withStatorCurrentLimit(CURRENT_LIMIT);
-        talonFXConfigs.withCurrentLimits(currentLimits);
+        m_talonFXConfigs.withCurrentLimits(currentLimits);
 
     // enable brake mode (after main config)
-    m_motor.getConfigurator().apply(talonFXConfigs);
+    m_motor.getConfigurator().apply(m_talonFXConfigs);
     m_motor.setNeutralMode(NeutralModeValue.Brake);
 
     MotorOutputConfigs m_motor = new MotorOutputConfigs();
@@ -51,12 +53,12 @@ public class IntakeRoller extends SubsystemBase {
   }
   @Override
   public void periodic() {
-    // This method will be called once per scheduler run
+    SmartDashboard.putNumber("Intake/currentRPM", getRPM()); 
+    SmartDashboard.putNumber("Intake/goalRPM", m_goalRPM);
   }
 
-  public void getRPM(){
-    SmartDashboard.putNumber("Intake/currentRPM", m_motor.getVelocity().getValueAsDouble() * 60); //convert rps to rpm
-    SmartDashboard.putNumber("Intake/goalRPM", m_goalRPM);
+  public double getRPM(){
+    return m_motor.getVelocity().getValueAsDouble() * 60; //convert rps to rpm
   }
 
   public void run(double rpm){
