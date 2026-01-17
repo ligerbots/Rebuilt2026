@@ -35,7 +35,7 @@ public class Hood extends SubsystemBase {
     m_hoodMotor = new TalonFX(0); // FIXME change 0 to Constants.java value
 
     // set config to factory default
-    m_hoodMotor.getConfigurator().apply(new TalonFXConfiguration());
+    
         
     TalonFXConfiguration talonFXConfigs = new TalonFXConfiguration();
 
