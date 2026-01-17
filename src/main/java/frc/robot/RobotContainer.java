@@ -60,7 +60,7 @@ public class RobotContainer {
         // Note that X is defined as forward according to WPILib convention,
         // and Y is defined as to the left according to WPILib convention.
 
-        joystick.x().onTrue(new InstantCommand(() -> ChineseRemainder.FindAngle(Rotation2d.fromDegrees(98.18), 11, Rotation2d.fromDegrees(221.54),  13)));
+        joystick.x().onTrue(new InstantCommand(() -> ChineseRemainder.FindAngle(Rotation2d.fromDegrees(11), 11, Rotation2d.fromDegrees(13),  13)));
 
         drivetrain.setDefaultCommand(
             // Drivetrain will execute this command periodically
@@ -78,10 +78,10 @@ public class RobotContainer {
             m_drivetrain.applyRequest(() -> idle).ignoringDisable(true)
         );
 
-        joystick.a().whileTrue(m_drivetrain.applyRequest(() -> brake));
-        joystick.b().whileTrue(m_drivetrain.applyRequest(() ->
-            point.withModuleDirection(new Rotation2d(-joystick.getLeftY(), -joystick.getLeftX()))
-        ));
+        joystick.a().whileTrue(drivetrain.applyRequest(() -> brake));
+        // joystick.b().whileTrue(drivetrain.applyRequest(() ->
+        //     point.withModuleDirection(new Rotation2d(-joystick.getLeftY(), -joystick.getLeftX()))
+        // ));
 
         // Run SysId routines when holding back/start and X/Y.
         // Note that each routine should be run exactly once in a single log.
