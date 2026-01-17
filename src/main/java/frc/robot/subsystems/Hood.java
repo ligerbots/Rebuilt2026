@@ -44,8 +44,8 @@ public class Hood extends SubsystemBase {
         
     TalonFXConfiguration talonFXConfigs = new TalonFXConfiguration();
 
-    talonFXConfigs.CurrentLimits.SupplyCurrentLimit = Amps.of(SUPPLY_CURRENT_LIMIT);
-    talonFXConfigs.CurrentLimits.StatorCurrentLimit = Amps.of(STATOR_CURRENT_LIMIT);
+    talonFXConfigs.CurrentLimits.SupplyCurrentLimit = SUPPLY_CURRENT_LIMIT;
+    talonFXConfigs.CurrentLimits.StatorCurrentLimit = STATOR_CURRENT_LIMIT;
     
     Slot0Configs slot0configs = talonFXConfigs.Slot0;
     slot0configs.kP = K_P;
