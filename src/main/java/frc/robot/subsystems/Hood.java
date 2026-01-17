@@ -8,6 +8,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import static edu.wpi.first.units.Units.*;
 
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
@@ -43,8 +44,8 @@ public class Hood extends SubsystemBase {
         
     TalonFXConfiguration talonFXConfigs = new TalonFXConfiguration();
 
-    talonFXConfigs.CurrentLimits.SupplyCurrentLimit = SUPPLY_CURRENT_LIMIT;
-    talonFXConfigs.CurrentLimits.StatorCurrentLimit = STATOR_CURRENT_LIMIT;
+    talonFXConfigs.CurrentLimits.SupplyCurrentLimit = Amps.of(SUPPLY_CURRENT_LIMIT);
+    talonFXConfigs.CurrentLimits.StatorCurrentLimit = Amps.of(STATOR_CURRENT_LIMIT);
     
     Slot0Configs slot0configs = talonFXConfigs.Slot0;
     slot0configs.kP = K_P;
