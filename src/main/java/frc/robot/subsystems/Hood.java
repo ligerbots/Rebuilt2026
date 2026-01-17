@@ -5,6 +5,7 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -29,6 +30,9 @@ public class Hood extends SubsystemBase {
 
   private static final double K_P = 1.0;
 
+  private static final double MAX_VEL_RAD_PER_SEC = Units.degreesToRadians(50.0);
+  private static final double MAX_ACC_RAD_PER_SEC = Units.degreesToRadians(50.0); // TODO change to better number (currently filler number)
+
 
   /** Creates a new Hood. */
   public Hood() {
@@ -46,6 +50,11 @@ public class Hood extends SubsystemBase {
     slot0configs.kP = K_P;
     slot0configs.kI = 0.0;
     slot0configs.kD = 0.0;
+
+    MotionMagicConfigs magicConfigs = talonFXConfigs.MotionMagic;
+        
+    magicConfigs.MotionMagicCruiseVelocity = MAX_VEL_RAD_PER_SEC;
+    magicConfigs.MotionMagicAcceleration = MAX_ACC_RAD_PER_SEC;
 
     m_hoodMotor.getConfigurator().apply(talonFXConfigs);
     m_hoodMotor.setPosition(0);
