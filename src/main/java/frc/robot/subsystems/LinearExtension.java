@@ -6,25 +6,53 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
+import com.ctre.phoenix6.configs.MotionMagicConfigs;
+import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
+import com.ctre.phoenix6.hardware.TalonFX;
+
 public class LinearExtension extends SubsystemBase {
-  /** Creates a new ExampleSubsystem. */
 
   // define all constants here
-  private final TalonFX m_motor; //import the talonfx stuff in at top of code
+  private final TalonFX m_motor;
 
-  private static final double MAX_LENGTH;
-  private static final double MIN_LENGTH;
+  private static final double DEPLOY_LENGTH = 12; //TODO need to set number properly
+  private static final double STOW_LENGTH = 0;
+
+  private static final double GEAR_REDUCTION = 0;
+  private static final double FINAL_GEAR_DIAMETER = 0; 
+  private static final double METER_PER_REVOLUTION = 0;
+  //these are filler numbers, set them properly later
+
+  //TODO add in the lengths
 
 
   public LinearExtension() {
 
     m_motor = new TalonFX(); //add in motor id constant
 
-    
+    TalonFXConfiguration talonFXConfigs = new TalonFXConfiguration();
+
+
   }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+  }
+
+
+
+
+  public void deploy() {
+    //extend
+  }
+
+  public void stow() {
+    //retract
   }
 }
