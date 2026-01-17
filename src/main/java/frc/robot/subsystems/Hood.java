@@ -4,14 +4,28 @@
 
 package frc.robot.subsystems;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Hood extends SubsystemBase {
   /** Creates a new Hood. */
   public Hood() {}
 
+  Rotation2d goalAngle;
+
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
   }
+
+  public void set(Rotation2d angle) {
+    
+  }
+
+  public Rotation2d readAngle() {
+
+    return new Rotation2d(2.1,2.3); // example
+  }
+
+  
 }
