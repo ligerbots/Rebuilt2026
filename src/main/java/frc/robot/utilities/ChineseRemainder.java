@@ -9,32 +9,38 @@ public class ChineseRemainder {
         double RotatedTeeth1 = RotationsEnc1.getRotations() * TotalTeeth1;
         double RotatedTeeth2 = RotationsEnc2.getRotations() * TotalTeeth2;
 
-        double bestResultDifference = 1000.0; // closer to 0 = more accurate. Both calculations are the most similar
-        double currentResult = 0;
-
-        /*
+         /*
          * N = i*k1 + n1
          * N = j*k2 + n2
          */
+
+        double bestResultDifference = 1e12; // closer to 0 = more accurate. Both calculations are the most similar
+        double currentResult1 = 0;
 
         for (int i = 0; i < TotalTeeth2; i++) { // finding i
             double test = i * TotalTeeth1 + RotatedTeeth1;
             double remainderCheck = test % TotalTeeth2;
 
-            if (Math.abs(remainderCheck - RotatedTeeth2) < bestResultDifference) {
-                currentResult = test;
+            double resultDif = Math.abs(remainderCheck - RotatedTeeth2);
+            if (resultDif < bestResultDifference) {
+                bestResultDifference = resultDif;
+                currentResult1 = test;
             }
         }
+
+        
+        bestResultDifference = 1e12;
+        double currentResult2 = 0;
 
         for (int i = 0; i < TotalTeeth1; i++) { // finding i
             double test = i * TotalTeeth2 + RotatedTeeth2;
             double remainderCheck = test % TotalTeeth1;
 
             if (Math.abs(remainderCheck - RotatedTeeth1) < bestResultDifference) {
-                currentResult = test;
+                currentResult2 = test;
             }
         }
 
-        return currentResult;
+        return (currentResult1 + currentResult2)/2;
     }
 }
