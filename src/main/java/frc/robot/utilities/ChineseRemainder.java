@@ -17,7 +17,7 @@ public class ChineseRemainder {
          */
 
         double bestResultDifference = 1e12; // closer to 0 = more accurate. Both calculations are the most similar
-        double currentResult1 = 0;
+        double currentResult1 = -1;
 
         for (int i = 0; i < TotalTeeth2; i++) { // finding i
             double test = i * TotalTeeth1 + RotatedTeeth1;
@@ -32,7 +32,7 @@ public class ChineseRemainder {
 
         
         bestResultDifference = 1e12;
-        double currentResult2 = 0;
+        double currentResult2 = -1;
 
         for (int i = 0; i < TotalTeeth1; i++) { // finding j
             double test = i * TotalTeeth2 + RotatedTeeth2;
@@ -45,7 +45,7 @@ public class ChineseRemainder {
             }
         }
 
-        SmartDashboard.putNumber("turretAngle", (currentResult1 + currentResult2)/2);
+        System.out.println((currentResult1 + currentResult2)/2);
 
         return (currentResult1 + currentResult2)/2;
     }
