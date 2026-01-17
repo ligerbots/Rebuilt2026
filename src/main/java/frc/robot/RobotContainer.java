@@ -45,7 +45,8 @@ public class RobotContainer {
     private void configureBindings() {
         // Note that X is defined as forward according to WPILib convention,
         // and Y is defined as to the left according to WPILib convention.
-        joystick.a().onTrue(new InstantCommand(() -> ChineseRemainder.FindAngle(Rotation2d.fromDegrees(0), 0, Rotation2d.fromDegrees(0), 0)));
+
+        joystick.x().onTrue(new InstantCommand(() -> ChineseRemainder.FindAngle(Rotation2d.fromDegrees(98.18), 11, Rotation2d.fromDegrees(221.54),  13)));
 
         drivetrain.setDefaultCommand(
             // Drivetrain will execute this command periodically
