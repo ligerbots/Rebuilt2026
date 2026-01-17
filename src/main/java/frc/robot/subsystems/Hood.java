@@ -5,6 +5,7 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
@@ -53,6 +54,10 @@ public class Hood extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+    SmartDashboard.putNumber("hood/goalAngle", m_goal.getDegrees());
+    SmartDashboard.putNumber("hood/currentAngle", getPosition().getDegrees());
+    SmartDashboard.putNumber("hood/rawMotorAngle",  m_hoodMotor.getPosition().getValueAsDouble());
+   
   }
 
   public void set(Rotation2d angle) {
