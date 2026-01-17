@@ -2,6 +2,8 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
+
+
 package frc.robot.subsystems;
 
 import com.revrobotics.spark.ClosedLoopSlot;
@@ -23,9 +25,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
-public class CoralGroundIntake extends SubsystemBase {
-    public enum CoralGroundIntakeState {
-        STOW, DEPLOY, SCORE_ANGLE, SCORE_OUT
+public class IntakeWheels extends SubsystemBase {
+    public enum IntakeWheelsState {
+        STOW, DEPLOY
     }
 
     //IMPORTANT NOTE: All angles are relitive to stowed which is zero in the code.
@@ -49,7 +51,6 @@ public class CoralGroundIntake extends SubsystemBase {
     private final SparkClosedLoopController m_pivotController;
 
     private final Rotation2d STOWED_ANGLE = Rotation2d.fromDegrees(0.0);
-    private final Rotation2d SCORING_ANGLE = Rotation2d.fromDegrees(22.0); 
     private final Rotation2d DEPLOYED_ANGLE = Rotation2d.fromDegrees(115.0); 
 
     private final double ROLLER_INTAKE_SPEED = 0.6/2.0;
@@ -59,7 +60,7 @@ public class CoralGroundIntake extends SubsystemBase {
     // This is RPM
     private static final double STALL_VELOCITY_LIMIT = 10; 
 
-    private CoralGroundIntakeState m_state = CoralGroundIntakeState.STOW;
+    private IntakeWheelsState m_state = IntakeWheelsState.STOW;
 
     private double m_goalAngle; //Used for readout in elastic only
 
@@ -76,7 +77,7 @@ public class CoralGroundIntake extends SubsystemBase {
    private final MedianFilter m_coralHoldFilter = new MedianFilter(10);
 
     // Construct a new shooterPivot subsystem
-    public CoralGroundIntake() {
+    public IntakeWheels() {
         m_pivotMotor = new SparkMax(Constants.CORAL_GROUND_PIVOT_ID, MotorType.kBrushless);
         m_rollerMotor = new SparkFlex(Constants.CORAL_GROUND_ROLLER_ID, MotorType.kBrushless);
 
@@ -108,11 +109,11 @@ public class CoralGroundIntake extends SubsystemBase {
     @Override
     public void periodic() {
         boolean stalled = m_coralHoldFilter.calculate(Math.abs(getRollerSpeed().getRotations())) < STALL_VELOCITY_LIMIT;
-        SmartDashboard.putNumber("coralGroundIntake/goalAngle", m_goalAngle);
-        SmartDashboard.putNumber("coralGroundIntake/angleOffFromGoal", m_goalAngle - getPivotAngle().getDegrees());
-        SmartDashboard.putBoolean("coralGroundIntake/isStalled", stalled);
-        SmartDashboard.putNumber("coralGroundIntake/currentAngle", getPivotAngle().getDegrees());
-        SmartDashboard.putString("coralGroundIntake/state", m_state.toString());
+        SmartDashboard.putNumber("IntakeWheels/goalAngle", m_goalAngle);
+        SmartDashboard.putNumber("IntakeWheels/angleOffFromGoal", m_goalAngle - getPivotAngle().getDegrees());
+        SmartDashboard.putBoolean("IntakeWheels/isStalled", stalled);
+        SmartDashboard.putNumber("IntakeWheels/currentAngle", getPivotAngle().getDegrees());
+        SmartDashboard.putString("IntakeWheels/state", m_state.toString());
         //Use triggers to intake/outtake
         switch (m_state) {
             case STOW:
@@ -124,18 +125,9 @@ public class CoralGroundIntake extends SubsystemBase {
                 setAngleWithProfile(DEPLOYED_ANGLE);
 
                 if ((0 <= (getPivotAngle().getDegrees() - DEPLOYED_ANGLE.getDegrees() + ANGLE_TOLERANCE_DEG)) && stalled) {
-                    goToScoreAngle();
+                    deploy();
                     // System.out.println("Stalled, intaking");
                 }
-                break;
-            case SCORE_ANGLE:
-                // Just moves to score angle
-                setAngleWithProfile(SCORING_ANGLE);
-                setRollerSpeedPercent(ROLLER_HOLD_SPEED);
-                break;
-            case SCORE_OUT:
-                setAngleWithProfile(SCORING_ANGLE);
-                setRollerSpeedPercent(ROLLER_OUTTAKE_SPEED);
                 break;
         }
     }
@@ -173,22 +165,12 @@ public class CoralGroundIntake extends SubsystemBase {
 
     // state changes
     public void stow() {
-        m_state = CoralGroundIntakeState.STOW;
+        m_state = IntakeWheelsState.STOW;
     }
-
     public void deploy() {
-        m_state = CoralGroundIntakeState.DEPLOY;
+        m_state = IntakeWheelsState.DEPLOY;
     }
-
-    public void score() {
-        m_state = CoralGroundIntakeState.SCORE_OUT;
-    }
-
-    public void goToScoreAngle() {
-        m_state = CoralGroundIntakeState.SCORE_ANGLE;
-    }
-
-    public CoralGroundIntakeState getState() {
+    public IntakeWheelsState getState() {
         return m_state;
     }
 }
