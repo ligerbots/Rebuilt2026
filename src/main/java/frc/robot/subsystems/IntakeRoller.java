@@ -27,8 +27,7 @@ public class IntakeRoller extends SubsystemBase {
   private static final double K_P = 3.0; 
   private static final int CURRENT_LIMIT = 90;
 
-
-  private double rpm = 3000; //target rpm for intake 
+  private double goalRPM;
   
   //Creates a new IntakeWheel
   public IntakeRoller() {
@@ -52,18 +51,21 @@ public class IntakeRoller extends SubsystemBase {
   }
   @Override
   public void periodic() {
-    
+    // This method will be called once per scheduler run
   }
 
   public void getRPM(){
-    SmartDashboard.putNumber("Intake/currentRPM", m_motor.getVelocity().getValueAsDouble());
+    SmartDashboard.putNumber("Intake/currentRPM", m_motor.getVelocity().getValueAsDouble() * Constants.RPM_TO_PRS);
+    SmartDashboard.putNumber("Intake/goalRPM", goalRPM);
   }
 
-  public void run(){
+  public void run(double rpm){
+    goalRPM = rpm;
+
     // create a velocity closed-loop request, voltage output, slot 0 configs
     final VelocityVoltage m_request = new VelocityVoltage(0).withSlot(0);
 
-    double rps = rpm/Constants.RPM_TO_PRS;
+    double rps = goalRPM/Constants.RPM_TO_PRS;
 
     // set velocity to 8 rps, add 0.5 V to overcome gravity
     m_motor.setControl(m_request.withVelocity(rps).withFeedForward(0.5));
