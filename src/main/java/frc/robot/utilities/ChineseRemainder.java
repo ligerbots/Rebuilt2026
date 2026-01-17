@@ -5,6 +5,7 @@ import java.security.Key;
 import edu.wpi.first.math.geometry.Rotation2d;
 
 public class ChineseRemainder {
+    // public static Double FindAngle(Rotation2d RotationsEnc1, int TotalTeeth1, Rotation2d RotationsEnc2, int TotalTeeth2) {
     public static Double FindAngle(Rotation2d RotationsEnc1, int TotalTeeth1, Rotation2d RotationsEnc2, int TotalTeeth2) {
         double RotatedTeeth1 = RotationsEnc1.getRotations() * TotalTeeth1;
         double RotatedTeeth2 = RotationsEnc2.getRotations() * TotalTeeth2;
@@ -32,7 +33,7 @@ public class ChineseRemainder {
         bestResultDifference = 1e12;
         double currentResult2 = 0;
 
-        for (int i = 0; i < TotalTeeth1; i++) { // finding i
+        for (int i = 0; i < TotalTeeth1; i++) { // finding j
             double test = i * TotalTeeth2 + RotatedTeeth2;
             double remainderCheck = test % TotalTeeth1;
 
