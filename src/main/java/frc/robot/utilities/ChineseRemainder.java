@@ -3,6 +3,7 @@ package frc.robot.utilities;
 import java.security.Key;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class ChineseRemainder {
     // public static Double FindAngle(Rotation2d RotationsEnc1, int TotalTeeth1, Rotation2d RotationsEnc2, int TotalTeeth2) {
@@ -37,10 +38,14 @@ public class ChineseRemainder {
             double test = i * TotalTeeth2 + RotatedTeeth2;
             double remainderCheck = test % TotalTeeth1;
 
-            if (Math.abs(remainderCheck - RotatedTeeth1) < bestResultDifference) {
+            double resultDif = Math.abs(remainderCheck - RotatedTeeth1);
+            if (resultDif < bestResultDifference) {
+                bestResultDifference = resultDif;
                 currentResult2 = test;
             }
         }
+
+        SmartDashboard.putNumber("turretAngle", (currentResult1 + currentResult2)/2);
 
         return (currentResult1 + currentResult2)/2;
     }
