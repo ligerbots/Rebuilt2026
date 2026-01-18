@@ -33,6 +33,9 @@ public class Shooter extends SubsystemBase {
 
   private double m_targetDistanceMeters = 0.0;
 
+  private Hood m_hood;
+  // private Flywheel m_flywheel;
+
   /**
    * Constructs a Shooter subsystem with lookup tables for hub and shuttle shooting.
    *
@@ -42,6 +45,9 @@ public class Shooter extends SubsystemBase {
   public Shooter(String hubLookupTableFileName, String shuttleLookupTableFileName) {
     m_hubShooterLookupTable = new ShooterLookupTable(hubLookupTableFileName);
     m_shuttleShooterLookupTable = new ShooterLookupTable(shuttleLookupTableFileName);
+
+    m_hood = new Hood();
+    // m_flywheel = new Flywheel();
   }
 
   @Override
@@ -138,9 +144,8 @@ public class Shooter extends SubsystemBase {
    * @return true if hood is within tolerance, false otherwise
    */
   private boolean isHoodAtTarget(Rotation2d targetAngle) {
-    // TODO: Get current hood angle from hood subsystem and compare
-    // return currentHoodAngle.minus(targetAngle).abs().getRadians() < HOOD_ANGLE_TOLERANCE.getRadians();
-    return false;
+    Rotation2d currentHoodAngle = m_hood.getPosition();
+    return Math.abs(currentHoodAngle.minus(targetAngle).getRadians()) < HOOD_ANGLE_TOLERANCE.getRadians();
   }
 
   /**
