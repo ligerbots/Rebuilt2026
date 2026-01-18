@@ -47,7 +47,8 @@ public class RobotContainer {
         // Note that X is defined as forward according to WPILib convention,
         // and Y is defined as to the left according to WPILib convention.
 
-        joystick.x().onTrue(new InstantCommand(() -> ChineseRemainder.runTests()));
+        // joystick.x().onTrue(new InstantCommand(() -> ChineseRemainder.runTests())); // CHINESE REMAINDER TEST
+        
         // Expected 0.143
 
         drivetrain.setDefaultCommand(
@@ -67,9 +68,9 @@ public class RobotContainer {
         );
 
         joystick.a().whileTrue(drivetrain.applyRequest(() -> brake));
-        // joystick.b().whileTrue(drivetrain.applyRequest(() ->
-        //     point.withModuleDirection(new Rotation2d(-joystick.getLeftY(), -joystick.getLeftX()))
-        // ));
+        joystick.b().whileTrue(drivetrain.applyRequest(() ->
+            point.withModuleDirection(new Rotation2d(-joystick.getLeftY(), -joystick.getLeftX()))
+        ));
 
         // Run SysId routines when holding back/start and X/Y.
         // Note that each routine should be run exactly once in a single log.
