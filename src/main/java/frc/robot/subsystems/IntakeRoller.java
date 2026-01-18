@@ -33,7 +33,7 @@ public class IntakeRoller extends SubsystemBase {
   public IntakeRoller() {
     TalonFXConfiguration m_talonFXConfigs = new TalonFXConfiguration();  
 
-    m_motor = new TalonFX(Constants.INTAKE_CAN_ID);
+    m_motor = new TalonFX(Constants.INTAKE_ROLLER_CAN_ID);
     Slot0Configs slot0configs = m_talonFXConfigs.Slot0;
     slot0configs.kP = K_P;  // start small!!!
     slot0configs.kI = 0.0;
@@ -42,7 +42,7 @@ public class IntakeRoller extends SubsystemBase {
     CurrentLimitsConfigs currentLimits = new CurrentLimitsConfigs()
             .withSupplyCurrentLimit(CURRENT_LIMIT)
             .withStatorCurrentLimit(CURRENT_LIMIT);
-        m_talonFXConfigs.withCurrentLimits(currentLimits);
+    m_talonFXConfigs.withCurrentLimits(currentLimits);
 
     // enable brake mode (after main config)
     m_motor.getConfigurator().apply(m_talonFXConfigs);
@@ -51,10 +51,11 @@ public class IntakeRoller extends SubsystemBase {
     MotorOutputConfigs m_motor = new MotorOutputConfigs();
     m_motor.Inverted = InvertedValue.Clockwise_Positive;
   }
+
   @Override
   public void periodic() {
-    SmartDashboard.putNumber("Intake/currentRPM", getRPM()); 
-    SmartDashboard.putNumber("Intake/goalRPM", m_goalRPM);
+    SmartDashboard.putNumber("intake/currentRPM", getRPM()); 
+    SmartDashboard.putNumber("intake/goalRPM", m_goalRPM);
   }
 
   public double getRPM(){
@@ -71,7 +72,6 @@ public class IntakeRoller extends SubsystemBase {
 
     // set velocity to 8 rps, add 0.5 V to overcome gravity
     m_motor.setControl(m_request.withVelocity(rps).withFeedForward(0.5));
-
   }
 
   public void stop(){
