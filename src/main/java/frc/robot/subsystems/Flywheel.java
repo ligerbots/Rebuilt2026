@@ -51,9 +51,6 @@ public class Flywheel extends SubsystemBase {
     // enable coast mode (after main config)
     m_motor.getConfigurator().apply(talonFXConfigs);
     m_motor.setNeutralMode(NeutralModeValue.Coast);
-
-    MotorOutputConfigs m_motor = new MotorOutputConfigs();
-    m_motor.Inverted = InvertedValue.Clockwise_Positive;
   }
   @Override
   public void periodic() {
