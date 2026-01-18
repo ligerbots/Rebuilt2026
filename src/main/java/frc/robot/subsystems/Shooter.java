@@ -122,7 +122,7 @@ public class Shooter extends SubsystemBase {
    * @param angle The target angle as a Rotation2d object
    */
   private void setHoodAngle(Rotation2d angle) {
-    // TODO: Implementation to set the hood angle via hood subsystem
+    m_hood.set(angle);
   }
 
   /**
