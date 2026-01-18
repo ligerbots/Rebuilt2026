@@ -78,7 +78,7 @@ public class Flywheel extends SubsystemBase {
     m_goalRPM = rpm;
     double rps = m_goalRPM / 60; //convert rpm to rps
 
-    final VelocityVoltage m_request = new VelocityVoltage(rps).withFeedForward(FEED_FORWARDS_VOLTS).withSlot(0);
+    final VelocityVoltage m_request = new VelocityVoltage(rps).withFeedForward(FEED_FORWARDS_VOLTS);
 
     m_motor.setControl(m_request);
   }
