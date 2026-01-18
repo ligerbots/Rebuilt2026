@@ -29,11 +29,7 @@ public class Flywheel extends SubsystemBase {
   private static final double SUPPLY_CURRENT_LIMIT = 40;
   private static final double STATOR_CURRENT_LIMIT = 60;
 
-  //Trapezoidal:
-  private static final double MAX_VEL_ROT_PER_SEC = 3; //TODO find new constants
-  private static final double MAX_ACC_ROT_PER_SEC2 = 2; //TODO find new constants
-
-  private static final double FEED_FORWARDS_VOLTS = 0.1; //TODO find new constant
+  private static final double K_FF = 0.0015; //TODO find new constant
 
   private double m_goalRPM;
   
@@ -51,11 +47,6 @@ public class Flywheel extends SubsystemBase {
             .withSupplyCurrentLimit(SUPPLY_CURRENT_LIMIT)
             .withStatorCurrentLimit(STATOR_CURRENT_LIMIT);
         talonFXConfigs.withCurrentLimits(currentLimits);
-
-    MotionMagicConfigs magicConfigs = talonFXConfigs.MotionMagic;
-        
-    magicConfigs.MotionMagicCruiseVelocity = MAX_VEL_ROT_PER_SEC;
-    magicConfigs.MotionMagicAcceleration = MAX_ACC_ROT_PER_SEC2;
 
     // enable coast mode (after main config)
     m_motor.getConfigurator().apply(talonFXConfigs);
@@ -78,7 +69,7 @@ public class Flywheel extends SubsystemBase {
     m_goalRPM = rpm;
     double rps = m_goalRPM / 60; //convert rpm to rps
 
-    final VelocityVoltage m_request = new VelocityVoltage(rps).withFeedForward(FEED_FORWARDS_VOLTS);
+    final VelocityVoltage m_request = new VelocityVoltage(rps).withFeedForward(K_FF * rpm);
 
     m_motor.setControl(m_request);
   }
