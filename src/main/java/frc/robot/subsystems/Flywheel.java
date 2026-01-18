@@ -6,21 +6,18 @@
 
 package frc.robot.subsystems;
 
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.VelocityVoltage;
-import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
+import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.VelocityVoltage;
+import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
 public class Flywheel extends SubsystemBase {
@@ -31,13 +28,15 @@ public class Flywheel extends SubsystemBase {
   private static final double K_P = 3.0; 
   private static final int CURRENT_LIMIT = 90;
 
-  //Trapisoidl:
+  //Trapezoidal:
   private static final double MAX_VEL_ROT_PER_SEC = 3; //TODO find new constants
-  private static final double MAX_ACC_ROT_PER_SEC2 = 2;
+  private static final double MAX_ACC_ROT_PER_SEC2 = 2; //TODO find new constants
+
+  private static final double FEED_FORWARDS_VOLTS = 0.1; //TODO find new constant
 
   private double m_goalRPM;
   
-  //Creates a new IntakeWheel
+  //Creates a new FlyWheel
   public Flywheel() {
     TalonFXConfiguration talonFXConfigs = new TalonFXConfiguration();  
 
@@ -57,33 +56,30 @@ public class Flywheel extends SubsystemBase {
     magicConfigs.MotionMagicCruiseVelocity = MAX_VEL_ROT_PER_SEC;
     magicConfigs.MotionMagicAcceleration = MAX_ACC_ROT_PER_SEC2;
 
-    // enable brake mode (after main config)
+    // enable coast mode (after main config)
     m_motor.getConfigurator().apply(talonFXConfigs);
-    m_motor.setNeutralMode(NeutralModeValue.Brake);
+    m_motor.setNeutralMode(NeutralModeValue.Coast);
 
     MotorOutputConfigs m_motor = new MotorOutputConfigs();
     m_motor.Inverted = InvertedValue.Clockwise_Positive;
   }
   @Override
   public void periodic() {
-    SmartDashboard.putNumber("Intake/currentRPM", getRPM()); 
-    SmartDashboard.putNumber("Intake/goalRPM", m_goalRPM);
+    SmartDashboard.putNumber("flywheel/currentRPM", getRPM()); 
+    SmartDashboard.putNumber("flywheel/goalRPM", m_goalRPM);
   }
 
   public double getRPM(){
     return m_motor.getVelocity().getValueAsDouble() * 60; //convert rps to rpm
   }
 
-  public void run(double rpm){
+  public void setRPM(double rpm) {
     m_goalRPM = rpm;
-
-    // create a velocity closed-loop request, voltage output, slot 0 configs
-    final VelocityVoltage m_request = new VelocityVoltage(0).withSlot(0);
-
     double rps = m_goalRPM / 60; //convert rpm to rps
 
-    // set velocity to 8 rps, add 0.5 V to overcome gravity
-    m_motor.setControl(m_request.withVelocity(rps).withFeedForward(0.5));
+    final VelocityVoltage m_request = new VelocityVoltage(rps).withFeedForward(FEED_FORWARDS_VOLTS).withSlot(0);
+
+    m_motor.setControl(m_request);
   }
 
   public void stop(){
