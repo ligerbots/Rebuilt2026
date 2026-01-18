@@ -2,38 +2,83 @@ package frc.robot.utilities;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 
+/**
+ * Utility class that implements the Chinese Remainder Theorem to solve for absolute encoder positions
+ * using two relative encoders with different gear ratios. This is commonly used in FRC robotics
+ * to create high-resolution absolute position feedback by combining two encoders with coprime gear ratios.
+ * 
+ * The algorithm finds the unique solution within a given range that satisfies both encoder readings
+ * simultaneously, effectively creating an absolute encoder system from relative encoders.
+ */
 public class ChineseRemainder {
 
+    /**
+     * Finds the absolute angle of a large gear using readings from two encoders with different gear ratios.
+     * Uses the Chinese Remainder Theorem to solve for the unique position that satisfies both encoder readings.
+     * 
+     * This method works by searching for the number of teeth rotated that best matches both encoder readings,
+     * accounting for the modular arithmetic nature of gear systems. It uses a brute-force search with
+     * fine step resolution to find the optimal solution.
+     * 
+     * @param RotationsEnc1 The rotation reading from the first encoder (in rotations)
+     * @param TotalTeeth1 The total number of teeth that the first encoder sees per revolution of the big gear
+     * @param RotationsEnc2 The rotation reading from the second encoder (in rotations)  
+     * @param TotalTeeth2 The total number of teeth that the second encoder sees per revolution of the big gear
+     * @param BigGearTeeth The number of teeth on the large gear whose absolute position we want to determine
+     * @return The absolute angle of the large gear as a Rotation2d
+     */
     public static Rotation2d FindAngle(Rotation2d RotationsEnc1, int TotalTeeth1, Rotation2d RotationsEnc2, int TotalTeeth2, int BigGearTeeth) {
+        // Step 1: Convert encoder rotations to "teeth passed by" for easier math
+        // If encoder 1 rotated 0.5 times and sees 20 teeth per big gear rotation, then 10 teeth have passed
         double RotatedTeeth1 = RotationsEnc1.getRotations() * TotalTeeth1;
         double RotatedTeeth2 = RotationsEnc2.getRotations() * TotalTeeth2;
 
         double bestN = -1;
         double bestError = Double.MAX_VALUE;
 
-        // Use LCM or max of the two for reasonable search range
+        // Step 2: Try different values of N (total teeth rotated on big gear) and find which fits both encoders best
+        // We search from 0 to BigGearTeeth because after that, positions repeat (one full rotation)
         int searchLimit = BigGearTeeth;
         double stepSize = 0.01;
 
         for (double N = 0; N < searchLimit; N += stepSize) {
-            double error1 = Math.abs((N % TotalTeeth1) - (RotatedTeeth1 % TotalTeeth1));
-            double error2 = Math.abs((N % TotalTeeth2) - (RotatedTeeth2 % TotalTeeth2));
+            // Step 3: For this candidate N, calculate what each encoder SHOULD read
+            // Use modulo (%) because encoders reset after their gear makes full rotations
+            double predictedTeeth1 = N % TotalTeeth1;  // What encoder 1 should see
+            double predictedTeeth2 = N % TotalTeeth2;  // What encoder 2 should see
+            double actualTeeth1 = RotatedTeeth1 % TotalTeeth1;  // What encoder 1 actually sees
+            double actualTeeth2 = RotatedTeeth2 % TotalTeeth2;  // What encoder 2 actually sees
 
+            // Step 4: Calculate how far off our prediction is from reality
+            double error1 = Math.abs(predictedTeeth1 - actualTeeth1);
+            double error2 = Math.abs(predictedTeeth2 - actualTeeth2);
+
+            // Step 5: Account for "wraparound" - sometimes the shorter path is going backwards
+            // Example: if error is 18 out of 20 teeth, it's really just 2 teeth the other way
             error1 = Math.min(error1, TotalTeeth1 - error1);
             error2 = Math.min(error2, TotalTeeth2 - error2);
 
             double totalError = error1 + error2;
 
+            // Step 6: Keep track of the N value that gives us the smallest error
             if (totalError < bestError) {
                 bestError = totalError;
                 bestN = N;
             }
         }
 
-        // System.out.println(bestN);
+        // Step 7: Convert best teeth count back to big gear rotations and return
         return Rotation2d.fromRotations(bestN/BigGearTeeth);
     }
 
+    /**
+     * Runs a series of automated tests to verify the correctness of the Chinese Remainder Theorem implementation.
+     * Tests various angles using 11-tooth and 13-tooth gears with a 100-tooth main gear.
+     * 
+     * The test cases use coprime gear ratios (11 and 13) to ensure unambiguous solutions.
+     * Each test simulates encoder readings for a known angle and verifies that the algorithm
+     * can correctly reconstruct the original angle.
+     */
     public static void runTests() {
         // AI generated tests for Chinese Remainder Theorem implementation. Good enough for sanity checking.
         // All tests use 11-tooth and 13-tooth gears (coprime for unambiguous solutions)
@@ -45,15 +90,28 @@ public class ChineseRemainder {
 
     }
 
+    /**
+     * Tests the Chinese Remainder algorithm with a specific angle configuration.
+     * Simulates encoder readings for a known big gear angle and verifies that the algorithm
+     * can correctly reconstruct the original angle.
+     * 
+     * @param bigNAngle The known angle of the big gear to test with
+     * @param bigNTeeth The number of teeth on the big gear
+     * @param gear1teeth The number of teeth on the first encoder gear
+     * @param gear2teeth The number of teeth on the second encoder gear
+     */
     // Main gear 100 teeth
     public static void testOverallAngle(Rotation2d bigNAngle, int bigNTeeth, int gear1teeth, int gear2teeth) {
+        // Calculate what the encoder readings should be for the given big gear angle
         double gear1remainder = (bigNAngle.getRotations() * bigNTeeth) % gear1teeth;
         double gear2remainder = (bigNAngle.getRotations() * bigNTeeth) % gear2teeth;
 
+        // Use the algorithm to reconstruct the angle from the simulated encoder readings
         Rotation2d teeth = ChineseRemainder.FindAngle(
                 Rotation2d.fromRotations(gear1remainder / gear1teeth), gear1teeth,
                 Rotation2d.fromRotations(gear2remainder / gear2teeth), gear2teeth, bigNTeeth);
 
+        // Output the results for verification
         System.out.println("Result: " + teeth.getDegrees() + " degrees");
         System.out.println("Expected:" + bigNAngle.getDegrees() + "degrees");
     }
