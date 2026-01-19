@@ -38,37 +38,28 @@ public class ChineseRemainder {
 
         // Step 2: Try different values of N (total teeth rotated on big gear) and find which fits both encoders best
         // We search from 0 to BigGearTeeth because after that, positions repeat (one full rotation)
-        int searchLimit = bigGearTeeth;
-        double stepSize = 0.01;
+        int searchLimit = totalTeeth1 * totalTeeth2;
 
-        for (double N = 0; N < searchLimit; N += stepSize) {
-            // Step 3: For this candidate N, calculate what each encoder SHOULD read
-            // Use modulo (%) because encoders reset after their gear makes full rotations
-            double predictedTeeth1 = N % totalTeeth1;  // What encoder 1 should see
-            double predictedTeeth2 = N % totalTeeth2;  // What encoder 2 should see
-            double actualTeeth1 = rotatedTeeth1 % totalTeeth1;  // What encoder 1 actually sees
-            double actualTeeth2 = rotatedTeeth2 % totalTeeth2;  // What encoder 2 actually sees
+        for (double I = 0; I < searchLimit; I += 1) {
+            double teeth1Guess = I * totalTeeth1 + rotatedTeeth1;  // What encoder 1 should see
 
+            double teeth2ExpectedWithCurrentGuess = teeth1Guess % totalTeeth2; // What encoder 2 should see based on encoder 1's guess
             // Step 4: Calculate how far off our prediction is from reality
-            double error1 = Math.abs(predictedTeeth1 - actualTeeth1);
-            double error2 = Math.abs(predictedTeeth2 - actualTeeth2);
+            double error = Math.abs(rotatedTeeth2 - teeth2ExpectedWithCurrentGuess);
 
             // Step 5: Account for "wraparound" - sometimes the shorter path is going backwards
             // Example: if error is 18 out of 20 teeth, it's really just 2 teeth the other way
-            error1 = Math.min(error1, totalTeeth1 - error1);
-            error2 = Math.min(error2, totalTeeth2 - error2);
-
-            double totalError = error1 + error2;
+            double totalError = Math.min(error, totalTeeth2 - error);
 
             // Step 6: Keep track of the N value that gives us the smallest error
             if (totalError < bestError) {
                 bestError = totalError;
-                bestN = N;
+                bestN = I;
             }
         }
 
         // Step 7: Convert best teeth count back to big gear rotations and return
-        return Rotation2d.fromRotations(bestN/bigGearTeeth);
+        return Rotation2d.fromRotations((bestN*totalTeeth1 + rotatedTeeth1) / bigGearTeeth);
     }
 
     /**
