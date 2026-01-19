@@ -12,11 +12,18 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Filesystem;
 
+/**
+ * Manages ballistic lookup tables for shooter parameters.
+ * Provides interpolation between data points for smooth shooter control.
+ */
 public class ShooterLookupTable { 
+  private static final String LOOKUP_TABLE_DIRECTORY = "lookupTables/";
+  private static final String LOOKUP_TABLE_EXTENSION = ".lookupTable";
+
   private final TreeMap<Double, ShootValue> m_lookupTable;
 
   public ShooterLookupTable(String path) {
-    m_lookupTable = loadJSONFromPath(path);
+    m_lookupTable = loadLookupTableFromFile(path);
   }
 
   /**
@@ -85,18 +92,15 @@ public class ShooterLookupTable {
    * Loads a shooter lookup table from a file in the deploy/lookupTables/ directory.
    * 
    * File format: Distance(Inches)/RPM/HoodAngle(Degrees), newline-separated entries using "/" as delimiter.
-   * File extension is ".lookupTable".
    * 
    * @param fileName The name of the file (without extension) located in deploy/lookupTables/
-   * @return A TreeMap<Double, ShootValue> representing the loaded lookup table, or null if an error occurs
+   * @return A TreeMap representing the loaded lookup table, or null if an error occurs
    */
-  public TreeMap<Double, ShootValue> loadJSONFromPath(String fileName) {
-    Filesystem.getDeployDirectory();
-
+  private TreeMap<Double, ShootValue> loadLookupTableFromFile(String fileName) {
     try (BufferedReader br = new BufferedReader(
         new FileReader(
             new File(
-                Filesystem.getDeployDirectory(), "lookupTables/" + fileName + ".lookupTable")))) {
+                Filesystem.getDeployDirectory(), LOOKUP_TABLE_DIRECTORY + fileName + LOOKUP_TABLE_EXTENSION)))) {
       StringBuilder fileContentBuilder = new StringBuilder();
       String line;
       while ((line = br.readLine()) != null) {
@@ -105,7 +109,8 @@ public class ShooterLookupTable {
 
       String fileContent = fileContentBuilder.toString();
 
-      String separator = "/"; // Can change to another separator in the file as desired. I picked "/" as it visually separates the values well.
+      // Separator between values in each line (Distance/RPM/HoodAngle)
+      String separator = "/";
 
       TreeMap<Double, ShootValue> parsedTable = new TreeMap<>();
       

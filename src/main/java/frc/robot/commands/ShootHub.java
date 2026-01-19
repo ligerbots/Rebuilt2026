@@ -10,7 +10,10 @@ import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.ShooterFeeder;
 import frc.robot.subsystems.Turret;
 
-/* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
+/**
+ * Command that coordinates shooting at the hub target.
+ * Manages turret aiming, shooter spin-up, and feeder activation.
+ */
 public class ShootHub extends Command {
   // Tolerance values for comparing actual vs target values
   private static final Rotation2d TURRET_ANGLE_TOLERANCE = Rotation2d.fromDegrees(2.0);
@@ -36,40 +39,27 @@ public class ShootHub extends Command {
     m_shooter.setShootType(Shooter.ShootType.HUB_SHOT);
   }
 
-  /**
-   * Called every time the scheduler runs while the command is scheduled.
-   * Executes the three-phase shooting logic:
-   * Phase 1: Get distance and angle to target, retrieve shoot values from lookup table
-   * Phase 2: Set turret angle, shooter speed, and hood angle
-   * Phase 3: If all values are within tolerance, run the feeder
-   */
   @Override
   public void execute() {
-    // Phase 1: Calculate distance to target and send to shooter subsystem
+    // Calculate distance and angle to target, send to shooter and turret subsystems
     double distanceToTarget = getDistanceToTarget();
     m_shooter.setDistanceToTarget(distanceToTarget);
 
     Rotation2d angleToTarget = getAngleToTarget();
     m_turret.set(angleToTarget);
 
-    // Phase 3: Check if all subsystems are at target values before running feeder
+    // Run feeder only when shooter and turret are ready
     if (m_shooter.getCurrentState() == Shooter.ShooterState.READY_TO_SHOOT && isTurretAtTarget()) {
       m_feeder.setRPM(FEEDER_RPM_FOR_SHOOTING);
     }
   }
 
-  /**
-   * Called once the command ends or is interrupted.
-   * Stops all shooter subsystems.
-   */
   @Override
   public void end(boolean interrupted) {
-    // Stop all shooter-related subsystems
     m_shooter.stop();
   }
 
-  // Returns true when the command should end.
-  // TODO: Figure out when to end being location & fuel dependent
+  // TODO: Figure out when to end based on location & fuel state
   @Override
   public boolean isFinished() {
     return false;
