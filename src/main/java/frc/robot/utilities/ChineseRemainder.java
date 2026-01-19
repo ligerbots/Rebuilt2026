@@ -33,10 +33,10 @@ public class ChineseRemainder {
         // Search for best fit using encoder 1 as primary reference
         int searchLimit1 = totalTeeth2;
 
-        double teeth1Guess = -totalTeeth1 + rotatedTeeth1;
+        double teeth1Guess = rotatedTeeth1;
 
         for (double i = 0; i < searchLimit1; i += 1) {
-            teeth1Guess += totalTeeth1;
+            
 
             double teeth2ExpectedWithCurrentGuess = teeth1Guess % totalTeeth2;
             double error = Math.abs(rotatedTeeth2 - teeth2ExpectedWithCurrentGuess);
@@ -48,6 +48,7 @@ public class ChineseRemainder {
                 bestError1 = totalError;
                 bestN1 = i;
             }
+            teeth1Guess += totalTeeth1;
         }
 
         // Repeat search using encoder 2 as primary reference
@@ -55,10 +56,10 @@ public class ChineseRemainder {
         double bestError2 = Double.MAX_VALUE;
         int searchLimit2 = totalTeeth1;
         
-        double teeth2Guess = -totalTeeth2 + rotatedTeeth2;
+        double teeth2Guess = rotatedTeeth2;
 
         for (double i = 0; i < searchLimit2; i += 1) {
-            teeth2Guess += totalTeeth2;
+            
 
             double teeth1ExpectedWithCurrentGuess = teeth2Guess % totalTeeth1;
             double error = Math.abs(rotatedTeeth1 - teeth1ExpectedWithCurrentGuess);
@@ -69,6 +70,7 @@ public class ChineseRemainder {
                 bestError2 = totalError;
                 bestN2 = i;
             }
+            teeth2Guess += totalTeeth2;
         }
 
         return Rotation2d.fromRotations(
