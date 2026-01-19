@@ -153,14 +153,6 @@ public class ClimberArms extends SubsystemBase {
     private void setRotation(double rotation, TalonFX motor, int slotNumber) {
         motor.setControl(new MotionMagicVoltage(rotation).withSlot(slotNumber));
     }
-
-    private double distanceToRotation(double distance){
-        return distance * ROTATIONS_TO_INCHES;
-    }
-
-    private double rotationToDistance(double rotation){
-        return rotation / ROTATIONS_TO_INCHES;
-    }
     
     public double getCurrentRotation(motorSelection selectedMotor){
         if (selectedMotor == motorSelection.LEFT) {
@@ -190,5 +182,13 @@ public class ClimberArms extends SubsystemBase {
             return m_currentRotation_R == m_goalRotation_R;
         }
         
+    }
+    
+    private double distanceToRotation(double distance){
+        return distance * ROTATIONS_TO_INCHES;
+    }
+
+    private double rotationToDistance(double rotation){
+        return rotation / ROTATIONS_TO_INCHES;
     }
 }
