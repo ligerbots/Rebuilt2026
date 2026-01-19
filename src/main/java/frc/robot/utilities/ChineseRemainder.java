@@ -40,7 +40,7 @@ public class ChineseRemainder {
 
         // Step 2: Try different values of N (total teeth rotated on big gear) and find which fits both encoders best
         // We search from 0 to BigGearTeeth because after that, positions repeat (one full rotation)
-        int searchLimit = totalTeeth1 * totalTeeth2;
+        int searchLimit = totalTeeth2;
 
         for (double I = 0; I < searchLimit; I += 1) {
             double teeth1Guess = I * totalTeeth1 + rotatedTeeth1;  // What encoder 1 should see
