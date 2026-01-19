@@ -231,16 +231,16 @@ Use `periodic()` for:
 
 * NetworkTable variables should typically be named in a "subdirectory" which is named after the subsystem. So NT variables for the drivetrain should be under /SmartDashboard/drivetrain/. Examples:   
   * /SmartDashboard/shooter/RPM  
-  * /SmartDashboard/vision/target\_info  
+  * /SmartDashboard/vision/target_info  
 * Subsystems should be where "permanent" variables are stored, unless they are clearly not part of a subsystem. So if a variable needs to be remembered between commands, it should be put in the appropriate subsystem, not in the main Robot class, where reasonable.  
 * The subsystems' "periodic()" methods should be used for functionality which needs to be called every cycle that is related to the subsystem, as opposed to the Robot periodic methods. For example, updating SmartDashboard variables should be in their subsystem's periodic() method.
 
 # Constants
 
-* In Java, constants should be declared "static final" and generally should be all uppercase with "\_" separators:  eg  CLAW\_MOTOR\_CAN\_ID  
+* In Java, constants should be declared "static final" and generally should be all uppercase with "_" separators:  eg  CLAW_MOTOR_CAN_ID  
 * WPILib convention is to put constants into Constants.java in the top level (same level as Robot.java).  
 * However, constants which are specifically related to a Subsystem should be put into that subsystem. Examples:  
-  * DriveTrain.WHEELBASE\_METERS  
-    * Reacher.MAX\_LENGTH  
-  * Note: if the constant is in an appropriate class, you don't need to include the class name as part of the name. So, use "Reacher.MAX\_LENGTH" instead of "Reacher.REACHER\_MAX\_LENGTH".  
+  * DriveTrain.WHEELBASE_METERS  
+    * Reacher.MAX_LENGTH  
+  * Note: if the constant is in an appropriate class, you don't need to include the class name as part of the name. So, use "Reacher.MAX_LENGTH" instead of "Reacher.REACHER_MAX_LENGTH".  
 * **Exceptions**: Constants which need to have unique values across the whole robot should be in Constants.java. A specific example is CAN IDs.
