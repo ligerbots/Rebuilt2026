@@ -13,8 +13,6 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
-import com.ctre.phoenix6.configs.MotorOutputConfigs;
-import com.ctre.phoenix6.signals.InvertedValue;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import frc.robot.Constants;
@@ -25,7 +23,10 @@ public class IntakeRoller extends SubsystemBase {
 
   //need to calibrate the P value for the velocity loop, start small and increase until you get good response
   private static final double K_P = 3.0; 
-  private static final int CURRENT_LIMIT = 90;
+  private static final double SUPPLY_CURRENT_LIMIT = 40;
+  private static final double STATOR_CURRENT_LIMIT = 60;
+
+  private static final double K_FF = 0.0015; //TODO find new constant
 
   private double m_goalRPM;
   
@@ -40,16 +41,13 @@ public class IntakeRoller extends SubsystemBase {
     slot0configs.kD = 0.0;
 
     CurrentLimitsConfigs currentLimits = new CurrentLimitsConfigs()
-            .withSupplyCurrentLimit(CURRENT_LIMIT)
-            .withStatorCurrentLimit(CURRENT_LIMIT);
+            .withSupplyCurrentLimit(SUPPLY_CURRENT_LIMIT)
+            .withStatorCurrentLimit(STATOR_CURRENT_LIMIT);
     m_talonFXConfigs.withCurrentLimits(currentLimits);
 
     // enable brake mode (after main config)
     m_motor.getConfigurator().apply(m_talonFXConfigs);
     m_motor.setNeutralMode(NeutralModeValue.Brake);
-
-    MotorOutputConfigs m_motor = new MotorOutputConfigs();
-    m_motor.Inverted = InvertedValue.Clockwise_Positive;
   }
 
   @Override
@@ -62,19 +60,16 @@ public class IntakeRoller extends SubsystemBase {
     return m_motor.getVelocity().getValueAsDouble() * 60; //convert rps to rpm
   }
 
-  public void run(double rpm){
+  public void setRPM(double rpm){
     m_goalRPM = rpm;
-
-    // create a velocity closed-loop request, voltage output, slot 0 configs
-    final VelocityVoltage m_request = new VelocityVoltage(0).withSlot(0);
-
     double rps = m_goalRPM / 60; //convert rpm to rps
 
-    // set velocity to 8 rps, add 0.5 V to overcome gravity
-    m_motor.setControl(m_request.withVelocity(rps).withFeedForward(0.5));
+    final VelocityVoltage m_request = new VelocityVoltage(rps).withFeedForward(K_FF * rpm);
+
+    m_motor.setControl(m_request);
   }
 
   public void stop(){
-    m_motor.set(0);
+    setRPM(0);
   }
 }
