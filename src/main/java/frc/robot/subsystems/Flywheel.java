@@ -37,7 +37,7 @@ public class Flywheel extends SubsystemBase {
   public Flywheel() {
     TalonFXConfiguration talonFXConfigs = new TalonFXConfiguration();  
 
-    m_motor = new TalonFX(Constants.INTAKE_CAN_ID);
+    m_motor = new TalonFX(Constants.FLYWHEEL_CAN_ID);
     Slot0Configs slot0configs = talonFXConfigs.Slot0;
     slot0configs.kP = K_P;  // start small!!!
     slot0configs.kI = 0.0;
@@ -72,6 +72,6 @@ public class Flywheel extends SubsystemBase {
   }
 
   public void stop(){
-    m_motor.set(0);
+    setRPM(0);
   }
 }
