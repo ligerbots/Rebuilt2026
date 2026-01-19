@@ -16,8 +16,8 @@ public class ShootHub extends Command {
   private final Shooter m_shooter;
 
   public ShootHub(Shooter shooter) {
+    //TODO: Implement turret subsystem & drivetrain to get current robot pose.
     // Use addRequirements() here to declare subsystem dependencies.
-    // TODO: Add actual implementations to set turret angle, shooter speed, and hood angle
     addRequirements(shooter);
 
     m_shooter = shooter;
@@ -37,7 +37,7 @@ public class ShootHub extends Command {
    */
   @Override
   public void execute() {
-    // Phase 1: Calculate distance to target and retrieve ballistic data
+    // Phase 1: Calculate distance to target and send to shooter subsystem
     double distanceToTarget = getDistanceToTarget();
     m_shooter.setDistanceToTarget(distanceToTarget);
 
