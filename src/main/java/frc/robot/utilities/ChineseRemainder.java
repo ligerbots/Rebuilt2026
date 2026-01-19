@@ -78,7 +78,7 @@ public class ChineseRemainder {
         testOverallAngle(Rotation2d.fromDegrees(90.0), 100, 11, 13);
         testOverallAngle(Rotation2d.fromDegrees(180.0), 100, 11, 13);
         testOverallAngle(Rotation2d.fromDegrees(270.0), 100, 11, 13);
-
+        testOverallAngle(Rotation2d.fromDegrees(385.0), 100, 11, 13);
     }
 
     /**
