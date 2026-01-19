@@ -70,6 +70,6 @@ public class IntakeRoller extends SubsystemBase {
   }
 
   public void stop(){
-    m_motor.set(0);
+    setRPM(0);
   }
 }
