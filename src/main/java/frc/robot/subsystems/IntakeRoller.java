@@ -23,7 +23,8 @@ public class IntakeRoller extends SubsystemBase {
 
   //need to calibrate the P value for the velocity loop, start small and increase until you get good response
   private static final double K_P = 3.0; 
-  private static final int CURRENT_LIMIT = 90;
+  private static final double SUPPLY_CURRENT_LIMIT = 40;
+  private static final double STATOR_CURRENT_LIMIT = 60;
 
   private static final double K_FF = 0.0015; //TODO find new constant
 
@@ -40,8 +41,8 @@ public class IntakeRoller extends SubsystemBase {
     slot0configs.kD = 0.0;
 
     CurrentLimitsConfigs currentLimits = new CurrentLimitsConfigs()
-            .withSupplyCurrentLimit(CURRENT_LIMIT)
-            .withStatorCurrentLimit(CURRENT_LIMIT);
+            .withSupplyCurrentLimit(SUPPLY_CURRENT_LIMIT)
+            .withStatorCurrentLimit(STATOR_CURRENT_LIMIT);
     m_talonFXConfigs.withCurrentLimits(currentLimits);
 
     // enable brake mode (after main config)
