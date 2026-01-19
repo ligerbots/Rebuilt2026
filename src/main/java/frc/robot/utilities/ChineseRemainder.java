@@ -35,7 +35,7 @@ public class ChineseRemainder {
 
         double teeth1Guess = -totalTeeth1 + rotatedTeeth1;
 
-        for (double I = 0; I < searchLimit1; I += 1) {
+        for (double i = 0; i < searchLimit1; i += 1) {
             teeth1Guess += totalTeeth1;
 
             double teeth2ExpectedWithCurrentGuess = teeth1Guess % totalTeeth2;
@@ -46,7 +46,7 @@ public class ChineseRemainder {
 
             if (totalError < bestError1) {
                 bestError1 = totalError;
-                bestN1 = I;
+                bestN1 = i;
             }
         }
 
@@ -57,7 +57,7 @@ public class ChineseRemainder {
         
         double teeth2Guess = -totalTeeth2 + rotatedTeeth2;
 
-        for (double I = 0; I < searchLimit2; I += 1) {
+        for (double i = 0; i < searchLimit2; i += 1) {
             teeth2Guess += totalTeeth2;
 
             double teeth1ExpectedWithCurrentGuess = teeth2Guess % totalTeeth1;
@@ -67,7 +67,7 @@ public class ChineseRemainder {
             double totalError = Math.min(error, totalTeeth1 - error);
             if (totalError < bestError2) {
                 bestError2 = totalError;
-                bestN2 = I;
+                bestN2 = i;
             }
         }
 
