@@ -17,24 +17,24 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import frc.robot.Constants;
 
-public class IntakeRoller extends SubsystemBase {
+public class ShooterFeeder extends SubsystemBase {
   
   private final TalonFX m_motor;
 
   //need to calibrate the P value for the velocity loop, start small and increase until you get good response
   private static final double K_P = 3.0; 
+  private static final double K_FF = 0.0015; //TODO find new constant
+
   private static final double SUPPLY_CURRENT_LIMIT = 40;
   private static final double STATOR_CURRENT_LIMIT = 60;
 
-  private static final double K_FF = 0.0015; //TODO find new constant
-
   private double m_goalRPM;
   
-  //Creates a new IntakeWheel
-  public IntakeRoller() {
+  //Creates a new ShooterFeeder
+  public ShooterFeeder() {
     TalonFXConfiguration m_talonFXConfigs = new TalonFXConfiguration();  
 
-    m_motor = new TalonFX(Constants.INTAKE_ROLLER_CAN_ID);
+    m_motor = new TalonFX(Constants.SHOOTER_FEEDER_CAN_ID);
     Slot0Configs slot0configs = m_talonFXConfigs.Slot0;
     slot0configs.kP = K_P;  // start small!!!
     slot0configs.kI = 0.0;
@@ -52,8 +52,8 @@ public class IntakeRoller extends SubsystemBase {
 
   @Override
   public void periodic() {
-    SmartDashboard.putNumber("intake/currentRPM", getRPM()); 
-    SmartDashboard.putNumber("intake/goalRPM", m_goalRPM);
+    SmartDashboard.putNumber("shooterFeeder/currentRPM", getRPM()); 
+    SmartDashboard.putNumber("shooterFeeder/goalRPM", m_goalRPM);
   }
 
   public double getRPM(){
