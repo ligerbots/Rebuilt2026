@@ -8,6 +8,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
@@ -32,23 +33,20 @@ public class Hood extends SubsystemBase {
 
   /** Creates a new Hood. */
   public Hood() {
-    m_hoodMotor = new TalonFX(0); // FIXME change 0 to Constants.java value
+    m_hoodMotor = new TalonFX(Constants.HOOD_CAN_ID);
 
-    // set config to factory default
-    
-        
     TalonFXConfiguration talonFXConfigs = new TalonFXConfiguration();
 
     talonFXConfigs.CurrentLimits.SupplyCurrentLimit = SUPPLY_CURRENT_LIMIT;
     talonFXConfigs.CurrentLimits.StatorCurrentLimit = STATOR_CURRENT_LIMIT;
-    
+
     Slot0Configs slot0configs = talonFXConfigs.Slot0;
     slot0configs.kP = K_P;
     slot0configs.kI = 0.0;
     slot0configs.kD = 0.0;
 
     MotionMagicConfigs magicConfigs = talonFXConfigs.MotionMagic;
-        
+
     magicConfigs.MotionMagicCruiseVelocity = MAX_VEL_RAD_PER_SEC;
     magicConfigs.MotionMagicAcceleration = MAX_ACC_RAD_PER_SEC;
 
@@ -60,17 +58,16 @@ public class Hood extends SubsystemBase {
   public void periodic() {
     // This method will be called once per scheduler run
     SmartDashboard.putNumber("hood/goalAngle", m_goal.getDegrees());
-    SmartDashboard.putNumber("hood/currentAngle", getPosition().getDegrees());
+    SmartDashboard.putNumber("hood/currentAngle", getAngle().getDegrees());
     SmartDashboard.putNumber("hood/rawMotorAngle",  m_hoodMotor.getPosition().getValueAsDouble());
-   
   }
 
-  public void set(Rotation2d angle) {
+  public void setAngle(Rotation2d angle) {
     m_goal = angle;
     m_hoodMotor.setControl(new MotionMagicVoltage(m_goal.getRotations()));
   }
 
-  public Rotation2d getPosition(){
+  public Rotation2d getAngle(){
     return Rotation2d.fromRotations(m_hoodMotor.getPosition().getValueAsDouble());
   }
 }

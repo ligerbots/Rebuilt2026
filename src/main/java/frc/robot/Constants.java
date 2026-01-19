@@ -3,6 +3,7 @@ package frc.robot;
 public class Constants {
     public static final int FLYWHEEL_CAN_ID = 9;
     public static final int INTAKE_ROLLER_CAN_ID = 17;
+    public static final int HOOD_CAN_ID = 11;
 
     // NOTE: TalonFX motors (all Krakens and Falcons) share the same ID space, so CANNOT repeat
     // CAN ID 1-8 for Talons are for the Swerve motors

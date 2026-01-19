@@ -34,7 +34,7 @@ public class Shooter extends SubsystemBase {
   private double m_targetDistanceMeters = 0.0;
 
   private Hood m_hood;
-  // private Flywheel m_flywheel;
+  private Flywheel m_flywheel;
 
   /**
    * Constructs a Shooter subsystem with lookup tables for hub and shuttle shooting.
@@ -47,7 +47,7 @@ public class Shooter extends SubsystemBase {
     m_shuttleShooterLookupTable = new ShooterLookupTable(shuttleLookupTableFileName);
 
     m_hood = new Hood();
-    // m_flywheel = new Flywheel();
+    m_flywheel = new Flywheel();
   }
 
   @Override
@@ -59,8 +59,8 @@ public class Shooter extends SubsystemBase {
     if (m_currentState == ShooterState.IDLE) {
       return;
     }
-    // Phase 1: Calculate distance to target and retrieve ballistic data
 
+    // Phase 1: Calculate distance to target and retrieve shooter hood angle and speed from shot type.
     ShooterLookupTable.ShootValue shootValues;
     if (m_shootType == ShootType.HUB_SHOT) {
       shootValues = m_hubShooterLookupTable.getShootValues(m_targetDistanceMeters);
@@ -74,11 +74,11 @@ public class Shooter extends SubsystemBase {
     }
 
     // Phase 2: Set shooter speed, and hood angle
-    setShooterSpeed(shootValues.m_rpm);
-    setHoodAngle(shootValues.m_hoodAngle);
+    m_flywheel.setRPM(shootValues.m_rpm);
+    m_hood.setAngle(shootValues.m_hoodAngle);
 
     // Phase 3: Check if all subsystems are at target values before running feeder
-    if (isShooterAtTarget(shootValues.m_rpm) &&
+    if (isFlywheelAtTarget(shootValues.m_rpm) &&
       isHoodAtTarget(shootValues.m_hoodAngle)) {
         m_currentState = ShooterState.READY_TO_SHOOT;
     } else {
@@ -91,11 +91,9 @@ public class Shooter extends SubsystemBase {
    */
   public void stop() {
     m_currentState = ShooterState.IDLE;
-    setShooterSpeed(0.0);
-    setHoodAngle(Rotation2d.fromDegrees(0));
+    m_flywheel.stop();
+    m_hood.setAngle(Rotation2d.fromDegrees(0));
   }
-
-
 
   /**
    * Sets the target distance for the shooter to use when calculating ballistic parameters.
@@ -107,34 +105,13 @@ public class Shooter extends SubsystemBase {
   }
 
   /**
-   * Sets the shooter motor to a specific RPM.
-   * 
-   * @param speed The target RPM for the shooter motor
-   */
-  private void setShooterSpeed(double speed) {
-    // TODO: Implementation to set the shooter speed via shooter subsystem
-    // This should command the shooter motor to spin at the target RPM
-  }
-
-  /**
-   * Sets the hood to a specific angle.
-   * 
-   * @param angle The target angle as a Rotation2d object
-   */
-  private void setHoodAngle(Rotation2d angle) {
-    m_hood.set(angle);
-  }
-
-  /**
    * Checks if the shooter is at the target RPM within tolerance.
    * 
    * @param targetRpm The target shooter RPM
    * @return true if shooter is within tolerance, false otherwise
    */
-  private boolean isShooterAtTarget(double targetRpm) {
-    // TODO: Get current shooter RPM from shooter subsystem and compare
-    // return Math.abs(currentShooterRpm - targetRpm) < SHOOTER_SPEED_TOLERANCE_RPM;
-    return false;
+  private boolean isFlywheelAtTarget(double targetRpm) {
+    return Math.abs(m_flywheel.getRPM() - targetRpm) < SHOOTER_SPEED_TOLERANCE_RPM;
   }
 
   /**
@@ -144,7 +121,7 @@ public class Shooter extends SubsystemBase {
    * @return true if hood is within tolerance, false otherwise
    */
   private boolean isHoodAtTarget(Rotation2d targetAngle) {
-    Rotation2d currentHoodAngle = m_hood.getPosition();
+    Rotation2d currentHoodAngle = m_hood.getAngle();
     return Math.abs(currentHoodAngle.minus(targetAngle).getRadians()) < HOOD_ANGLE_TOLERANCE.getRadians();
   }
 
