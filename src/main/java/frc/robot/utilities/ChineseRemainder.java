@@ -20,34 +20,34 @@ public class ChineseRemainder {
      * accounting for the modular arithmetic nature of gear systems. It uses a brute-force search with
      * fine step resolution to find the optimal solution.
      * 
-     * @param RotationsEnc1 The rotation reading from the first encoder (in rotations)
-     * @param TotalTeeth1 The total number of teeth that the first encoder sees per revolution of the big gear
-     * @param RotationsEnc2 The rotation reading from the second encoder (in rotations)  
-     * @param TotalTeeth2 The total number of teeth that the second encoder sees per revolution of the big gear
-     * @param BigGearTeeth The number of teeth on the large gear whose absolute position we want to determine
+     * @param rotationsEnc1 The rotation reading from the first encoder (in rotations)
+     * @param totalTeeth1 The total number of teeth that the first encoder sees per revolution of the big gear
+     * @param rotationsEnc2 The rotation reading from the second encoder (in rotations)  
+     * @param totalTeeth2 The total number of teeth that the second encoder sees per revolution of the big gear
+     * @param bigGearTeeth The number of teeth on the large gear whose absolute position we want to determine
      * @return The absolute angle of the large gear as a Rotation2d
      */
-    public static Rotation2d FindAngle(Rotation2d RotationsEnc1, int TotalTeeth1, Rotation2d RotationsEnc2, int TotalTeeth2, int BigGearTeeth) {
+    public static Rotation2d FindAngle(Rotation2d rotationsEnc1, int totalTeeth1, Rotation2d rotationsEnc2, int totalTeeth2, int bigGearTeeth) {
         // Step 1: Convert encoder rotations to "teeth passed by" for easier math
         // If encoder 1 rotated 0.5 times and sees 20 teeth per big gear rotation, then 10 teeth have passed
-        double RotatedTeeth1 = RotationsEnc1.getRotations() * TotalTeeth1;
-        double RotatedTeeth2 = RotationsEnc2.getRotations() * TotalTeeth2;
+        double rotatedTeeth1 = rotationsEnc1.getRotations() * totalTeeth1;
+        double rotatedTeeth2 = rotationsEnc2.getRotations() * totalTeeth2;
 
         double bestN = -1;
         double bestError = Double.MAX_VALUE;
 
         // Step 2: Try different values of N (total teeth rotated on big gear) and find which fits both encoders best
         // We search from 0 to BigGearTeeth because after that, positions repeat (one full rotation)
-        int searchLimit = BigGearTeeth;
+        int searchLimit = bigGearTeeth;
         double stepSize = 0.01;
 
         for (double N = 0; N < searchLimit; N += stepSize) {
             // Step 3: For this candidate N, calculate what each encoder SHOULD read
             // Use modulo (%) because encoders reset after their gear makes full rotations
-            double predictedTeeth1 = N % TotalTeeth1;  // What encoder 1 should see
-            double predictedTeeth2 = N % TotalTeeth2;  // What encoder 2 should see
-            double actualTeeth1 = RotatedTeeth1 % TotalTeeth1;  // What encoder 1 actually sees
-            double actualTeeth2 = RotatedTeeth2 % TotalTeeth2;  // What encoder 2 actually sees
+            double predictedTeeth1 = N % totalTeeth1;  // What encoder 1 should see
+            double predictedTeeth2 = N % totalTeeth2;  // What encoder 2 should see
+            double actualTeeth1 = rotatedTeeth1 % totalTeeth1;  // What encoder 1 actually sees
+            double actualTeeth2 = rotatedTeeth2 % totalTeeth2;  // What encoder 2 actually sees
 
             // Step 4: Calculate how far off our prediction is from reality
             double error1 = Math.abs(predictedTeeth1 - actualTeeth1);
@@ -55,8 +55,8 @@ public class ChineseRemainder {
 
             // Step 5: Account for "wraparound" - sometimes the shorter path is going backwards
             // Example: if error is 18 out of 20 teeth, it's really just 2 teeth the other way
-            error1 = Math.min(error1, TotalTeeth1 - error1);
-            error2 = Math.min(error2, TotalTeeth2 - error2);
+            error1 = Math.min(error1, totalTeeth1 - error1);
+            error2 = Math.min(error2, totalTeeth2 - error2);
 
             double totalError = error1 + error2;
 
@@ -68,7 +68,7 @@ public class ChineseRemainder {
         }
 
         // Step 7: Convert best teeth count back to big gear rotations and return
-        return Rotation2d.fromRotations(bestN/BigGearTeeth);
+        return Rotation2d.fromRotations(bestN/bigGearTeeth);
     }
 
     /**
