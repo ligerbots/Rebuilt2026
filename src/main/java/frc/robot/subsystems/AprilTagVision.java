@@ -41,7 +41,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import swervelib.SwerveDrive;
-import swervelib.telemetry.SwerveDriveTelemetry;
+import swervelib.telemetry.SwerveDsriveTelemetry;
+
+import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrain;
 
 public class AprilTagVision extends SubsystemBase {
     // variable to turn on/off our private tag layout
@@ -196,6 +198,38 @@ public class AprilTagVision extends SubsystemBase {
     }
 
     public void updateOdometry(SwerveDrive swerve) {
+
+        // Cannot do anything if there is no field layout
+        if (m_aprilTagFieldLayout == null)
+            return;
+
+        try {
+            // Since we want to go through the images twice, we need to fetch the results and save them
+            // getAllUnreadResults() forgets the results once called
+            for (Camera c : m_cameras) {
+                c.pipeResults = c.photonCamera.getAllUnreadResults();
+            }
+
+            m_odometryPoses.clear();
+            if (PLOT_VISIBLE_TAGS) {
+                plotVisibleTags(swerve.field);
+            }
+
+            // Do MultiTag
+            addVisionMeasurements(swerve, true);
+
+            // Do SingleTag
+            addVisionMeasurements(swerve, false);
+
+            if (PLOT_POSE_SOLUTIONS) {
+                plotVisionPoses(swerve.field, m_odometryPoses);
+            }
+        } catch (Exception e) {
+            DriverStation.reportError("Error updating odometry from AprilTags " + e.getLocalizedMessage(), false);
+        }
+    }
+
+    public void updateOdometryCTRESwerve(SwerveDrivetrain swerve) { // update odometry but for CTRE and not YAGSL
 
         // Cannot do anything if there is no field layout
         if (m_aprilTagFieldLayout == null)
