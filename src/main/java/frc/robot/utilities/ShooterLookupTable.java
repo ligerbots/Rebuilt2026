@@ -85,7 +85,7 @@ public class ShooterLookupTable {
    * Loads a shooter lookup table from a file in the deploy/lookupTables/ directory.
    * 
    * File format: Distance(Inches)/RPM/HoodAngle(Degrees), newline-separated entries using "/" as delimiter.
-   * File extension is ".evan".
+   * File extension is ".lookupTable".
    * 
    * @param fileName The name of the file (without extension) located in deploy/lookupTables/
    * @return A TreeMap<Double, ShootValue> representing the loaded lookup table, or null if an error occurs
@@ -96,7 +96,7 @@ public class ShooterLookupTable {
     try (BufferedReader br = new BufferedReader(
         new FileReader(
             new File(
-                Filesystem.getDeployDirectory(), "lookupTables/" + fileName + ".evan")))) {
+                Filesystem.getDeployDirectory(), "lookupTables/" + fileName + ".lookupTable")))) {
       StringBuilder fileContentBuilder = new StringBuilder();
       String line;
       while ((line = br.readLine()) != null) {
