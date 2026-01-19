@@ -42,8 +42,10 @@ public class ChineseRemainder {
         // We search from 0 to BigGearTeeth because after that, positions repeat (one full rotation)
         int searchLimit = totalTeeth2;
 
+        double teeth1Guess = -totalTeeth1 + rotatedTeeth1; // Account for first iteration adding totalTeeth1
+
         for (double I = 0; I < searchLimit; I += 1) {
-            double teeth1Guess = I * totalTeeth1 + rotatedTeeth1;  // What encoder 1 should see
+            teeth1Guess += totalTeeth1;  // What encoder 1 should see
 
             double teeth2ExpectedWithCurrentGuess = teeth1Guess % totalTeeth2; // What encoder 2 should see based on encoder 1's guess
             // Step 4: Calculate how far off our prediction is from reality
