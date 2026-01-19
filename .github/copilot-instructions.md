@@ -217,7 +217,7 @@ Use `periodic()` for:
   * e.g. motorSpeed, DriveTrain  
 * Class names should begin with a capital letter, e.g. Drivetrain, TurnAndShoot  
 * Method and variable names should begin with a lowercase letter.  
-* Use "m\_" prefix for class member variables. No prefix for local variables. This makes it very quick to tell what type of variable each is.  
+* Use "m_" prefix for class member variables. No prefix for local variables. This makes it very quick to tell what type of variable each is.  
 * Subsystem class names should be "nouns": Shooter, Drivetrain, etc.  
 * Command class names should typically be "verbs" or verb phrases: Drive, Shoot, TurnAndShoot.  
   * In most cases, don't include "Command" or "Subsystem" in these names. Redundant.
