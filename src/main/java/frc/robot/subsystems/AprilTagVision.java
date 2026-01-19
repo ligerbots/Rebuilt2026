@@ -20,6 +20,8 @@ import org.photonvision.simulation.VisionSystemSim;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
+import com.ctre.phoenix6.swerve.SwerveDrivetrain;
+
 // import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
@@ -43,7 +45,7 @@ import frc.robot.Constants;
 import swervelib.SwerveDrive;
 import swervelib.telemetry.SwerveDsriveTelemetry;
 
-import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrain;
+
 
 public class AprilTagVision extends SubsystemBase {
     // variable to turn on/off our private tag layout
@@ -53,7 +55,7 @@ public class AprilTagVision extends SubsystemBase {
     static final AprilTagFields APRILTAG_FIELD = AprilTagFields.k2025ReefscapeWelded;
     // static final AprilTagFields APRILTAG_FIELD = AprilTagFields.k2025ReefscapeAndyMark;
 
-    static private final String CUSTOM_FIELD = "2025-reefscape-andymark_custom.json";
+    static private final String CUSTOM_FIELD = "2025-reefscape-andymark_custom.json"; // TODO change to 2026
 
     // Use the multitag pose estimator
     static final PoseStrategy POSE_STRATEGY = PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR;
@@ -73,6 +75,8 @@ public class AprilTagVision extends SubsystemBase {
     static final Matrix<N3, N1> SINGLE_TAG_BASE_STDDEV = VecBuilder.fill(0.9, 0.9, 0.9);
     static final Matrix<N3, N1> MULTI_TAG_BASE_STDDEV = VecBuilder.fill(0.45, 0.45, 0.45);
     static final Matrix<N3, N1> INFINITE_STDDEV = VecBuilder.fill(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE);
+
+    private final Field2d m_field = new Field2d();
 
     private enum Cam {
         FRONT_RIGHT(0),
@@ -175,6 +179,9 @@ public class AprilTagVision extends SubsystemBase {
 
     @Override
     public void periodic() {
+
+        m_field.setRobotPose(swerve.getState().Pose);
+
         // set the driver mode to false
         // setDriverMode(false);
 
@@ -261,8 +268,8 @@ public class AprilTagVision extends SubsystemBase {
         }
     }
 
-    public void addVisionMeasurements(SwerveDrive swerve, boolean useMultiTag) {
-        Pose2d robotPose = swerve.getPose();
+    public void addVisionMeasurements(SwerveDrivetrain swerve, boolean useMultiTag) {
+        Pose2d robotPose = swerve.getState().Pose;
 
         for (Camera c : m_cameras) {
             try {
