@@ -133,4 +133,8 @@ public class Shooter extends SubsystemBase {
   public ShooterState getCurrentState() {
     return m_currentState;
   }
+
+  public void setShootType(ShootType shootType) {
+    m_shootType = shootType;
+  }
 }
