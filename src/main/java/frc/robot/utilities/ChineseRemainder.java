@@ -125,4 +125,9 @@ public class ChineseRemainder {
         System.out.println("Testing: " + bigNAngle.getDegrees() + " degrees with (" + gear1teeth + ","
                 + gear2teeth + "):   result = " + teeth.getDegrees() + " degrees");
     }
+
+    public static void main(String[] args) {
+
+        runTests();
+    }
 }
