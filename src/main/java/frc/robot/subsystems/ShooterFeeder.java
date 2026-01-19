@@ -32,10 +32,10 @@ public class ShooterFeeder extends SubsystemBase {
   
   //Creates a new ShooterFeeder
   public ShooterFeeder() {
-    TalonFXConfiguration m_talonFXConfigs = new TalonFXConfiguration();  
+    TalonFXConfiguration talonFXConfigs = new TalonFXConfiguration();  
 
     m_motor = new TalonFX(Constants.SHOOTER_FEEDER_CAN_ID);
-    Slot0Configs slot0configs = m_talonFXConfigs.Slot0;
+    Slot0Configs slot0configs = talonFXConfigs.Slot0;
     slot0configs.kP = K_P;  // start small!!!
     slot0configs.kI = 0.0;
     slot0configs.kD = 0.0;
@@ -43,10 +43,10 @@ public class ShooterFeeder extends SubsystemBase {
     CurrentLimitsConfigs currentLimits = new CurrentLimitsConfigs()
             .withSupplyCurrentLimit(SUPPLY_CURRENT_LIMIT)
             .withStatorCurrentLimit(STATOR_CURRENT_LIMIT);
-    m_talonFXConfigs.withCurrentLimits(currentLimits);
+    talonFXConfigs.withCurrentLimits(currentLimits);
 
     // enable brake mode (after main config)
-    m_motor.getConfigurator().apply(m_talonFXConfigs);
+    m_motor.getConfigurator().apply(talonFXConfigs);
     m_motor.setNeutralMode(NeutralModeValue.Brake);
   }
 
