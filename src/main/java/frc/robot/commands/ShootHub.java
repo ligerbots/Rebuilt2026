@@ -1,3 +1,14 @@
+// TODO List:
+// - Implement getting pose via drivetrain & applying offset for turret position on robot - In progress
+// - Implement hood adjustment with RPM error (Might not need to do it)
+// - Implement shuttle command (basically copy of this but with shuttle lookup table & changing shoot to target based off location)
+// 
+// 
+// 
+
+
+
+
 // Copyright (c) FIRST and other WPILib contributors.
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
@@ -5,7 +16,9 @@
 package frc.robot.commands;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.ShooterFeeder;
 import frc.robot.subsystems.Turret;
@@ -16,12 +29,13 @@ import frc.robot.subsystems.Turret;
  */
 public class ShootHub extends Command {
   // Tolerance values for comparing actual vs target values
-  private static final Rotation2d TURRET_ANGLE_TOLERANCE = Rotation2d.fromDegrees(2.0);
+  private static final Rotation2d TURRET_ANGLE_TOLERANCE = Rotation2d.fromDegrees(2.0); // TODO: Tune this value
   private static final double FEEDER_RPM_FOR_SHOOTING = 1500.0; // TODO: Tune this value
 
   private final Shooter m_shooter;
   private final Turret m_turret;
   private final ShooterFeeder m_feeder;
+  private CommandSwerveDrivetrain m_drivetrain;
 
   /**
    * Constructs a ShootHub command.
@@ -33,12 +47,13 @@ public class ShootHub extends Command {
    * @TODO Integrate vision subsystem or odometry provider to get robot position
    *       for distance/angle calculations to the hub target
    */
-  public ShootHub(Shooter shooter, Turret turret, ShooterFeeder feeder) {
+  public ShootHub(Shooter shooter, Turret turret, ShooterFeeder feeder, CommandSwerveDrivetrain drivetrain) {
     addRequirements(shooter, turret, feeder);
 
     m_turret = turret;
     m_shooter = shooter;
     m_feeder = feeder;
+    m_drivetrain = drivetrain;
   }
 
   // Called when the command is initially scheduled.
@@ -87,6 +102,11 @@ public class ShootHub extends Command {
   private Rotation2d getAngleToTarget() {
     // TODO: Get angle from vision subsystem or calculate from robot odometry and hub position
     return Rotation2d.fromDegrees(0);
+  }
+
+  private Translation2d getTurretPosition() {
+    // TODO: Go from global translation to robot to offset turret relitive to robot center (where pose is from) and then back to global pose now for the turret.
+    return m_drivetrain.getState().Pose.getTranslation();
   }
 
   /**
