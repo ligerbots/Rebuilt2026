@@ -1,5 +1,7 @@
 package frc.robot.utilities;
 
+import java.util.Random;
+
 import edu.wpi.first.math.geometry.Rotation2d;
 
 /**
@@ -74,11 +76,15 @@ public class ChineseRemainder {
         // AI generated tests for Chinese Remainder Theorem implementation. Good enough for sanity checking.
         // All tests use 11-tooth and 13-tooth gears (coprime for unambiguous solutions)
         testOverallAngle(Rotation2d.fromDegrees(10.0), 100, 11, 13);
-        testOverallAngle(Rotation2d.fromDegrees(45.0), 100, 11, 13);
-        testOverallAngle(Rotation2d.fromDegrees(90.0), 100, 11, 13);
+        testOverallAngle(Rotation2d.fromDegrees(45.0), 100, 13, 19);
+        testOverallAngle(Rotation2d.fromDegrees(90.35), 100, 11, 13);
         testOverallAngle(Rotation2d.fromDegrees(180.0), 100, 11, 13);
-        testOverallAngle(Rotation2d.fromDegrees(270.0), 100, 11, 13);
-        testOverallAngle(Rotation2d.fromDegrees(385.0), 100, 11, 13);
+        // test with some other ratios
+        testOverallAngle(Rotation2d.fromDegrees(385.87), 100, 11, 17);
+
+        // test with a little noise on the encoders
+        testOverallAngle(Rotation2d.fromDegrees(270.0), 100, 11, 13, 1.0);
+        testOverallAngle(Rotation2d.fromDegrees(157.5), 100, 11, 13, 1.0);
     }
 
     /**
@@ -93,17 +99,30 @@ public class ChineseRemainder {
      */
     // Main gear 100 teeth
     public static void testOverallAngle(Rotation2d bigNAngle, int bigNTeeth, int gear1teeth, int gear2teeth) {
+        testOverallAngle(bigNAngle, bigNTeeth, gear1teeth, gear2teeth, 0.0);
+    }
+    public static void testOverallAngle(Rotation2d bigNAngle, int bigNTeeth, int gear1teeth, int gear2teeth, double noiseDegrees) {
         // Calculate what the encoder readings should be for the given big gear angle
         double gear1remainder = (bigNAngle.getRotations() * bigNTeeth) % gear1teeth;
         double gear2remainder = (bigNAngle.getRotations() * bigNTeeth) % gear2teeth;
 
+        if (noiseDegrees > 0.0) {
+            // could always do this, but saves some printing; cleaner output
+            Random random = new Random();
+            double error = random.nextGaussian(0.0, noiseDegrees) / 360.0 * gear1teeth;
+            System.out.println("Gear 1: " + gear1remainder + " + " + error);
+            gear1remainder += error;
+            error = random.nextGaussian(0.0, noiseDegrees) / 360.0 * gear2teeth;
+            System.out.println("Gear 2: " + gear2remainder + " + " + error);
+            gear2remainder += error;
+        }
         // Use the algorithm to reconstruct the angle from the simulated encoder readings
         Rotation2d teeth = ChineseRemainder.FindAngle(
                 Rotation2d.fromRotations(gear1remainder / gear1teeth), gear1teeth,
                 Rotation2d.fromRotations(gear2remainder / gear2teeth), gear2teeth, bigNTeeth);
 
         // Output the results for verification
-        System.out.println("Result: " + teeth.getDegrees() + " degrees");
-        System.out.println("Expected:" + bigNAngle.getDegrees() + "degrees");
+        System.out.println("Testing: " + bigNAngle.getDegrees() + " degrees with (" + gear1teeth + ","
+                + gear2teeth + "):   result = " + teeth.getDegrees() + " degrees");
     }
 }

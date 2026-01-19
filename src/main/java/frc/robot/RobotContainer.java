@@ -12,7 +12,7 @@ import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -45,13 +45,10 @@ public class RobotContainer {
     public final AprilTagVision m_aprilTagVision = new AprilTagVision();
     
     public RobotContainer() {
+        if (Robot.isSimulation()) {
+            DriverStation.silenceJoystickConnectionWarning(true);
+        }
         
-        m_drivetrain = new CommandSwerveDrivetrain(
-            m_aprilTagVision,
-            TunerConstants.DrivetrainConstants,
-            TunerConstants.FrontLeft, TunerConstants.FrontRight, TunerConstants.BackLeft, TunerConstants.BackRight
-        );
-
         configureBindings();
     }
 
