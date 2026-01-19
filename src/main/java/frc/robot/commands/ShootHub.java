@@ -23,9 +23,17 @@ public class ShootHub extends Command {
   private final Turret m_turret;
   private final ShooterFeeder m_feeder;
 
+  /**
+   * Constructs a ShootHub command.
+   * 
+   * @param shooter The shooter subsystem for managing flywheel and hood
+   * @param turret The turret subsystem for aiming at the hub
+   * @param feeder The feeder subsystem for feeding game pieces
+   * 
+   * @TODO Integrate vision subsystem or odometry provider to get robot position
+   *       for distance/angle calculations to the hub target
+   */
   public ShootHub(Shooter shooter, Turret turret, ShooterFeeder feeder) {
-    //TODO: Implement drivetrain to get current robot pose or require a supplier.
-    // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(shooter, turret, feeder);
 
     m_turret = turret;
@@ -59,18 +67,26 @@ public class ShootHub extends Command {
     m_shooter.stop();
   }
 
-  // TODO: Figure out when to end based on location & fuel state
+  /**
+   * Determines when the shoot command should end.
+   * 
+   * @return true when the command should terminate (currently stubbed)
+   * 
+   * TODO Define end condition: either when all game pieces are shot, when robot leaves shooting zone, or when match time expires
+   */
   @Override
   public boolean isFinished() {
     return false;
   }
 
   private double getDistanceToTarget() {
-    return 0.0; // TODO: Implementation to get distance to target
+    // TODO: Get distance from vision subsystem or calculate from robot odometry
+    return 0.0;
   }
 
   private Rotation2d getAngleToTarget() {
-    return Rotation2d.fromDegrees(0); // TODO: Implementation to get angle to target
+    // TODO: Get angle from vision subsystem or calculate from robot odometry and hub position
+    return Rotation2d.fromDegrees(0);
   }
 
   /**
