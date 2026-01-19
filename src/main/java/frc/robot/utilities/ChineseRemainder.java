@@ -29,7 +29,7 @@ public class ChineseRemainder {
      * @param bigGearTeeth The number of teeth on the large gear whose absolute position we want to determine
      * @return The absolute angle of the large gear as a Rotation2d
      */
-    public static Rotation2d FindAngle(Rotation2d rotationsEnc1, int totalTeeth1, Rotation2d rotationsEnc2, int totalTeeth2, int bigGearTeeth) {
+    public static Rotation2d findAngle(Rotation2d rotationsEnc1, int totalTeeth1, Rotation2d rotationsEnc2, int totalTeeth2, int bigGearTeeth) {
         // Step 1: Convert encoder rotations to "teeth passed by" for easier math
         // If encoder 1 rotated 0.5 times and sees 20 teeth per big gear rotation, then 10 teeth have passed
         double rotatedTeeth1 = rotationsEnc1.getRotations() * totalTeeth1;
@@ -117,7 +117,7 @@ public class ChineseRemainder {
             gear2remainder += error;
         }
         // Use the algorithm to reconstruct the angle from the simulated encoder readings
-        Rotation2d teeth = ChineseRemainder.FindAngle(
+        Rotation2d teeth = ChineseRemainder.findAngle(
                 Rotation2d.fromRotations(gear1remainder / gear1teeth), gear1teeth,
                 Rotation2d.fromRotations(gear2remainder / gear2teeth), gear2teeth, bigNTeeth);
 
