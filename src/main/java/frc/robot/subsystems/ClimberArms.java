@@ -8,15 +8,13 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.MotionMagicVoltage;
-import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.Slot1Configs;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
 
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -28,11 +26,9 @@ public class ClimberArms extends SubsystemBase {
     private final TalonFX m_leftMotor;
     private final TalonFX m_rightMotor;
 
-    // need to calibrate the P value for the velocity loop, start small and increase
-    // until you get good response
+    // TODO need to calibrate the P value for the velocity loop, start small and increase until you get good response
     private static final double K_P = 3.0;
-    private static final double K_P_DOWN = 3.0;
-    private static final double K_FF = 0.0015; // TODO find new constant
+    private static final double K_P_DOWN = 3.0; 
 
     private static final double SUPPLY_CURRENT_LIMIT = 40;
     private static final double STATOR_CURRENT_LIMIT = 60;
@@ -65,31 +61,29 @@ public class ClimberArms extends SubsystemBase {
         m_leftMotor = new TalonFX(Constants.CLIMBER_LEFT_MOTOR_CAN_ID);
         m_rightMotor = new TalonFX(Constants.CLIMBER_RIGHT_MOTOR_CAN_ID);
 
+        //TODO find out good K values for each term
         //set slot0 for unloaded state
         Slot0Configs slot0configs = talonFXConfigs.Slot0;
-        slot0configs.kV = 0.0; // A velocity target of 1 rps results in 0.12 V output
-        slot0configs.kA = 0.0; // An acceleration of 1 rps/s requires 0.01 V output
+        slot0configs.kV = 0.0; // A velocity target of 1 rps results in X V output
+        slot0configs.kA = 0.0; // An acceleration of 1 rps/s requires X V output
         slot0configs.kP = K_P;  // start small!!!
         slot0configs.kI = 0.0; // no output for integrated error
-        slot0configs.kD = 0.0; // A velocity error of 1 rps results in 0.1 V output
+        slot0configs.kD = 0.0; // A velocity error of 1 rps results in X V output
 
         //set slot1 for loaded state
         Slot1Configs slot1configs = talonFXConfigs.Slot1;
-        slot1configs.kV = 0.0; // A velocity target of 1 rps results in 0.12 V output
-        slot1configs.kA = 0.0; // An acceleration of 1 rps/s requires 0.01 V output
+        slot1configs.kV = 0.0; // A velocity target of 1 rps results in X V output
+        slot1configs.kA = 0.0; // An acceleration of 1 rps/s requires X V output
         slot1configs.kP = K_P_DOWN;  // start small!!!
         slot1configs.kI = 0.0; // no output for integrated error
-        slot1configs.kD = 0.0; // A velocity error of 1 rps results in 0.1 V output
+        slot1configs.kD = 0.0; // A velocity error of 1 rps results in X V output
 
-
+        //MotionMagic configs
         MotionMagicConfigs magicConfigs = talonFXConfigs.MotionMagic;
-        
         magicConfigs.MotionMagicCruiseVelocity = MAX_VEL_RAD_PER_SEC;
         magicConfigs.MotionMagicAcceleration = MAX_ACC_RAD_PER_SEC;
 
-        //pass the rotation to distance moved ratio to motor control
-        talonFXConfigs.Feedback.withSensorToMechanismRatio(ROTATIONS_TO_INCHES);
-
+        //Apply current limits
         CurrentLimitsConfigs currentLimits = new CurrentLimitsConfigs()
                 .withSupplyCurrentLimit(SUPPLY_CURRENT_LIMIT)
                 .withStatorCurrentLimit(STATOR_CURRENT_LIMIT);
@@ -105,12 +99,12 @@ public class ClimberArms extends SubsystemBase {
 
     @Override
     public void periodic() {
+        //get current position
         getCurrentRotation(motorSelection.LEFT);
         getCurrentRotation(motorSelection.RIGHT);
         getCurrentDistance(motorSelection.LEFT);
         getCurrentDistance(motorSelection.RIGHT);
 
-        
         SmartDashboard.putBoolean("ClimberArms/toTarget_L", onTarget(motorSelection.LEFT));
         SmartDashboard.putNumber("ClimberArms/currentRPM_L", getRPM(m_leftMotor));
         SmartDashboard.putNumber("ClimberArms/goalDistance_L", m_goalDistance_L);
