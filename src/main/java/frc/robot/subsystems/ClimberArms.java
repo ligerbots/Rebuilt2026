@@ -2,8 +2,6 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-/**integrate motors and tell them to run, when button is pressed, then brake!! */
-
 package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -36,19 +34,21 @@ public class ClimberArms extends SubsystemBase {
     private static final double MAX_VEL_RAD_PER_SEC = Units.degreesToRadians(50.0);
     private static final double MAX_ACC_RAD_PER_SEC = Units.degreesToRadians(50.0); // TODO change to better number (currently filler number)
 
-    private static final double ROTATIONS_TO_INCHES = 3; //TODO change to how many real rotation does it takes to extend 1 inch
+    private static final double ROTATIONS_PER_INCHES = 3; //TODO change to how many real rotation does it takes to extend 1 inch
 
-    private double m_goalRotation_L;
-    private double m_goalDistance_L;
-    private double m_currentRotation_L;
-    private double m_currentDistance_L;
+    private static final double TOLERANCE = 0.1;//TODO change to a better tolerance number
 
-    private double m_goalRotation_R;
-    private double m_goalDistance_R;
-    private double m_currentRotation_R;
-    private double m_currentDistance_R;
+    private double m_goalRotationLeft;
+    private double m_goalDistanceLeft;
+    private double m_currentRotationLeft;
+    private double m_currentDistanceLeft;
+
+    private double m_goalRotationRight;
+    private double m_goalDistanceRight;
+    private double m_currentRotationRight;
+    private double m_currentDistanceRight;
     
-    public static enum motorSelection {
+    public static enum MotorSelection {
         LEFT,
         RIGHT
     }
@@ -100,22 +100,22 @@ public class ClimberArms extends SubsystemBase {
     @Override
     public void periodic() {
         //get current position
-        getCurrentRotation(motorSelection.LEFT);
-        getCurrentRotation(motorSelection.RIGHT);
-        getCurrentDistance(motorSelection.LEFT);
-        getCurrentDistance(motorSelection.RIGHT);
+        getCurrentRotation(MotorSelection.LEFT);
+        getCurrentRotation(MotorSelection.RIGHT);
+        getCurrentDistance(MotorSelection.LEFT);
+        getCurrentDistance(MotorSelection.RIGHT);
 
-        SmartDashboard.putBoolean("ClimberArms/toTarget_L", onTarget(motorSelection.LEFT));
-        SmartDashboard.putNumber("ClimberArms/currentRPM_L", getRPM(m_leftMotor));
-        SmartDashboard.putNumber("ClimberArms/goalDistance_L", m_goalDistance_L);
-        SmartDashboard.putNumber("ClimberArms/goalRotation_L", m_goalRotation_L);
-        SmartDashboard.putNumber("ClimberArms/currentRotation_L", m_currentRotation_L);
+        SmartDashboard.putBoolean("ClimberArms/toTargetLeft", onTarget(MotorSelection.LEFT));
+        SmartDashboard.putNumber("ClimberArms/currentRPMLeft", getRPM(m_leftMotor));
+        SmartDashboard.putNumber("ClimberArms/goalDistanceLeft", m_goalDistanceLeft);
+        SmartDashboard.putNumber("ClimberArms/goalRotationLeft", m_goalRotationLeft);
+        SmartDashboard.putNumber("ClimberArms/currentRotationLeft", m_currentRotationLeft);
         
-        SmartDashboard.putBoolean("ClimberArms/toTarget_R", onTarget(motorSelection.RIGHT));
-        SmartDashboard.putNumber("ClimberArms/currentRPM_R", getRPM(m_rightMotor));
-        SmartDashboard.putNumber("ClimberArms/goalDistance_R", m_goalDistance_R);
-        SmartDashboard.putNumber("ClimberArms/goalRotation_R", m_goalRotation_R);
-        SmartDashboard.putNumber("ClimberArms/currentRotation_R", m_currentRotation_R);
+        SmartDashboard.putBoolean("ClimberArms/toTargetRight", onTarget(MotorSelection.RIGHT));
+        SmartDashboard.putNumber("ClimberArms/currentRPMRight", getRPM(m_rightMotor));
+        SmartDashboard.putNumber("ClimberArms/goalDistanceRight", m_goalDistanceRight);
+        SmartDashboard.putNumber("ClimberArms/goalRotationRight", m_goalRotationRight);
+        SmartDashboard.putNumber("ClimberArms/currentRotationRight", m_currentRotationRight);
 
     }
 
@@ -123,7 +123,7 @@ public class ClimberArms extends SubsystemBase {
         return motor.getVelocity().getValueAsDouble() * 60; // convert rps to rpm
     }
 
-    public void setPosition(double distance, motorSelection selectedMotor, boolean loaded){
+    public void setPosition(double distance, MotorSelection selectedMotor, boolean loaded){
         int slotNumber;
 
         if (loaded) {
@@ -132,14 +132,14 @@ public class ClimberArms extends SubsystemBase {
             slotNumber = 0;
         }
 
-        if (selectedMotor == motorSelection.LEFT) {
-            m_goalDistance_L = distance;
-            m_goalRotation_L = distanceToRotation(distance);
-            setRotation(m_goalRotation_L, m_leftMotor, slotNumber);
+        if (selectedMotor == MotorSelection.LEFT) {
+            m_goalDistanceLeft = distance;
+            m_goalRotationLeft = distanceToRotation(distance);
+            setRotation(m_goalRotationLeft, m_leftMotor, slotNumber);
         }else {
-            m_goalDistance_R = distance;
-            m_goalRotation_R = distanceToRotation(distance);
-            setRotation(m_goalRotation_R, m_rightMotor, slotNumber);
+            m_goalDistanceRight = distance;
+            m_goalRotationRight = distanceToRotation(distance);
+            setRotation(m_goalRotationRight, m_rightMotor, slotNumber);
         }
         
     }
@@ -148,41 +148,41 @@ public class ClimberArms extends SubsystemBase {
         motor.setControl(new MotionMagicVoltage(rotation).withSlot(slotNumber));
     }
     
-    public double getCurrentRotation(motorSelection selectedMotor){
-        if (selectedMotor == motorSelection.LEFT) {
-            m_currentRotation_L = m_leftMotor.getPosition().getValueAsDouble();
-            return m_currentRotation_L;
+    public double getCurrentRotation(MotorSelection selectedMotor){
+        if (selectedMotor == MotorSelection.LEFT) {
+            m_currentRotationLeft = m_leftMotor.getPosition().getValueAsDouble();
+            return m_currentRotationLeft;
         }else {
-            m_currentRotation_R = m_leftMotor.getPosition().getValueAsDouble();
-            return m_currentRotation_R;
+            m_currentRotationRight = m_rightMotor.getPosition().getValueAsDouble();
+            return m_currentRotationRight;
         }
     }
 
-    public double getCurrentDistance(motorSelection selectedMotor) {
-        if (selectedMotor == motorSelection.LEFT) {
-            m_currentDistance_L = rotationToDistance(m_currentRotation_L);
-            return m_currentDistance_L;
+    public double getCurrentDistance(MotorSelection selectedMotor) {
+        if (selectedMotor == MotorSelection.LEFT) {
+            m_currentDistanceLeft = rotationToDistance(m_currentRotationLeft);
+            return m_currentDistanceLeft;
         }else {
-            m_currentDistance_R = rotationToDistance(m_currentRotation_R);
-            return m_currentDistance_R;
+            m_currentDistanceRight = rotationToDistance(m_currentRotationRight);
+            return m_currentDistanceRight;
         }
 
     }
 
-    public boolean onTarget(motorSelection selectedMotor){
-        if (selectedMotor == motorSelection.LEFT) {
-            return m_currentRotation_L == m_goalRotation_L;
+    public boolean onTarget(MotorSelection selectedMotor){
+        if (selectedMotor == MotorSelection.LEFT) {
+            return Math.abs(m_currentRotationLeft - m_goalRotationLeft) < TOLERANCE;
         }else {
-            return m_currentRotation_R == m_goalRotation_R;
+            return Math.abs(m_currentRotationRight - m_goalRotationRight) < TOLERANCE;
         }
         
     }
     
     private double distanceToRotation(double distance){
-        return distance * ROTATIONS_TO_INCHES;
+        return distance * ROTATIONS_PER_INCHES;
     }
 
     private double rotationToDistance(double rotation){
-        return rotation / ROTATIONS_TO_INCHES;
+        return rotation / ROTATIONS_PER_INCHES;
     }
 }
