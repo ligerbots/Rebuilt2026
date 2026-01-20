@@ -11,6 +11,7 @@ import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -30,6 +31,7 @@ public class Flywheel extends SubsystemBase {
   private static final double STATOR_CURRENT_LIMIT = 60;
 
   private static final double K_FF = 0.0015; //TODO find new constant
+
 
   private double m_goalRPM;
   
@@ -72,6 +74,6 @@ public class Flywheel extends SubsystemBase {
   }
 
   public void stop(){
-    setRPM(0);
+    m_motor.setControl(new DutyCycleOut(0));
   }
 }
