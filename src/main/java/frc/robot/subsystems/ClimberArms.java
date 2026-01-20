@@ -14,7 +14,6 @@ import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import frc.robot.Constants;
@@ -31,8 +30,9 @@ public class ClimberArms extends SubsystemBase {
     private static final double SUPPLY_CURRENT_LIMIT = 40;
     private static final double STATOR_CURRENT_LIMIT = 60;
 
-    private static final double MAX_VEL_RAD_PER_SEC = Units.degreesToRadians(50.0);
-    private static final double MAX_ACC_RAD_PER_SEC = Units.degreesToRadians(50.0); // TODO change to better number (currently filler number)
+    // TODO change to better number (currently filler number)
+    private static final double MAX_VEL_ROTATION_PER_SEC = 5; //in RPS
+    private static final double MAX_ACC_ROTATION_PER_SEC_SQUARE = 3; //in RPS^2
 
     private static final double ROTATIONS_PER_INCHES = 3; //TODO change to how many real rotation does it takes to extend 1 inch
 
@@ -80,8 +80,8 @@ public class ClimberArms extends SubsystemBase {
 
         //MotionMagic configs
         MotionMagicConfigs magicConfigs = talonFXConfigs.MotionMagic;
-        magicConfigs.MotionMagicCruiseVelocity = MAX_VEL_RAD_PER_SEC;
-        magicConfigs.MotionMagicAcceleration = MAX_ACC_RAD_PER_SEC;
+        magicConfigs.MotionMagicCruiseVelocity = MAX_VEL_ROTATION_PER_SEC;
+        magicConfigs.MotionMagicAcceleration = MAX_ACC_ROTATION_PER_SEC_SQUARE;
 
         //Apply current limits
         CurrentLimitsConfigs currentLimits = new CurrentLimitsConfigs()
@@ -119,7 +119,7 @@ public class ClimberArms extends SubsystemBase {
 
     }
 
-    public double getRPM(TalonFX motor) {
+    private double getRPM(TalonFX motor) {
         return motor.getVelocity().getValueAsDouble() * 60; // convert rps to rpm
     }
 
@@ -158,6 +158,13 @@ public class ClimberArms extends SubsystemBase {
         }
     }
 
+    /**
+     * Gets the current rotation of the selected climber motor.
+     *
+     * @param selectedMotor which climber motor to read (LEFT or RIGHT)
+     * @return the current motor position in rotations as reported by the TalonFX
+     */
+
     public double getCurrentDistance(MotorSelection selectedMotor) {
         if (selectedMotor == MotorSelection.LEFT) {
             m_currentDistanceLeft = rotationToDistance(m_currentRotationLeft);
@@ -169,6 +176,13 @@ public class ClimberArms extends SubsystemBase {
 
     }
 
+    /**
+     * Gets the current rotation of the selected climber motor.
+     *
+     * @param selectedMotor which climber motor to read (LEFT or RIGHT)
+     * @return the current motor position in rotations as reported by the TalonFX
+     */
+
     public boolean onTarget(MotorSelection selectedMotor){
         if (selectedMotor == MotorSelection.LEFT) {
             return Math.abs(m_currentRotationLeft - m_goalRotationLeft) < TOLERANCE;
@@ -177,6 +191,14 @@ public class ClimberArms extends SubsystemBase {
         }
         
     }
+
+    /**
+     * Checks whether the selected climber arm has reached its goal rotation.
+     *
+     * @param selectedMotor which climber motor to check (left or right)
+     * @return {@code true} if the current rotation equals the goal rotation for the selected motor;
+     *         {@code false} otherwise
+     */
     
     private double distanceToRotation(double distance){
         return distance * ROTATIONS_PER_INCHES;
