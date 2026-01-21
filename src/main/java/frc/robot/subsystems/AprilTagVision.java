@@ -28,6 +28,8 @@ import org.photonvision.simulation.VisionSystemSim;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
+import com.ctre.phoenix6.swerve.SwerveDrivetrain;
+
 import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
@@ -48,8 +50,6 @@ import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
-import swervelib.SwerveDrive;
-import swervelib.telemetry.SwerveDriveTelemetry;
 
 public class AprilTagVision {
     static final AprilTagFields APRILTAG_FIELD = AprilTagFields.k2025ReefscapeWelded;
@@ -187,22 +187,23 @@ public class AprilTagVision {
         }
     }
 
-    public void updateSimulation(SwerveDrive swerve) {
-        if (SwerveDriveTelemetry.isSimulation && swerve.getSimulationDriveTrainPose().isPresent()) {
-            //  In the maple-sim, odometry is simulated using encoder values, accounting for
-            //  factors like skidding and drifting.
-            //  As a result, the odometry may not always be 100% accurate.
-            //  However, the vision system should be able to provide a reasonably accurate
-            //  pose estimation, even when odometry is incorrect.
-            //  (This is why teams implement vision system to correct odometry.)
-            //  Therefore, we must ensure that the actual robot pose is provided in the
-            //  simulator when updating the vision simulation during the simulation.       
-            m_visionSim.update(swerve.getSimulationDriveTrainPose().get());
-        }
-    }
+    // TODO: enable this and fix with swervedrivetrain instead of swervedrive
+    // public void updateSimulation(SwerveDrivetrain swerve) { 
+    //     if (SwerveDriveTelemetry.isSimulation && swerve.getSimulationDriveTrainPose().isPresent()) {
+    //         //  In the maple-sim, odometry is simulated using encoder values, accounting for
+    //         //  factors like skidding and drifting.
+    //         //  As a result, the odometry may not always be 100% accurate.
+    //         //  However, the vision system should be able to provide a reasonably accurate
+    //         //  pose estimation, even when odometry is incorrect.
+    //         //  (This is why teams implement vision system to correct odometry.)
+    //         //  Therefore, we must ensure that the actual robot pose is provided in the
+    //         //  simulator when updating the vision simulation during the simulation.       
+    //         m_visionSim.update(swerve.getSimulationDriveTrainPose().get());
+    //     }
+    // }
 
     // FUTURE: update any internal Pose estimates based on the known wheel motion
-    public void updateOdometry(SwerveDrive swerve) {
+    public void updateOdometry(SwerveDrivetrain swerve) {
     }
 
     // FUTURE: set the Pose in any internal Estimators
@@ -297,12 +298,12 @@ public class AprilTagVision {
             DriverStation.reportError("Error updating odometry from AprilTags " + e.getLocalizedMessage(), false);
         }
 
-        if (PLOT_VISIBLE_TAGS) {
-            plotPoses(swerve.field, "visibleTags", visibleTags);
-        }
-        if (PLOT_POSE_SOLUTIONS) {
-            plotPoses(swerve.field, "visionPoses", globalMeasurements);
-        }
+        // if (PLOT_VISIBLE_TAGS) {
+        //     plotPoses(swerve.field, "visibleTags", visibleTags);
+        // }
+        // if (PLOT_POSE_SOLUTIONS) {
+        //     plotPoses(swerve.field, "visionPoses", globalMeasurements);
+        // }
     }
 
     // ** Still will work, but need to decide which camera. Keep for future need.
