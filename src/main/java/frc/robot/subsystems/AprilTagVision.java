@@ -52,8 +52,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 
 public class AprilTagVision {
-    static final AprilTagFields APRILTAG_FIELD = AprilTagFields.k2025ReefscapeWelded;
-    // static final AprilTagFields APRILTAG_FIELD = AprilTagFields.k2025ReefscapeAndyMark;
+    // static final AprilTagFields APRILTAG_FIELD = AprilTagFields.k2025ReefscapeWelded;
+    static final AprilTagFields APRILTAG_FIELD = AprilTagFields.k2026RebuiltWelded;
 
     static private final String CUSTOM_FIELD = "2025-reefscape-andymark_custom.json";
 
@@ -140,17 +140,18 @@ public class AprilTagVision {
 
     public AprilTagVision() {
         try {
-            // m_aprilTagFieldLayout = AprilTagFieldLayout.loadField(APRILTAG_FIELD);
-            String fieldpath = Filesystem.getDeployDirectory().getPath() + "/" + CUSTOM_FIELD;
-            m_aprilTagFieldLayout = new AprilTagFieldLayout(fieldpath);
+            m_aprilTagFieldLayout = AprilTagFieldLayout.loadField(APRILTAG_FIELD);
+            // String fieldpath = Filesystem.getDeployDirectory().getPath() + "/" + CUSTOM_FIELD;
+            // m_aprilTagFieldLayout = new AprilTagFieldLayout(fieldpath);
             SmartDashboard.putString("aprilTagVision/field", CUSTOM_FIELD);
         } catch (UncheckedIOException e) {
             System.out.println("Unable to load AprilTag layout " + e.getMessage());
             m_aprilTagFieldLayout = null;
-        } catch (IOException e) {
-            System.out.println("Unable to load AprilTag layout " + e.getMessage());
-            m_aprilTagFieldLayout = null;
-        }
+        } 
+        // catch (IOException e) {
+        //     System.out.println("Unable to load AprilTag layout " + e.getMessage());
+        //     m_aprilTagFieldLayout = null;
+        // }
 
         // initialize cameras
         m_cameras = new Camera[Cam.values().length];
@@ -259,10 +260,10 @@ public class AprilTagVision {
                         visibleTags.add(targetPosition.get().toPose2d());
                     }
 
-                    PhotonPipelineResult OneTagResult;
-                    OneTagResult = frame.pipelineResult;
-                    OneTagResult.targets = List.of(target);
-                    Optional<EstimatedRobotPose> tagPoseEstimate = frame.camera.poseEstimator.update(OneTagResult);
+                    PhotonPipelineResult oneTagResult;
+                    oneTagResult = frame.pipelineResult;
+                    oneTagResult.targets = List.of(target);
+                    Optional<EstimatedRobotPose> tagPoseEstimate = frame.camera.poseEstimator.update(oneTagResult);
 
                     if (tagPoseEstimate.isEmpty())
                         continue;
