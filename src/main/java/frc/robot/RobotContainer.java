@@ -37,8 +37,6 @@ public class RobotContainer {
     private final CommandXboxController joystick = new CommandXboxController(0);
 
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
-
-    public Field2d m_field = new Field2d();
     
     public RobotContainer() {
         configureBindings();
