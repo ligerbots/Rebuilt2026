@@ -99,25 +99,20 @@ public class ClimberArms extends SubsystemBase {
 
     @Override
     public void periodic() {
-        //get current position
-        getCurrentRotation(MotorSelection.LEFT);
-        getCurrentRotation(MotorSelection.RIGHT);
-        getCurrentDistance(MotorSelection.LEFT);
-        getCurrentDistance(MotorSelection.RIGHT);
 
         SmartDashboard.putBoolean("ClimberArms/toTargetLeft", onTarget(MotorSelection.LEFT));
         SmartDashboard.putNumber("ClimberArms/currentRPMLeft", getRPM(m_leftMotor));
         SmartDashboard.putNumber("ClimberArms/goalDistanceLeft", m_goalDistanceLeft);
         SmartDashboard.putNumber("ClimberArms/goalRotationLeft", m_goalRotationLeft);
-        SmartDashboard.putNumber("ClimberArms/currentRotationLeft", m_currentRotationLeft);
-        SmartDashboard.putNumber("ClimberArms/currentDistanceLeft", m_currentRotationLeft);
+        SmartDashboard.putNumber("ClimberArms/currentRotationLeft", getCurrentRotation(MotorSelection.LEFT));
+        SmartDashboard.putNumber("ClimberArms/currentDistanceLeft", getCurrentDistance(MotorSelection.LEFT));
         
         SmartDashboard.putBoolean("ClimberArms/toTargetRight", onTarget(MotorSelection.RIGHT));
         SmartDashboard.putNumber("ClimberArms/currentRPMRight", getRPM(m_rightMotor));
         SmartDashboard.putNumber("ClimberArms/goalDistanceRight", m_goalDistanceRight);
         SmartDashboard.putNumber("ClimberArms/goalRotationRight", m_goalRotationRight);
-        SmartDashboard.putNumber("ClimberArms/currentRotationRight", m_currentRotationRight);
-        SmartDashboard.putNumber("ClimberArms/currentDistanceRight", m_currentRotationRight);
+        SmartDashboard.putNumber("ClimberArms/currentRotationRight", getCurrentRotation(MotorSelection.RIGHT));
+        SmartDashboard.putNumber("ClimberArms/currentDistanceRight", getCurrentDistance(MotorSelection.RIGHT));
 
     }
 
