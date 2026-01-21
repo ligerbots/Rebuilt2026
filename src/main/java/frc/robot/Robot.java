@@ -22,7 +22,7 @@ public class Robot extends TimedRobot {
         .withJoystickReplay();
 
     public Robot() {
-        m_robotContainer = new RobotContainer(new AprilTagVision());
+        m_robotContainer = new RobotContainer();
     }
 
     @Override

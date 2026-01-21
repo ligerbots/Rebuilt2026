@@ -39,12 +39,8 @@ public class RobotContainer {
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
     public Field2d m_field = new Field2d();
-
-    private final AprilTagVision m_aprilTagVision;
-
-    public RobotContainer(AprilTagVision apriltagVision) {
-        m_aprilTagVision = apriltagVision;
-
+    
+    public RobotContainer() {
         configureBindings();
     }
 

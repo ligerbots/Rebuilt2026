@@ -50,6 +50,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private final SwerveRequest.SysIdSwerveSteerGains m_steerCharacterization = new SwerveRequest.SysIdSwerveSteerGains();
     private final SwerveRequest.SysIdSwerveRotation m_rotationCharacterization = new SwerveRequest.SysIdSwerveRotation();
 
+    private final AprilTagVision m_aprilTagVision;
+
     /* SysId routine for characterizing translation. This is used to find PID gains for the drive motors. */
     private final SysIdRoutine m_sysIdRoutineTranslation = new SysIdRoutine(
         new SysIdRoutine.Config(
@@ -123,6 +125,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      * @param modules               Constants for each specific module
      */
     public CommandSwerveDrivetrain(
+        AprilTagVision aprilTagVision,
         SwerveDrivetrainConstants drivetrainConstants,
         SwerveModuleConstants<?, ?, ?>... modules
     ) {
@@ -130,6 +133,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         if (Utils.isSimulation()) {
             startSimThread();
         }
+        m_aprilTagVision = aprilTagVision;
     }
 
     /**
@@ -146,6 +150,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      * @param modules                 Constants for each specific module
      */
     public CommandSwerveDrivetrain(
+        AprilTagVision aprilTagVision,
         SwerveDrivetrainConstants drivetrainConstants,
         double odometryUpdateFrequency,
         SwerveModuleConstants<?, ?, ?>... modules
@@ -154,6 +159,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         if (Utils.isSimulation()) {
             startSimThread();
         }
+        m_aprilTagVision = aprilTagVision;
     }
 
     /**
@@ -176,6 +182,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      * @param modules                   Constants for each specific module
      */
     public CommandSwerveDrivetrain(
+        AprilTagVision aprilTagVision,
         SwerveDrivetrainConstants drivetrainConstants,
         double odometryUpdateFrequency,
         Matrix<N3, N1> odometryStandardDeviation,
@@ -186,6 +193,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         if (Utils.isSimulation()) {
             startSimThread();
         }
+        m_aprilTagVision = aprilTagVision;
     }
 
     /**
