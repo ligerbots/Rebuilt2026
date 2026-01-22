@@ -17,32 +17,23 @@ import com.ctre.phoenix6.hardware.TalonFX;
 
 public class LinearExtension extends SubsystemBase {
 
+  //TODO all values that are 0.123 are placeholders, set them properly
+
   private final TalonFX m_motor;
 
-  private static final double DEPLOY_LENGTH = 12; //TODO need to set number properly
-  private static final double STOW_LENGTH = 0;
+  private static final double DEPLOY_LENGTH = Units.inchesToMeters(0.123);
+  private static final double STOW_LENGTH = Units.inchesToMeters(0.123);
 
-  private static final double PINION_DIAMETER = 0;
-  private static final double MOTOR_ROTATIONS_PER_PINION_ROTATION = 0; //TODO rename this
-  private static final double PINION_ROTATIONS_PER_INCH = 0; //TODO rename this
+  private static final double PINION_DIAMETER = Units.inchesToMeters(0.123);
+  private static final double GEAR_REDUCTION = 0.123; //number of motor rotations for 1 pinion rotation
 
-  //private static final double GEAR_REDUCTION = 0;
-  //private static final double FINAL_GEAR_DIAMETER = 0; 
-  //private static final double METER_PER_REVOLUTION = 0;
+  private static final double K_P = 0.123;
 
-  private static final double K_P = 1.0; //TODO edit this val??
-
-  private static final double MAX_VEL_RAD_PER_SEC = 0;
-  private static final double MAX_ACC_RAD_PER_SEC = 0; //TODO edit these vals
+  private static final double MAX_VEL_RAD_PER_SEC = 0.123;
+  private static final double MAX_ACC_RAD_PER_SEC = 0.123;
 
   private static final double SUPPLY_CURRENT_LIMIT = 40;
-  private static final double STATOR_CURRENT_LIMIT = 60; //TODO set the right nums
-
-
-
-  //these are filler numbers, set them properly later
-
-  //TODO add in the lengths
+  private static final double STATOR_CURRENT_LIMIT = 60;
 
 
   public LinearExtension() {
@@ -56,8 +47,8 @@ public class LinearExtension extends SubsystemBase {
 
     Slot0Configs slot0configs = talonFXConfigs.Slot0;
     slot0configs.kP = K_P;
-    slot0configs.kI = 0.0;
-    slot0configs.kD = 0.0; //TODO edit these vals
+    slot0configs.kI = 0.123;
+    slot0configs.kD = 0.123;
 
     MotionMagicConfigs magicConfigs = talonFXConfigs.MotionMagic;
 
@@ -66,8 +57,6 @@ public class LinearExtension extends SubsystemBase {
 
     m_motor.getConfigurator().apply(talonFXConfigs);
     m_motor.setPosition(0);
- 
-
 
   }
 
@@ -81,15 +70,27 @@ public class LinearExtension extends SubsystemBase {
 
 
   public void deploy() {
+
+    double targetRotations = lengthToRotations(DEPLOY_LENGTH);
+    m_motor.setControl(new MotionMagicVoltage(targetRotations));
     
-
-
-   
     //rotate motor x times to make distance = DEPLOY_LENGTH
   }
 
   public void stow() {
+
+    double targetRotations = lengthToRotations(STOW_LENGTH);
+    m_motor.setControl(new MotionMagicVoltage(targetRotations));
     //retract
+  }
+
+  //maybe add a method that returns the current length extended?
+
+
+
+
+  private double lengthToRotations(double length) {
+    return (length / (Math.PI * PINION_DIAMETER)) * GEAR_REDUCTION;
   }
 
 
