@@ -26,8 +26,8 @@ public class IntakePivot extends SubsystemBase {
 
   private static final double K_P = 1.0;
 
-  private static final double MAX_VEL_ROT_PER_SEC = Units.degreesToRotations(50.0);
-  private static final double MAX_ACC_ROT_PER_SEC2 = Units.degreesToRotations(50.0); // TODO change to better number (currently filler number)
+  private static final double MAX_VEL_ROT_PER_SEC = 1.0; // TODO change to more reasonable number (currently filler number)
+  private static final double MAX_ACC_ROT_PER_SEC2 = 1.0; // TODO change to more reasonable number (currently filler number)
 
 
   /** Creates a new IntakePivot. */
