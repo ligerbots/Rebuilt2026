@@ -54,8 +54,9 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     public Field2d m_field;
     private final AprilTagVision m_aprilTagVision;
+    public final SwerveDrivetrain m_swerveDrive;
 
-    private final SwerveDrivetrain m_swerveDrive;
+    // private final SwerveDrivetrain m_swerveDrive;
 
     /* SysId routine for characterizing translation. This is used to find PID gains for the drive motors. */
     private final SysIdRoutine m_sysIdRoutineTranslation = new SysIdRoutine(
@@ -139,6 +140,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             startSimThread();
         }
         m_aprilTagVision = aprilTagVision;
+
+        m_swerveDrive = new SwerveDrivetrain<>(null, null, null, drivetrainConstants, modules);
     }
 
     /**
@@ -165,6 +168,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             startSimThread();
         }
         m_aprilTagVision = aprilTagVision;
+        m_swerveDrive = new SwerveDrivetrain<>(null, null, null, drivetrainConstants, modules);
     }
 
     /**
@@ -199,6 +203,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             startSimThread();
         }
         m_aprilTagVision = aprilTagVision;
+
+        m_swerveDrive = new SwerveDrivetrain<>(null, null, null, drivetrainConstants, modules);
     }
 
     /**
@@ -253,7 +259,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             });
         }
 
-        m_aprilTagVision.addVisionMeasurements();
+        m_aprilTagVision.addVisionMeasurements(m_swerveDrive);
     }
 
     private void startSimThread() {
