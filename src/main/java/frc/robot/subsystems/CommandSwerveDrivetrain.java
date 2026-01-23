@@ -52,9 +52,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private final SwerveRequest.SysIdSwerveSteerGains m_steerCharacterization = new SwerveRequest.SysIdSwerveSteerGains();
     private final SwerveRequest.SysIdSwerveRotation m_rotationCharacterization = new SwerveRequest.SysIdSwerveRotation();
 
-    public Field2d m_field;
+    public Field2d m_field = new Field2d();
     private final AprilTagVision m_aprilTagVision;
-    public final SwerveDrivetrain m_swerveDrive;
 
     // private final SwerveDrivetrain m_swerveDrive;
 
@@ -139,9 +138,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         if (Utils.isSimulation()) {
             startSimThread();
         }
-        m_aprilTagVision = aprilTagVision;
 
-        m_swerveDrive = new SwerveDrivetrain<>(null, null, null, drivetrainConstants, modules);
+        m_aprilTagVision = aprilTagVision;
     }
 
     /**
@@ -168,7 +166,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             startSimThread();
         }
         m_aprilTagVision = aprilTagVision;
-        m_swerveDrive = new SwerveDrivetrain<>(null, null, null, drivetrainConstants, modules);
     }
 
     /**
@@ -203,8 +200,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             startSimThread();
         }
         m_aprilTagVision = aprilTagVision;
-
-        m_swerveDrive = new SwerveDrivetrain<>(null, null, null, drivetrainConstants, modules);
     }
 
     /**
@@ -241,6 +236,13 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     @Override
     public void periodic() {
+
+        m_field.setRobotPose(this.getState().Pose);
+
+        m_aprilTagVision.addVisionMeasurements(this, m_field);
+
+        // m_aprilTagVision
+
         /*
          * Periodically try to apply the operator perspective.
          * If we haven't applied the operator perspective before, then we should apply it regardless of DS state.
@@ -258,8 +260,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 m_hasAppliedOperatorPerspective = true;
             });
         }
-
-        m_aprilTagVision.addVisionMeasurements(m_swerveDrive);
     }
 
     private void startSimThread() {
