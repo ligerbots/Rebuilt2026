@@ -18,4 +18,8 @@ public class Constants {
     // 16 Intake deploy
     // 18, 19 Transfer/Funnel
     // 20, Spare
+
+    // Feature flag: enable simulation in the classes
+    // Can turn this off for competition to save a tiny bit of speed
+    public static final boolean SIMULATION_SUPPORT = true;
 }
