@@ -47,6 +47,7 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
@@ -189,19 +190,9 @@ public class AprilTagVision {
     }
 
     // TODO: enable this and fix with swervedrivetrain instead of swervedrive
-    // public void updateSimulation(CommandSwerveDrivetrain swerve) { 
-    //     if (SwerveDriveTelemetry.isSimulation && swerve.getSimulationDriveTrainPose().isPresent()) {
-    //         //  In the maple-sim, odometry is simulated using encoder values, accounting for
-    //         //  factors like skidding and drifting.
-    //         //  As a result, the odometry may not always be 100% accurate.
-    //         //  However, the vision system should be able to provide a reasonably accurate
-    //         //  pose estimation, even when odometry is incorrect.
-    //         //  (This is why teams implement vision system to correct odometry.)
-    //         //  Therefore, we must ensure that the actual robot pose is provided in the
-    //         //  simulator when updating the vision simulation during the simulation.       
-    //         m_visionSim.update(swerve.getSimulationDriveTrainPose().get());
-    //     }
-    // }
+    public void updateSimulation(CommandSwerveDrivetrain swerve) {    
+        m_visionSim.update(swerve.getState().Pose);
+    }
 
     // FUTURE: update any internal Pose estimates based on the known wheel motion
     public void updateOdometry(SwerveDrivetrain swerve) {
