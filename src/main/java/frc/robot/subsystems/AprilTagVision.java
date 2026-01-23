@@ -54,7 +54,7 @@ import frc.robot.Constants;
 
 public class AprilTagVision {
     // static final AprilTagFields APRILTAG_FIELD = AprilTagFields.k2025ReefscapeWelded;
-    static final AprilTagFields APRILTAG_FIELD = AprilTagFields.k2026RebuiltWelded;
+    static final AprilTagFields APRILTAG_FIELD = AprilTagFields.k2026RebuiltAndymark;
 
     static private final String CUSTOM_FIELD = "2025-reefscape-andymark_custom.json"; // old
 
