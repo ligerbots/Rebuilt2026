@@ -1,6 +1,4 @@
 // TODO List:
-// - Implement getting pose via drivetrain & applying offset for turret position on robot - In progress
-// - Implement hood adjustment with RPM error (Might not need to do it)
 // - Implement shuttle command (basically copy of this but with shuttle lookup table & changing shoot to target based off location)
 // 
 // 
@@ -15,9 +13,11 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.FieldConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.ShooterFeeder;
@@ -35,7 +35,7 @@ public class ShootHub extends Command {
   private final Shooter m_shooter;
   private final Turret m_turret;
   private final ShooterFeeder m_feeder;
-  private CommandSwerveDrivetrain m_drivetrain;
+  private final CommandSwerveDrivetrain m_drivetrain;
 
   /**
    * Constructs a ShootHub command.
@@ -95,25 +95,25 @@ public class ShootHub extends Command {
   }
 
   private double getDistanceToTarget() {
-    // TODO: Get distance from vision subsystem or calculate from robot odometry
-    return 0.0;
+    return getTurretPosition().getDistance(FieldConstants.HUB_POSITION);
   }
 
   private Rotation2d getAngleToTarget() {
-    // TODO: Get angle from vision subsystem or calculate from robot odometry and hub position
-    return Rotation2d.fromDegrees(0);
+    Rotation2d overallAngle = getTurretPosition().minus(FieldConstants.HUB_POSITION).getAngle();
+    return overallAngle.plus(m_drivetrain.getState().Pose.getRotation());
   }
 
   private Translation2d getTurretPosition() {
-    // TODO: Go from global translation to robot to offset turret relitive to robot center (where pose is from) and then back to global pose now for the turret.
-    return m_drivetrain.getState().Pose.getTranslation();
+    Pose2d robotPose = m_drivetrain.getState().Pose;
+    Translation2d turretOffset = new Translation2d(1,1);
+    return turretOffset.rotateBy(robotPose.getRotation()).plus(robotPose.getTranslation());
   }
-
+  
   /**
    * Checks if the turret is at the target angle within tolerance.
    * 
    * @return true if turret is within tolerance, false otherwise
-   */
+   */ 
   private boolean isTurretAtTarget() {
     return Math.abs(m_turret.getPosition().minus(getAngleToTarget()).getRadians()) < TURRET_ANGLE_TOLERANCE.getRadians(); 
   }
