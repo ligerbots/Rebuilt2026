@@ -88,8 +88,6 @@
       "buttonCount": 0,
       "povCount": 0
     }
-<<<<<<< HEAD
-=======
   ],
   "robotJoysticks": [
     {
@@ -98,6 +96,5 @@
     {
       "guid": "Keyboard1"
     }
->>>>>>> main
   ]
 }
