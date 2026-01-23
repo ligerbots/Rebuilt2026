@@ -29,6 +29,7 @@ public class Hood extends SubsystemBase {
   private static final double MAX_VEL_RAD_PER_SEC = Units.degreesToRadians(50.0);
   private static final double MAX_ACC_RAD_PER_SEC = Units.degreesToRadians(50.0); // TODO change to better number (currently filler number)
 
+  private static final double ROTATIONS_PER_INCHES = 3; // TODO change to how many real rotation does it takes to extend 1 inch
 
   /** Creates a new Hood. */
   public Hood() {
@@ -51,6 +52,8 @@ public class Hood extends SubsystemBase {
         
     magicConfigs.MotionMagicCruiseVelocity = MAX_VEL_RAD_PER_SEC;
     magicConfigs.MotionMagicAcceleration = MAX_ACC_RAD_PER_SEC;
+
+    talonFXConfigs.Feedback.withSensorToMechanismRatio(ROTATIONS_PER_INCHES);
 
     m_hoodMotor.getConfigurator().apply(talonFXConfigs);
     m_hoodMotor.setPosition(0);

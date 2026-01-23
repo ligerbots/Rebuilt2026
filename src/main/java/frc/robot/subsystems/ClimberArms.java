@@ -89,6 +89,8 @@ public class ClimberArms extends SubsystemBase {
                 .withStatorCurrentLimit(STATOR_CURRENT_LIMIT);
         talonFXConfigs.withCurrentLimits(currentLimits);
 
+        talonFXConfigs.Feedback.withSensorToMechanismRatio(ROTATIONS_PER_INCHES);
+
         // enable brake mode (after main config)
         m_leftMotor.getConfigurator().apply(talonFXConfigs);
         m_leftMotor.setNeutralMode(NeutralModeValue.Brake);
@@ -131,11 +133,9 @@ public class ClimberArms extends SubsystemBase {
 
         if (selectedMotor == MotorSelection.LEFT) {
             m_goalDistanceLeft = distance;
-            m_goalRotationLeft = distanceToRotation(distance);
             setRotation(m_goalRotationLeft, m_leftMotor, slotNumber);
         }else {
             m_goalDistanceRight = distance;
-            m_goalRotationRight = distanceToRotation(distance);
             setRotation(m_goalRotationRight, m_rightMotor, slotNumber);
         }
         
@@ -164,13 +164,12 @@ public class ClimberArms extends SubsystemBase {
 
     public double getCurrentDistance(MotorSelection selectedMotor) {
         if (selectedMotor == MotorSelection.LEFT) {
-            m_currentDistanceLeft = rotationToDistance(m_currentRotationLeft);
+            m_currentDistanceLeft = m_leftMotor.getPosition().getValueAsDouble();
             return m_currentDistanceLeft;
         }else {
-            m_currentDistanceRight = rotationToDistance(m_currentRotationRight);
+            m_currentDistanceRight = m_rightMotor.getPosition().getValueAsDouble();
             return m_currentDistanceRight;
         }
-
     }
 
     /**
@@ -186,9 +185,8 @@ public class ClimberArms extends SubsystemBase {
         }else {
             return Math.abs(m_currentRotationRight - m_goalRotationRight) < TOLERANCE;
         }
-        
     }
-
+    
     /**
      * Checks whether the selected climber arm has reached its goal rotation.
      *
@@ -196,12 +194,4 @@ public class ClimberArms extends SubsystemBase {
      * @return {@code true} if the current rotation equals the goal rotation for the selected motor;
      *         {@code false} otherwise
      */
-    
-    private double distanceToRotation(double distance){
-        return distance * ROTATIONS_PER_INCHES;
-    }
-
-    private double rotationToDistance(double rotation){
-        return rotation / ROTATIONS_PER_INCHES;
-    }
 }

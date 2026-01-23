@@ -31,6 +31,8 @@ public class Turret extends SubsystemBase {
   private static final Rotation2d MAX_ROTATION = Rotation2d.fromRadians(2 * Math.PI);
   private static final Rotation2d MIN_ROTATION = Rotation2d.fromRadians(0.0);
 
+  private static final double ROTATIONS_PER_INCHES = 3; // TODO change to how many real rotation does it takes to extend 1 inch
+
 
   /** Creates a new Turret. */
   public Turret() {
@@ -49,6 +51,8 @@ public class Turret extends SubsystemBase {
     MotionMagicConfigs magicConfigs = talonFXConfigs.MotionMagic;
     magicConfigs.MotionMagicCruiseVelocity = MAX_VEL_ROT_PER_SEC; 
     magicConfigs.MotionMagicAcceleration = MAX_ACC_ROT_PER_SEC_SQ; 
+
+    talonFXConfigs.Feedback.withSensorToMechanismRatio(ROTATIONS_PER_INCHES);
 
     m_turretMotor.getConfigurator().apply(talonFXConfigs);
     m_turretMotor.setPosition(0);
