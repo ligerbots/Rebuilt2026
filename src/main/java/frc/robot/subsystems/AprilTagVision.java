@@ -189,7 +189,7 @@ public class AprilTagVision {
     }
 
     // TODO: enable this and fix with swervedrivetrain instead of swervedrive
-    // public void updateSimulation(SwerveDrivetrain swerve) { 
+    // public void updateSimulation(CommandSwerveDrivetrain swerve) { 
     //     if (SwerveDriveTelemetry.isSimulation && swerve.getSimulationDriveTrainPose().isPresent()) {
     //         //  In the maple-sim, odometry is simulated using encoder values, accounting for
     //         //  factors like skidding and drifting.
@@ -212,7 +212,7 @@ public class AprilTagVision {
     }
     
     // Update all Pose estimates with the vision measurements
-    public void addVisionMeasurements(SwerveDrivetrain swerve) {
+    public void addVisionMeasurements(CommandSwerveDrivetrain swerve, Field2d field) {
         // Cannot do anything if there is no field layout
         if (m_aprilTagFieldLayout == null)
             return;
@@ -299,12 +299,12 @@ public class AprilTagVision {
             DriverStation.reportError("Error updating odometry from AprilTags " + e.getLocalizedMessage(), false);
         }
 
-        // if (PLOT_VISIBLE_TAGS) {
-        //     plotPoses(swerve.field, "visibleTags", visibleTags);
-        // }
-        // if (PLOT_POSE_SOLUTIONS) {
-        //     plotPoses(swerve.field, "visionPoses", globalMeasurements);
-        // }
+        if (PLOT_VISIBLE_TAGS) {
+            plotPoses(field, "visibleTags", visibleTags);
+        }
+        if (PLOT_POSE_SOLUTIONS) {
+            plotPoses(field, "visionPoses", globalMeasurements);
+        }
     }
 
     // ** Still will work, but need to decide which camera. Keep for future need.
