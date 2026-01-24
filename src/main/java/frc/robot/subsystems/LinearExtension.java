@@ -29,8 +29,8 @@ public class LinearExtension extends SubsystemBase {
 
   private static final double K_P = 0.0; //TODO set properly
 
-  private static final double MAX_VEL_RAD_PER_SEC = 0.0; //TODO set properly
-  private static final double MAX_ACC_RAD_PER_SEC = 0.0; //TODO set properly
+  private static final double MAX_VEL_ROT_PER_SEC = 0.0; //TODO set properly
+  private static final double MAX_ACC_ROT_PER_SEC = 0.0; //TODO set properly
 
   private static final double SUPPLY_CURRENT_LIMIT = 40;
   private static final double STATOR_CURRENT_LIMIT = 60;
@@ -55,8 +55,8 @@ public class LinearExtension extends SubsystemBase {
 
     MotionMagicConfigs magicConfigs = talonFXConfigs.MotionMagic;
 
-    magicConfigs.MotionMagicCruiseVelocity = MAX_VEL_RAD_PER_SEC;
-    magicConfigs.MotionMagicAcceleration = MAX_ACC_RAD_PER_SEC;
+    magicConfigs.MotionMagicCruiseVelocity = MAX_VEL_ROT_PER_SEC;
+    magicConfigs.MotionMagicAcceleration = MAX_ACC_ROT_PER_SEC;
 
     m_motor.getConfigurator().apply(talonFXConfigs);
     m_motor.setPosition(0);
