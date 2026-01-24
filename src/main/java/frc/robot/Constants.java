@@ -5,6 +5,7 @@ public class Constants {
     public static final int INTAKE_DEPLOY_ID = 16;
     public static final int INTAKE_ROLLER_CAN_ID = 17;
     public static final int SHOOTER_FEEDER_CAN_ID = 18;
+    public static final int LINEAR_EXTENSION_CAN_ID = -1; //TODO need to decide if doing vs intake deploy
 
     // NOTE: TalonFX motors (all Krakens and Falcons) share the same ID space, so CANNOT repeat
     // CAN ID 1-8 for Talons are for the Swerve motors
