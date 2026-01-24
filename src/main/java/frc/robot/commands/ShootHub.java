@@ -105,8 +105,7 @@ public class ShootHub extends Command {
 
   private Translation2d getTurretPosition() {
     Pose2d robotPose = m_drivetrain.getState().Pose;
-    Translation2d turretOffset = new Translation2d(1,1);
-    return turretOffset.rotateBy(robotPose.getRotation()).plus(robotPose.getTranslation());
+    return FieldConstants.TURRET_OFFSET.rotateBy(robotPose.getRotation()).plus(robotPose.getTranslation());
   }
   
   /**
