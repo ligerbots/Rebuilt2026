@@ -2,6 +2,8 @@ package frc.robot;
 
 public class Constants {
     public static final int FLYWHEEL_CAN_ID = 9;
+    public static final int INTAKE_DEPLOY_ID = 16;
+    public static final int HOOD_CAN_ID = 11;
     public static final int INTAKE_ROLLER_CAN_ID = 17;
     public static final int HOOD_CAN_ID = 11;
     public static final int SHOOTER_FEEDER_CAN_ID = 18;
@@ -18,4 +20,8 @@ public class Constants {
     // 16 Intake deploy
     // 18, 19 Transfer/Funnel
     // 20, Spare
+
+    // Feature flag: enable simulation in the classes
+    // Can turn this off for competition to save a tiny bit of speed
+    public static final boolean SIMULATION_SUPPORT = true;
 }

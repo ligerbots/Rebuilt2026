@@ -27,8 +27,8 @@ public class Hood extends SubsystemBase {
 
   private static final double K_P = 1.0;
 
-  private static final double MAX_VEL_RAD_PER_SEC = Units.degreesToRadians(50.0);
-  private static final double MAX_ACC_RAD_PER_SEC = Units.degreesToRadians(50.0); // TODO change to better number (currently filler number)
+  private static final double MAX_VEL_ROT_PER_SEC = 1;
+  private static final double MAX_ACC_ROT_PER_SEC = 1; // TODO change to better number (currently filler number)
 
 
   /** Creates a new Hood. */
@@ -46,9 +46,9 @@ public class Hood extends SubsystemBase {
     slot0configs.kD = 0.0;
 
     MotionMagicConfigs magicConfigs = talonFXConfigs.MotionMagic;
-
-    magicConfigs.MotionMagicCruiseVelocity = MAX_VEL_RAD_PER_SEC;
-    magicConfigs.MotionMagicAcceleration = MAX_ACC_RAD_PER_SEC;
+        
+    magicConfigs.MotionMagicCruiseVelocity = MAX_VEL_ROT_PER_SEC;
+    magicConfigs.MotionMagicAcceleration = MAX_ACC_ROT_PER_SEC;
 
     m_hoodMotor.getConfigurator().apply(talonFXConfigs);
     m_hoodMotor.setPosition(0);
