@@ -171,6 +171,7 @@ out/
 # Simulation GUI and other tools window save file
 networktables.json
 simgui.json
+simgui-ds.json
 *-window.json
 
 # Simulation data log directory
@@ -184,4 +185,4 @@ ctre_sim/
 compile_commands.json
 
 # Eclipse generated file for annotation processors
-.factorypathsimgui-ds.json
+.factorypath
