@@ -259,15 +259,13 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     @Override
     public void periodic() {
 
-        m_field.setRobotPose(this.getState().Pose);
+        m_field.setRobotPose(getPose());
 
         if (RobotBase.isSimulation()) {
             m_aprilTagVision.updateSimulation(this);
         }
 
         m_aprilTagVision.addVisionMeasurements(this, m_field);
-
-        // m_aprilTagVision
 
         /*
          * Periodically try to apply the operator perspective.

@@ -10,7 +10,6 @@
 
 package frc.robot.subsystems;
 
-import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -28,8 +27,6 @@ import org.photonvision.simulation.VisionSystemSim;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
-import com.ctre.phoenix6.swerve.SwerveDrivetrain;
-
 import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
@@ -45,15 +42,15 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Filesystem;
-import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 import frc.robot.Constants;
 
 public class AprilTagVision {
-    // static final AprilTagFields APRILTAG_FIELD = AprilTagFields.k2025ReefscapeWelded;
     static final AprilTagFields APRILTAG_FIELD = AprilTagFields.k2026RebuiltAndymark;
 
     static private final String CUSTOM_FIELD = "2025-reefscape-andymark_custom.json"; // old
@@ -139,6 +136,9 @@ public class AprilTagVision {
     // Simulation support
     private VisionSystemSim m_visionSim;
 
+    // NetworkTables publishers
+    StructArrayPublisher<Pose3d> m_visibleTagsPub;
+
     public AprilTagVision() {
         try {
             m_aprilTagFieldLayout = AprilTagFieldLayout.loadField(APRILTAG_FIELD);
@@ -187,20 +187,22 @@ public class AprilTagVision {
             // initialize a simulated camera. Must be done after creating the tag layout
             initializeSimulation();
         }
+
+        // NetworkTables publishers to send visible tags
+        m_visibleTagsPub = NetworkTableInstance.getDefault().getStructArrayTopic("vision/visibleTags", Pose3d.struct).publish();
     }
 
-    // TODO: enable this and fix with swervedrivetrain instead of swervedrive
     public void updateSimulation(CommandSwerveDrivetrain swerve) {    
-        m_visionSim.update(swerve.getState().Pose);
+        m_visionSim.update(swerve.getPose());
     }
 
-    // FUTURE: update any internal Pose estimates based on the known wheel motion
-    public void updateOdometry(SwerveDrivetrain swerve) {
-    }
+    // // FUTURE: update any internal Pose estimates based on the known wheel motion
+    // public void updateOdometry(SwerveDrivetrain swerve) {
+    // }
 
-    // FUTURE: set the Pose in any internal Estimators
-    public void setPose(Pose2d newPose) {
-    }
+    // // FUTURE: set the Pose in any internal Estimators
+    // public void setPose(Pose2d newPose) {
+    // }
     
     // Update all Pose estimates with the vision measurements
     public void addVisionMeasurements(CommandSwerveDrivetrain swerve, Field2d field) {
@@ -210,7 +212,7 @@ public class AprilTagVision {
 
         // Some lists for later plotting
         // Accumulate the results, and then plot them at the end
-        ArrayList<Pose2d> visibleTags = new ArrayList<Pose2d>();
+        ArrayList<Pose3d> visibleTags = new ArrayList<Pose3d>();
         ArrayList<Pose2d> globalMeasurements = new ArrayList<Pose2d>();
 
         try {
@@ -230,7 +232,7 @@ public class AprilTagVision {
             // Sort the frames in time order
             Collections.sort(camFrames);
 
-            Pose2d currentPose = swerve.getState().Pose;
+            Pose2d currentPose = swerve.getPose();
 
             // Work through all the available frames, in time order, and use any measurements
             for (CameraMeasurement frame : camFrames) {
@@ -248,7 +250,7 @@ public class AprilTagVision {
                         continue;
 
                     if (PLOT_VISIBLE_TAGS) {
-                        visibleTags.add(targetPosition.get().toPose2d());
+                        visibleTags.add(targetPosition.get());
                     }
 
                     PhotonPipelineResult oneTagResult;
@@ -291,8 +293,10 @@ public class AprilTagVision {
         }
 
         if (PLOT_VISIBLE_TAGS) {
-            plotPoses(field, "visibleTags", visibleTags);
+            // plotPoses(field, "visibleTags", visibleTags);
+            m_visibleTagsPub.set(visibleTags.toArray(new Pose3d[0]));
         }
+
         if (PLOT_POSE_SOLUTIONS) {
             plotPoses(field, "visionPoses", globalMeasurements);
         }
