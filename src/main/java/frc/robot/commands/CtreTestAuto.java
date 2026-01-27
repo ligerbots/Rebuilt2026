@@ -3,11 +3,10 @@ package frc.robot.commands;
 
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
-import com.pathplanner.lib.util.FlippingUtil;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
-
+import frc.robot.FieldConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 
 public class CtreTestAuto extends AutoCommandInterface {
@@ -41,20 +40,6 @@ public class CtreTestAuto extends AutoCommandInterface {
     
     @Override
     public Pose2d getInitialPose() {
-        return flipPose(m_initPose);
-    }
-
-    public static Pose2d flipPose(Pose2d pose) {
-        // flip pose when red
-        if (isRedAlliance()) {
-                    return FlippingUtil.flipFieldPose(pose);
-                }
-        
-                // Blue or we don't know; return the original pose
-                return pose;
-            }
-        
-    private static boolean isRedAlliance() {
-        return true;    
+        return FieldConstants.flipPose(m_initPose);
     }
 }

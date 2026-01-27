@@ -11,8 +11,7 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -114,12 +113,20 @@ public class RobotContainer {
     //     );
     // }
 
+    public CommandSwerveDrivetrain getDriveTrain() {
+        return m_drivetrain;
+    }
+
     public Command getAutonomousCommand() {
         if(null==m_autoCommand) {
             m_autoCommand = new CtreTestAuto(m_drivetrain, true);
         }
         return m_autoCommand;
     }
+
+    public Pose2d getInitialPose() {
+        return ((AutoCommandInterface) getAutonomousCommand()).getInitialPose();
+    }    
 
     public Command getDriveCommand() {
         // The controls are for field-oriented driving:
