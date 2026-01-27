@@ -77,8 +77,8 @@ public class AprilTagVision {
     static final Matrix<N3, N1> MULTI_TAG_BASE_STDDEV = VecBuilder.fill(0.45, 0.45, 0.45);
 
     private enum Cam {
-        FRONT_RIGHT(0),
-        FRONT_LEFT(1);
+        FRONT_RIGHT(0)
+        // FRONT_LEFT(1);
         // BACK(2);
 
         int idx;
@@ -164,18 +164,18 @@ public class AprilTagVision {
             m_singleTagPoses.put(tag.ID, new SingleTagPose());
         }
 
-        // Comp Feb 8
+        // Test Bot
         m_cameras[Cam.FRONT_RIGHT.idx] = new Camera("ArducamFrontRight", new Transform3d(
-            new Translation3d(Units.inchesToMeters(9.82), Units.inchesToMeters(-10.0), Units.inchesToMeters(10.53)),
+            new Translation3d(Units.inchesToMeters(9.32), Units.inchesToMeters(-9.5), Units.inchesToMeters(10.53)),
             new Rotation3d(0.0, Math.toRadians(-10), 0)
                 .rotateBy(new Rotation3d(0, 0, Math.toRadians(12.5)))
         ));
 
-        m_cameras[Cam.FRONT_LEFT.idx] = new Camera("ArducamFrontLeft", new Transform3d(
-            new Translation3d(Units.inchesToMeters(9.82), Units.inchesToMeters(10.0), Units.inchesToMeters(10.53)),
-            new Rotation3d(0.0, Math.toRadians(-10), 0)
-                .rotateBy(new Rotation3d(0, 0, Math.toRadians(-12.5)))
-            ));
+        // m_cameras[Cam.FRONT_LEFT.idx] = new Camera("ArducamFrontLeft", new Transform3d(
+        //     new Translation3d(Units.inchesToMeters(9.82), Units.inchesToMeters(10.0), Units.inchesToMeters(10.53)),
+        //     new Rotation3d(0.0, Math.toRadians(-10), 0)
+        //         .rotateBy(new Rotation3d(0, 0, Math.toRadians(-12.5)))
+        //     ));
 
         // m_cameras[Cam.BACK.idx] = new Camera("ArducamBack", new Transform3d(
         //         new Translation3d(Units.inchesToMeters(-9.85), Units.inchesToMeters(11.05), Units.inchesToMeters(9.3)),
