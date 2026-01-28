@@ -38,14 +38,11 @@ public class ClimberArms extends SubsystemBase {
 
     private static final double TOLERANCE = 0.1;//TODO change to a better tolerance number
 
-    private double m_goalRotationLeft;
+
     private double m_goalDistanceLeft;
-    private double m_currentRotationLeft;
     private double m_currentDistanceLeft;
 
-    private double m_goalRotationRight;
     private double m_goalDistanceRight;
-    private double m_currentRotationRight;
     private double m_currentDistanceRight;
     
     public static enum MotorSelection {
@@ -89,6 +86,8 @@ public class ClimberArms extends SubsystemBase {
                 .withStatorCurrentLimit(STATOR_CURRENT_LIMIT);
         talonFXConfigs.withCurrentLimits(currentLimits);
 
+        talonFXConfigs.Feedback.withSensorToMechanismRatio(ROTATIONS_PER_INCHES); //pass down the conversion factor to motor
+
         // enable brake mode (after main config)
         m_leftMotor.getConfigurator().apply(talonFXConfigs);
         m_leftMotor.setNeutralMode(NeutralModeValue.Brake);
@@ -103,15 +102,11 @@ public class ClimberArms extends SubsystemBase {
         SmartDashboard.putBoolean("ClimberArms/toTargetLeft", onTarget(MotorSelection.LEFT));
         SmartDashboard.putNumber("ClimberArms/currentRPMLeft", getRPM(m_leftMotor));
         SmartDashboard.putNumber("ClimberArms/goalDistanceLeft", m_goalDistanceLeft);
-        SmartDashboard.putNumber("ClimberArms/goalRotationLeft", m_goalRotationLeft);
-        SmartDashboard.putNumber("ClimberArms/currentRotationLeft", getCurrentRotation(MotorSelection.LEFT));
         SmartDashboard.putNumber("ClimberArms/currentDistanceLeft", getCurrentDistance(MotorSelection.LEFT));
         
         SmartDashboard.putBoolean("ClimberArms/toTargetRight", onTarget(MotorSelection.RIGHT));
         SmartDashboard.putNumber("ClimberArms/currentRPMRight", getRPM(m_rightMotor));
         SmartDashboard.putNumber("ClimberArms/goalDistanceRight", m_goalDistanceRight);
-        SmartDashboard.putNumber("ClimberArms/goalRotationRight", m_goalRotationRight);
-        SmartDashboard.putNumber("ClimberArms/currentRotationRight", getCurrentRotation(MotorSelection.RIGHT));
         SmartDashboard.putNumber("ClimberArms/currentDistanceRight", getCurrentDistance(MotorSelection.RIGHT));
 
     }
@@ -131,43 +126,25 @@ public class ClimberArms extends SubsystemBase {
 
         if (selectedMotor == MotorSelection.LEFT) {
             m_goalDistanceLeft = distance;
-            m_goalRotationLeft = distanceToRotation(distance);
-            setRotation(m_goalRotationLeft, m_leftMotor, slotNumber);
+            setDistance(m_goalDistanceLeft, m_leftMotor, slotNumber);
         }else {
             m_goalDistanceRight = distance;
-            m_goalRotationRight = distanceToRotation(distance);
-            setRotation(m_goalRotationRight, m_rightMotor, slotNumber);
+            setDistance(m_goalDistanceRight, m_rightMotor, slotNumber);
         }
         
     }
 
-    private void setRotation(double rotation, TalonFX motor, int slotNumber) {
+    private void setDistance(double rotation, TalonFX motor, int slotNumber) {
         motor.setControl(new MotionMagicVoltage(rotation).withSlot(slotNumber));
     }
     
-    public double getCurrentRotation(MotorSelection selectedMotor){
-        if (selectedMotor == MotorSelection.LEFT) {
-            m_currentRotationLeft = m_leftMotor.getPosition().getValueAsDouble();
-            return m_currentRotationLeft;
-        }else {
-            m_currentRotationRight = m_rightMotor.getPosition().getValueAsDouble();
-            return m_currentRotationRight;
-        }
-    }
-
-    /**
-     * Gets the current rotation of the selected climber motor.
-     *
-     * @param selectedMotor which climber motor to read (LEFT or RIGHT)
-     * @return the current motor position in rotations as reported by the TalonFX
-     */
 
     public double getCurrentDistance(MotorSelection selectedMotor) {
         if (selectedMotor == MotorSelection.LEFT) {
-            m_currentDistanceLeft = rotationToDistance(m_currentRotationLeft);
+            m_currentDistanceLeft = m_leftMotor.getPosition().getValueAsDouble();
             return m_currentDistanceLeft;
         }else {
-            m_currentDistanceRight = rotationToDistance(m_currentRotationRight);
+            m_currentDistanceLeft = m_rightMotor.getPosition().getValueAsDouble();
             return m_currentDistanceRight;
         }
 
@@ -182,9 +159,9 @@ public class ClimberArms extends SubsystemBase {
 
     public boolean onTarget(MotorSelection selectedMotor){
         if (selectedMotor == MotorSelection.LEFT) {
-            return Math.abs(m_currentRotationLeft - m_goalRotationLeft) < TOLERANCE;
+            return Math.abs(m_currentDistanceLeft - m_goalDistanceLeft) < TOLERANCE;
         }else {
-            return Math.abs(m_currentRotationRight - m_goalRotationRight) < TOLERANCE;
+            return Math.abs(m_currentDistanceRight - m_goalDistanceRight) < TOLERANCE;
         }
         
     }
@@ -197,11 +174,4 @@ public class ClimberArms extends SubsystemBase {
      *         {@code false} otherwise
      */
     
-    private double distanceToRotation(double distance){
-        return distance * ROTATIONS_PER_INCHES;
-    }
-
-    private double rotationToDistance(double rotation){
-        return rotation / ROTATIONS_PER_INCHES;
-    }
 }
