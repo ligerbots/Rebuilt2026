@@ -77,7 +77,7 @@ public class AprilTagVision {
     static final Matrix<N3, N1> MULTI_TAG_BASE_STDDEV = VecBuilder.fill(0.45, 0.45, 0.45);
 
     private enum Cam {
-        FRONT_RIGHT(0)
+        FRONT_RIGHT(0);
         // FRONT_LEFT(1);
         // BACK(2);
 
@@ -267,10 +267,13 @@ public class AprilTagVision {
 
                 // find the best global pose estimate, and update the odometry
                 try {
-                    Optional<EstimatedRobotPose> estPose = frame.camera.poseEstimator.update(frame.pipelineResult);
-                    // if we got not estimate, just move on
-                    if (estPose.isEmpty())
+                    Optional<EstimatedRobotPose> estPose = frame.camera.poseEstimator.estimateCoprocMultiTagPose(frame.pipelineResult);
+                    // if we got not estimate, try single tag method
+                    if (estPose.isEmpty()) {
+                        // TODO handle single tag!
+                        // closestToReferenceHeading(frame.camera, frame.pipelineResult.)
                         continue;
+                    }
 
                     EstimatedRobotPose poseEstimate = estPose.get();
                     Optional<Matrix<N3, N1>> estStdDev = estimateStdDev(poseEstimate);
