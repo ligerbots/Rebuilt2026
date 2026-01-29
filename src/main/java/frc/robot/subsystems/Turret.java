@@ -84,8 +84,8 @@ public class Turret extends SubsystemBase {
     SmartDashboard.putNumber("turret/goalAngle", m_goal.getDegrees());
     SmartDashboard.putNumber("turret/currentAngle", getPosition().getDegrees());
     SmartDashboard.putNumber("turret/rawMotorAngle", m_turretMotor.getPosition().getValueAsDouble()*360);
-    SmartDashboard.putNumber("turret/chineseRemainderPositionRotations", ChineseRemainder.findAngle(Rotation2d.fromRotations(m_thrubore1.getAbsolutePosition().getValueAsDouble()), 11, Rotation2d.fromRotations((m_thrubore2.getAbsolutePosition().getValueAsDouble()))
-    , 13, 100).getRotations());
+    //SmartDashboard.putNumber("turret/chineseRemainderPositionRotations", ChineseRemainder.findAngle(Rotation2d.fromRotations(m_thrubore1.getAbsolutePosition().getValueAsDouble()), 11, Rotation2d.fromRotations((m_thrubore2.getAbsolutePosition().getValueAsDouble()))
+    //, 13, 100).getRotations());
   
     // This method will be called once per scheduler run
   }
