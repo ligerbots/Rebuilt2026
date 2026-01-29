@@ -4,6 +4,7 @@
 //look for motor ratios
 package frc.robot.subsystems;
 
+import frc.robot.Constants;
 import frc.robot.utilities.ChineseRemainder;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -14,13 +15,17 @@ import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
-
+import com.ctre.phoenix6.hardware.CANcoder;
+import com.ctre.phoenix6.configs.CANcoderConfiguration;
 
 public class Turret extends SubsystemBase {
 
   private Rotation2d m_goal = Rotation2d.fromDegrees(0.0);
 
   private final TalonFX m_turretMotor;
+  private final CANcoder m_thrubore1; 
+  private final CANcoder m_thrubore2; 
+
 
   private static final double SUPPLY_CURRENT_LIMIT = 60;
   private static final double STATOR_CURRENT_LIMIT = 40;
@@ -30,21 +35,27 @@ public class Turret extends SubsystemBase {
   private static final double MAX_ACC_ROT_PER_SEC_SQ = 0.5;
   private static final Rotation2d MAX_ROTATION = Rotation2d.fromRadians(Math.PI);
   private static final Rotation2d MIN_ROTATION = Rotation2d.fromRadians(-Math.PI);
-  private static final int ENCODER_1_TOOTH_COUNT = 11;
-  private static final int ENCODER_2_TOOTH_COUNT = 13;
-  private static final int TURRET_TOOTH_COUNT = 100;
-  
-  private static final double GEAR_RATIO1_MOTOR_TO_TURRET = ENCODER_1_TOOTH_COUNT/TURRET_TOOTH_COUNT;
-  private static final double GEAR_RATIO2_MOTOR_TO_TURRET = ENCODER_2_TOOTH_COUNT/TURRET_TOOTH_COUNT;
+  private static final double ENCODER_1_TOOTH_COUNT = 11;
+  private static final double ENCODER_2_TOOTH_COUNT = 13;
+  private static final double TURRET_TOOTH_COUNT = 100;
+  private static final double TURRET_GEAR_RATIO =  1.d/((12.d)/(54.d) * (10.d)/(100.d));
+
   private static final double POSITION_OFFSET = 20.0; //TODO find offset using chinese remainder theorem
 
-  private static final double TURRET_ANGLE = ChineseRemainder.findAngle();
   /** Creates a new Turret. */
   public Turret() {
-    m_turretMotor = new TalonFX(0); //TODO add the motor id constant
-  
+    m_turretMotor = new TalonFX(Constants.TURRET_CAN_ID); //TODO add the motor id constant
+    m_thrubore1 =  new CANcoder(Constants.CAN_CODER1);
+    m_thrubore2 = new CANcoder(Constants.CAN_CODER2);
+
+    var toApply = new CANcoderConfiguration();
+    m_thrubore1.getConfigurator().apply(toApply);
+    m_thrubore2.getConfigurator().apply(toApply);
+
     TalonFXConfiguration talonFXConfigs = new TalonFXConfiguration();
 
+    talonFXConfigs.Feedback.withSensorToMechanismRatio(TURRET_GEAR_RATIO);
+    
     talonFXConfigs.CurrentLimits.SupplyCurrentLimit = SUPPLY_CURRENT_LIMIT;
     talonFXConfigs.CurrentLimits.StatorCurrentLimit = STATOR_CURRENT_LIMIT;
     
@@ -58,16 +69,12 @@ public class Turret extends SubsystemBase {
     magicConfigs.MotionMagicAcceleration = MAX_ACC_ROT_PER_SEC_SQ; 
 
     m_turretMotor.getConfigurator().apply(talonFXConfigs);
-    m_turretMotor.setPosition(0); //make a seperae routuie
-    //gearratio*rotations-position offset, offset is from chinese remainder theorem
-    
+  
     //go to position, but igure out how to go to position based on limitations
     //compute nearest position clockwise or counterclockwise with + or -, one side og 0 is -, other is +
     //whichever is closer if both follow rules 
 
-    //later: motor encoded not to worry rn
-
-
+    zeroTurret();
     
   }
 
@@ -77,9 +84,15 @@ public class Turret extends SubsystemBase {
     SmartDashboard.putNumber("turret/goalAngle", m_goal.getDegrees());
     SmartDashboard.putNumber("turret/currentAngle", getPosition().getDegrees());
     SmartDashboard.putNumber("turret/rawMotorAngle", m_turretMotor.getPosition().getValueAsDouble()*360);
-    // SmartDashboard.putNumber("turret/chineseRemainderPosition", )//chinese )
+    SmartDashboard.putNumber("turret/chineseRemainderPositionRotations", ChineseRemainder.findAngle(Rotation2d.fromRotations(m_thrubore1.getAbsolutePosition().getValueAsDouble()), 11, Rotation2d.fromRotations((m_thrubore2.getAbsolutePosition().getValueAsDouble()))
+    , 13, 100).getRotations());
   
     // This method will be called once per scheduler run
+  }
+
+  public void optimizeGoal(){
+    //find optimal path
+    //see if the path is 
   }
 
   public void set(Rotation2d angle) {
@@ -92,12 +105,18 @@ public class Turret extends SubsystemBase {
     return Rotation2d.fromRotations(m_turretMotor.getPosition().getValueAsDouble());
   }
     
-//mathutil.clamp
-//routine for motor yo turret
-//routine to clamp angle if it is too big for the turret to turn to (prevents it from going past phusical limits)
+
+  public void zeroTurret(){
+    Rotation2d turrentAngle = ChineseRemainder.findAngle(Rotation2d.fromRotations(m_thrubore1.getAbsolutePosition().getValueAsDouble()), 11, Rotation2d.fromRotations((m_thrubore2.getAbsolutePosition().getValueAsDouble()))
+    , 13, 100);
+    m_turretMotor.setPosition(turrentAngle.getRotations()-POSITION_OFFSET/360.0);
+
+  }
+
   private Rotation2d limitRotation(Rotation2d angle){
     return Rotation2d.fromRadians(MathUtil.clamp(angle.getDegrees(), MIN_ROTATION.getDegrees(), MAX_ROTATION.getRadians()));
-  //this is for 30 degrees, want 360
+    //optimization in here
+    //optimal path goes to 
 
   }
 }
