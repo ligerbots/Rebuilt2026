@@ -94,7 +94,6 @@ public class Turret extends SubsystemBase {
     
 //mathutil.clamp
 //routine for motor yo turret
-
 //routine to clamp angle if it is too big for the turret to turn to (prevents it from going past phusical limits)
   private Rotation2d limitRotation(Rotation2d angle){
     return Rotation2d.fromRadians(MathUtil.clamp(angle.getDegrees(), MIN_ROTATION.getDegrees(), MAX_ROTATION.getRadians()));
