@@ -4,6 +4,7 @@
 //look for motor ratios
 package frc.robot.subsystems;
 
+import frc.robot.utilities.ChineseRemainder;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -33,12 +34,11 @@ public class Turret extends SubsystemBase {
   private static final int ENCODER_2_TOOTH_COUNT = 13;
   private static final int TURRET_TOOTH_COUNT = 100;
   
-  private static final double GEAR_RATIO_MOTOR_TO_TURRET = 100/13;
+  private static final double GEAR_RATIO1_MOTOR_TO_TURRET = ENCODER_1_TOOTH_COUNT/TURRET_TOOTH_COUNT;
+  private static final double GEAR_RATIO2_MOTOR_TO_TURRET = ENCODER_2_TOOTH_COUNT/TURRET_TOOTH_COUNT;
+  private static final double POSITION_OFFSET = 20.0; //TODO find offset using chinese remainder theorem
 
-  //three gear teeth, 100, 11, 13, chinese remainder theorme
-  //motor gear to the 100 teeth ratio, use to scale readings
-  //posiyion offset 
-
+  private static final double TURRET_ANGLE = ChineseRemainder.findAngle();
   /** Creates a new Turret. */
   public Turret() {
     m_turretMotor = new TalonFX(0); //TODO add the motor id constant
@@ -52,7 +52,7 @@ public class Turret extends SubsystemBase {
     slot0configs.kP = K_P;
     slot0configs.kI = 0.0;
     slot0configs.kD = 0.0;
-
+    //setting up motionmagic configs
     MotionMagicConfigs magicConfigs = talonFXConfigs.MotionMagic;
     magicConfigs.MotionMagicCruiseVelocity = MAX_VEL_ROT_PER_SEC; 
     magicConfigs.MotionMagicAcceleration = MAX_ACC_ROT_PER_SEC_SQ; 
@@ -87,13 +87,15 @@ public class Turret extends SubsystemBase {
     m_turretMotor.setControl(new MotionMagicVoltage(m_goal.getRotations()));
   }
 
+//get position of turret
   public Rotation2d getPosition(){
     return Rotation2d.fromRotations(m_turretMotor.getPosition().getValueAsDouble());
   }
-
     
 //mathutil.clamp
 //routine for motor yo turret
+
+//routine to clamp angle if it is too big for the turret to turn to (prevents it from going past phusical limits)
   private Rotation2d limitRotation(Rotation2d angle){
     return Rotation2d.fromRadians(MathUtil.clamp(angle.getDegrees(), MIN_ROTATION.getDegrees(), MAX_ROTATION.getRadians()));
   //this is for 30 degrees, want 360
