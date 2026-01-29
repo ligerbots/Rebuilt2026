@@ -24,13 +24,20 @@ public class Turret extends SubsystemBase {
   private static final double SUPPLY_CURRENT_LIMIT = 60;
   private static final double STATOR_CURRENT_LIMIT = 40;
 
-  // TODO Tune the constants
-  private static final double K_P = 1.0; 
-  private static final double MAX_VEL_ROT_PER_SEC = 1;  // Target cruise velocity of 80 rps
-  private static final double MAX_ACC_ROT_PER_SEC_SQ = 0.5;   // Target acceleration of 160 rps/s (0.5 seconds) 
-  private static final Rotation2d MAX_ROTATION = Rotation2d.fromRadians(2 * Math.PI);
-  private static final Rotation2d MIN_ROTATION = Rotation2d.fromRadians(0.0);
+  private static final double K_P = 1.0; //TODO tune
+  private static final double MAX_VEL_ROT_PER_SEC = 1;//TODO add new rotations/sec instead of meters
+  private static final double MAX_ACC_ROT_PER_SEC_SQ = 0.5;
+  private static final Rotation2d MAX_ROTATION = Rotation2d.fromRadians(Math.PI);
+  private static final Rotation2d MIN_ROTATION = Rotation2d.fromRadians(-Math.PI);
+  private static final int ENCODER_1_TOOTH_COUNT = 11;
+  private static final int ENCODER_2_TOOTH_COUNT = 13;
+  private static final int TURRET_TOOTH_COUNT = 100;
+  
+  private static final double GEAR_RATIO_MOTOR_TO_TURRET = 100/13;
 
+  //three gear teeth, 100, 11, 13, chinese remainder theorme
+  //motor gear to the 100 teeth ratio, use to scale readings
+  //posiyion offset 
 
   /** Creates a new Turret. */
   public Turret() {
@@ -51,15 +58,28 @@ public class Turret extends SubsystemBase {
     magicConfigs.MotionMagicAcceleration = MAX_ACC_ROT_PER_SEC_SQ; 
 
     m_turretMotor.getConfigurator().apply(talonFXConfigs);
-    m_turretMotor.setPosition(0);
+    m_turretMotor.setPosition(0); //make a seperae routuie
+    //gearratio*rotations-position offset, offset is from chinese remainder theorem
+    
+    //go to position, but igure out how to go to position based on limitations
+    //compute nearest position clockwise or counterclockwise with + or -, one side og 0 is -, other is +
+    //whichever is closer if both follow rules 
+
+    //later: motor encoded not to worry rn
+
+
+    
   }
 
   // This method will be called once per scheduler run
   @Override
   public void periodic() {    
-    SmartDashboard.putNumber("turret/goalAngle", m_goal.getRadians());
-    SmartDashboard.putNumber("turret/currentAngle", getPosition().getRadians());
-    SmartDashboard.putNumber("turret/rawMotorAngle", m_turretMotor.getPosition().getValueAsDouble());
+    SmartDashboard.putNumber("turret/goalAngle", m_goal.getDegrees());
+    SmartDashboard.putNumber("turret/currentAngle", getPosition().getDegrees());
+    SmartDashboard.putNumber("turret/rawMotorAngle", m_turretMotor.getPosition().getValueAsDouble()*360);
+    // SmartDashboard.putNumber("turret/chineseRemainderPosition", )//chinese )
+  
+    // This method will be called once per scheduler run
   }
 
   public void set(Rotation2d angle) {
@@ -71,9 +91,12 @@ public class Turret extends SubsystemBase {
     return Rotation2d.fromRotations(m_turretMotor.getPosition().getValueAsDouble());
   }
 
-  // max rotation and min rotation in constants
-  // mathutil.clamp
-  private Rotation2d limitRotation(Rotation2d angle) {
-    return Rotation2d.fromRadians(MathUtil.clamp(angle.getRadians(), MIN_ROTATION.getRadians(), MAX_ROTATION.getRadians()));
+    
+//mathutil.clamp
+//routine for motor yo turret
+  private Rotation2d limitRotation(Rotation2d angle){
+    return Rotation2d.fromRadians(MathUtil.clamp(angle.getDegrees(), MIN_ROTATION.getDegrees(), MAX_ROTATION.getRadians()));
+  //this is for 30 degrees, want 360
+
   }
 }
