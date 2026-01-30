@@ -31,13 +31,13 @@ public class RobotContainer {
 
     private static final double JOYSTICK_DEADBAND = 0.05;
 
-    /* Setting up bindings for necessary control of the swerve drive platform */
-    private final SwerveRequest.FieldCentric m_driveRequest = new SwerveRequest.FieldCentric()
-            .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
+    /* Heading-based control for driving with target facing direction */
+    private final SwerveRequest.FieldCentricFacingAngle m_driveWithHeading = new SwerveRequest.FieldCentricFacingAngle()
+            .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
+            .withHeadingPID(0.05, 0, 0); // PID gains for heading controller
 
-    // set the swerve wheels in an X pattern
+    // Set the swerve wheels in an X pattern
     private final SwerveRequest.SwerveDriveBrake m_brakeRequest = new SwerveRequest.SwerveDriveBrake();
-    // private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
 
     private final Telemetry m_logger = new Telemetry(MAX_SPEED);
 
@@ -129,16 +129,29 @@ public class RobotContainer {
     }    
 
     public Command getDriveCommand() {
-        // The controls are for field-oriented driving:
+        // The controls are for field-oriented driving with heading control:
         // Left stick Y axis -> forward and backwards movement
         // Left stick X axis -> left and right movement
-        // Right stick X axis -> rotation
+        // Right stick X axis -> target heading angle (robot maintains this angle)
 
-        return m_drivetrain.applyRequest(() ->
-                m_driveRequest.withVelocityX(-conditionAxis(m_driverController.getLeftY()) * MAX_SPEED)
-                    .withVelocityY(-conditionAxis(m_driverController.getLeftX()) * MAX_SPEED)
-                    .withRotationalRate(-conditionAxis(m_driverController.getRightX()) * MAX_ANGULAR_RATE)
+        return m_drivetrain.applyRequest(() -> {
+            // Calculate target heading from right stick X axis
+            // Stick position is mapped to a heading angle
+            double headingInput = -conditionAxis(m_driverController.getRightX());
+            
+            // Get current robot heading and add the stick input to it
+            // This creates a smooth heading control where stick input rotates the target
+            edu.wpi.first.math.geometry.Rotation2d currentHeading = m_drivetrain.getState().Pose.getRotation();
+            edu.wpi.first.math.geometry.Rotation2d targetHeading = currentHeading.plus(
+                edu.wpi.first.math.geometry.Rotation2d.fromRadians(headingInput * 0.05) // Scale down for smooth control
             );
+            
+            return m_driveWithHeading
+                .withVelocityX(-conditionAxis(m_driverController.getLeftY()) * MAX_SPEED)
+                .withVelocityY(-conditionAxis(m_driverController.getLeftX()) * MAX_SPEED)
+                .withTargetDirection(targetHeading)
+                .withMaxAbsRotationalRate(MAX_ANGULAR_RATE); // Limit rotation speed
+        });
     }
 
     private double conditionAxis(double value) {
