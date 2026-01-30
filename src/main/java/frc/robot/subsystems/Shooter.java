@@ -21,7 +21,7 @@ public class Shooter extends SubsystemBase {
 
   public enum ShotType {
     HUB_SHOT,
-    SHUTTLE_SHOT
+    PASSING
   }
 
   private ShooterState m_currentState = ShooterState.IDLE;
