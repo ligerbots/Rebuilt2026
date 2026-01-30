@@ -19,13 +19,13 @@ public class Shooter extends SubsystemBase {
     READY_TO_SHOOT
   }
 
-  public enum ShootType {
+  public enum ShotType {
     HUB_SHOT,
     SHUTTLE_SHOT
   }
 
   private ShooterState m_currentState = ShooterState.IDLE;
-  private ShootType m_shootType = ShootType.HUB_SHOT;
+  private ShotType m_shootType = ShotType.HUB_SHOT;
 
 
   private final ShooterLookupTable m_hubShooterLookupTable;
@@ -62,7 +62,7 @@ public class Shooter extends SubsystemBase {
 
     // Phase 1: Calculate distance to target and retrieve shooter hood angle and speed from shot type.
     ShooterLookupTable.ShootValue shootValues;
-    if (m_shootType == ShootType.HUB_SHOT) {
+    if (m_shootType == ShotType.HUB_SHOT) {
       shootValues = m_hubShooterLookupTable.getShootValues(m_targetDistanceMeters);
     } else {
       shootValues = m_shuttleShooterLookupTable.getShootValues(m_targetDistanceMeters);
@@ -134,7 +134,7 @@ public class Shooter extends SubsystemBase {
     return m_currentState;
   }
 
-  public void setShootType(ShootType shootType) {
+  public void setShootType(ShotType shootType) {
     m_shootType = shootType;
   }
 }

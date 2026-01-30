@@ -59,7 +59,7 @@ public class ShootHub extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    m_shooter.setShootType(Shooter.ShootType.HUB_SHOT);
+    m_shooter.setShootType(Shooter.ShotType.HUB_SHOT);
   }
 
   @Override
