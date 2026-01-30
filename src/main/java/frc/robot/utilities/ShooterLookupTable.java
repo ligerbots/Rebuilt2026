@@ -23,7 +23,7 @@ public class ShooterLookupTable {
   private final TreeMap<Double, ShootValue> m_lookupTable;
 
   // Separator between values in each line (Distance/RPM/HoodAngle)
-  private static final String SEPARATOR = "/";
+  private static final String SEPARATOR = ",";
 
 
   public ShooterLookupTable(String path) {
