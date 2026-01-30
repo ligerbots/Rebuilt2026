@@ -34,7 +34,7 @@ public class RobotContainer {
     /* Heading-based control for driving with target facing direction */
     private final SwerveRequest.FieldCentricFacingAngle m_driveWithHeading = new SwerveRequest.FieldCentricFacingAngle()
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
-            .withHeadingPID(0.05, 0, 0); // PID gains for heading controller
+            .withHeadingPID(5.0, 0, 0); // PID gains for heading controller
 
     // Set the swerve wheels in an X pattern
     private final SwerveRequest.SwerveDriveBrake m_brakeRequest = new SwerveRequest.SwerveDriveBrake();
@@ -143,7 +143,7 @@ public class RobotContainer {
             // This creates a smooth heading control where stick input rotates the target
             edu.wpi.first.math.geometry.Rotation2d currentHeading = m_drivetrain.getState().Pose.getRotation();
             edu.wpi.first.math.geometry.Rotation2d targetHeading = currentHeading.plus(
-                edu.wpi.first.math.geometry.Rotation2d.fromRadians(headingInput * 0.05) // Scale down for smooth control
+                edu.wpi.first.math.geometry.Rotation2d.fromRadians(headingInput * 0.5) // Scale down for smooth control
             );
             
             return m_driveWithHeading
