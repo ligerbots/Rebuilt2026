@@ -96,11 +96,11 @@ public class ShootHub extends Command {
   }
 
   private double getDistanceToTarget() {
-    return getTurretPosition().getDistance(FieldConstants.HUB_POSITION);
+    return getTurretPosition().getDistance(FieldConstants.flipTranslation(FieldConstants.HUB_POSITION));
   }
 
   private Rotation2d getAngleToTarget() {
-    Rotation2d overallAngle = getTurretPosition().minus(FieldConstants.HUB_POSITION).getAngle();
+    Rotation2d overallAngle = getTurretPosition().minus(FieldConstants.flipTranslation(FieldConstants.HUB_POSITION)).getAngle();
     return overallAngle.plus(m_drivetrain.getState().Pose.getRotation());
   }
 

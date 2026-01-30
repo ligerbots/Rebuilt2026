@@ -12,7 +12,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
 public class FieldConstants {
-    public static final Translation2d HUB_POSITION = flipTranslation(new Translation2d(0.0,0.0)); // TODO: figure out actual hub position on field
+    public static final Translation2d HUB_POSITION = new Translation2d(0.0,0.0); // TODO: figure out actual hub position on field
  
     public static boolean isRedAlliance() {
         Optional<Alliance> alliance = DriverStation.getAlliance();
