@@ -22,6 +22,10 @@ public class ShooterLookupTable {
 
   private final TreeMap<Double, ShootValue> m_lookupTable;
 
+  // Separator between values in each line (Distance/RPM/HoodAngle)
+  private static final String SEPARATOR = "/";
+
+
   public ShooterLookupTable(String path) {
     m_lookupTable = loadLookupTableFromFile(path);
   }
@@ -101,24 +105,12 @@ public class ShooterLookupTable {
         new FileReader(
             new File(
                 Filesystem.getDeployDirectory(), LOOKUP_TABLE_DIRECTORY + fileName + LOOKUP_TABLE_EXTENSION)))) {
-      StringBuilder fileContentBuilder = new StringBuilder();
-      String line;
-      while ((line = br.readLine()) != null) {
-        fileContentBuilder.append(line);
-      }
-
-      String fileContent = fileContentBuilder.toString();
-
-      // Separator between values in each line (Distance/RPM/HoodAngle)
-      String separator = "/";
-
       TreeMap<Double, ShootValue> parsedTable = new TreeMap<>();
+      String line;
       
-      // Split by newlines and process each entry
-      String[] entries = fileContent.split("\\n");
-      for (String entry : entries) {
+      while ((line = br.readLine()) != null) {
         // Trim and remove all non-numeric/separator characters
-        String cleanedEntry = entry.replaceAll("[^0-9." + separator + "]", "").trim();
+        String cleanedEntry = line.replaceAll("[^0-9." + SEPARATOR + "]", "").trim();
         
         // Skip empty entries
         if (cleanedEntry.isEmpty()) {
@@ -126,7 +118,7 @@ public class ShooterLookupTable {
         }
         
         // Parse the three separator-delimited values
-        String[] values = cleanedEntry.split(separator);
+        String[] values = cleanedEntry.split(SEPARATOR);
         if (values.length != 3) {
           continue; // Skip malformed entries
         }
@@ -150,10 +142,10 @@ public class ShooterLookupTable {
       return parsedTable.isEmpty() ? null : parsedTable;
     } catch (FileNotFoundException e) {
       // Auto-generated catch block
-      e.printStackTrace();
+      System.err.println("Lookup table file not found: " + fileName + " " + e.getStackTrace().toString());
     } catch (IOException e) {
       // Auto-generated catch block
-      e.printStackTrace();
+      System.err.println("Error reading lookup table file: " + fileName + " " + e.getStackTrace().toString());
     }
     return null;
   }
