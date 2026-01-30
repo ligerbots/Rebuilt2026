@@ -227,6 +227,7 @@ public class AprilTagVision {
                     // if we got not estimate, try single tag method
                     if (estPose.isEmpty()) {
                         estPose = closestToReferenceHeading(frame, currentPose.getRotation().getRadians());
+                        // System.out.println("single tag:" + estPose.isEmpty());
                     }
                     if (estPose.isEmpty())
                         continue;
