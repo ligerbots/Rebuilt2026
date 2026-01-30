@@ -35,9 +35,9 @@ public class Turret extends SubsystemBase {
   private static final double MAX_ACC_ROT_PER_SEC_SQ = 0.5;
   private static final Rotation2d MAX_ROTATION = Rotation2d.fromRadians(Math.PI);
   private static final Rotation2d MIN_ROTATION = Rotation2d.fromRadians(-Math.PI);
-  private static final double ENCODER_1_TOOTH_COUNT = 11;
-  private static final double ENCODER_2_TOOTH_COUNT = 13;
-  private static final double TURRET_TOOTH_COUNT = 100;
+  //private static final double ENCODER_1_TOOTH_COUNT = 11;
+  //private static final double ENCODER_2_TOOTH_COUNT = 13;
+  //private static final double TURRET_TOOTH_COUNT = 100;
   private static final double TURRET_GEAR_RATIO =  1.d/((12.d)/(54.d) * (10.d)/(100.d));
 
   private static final double POSITION_OFFSET = 20.0; //TODO find offset using chinese remainder theorem
@@ -74,7 +74,7 @@ public class Turret extends SubsystemBase {
     //compute nearest position clockwise or counterclockwise with + or -, one side og 0 is -, other is +
     //whichever is closer if both follow rules 
 
-    zeroTurret();
+    syncRelativeEncoders();
     
   }
 
@@ -87,13 +87,43 @@ public class Turret extends SubsystemBase {
     //SmartDashboard.putNumber("turret/chineseRemainderPositionRotations", ChineseRemainder.findAngle(Rotation2d.fromRotations(m_thrubore1.getAbsolutePosition().getValueAsDouble()), 11, Rotation2d.fromRotations((m_thrubore2.getAbsolutePosition().getValueAsDouble()))
     //, 13, 100).getRotations());
   
-    // This method will be called once per scheduler run
   }
 
-  public void optimizeGoal(){
-    //find optimal path
-    //see if the path is 
-  }
+
+    public double calculateTurretAngle(double setAngle, double minAngle, double maxAngle, double currentAngle) {
+    // Normalize set angle to 0-360
+    double normalizedSetAngle = setAngle % 360;
+    if (normalizedSetAngle < 0) {
+        normalizedSetAngle += 360;
+    }
+    
+    // Find all possible target angles that correspond to the desired position
+    // These are: normalizedSetAngle, normalizedSetAngle ± 360, normalizedSetAngle ± 720, etc.
+    // But we only need to check nearby rotations since our range is limited
+    double[] candidates = {
+        normalizedSetAngle - 360,
+        normalizedSetAngle,
+        normalizedSetAngle + 360
+    };
+    
+    double bestAngle = currentAngle;
+    double shortestDistance = Double.MAX_VALUE;
+    
+    for (double candidate : candidates) {
+        // Check if this candidate is within physical limits
+        if (candidate >= minAngle && candidate <= maxAngle) {
+            double distance = Math.abs(candidate - currentAngle);
+            
+            if (distance < shortestDistance) {
+                shortestDistance = distance;
+                bestAngle = candidate;
+            }
+        }
+    }
+    
+    return bestAngle;
+}
+
 
   public void set(Rotation2d angle) {
     m_goal = limitRotation(angle);
@@ -106,15 +136,15 @@ public class Turret extends SubsystemBase {
   }
     
 
-  public void zeroTurret(){
-    Rotation2d turrentAngle = ChineseRemainder.findAngle(Rotation2d.fromRotations(m_thrubore1.getAbsolutePosition().getValueAsDouble()), 11, Rotation2d.fromRotations((m_thrubore2.getAbsolutePosition().getValueAsDouble()))
+  public void syncRelativeEncoders(){
+    Rotation2d turretAngle = ChineseRemainder.findAngle(Rotation2d.fromRotations(m_thrubore1.getAbsolutePosition().getValueAsDouble()), 11, Rotation2d.fromRotations((m_thrubore2.getAbsolutePosition().getValueAsDouble()))
     , 13, 100);
-    m_turretMotor.setPosition(turrentAngle.getRotations()-POSITION_OFFSET/360.0);
+    m_turretMotor.setPosition(turretAngle.getRotations()-POSITION_OFFSET/360.0);
 
   }
 
   private Rotation2d limitRotation(Rotation2d angle){
-    return Rotation2d.fromRadians(MathUtil.clamp(angle.getDegrees(), MIN_ROTATION.getDegrees(), MAX_ROTATION.getRadians()));
+    return Rotation2d.fromRadians(MathUtil.clamp(angle.getDegrees(), MIN_ROTATION.getDegrees(), MAX_ROTATION.getDegrees()));
     //optimization in here
     //optimal path goes to 
 
