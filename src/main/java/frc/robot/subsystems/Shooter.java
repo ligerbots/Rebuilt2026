@@ -74,12 +74,12 @@ public class Shooter extends SubsystemBase {
     }
 
     // Phase 2: Set shooter speed, and hood angle
-    m_flywheel.setRPM(shootValues.m_rpm);
-    m_hood.setAngle(shootValues.m_hoodAngle);
+    m_flywheel.setRPM(shootValues.rpm);
+    m_hood.setAngle(shootValues.hoodAngle);
 
     // Phase 3: Check if all subsystems are at target values before running feeder
-    if (isFlywheelAtTarget(shootValues.m_rpm) &&
-      isHoodAtTarget(shootValues.m_hoodAngle)) {
+    if (isFlywheelAtTarget(shootValues.rpm) &&
+      isHoodAtTarget(shootValues.hoodAngle)) {
         m_currentState = ShooterState.READY_TO_SHOOT;
     } else {
         m_currentState = ShooterState.SPINNING_UP;

@@ -35,8 +35,8 @@ public class ShooterLookupTable {
    * Represents RPM and hood angle for a given distance.
    */
   public static class ShootValue {
-    public final double m_rpm;
-    public final Rotation2d m_hoodAngle;
+    public final double rpm;
+    public final Rotation2d hoodAngle;
 
     /**
      * Creates a new ShootValue.
@@ -45,8 +45,8 @@ public class ShooterLookupTable {
      * @param hoodAngle The hood angle as a Rotation2d object
      */
     public ShootValue(double rpm, Rotation2d hoodAngle) {
-      this.m_rpm = rpm;
-      this.m_hoodAngle = hoodAngle;
+      this.rpm = rpm;
+      this.hoodAngle = hoodAngle;
     }
   }
 
@@ -58,10 +58,10 @@ public class ShooterLookupTable {
    * @param ratio The interpolation ratio (0.0 to 1.0)
    * @return A new ShootValue instance with interpolated values
    */
-  public static ShootValue interpolate(ShootValue start, ShootValue end, double ratio) {
-    double interpolatedRpm = start.m_rpm + (end.m_rpm - start.m_rpm) * ratio;
+  private static ShootValue interpolate(ShootValue start, ShootValue end, double ratio) {
+    double interpolatedRpm = start.rpm + (end.rpm - start.rpm) * ratio;
     // Interpolate hood angle using Rotation2d arithmetic: start + (end - start) * ratio
-    Rotation2d interpolatedHoodAngle = start.m_hoodAngle.plus(end.m_hoodAngle.minus(start.m_hoodAngle).times(ratio));
+    Rotation2d interpolatedHoodAngle = start.hoodAngle.plus(end.hoodAngle.minus(start.hoodAngle).times(ratio));
     return new ShootValue(interpolatedRpm, interpolatedHoodAngle);
   }
 
