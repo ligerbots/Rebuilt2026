@@ -6,8 +6,12 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.FieldConstants;
+
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -16,6 +20,8 @@ import com.ctre.phoenix6.hardware.TalonFX;
 
 
 public class Turret extends SubsystemBase {
+
+  public static final Translation2d TURRET_OFFSET = FieldConstants.flipTranslation(new Translation2d(Units.inchesToMeters(8.33),  Units.inchesToMeters(0-4.36))); // TODO: Check offset hasn't changed
 
   private Rotation2d m_goal = Rotation2d.fromDegrees(0.0);
 
