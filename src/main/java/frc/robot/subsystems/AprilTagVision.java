@@ -60,9 +60,6 @@ public class AprilTagVision {
     static final boolean PLOT_POSE_SOLUTIONS = true;
     // static final boolean PLOT_ALTERNATE_POSES = false;
 
-    // For the closestToHeading method, set a limit on how different the heading can be.
-    static final double MAX_HEADING_ERROR_RAD = Math.toRadians(10.0);
-
     // Base standard deviations for vision results
     static final Matrix<N3, N1> SINGLE_TAG_BASE_STDDEV = VecBuilder.fill(0.9, 0.9, 0.9);
     static final Matrix<N3, N1> MULTI_TAG_BASE_STDDEV = VecBuilder.fill(0.45, 0.45, 0.45);
@@ -359,11 +356,11 @@ public class AprilTagVision {
             }
         }
 
-        // return the closest pose, if reasonable
-        // Note: PoseStrategy does not have value for this strategy, so just use Closes
-        if (bestPose == null || bestDiff > MAX_HEADING_ERROR_RAD)
+        // return the closest pose, if there is one
+        if (bestPose == null)
             return Optional.empty();
 
+        // Note: PoseStrategy does not have value for this strategy, so just use Closes
         return Optional.of(new EstimatedRobotPose(bestPose, timestamp, List.of(bestTarget),
                 PoseStrategy.CLOSEST_TO_REFERENCE_POSE));
     }
