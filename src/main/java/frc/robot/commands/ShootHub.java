@@ -80,6 +80,7 @@ public class ShootHub extends Command {
   @Override
   public void end(boolean interrupted) {
     m_shooter.stop();
+    m_feeder.stop();
   }
 
   /**
