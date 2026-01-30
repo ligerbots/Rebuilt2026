@@ -12,6 +12,7 @@ import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -27,14 +28,14 @@ import frc.robot.subsystems.CommandSwerveDrivetrain;
 
 public class RobotContainer {
     private double MAX_SPEED = 1.0 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
-    private double MAX_ANGULAR_RATE = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
+    private double MAX_ANGULAR_RATE = RotationsPerSecond.of(0.25).in(RadiansPerSecond); // TODO: Tune 1/4 of a rotation per second max angular velocity
 
     private static final double JOYSTICK_DEADBAND = 0.05;
 
     /* Heading-based control for driving with target facing direction */
     private final SwerveRequest.FieldCentricFacingAngle m_driveWithHeading = new SwerveRequest.FieldCentricFacingAngle()
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
-            .withHeadingPID(5.0, 0, 0); // PID gains for heading controller
+            .withHeadingPID(0.05, 0, 0); // TODO tune PID gains for heading controller
 
     // Set the swerve wheels in an X pattern
     private final SwerveRequest.SwerveDriveBrake m_brakeRequest = new SwerveRequest.SwerveDriveBrake();
@@ -142,9 +143,10 @@ public class RobotContainer {
             // Get current robot heading and add the stick input to it
             // This creates a smooth heading control where stick input rotates the target
             edu.wpi.first.math.geometry.Rotation2d currentHeading = m_drivetrain.getState().Pose.getRotation();
-            edu.wpi.first.math.geometry.Rotation2d targetHeading = currentHeading.plus(
-                edu.wpi.first.math.geometry.Rotation2d.fromRadians(headingInput * 0.5) // Scale down for smooth control
-            );
+            edu.wpi.first.math.geometry.Rotation2d targetHeading = Rotation2d.fromDegrees(headingInput);
+            // currentHeading.plus(
+            //     edu.wpi.first.math.geometry.Rotation2d.fromRadians(headingInput * 0.05) // Scale down for smooth control
+            // );
             
             return m_driveWithHeading
                 .withVelocityX(-conditionAxis(m_driverController.getLeftY()) * MAX_SPEED)
