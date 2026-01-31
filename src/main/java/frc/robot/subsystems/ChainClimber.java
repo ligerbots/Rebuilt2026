@@ -38,13 +38,7 @@ public class ChainClimber extends SubsystemBase {
     private static final double TOLERANCE = 1;//TODO change to a better tolerance number
 
 
-    private double m_goalDistanceLeft;
-    private double m_goalDistanceRight;
-    
-    public static enum MotorSelection {
-        LEFT,
-        RIGHT
-    }
+    private double m_goalDistance;
 
 
     // Creates a new ClimberArms
@@ -52,8 +46,7 @@ public class ChainClimber extends SubsystemBase {
 
         //TODO comment out when no longer testing
 
-        SmartDashboard.putNumber("ClimberArms/setLeft", 0);
-        SmartDashboard.putNumber("ClimberArms/setRight", 0);
+        SmartDashboard.putNumber("ClimberArms/setMotor", 0);
 
         TalonFXConfiguration talonFXConfigs = new TalonFXConfiguration();
 
@@ -99,23 +92,18 @@ public class ChainClimber extends SubsystemBase {
 
         //TODO comment out when no longer testing
 
-        setPosition(SmartDashboard.getNumber("ClimberArms/setLeft", 0), MotorSelection.LEFT, true);
-        setPosition(SmartDashboard.getNumber("ClimberArms/setRight", 0), MotorSelection.RIGHT, true);
+        setPosition(SmartDashboard.getNumber("ClimberArms/setMotor", 0), true);
 
         // SmartDashboard.getNumber("ClimberArms/setRight", 0);
 
-        SmartDashboard.putBoolean("ClimberArms/toTargetLeft", onTarget(MotorSelection.LEFT));
-        SmartDashboard.putNumber("ClimberArms/goalDistanceLeft", m_goalDistanceLeft);
-        SmartDashboard.putNumber("ClimberArms/currentDistanceLeft", getCurrentDistance(MotorSelection.LEFT));
-        
-        SmartDashboard.putBoolean("ClimberArms/toTargetRight", onTarget(MotorSelection.RIGHT));
-        SmartDashboard.putNumber("ClimberArms/goalDistanceRight", m_goalDistanceRight);
-        SmartDashboard.putNumber("ClimberArms/currentDistanceRight", getCurrentDistance(MotorSelection.RIGHT));
+        SmartDashboard.putBoolean("ClimberArms/toTarget", onTarget());
+        SmartDashboard.putNumber("ClimberArms/goalDistance", m_goalDistance);
+        SmartDashboard.putNumber("ClimberArms/currentDistance", getCurrentDistance());
 
     }
 
 
-    public void setPosition(double distance, MotorSelection selectedMotor, boolean loaded){
+    public void setPosition(double distance, boolean loaded){
         int slotNumber;
 
         if (loaded) {
@@ -124,13 +112,13 @@ public class ChainClimber extends SubsystemBase {
             slotNumber = 0;
         }
 
-        m_goalDistanceLeft = distance;
+        m_goalDistance = distance;
         m_motor.setControl(new MotionMagicVoltage(distance).withSlot(slotNumber));
         
     }
     
 
-    public double getCurrentDistance(MotorSelection selectedMotor) {
+    public double getCurrentDistance() {
       return m_motor.getPosition().getValueAsDouble();
     }
 
@@ -141,12 +129,8 @@ public class ChainClimber extends SubsystemBase {
      * @return the current motor position in rotations as reported by the TalonFX
      */
 
-    public boolean onTarget(MotorSelection selectedMotor){
-        if (selectedMotor == MotorSelection.LEFT) {
-            return Math.abs(getCurrentDistance(MotorSelection.LEFT) - m_goalDistanceLeft) < TOLERANCE;
-        }else {
-            return Math.abs(getCurrentDistance(MotorSelection.RIGHT) - m_goalDistanceRight) < TOLERANCE;
-        }
+    public boolean onTarget(){
+        return Math.abs(getCurrentDistance() - m_goalDistance) < TOLERANCE;
         
     }
 
