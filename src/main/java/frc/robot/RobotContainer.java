@@ -17,6 +17,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
@@ -32,7 +33,9 @@ public class RobotContainer {
     private static double SPEED_LIMIT = 0.5;
     private double MAX_SPEED = SPEED_LIMIT * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
     private double MAX_ANGULAR_RATE = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
-    public SlewRateLimiter m_headingLimiter = new SlewRateLimiter(4.0); // Limit how fast heading can change
+    public SlewRateLimiter m_headingLimiter = new SlewRateLimiter(10.0); // Limit how fast heading can change
+    private static double ROTATION_DEADBAND = 0.2;
+    private double m_headingGoal = 0;
 
 
     private static final double JOYSTICK_DEADBAND = 0.05;
@@ -143,10 +146,19 @@ public class RobotContainer {
         return m_drivetrain.applyRequest(() -> {
             // Calculate target heading from right stick X axis
             // Stick position is mapped to a heading angle
-            double headingInput = new Rotation2d(-conditionAxis(m_driverController.getRightX()), -conditionAxis(m_driverController.getRightY())).getRotations();
+            double headingInput = new Rotation2d(-applyRotationDeadband(m_driverController.getRightY()), -applyRotationDeadband(m_driverController.getRightX())).getRotations();
+            m_headingGoal = headingInput == 0 ? m_headingGoal : headingInput;
+            // System.out.println("Heading input: " + headingInput + " m_goal: " + m_headingGoal);
+            SmartDashboard.putNumber("Drivetrain/headingInput", headingInput);
+            SmartDashboard.putNumber("Drivetrain/m_headingGoal", m_headingGoal);
 
-            Rotation2d targetHeading = Rotation2d.fromRotations(m_headingLimiter.calculate(headingInput));
+            SmartDashboard.putNumber("Drivetrain/robotAngleThinks", m_drivetrain.getPose().getRotation().getRotations());
+
+
+            Rotation2d targetHeading = Rotation2d.fromRotations(m_headingLimiter.calculate(m_headingGoal));
+
             
+
             return m_driveWithHeading
                 .withVelocityX(-conditionAxis(m_driverController.getLeftY()) * MAX_SPEED)
                 .withVelocityY(-conditionAxis(m_driverController.getLeftX()) * MAX_SPEED)
@@ -159,5 +171,9 @@ public class RobotContainer {
         value = MathUtil.applyDeadband(value, JOYSTICK_DEADBAND);
         // Square the axis, retaining the sign
         return Math.abs(value) * value;
+    }
+
+    private double applyRotationDeadband(double value) {
+        return MathUtil.applyDeadband(value, ROTATION_DEADBAND);
     }
 }
