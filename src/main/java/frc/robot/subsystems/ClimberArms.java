@@ -50,6 +50,12 @@ public class ClimberArms extends SubsystemBase {
 
     // Creates a new ClimberArms
     public ClimberArms() {
+
+        //TODO comment out when no longer testing
+
+        SmartDashboard.putNumber("ClimberArms/setLeft", 0);
+        SmartDashboard.putNumber("ClimberArms/setRight", 0);
+
         TalonFXConfiguration talonFXConfigs = new TalonFXConfiguration();
 
         m_leftMotor = new TalonFX(Constants.CLIMBER_LEFT_MOTOR_CAN_ID);
@@ -95,6 +101,13 @@ public class ClimberArms extends SubsystemBase {
 
     @Override
     public void periodic() {
+
+        //TODO comment out when no longer testing
+
+        setPosition(SmartDashboard.getNumber("ClimberArms/setLeft", 0), MotorSelection.LEFT, true);
+        setPosition(SmartDashboard.getNumber("ClimberArms/setRight", 0), MotorSelection.RIGHT, true);
+
+        // SmartDashboard.getNumber("ClimberArms/setRight", 0);
 
         SmartDashboard.putBoolean("ClimberArms/toTargetLeft", onTarget(MotorSelection.LEFT));
         SmartDashboard.putNumber("ClimberArms/goalDistanceLeft", m_goalDistanceLeft);
