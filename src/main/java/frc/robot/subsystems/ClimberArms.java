@@ -40,10 +40,7 @@ public class ClimberArms extends SubsystemBase {
 
 
     private double m_goalDistanceLeft;
-    private double m_currentDistanceLeft;
-
     private double m_goalDistanceRight;
-    private double m_currentDistanceRight;
     
     public static enum MotorSelection {
         LEFT,
@@ -100,20 +97,15 @@ public class ClimberArms extends SubsystemBase {
     public void periodic() {
 
         SmartDashboard.putBoolean("ClimberArms/toTargetLeft", onTarget(MotorSelection.LEFT));
-        SmartDashboard.putNumber("ClimberArms/currentRPMLeft", getRPM(m_leftMotor));
         SmartDashboard.putNumber("ClimberArms/goalDistanceLeft", m_goalDistanceLeft);
         SmartDashboard.putNumber("ClimberArms/currentDistanceLeft", getCurrentDistance(MotorSelection.LEFT));
         
         SmartDashboard.putBoolean("ClimberArms/toTargetRight", onTarget(MotorSelection.RIGHT));
-        SmartDashboard.putNumber("ClimberArms/currentRPMRight", getRPM(m_rightMotor));
         SmartDashboard.putNumber("ClimberArms/goalDistanceRight", m_goalDistanceRight);
         SmartDashboard.putNumber("ClimberArms/currentDistanceRight", getCurrentDistance(MotorSelection.RIGHT));
 
     }
 
-    private double getRPM(TalonFX motor) {
-        return motor.getVelocity().getValueAsDouble() * 60; // convert rps to rpm
-    }
 
     public void setPosition(double distance, MotorSelection selectedMotor, boolean loaded){
         int slotNumber;
@@ -126,26 +118,20 @@ public class ClimberArms extends SubsystemBase {
 
         if (selectedMotor == MotorSelection.LEFT) {
             m_goalDistanceLeft = distance;
-            setDistance(m_goalDistanceLeft, m_leftMotor, slotNumber);
+            m_leftMotor.setControl(new MotionMagicVoltage(distance).withSlot(slotNumber));
         }else {
             m_goalDistanceRight = distance;
-            setDistance(m_goalDistanceRight, m_rightMotor, slotNumber);
+            m_rightMotor.setControl(new MotionMagicVoltage(distance).withSlot(slotNumber));
         }
         
-    }
-
-    private void setDistance(double rotation, TalonFX motor, int slotNumber) {
-        motor.setControl(new MotionMagicVoltage(rotation).withSlot(slotNumber));
     }
     
 
     public double getCurrentDistance(MotorSelection selectedMotor) {
         if (selectedMotor == MotorSelection.LEFT) {
-            m_currentDistanceLeft = m_leftMotor.getPosition().getValueAsDouble();
-            return m_currentDistanceLeft;
+            return m_leftMotor.getPosition().getValueAsDouble();
         }else {
-            m_currentDistanceLeft = m_rightMotor.getPosition().getValueAsDouble();
-            return m_currentDistanceRight;
+            return m_rightMotor.getPosition().getValueAsDouble();
         }
 
     }
@@ -159,9 +145,9 @@ public class ClimberArms extends SubsystemBase {
 
     public boolean onTarget(MotorSelection selectedMotor){
         if (selectedMotor == MotorSelection.LEFT) {
-            return Math.abs(m_currentDistanceLeft - m_goalDistanceLeft) < TOLERANCE;
+            return Math.abs(getCurrentDistance(MotorSelection.LEFT) - m_goalDistanceLeft) < TOLERANCE;
         }else {
-            return Math.abs(m_currentDistanceRight - m_goalDistanceRight) < TOLERANCE;
+            return Math.abs(getCurrentDistance(MotorSelection.RIGHT) - m_goalDistanceRight) < TOLERANCE;
         }
         
     }
