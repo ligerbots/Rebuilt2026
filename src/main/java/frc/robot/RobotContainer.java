@@ -13,7 +13,9 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -30,6 +32,8 @@ public class RobotContainer {
     private static double SPEED_LIMIT = 0.5;
     private double MAX_SPEED = SPEED_LIMIT * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
     private double MAX_ANGULAR_RATE = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
+    public SlewRateLimiter m_headingLimiter = new SlewRateLimiter(4.0); // Limit how fast heading can change
+
 
     private static final double JOYSTICK_DEADBAND = 0.05;
 
@@ -139,15 +143,9 @@ public class RobotContainer {
         return m_drivetrain.applyRequest(() -> {
             // Calculate target heading from right stick X axis
             // Stick position is mapped to a heading angle
-            double headingInput = -conditionAxis(m_driverController.getRightX());
-            
-            // Get current robot heading and add the stick input to it
-            // This creates a smooth heading control where stick input rotates the target
-            // edu.wpi.first.math.geometry.Rotation2d currentHeading = m_drivetrain.getState().Pose.getRotation();
-            Rotation2d targetHeading = Rotation2d.fromRotations(headingInput);
-            // currentHeading.plus(
-            //     edu.wpi.first.math.geometry.Rotation2d.fromRadians(headingInput * 0.05) // Scale down for smooth control
-            // );
+            double headingInput = new Rotation2d(-conditionAxis(m_driverController.getRightX()), -conditionAxis(m_driverController.getRightY())).getRotations();
+
+            Rotation2d targetHeading = Rotation2d.fromRotations(m_headingLimiter.calculate(headingInput));
             
             return m_driveWithHeading
                 .withVelocityX(-conditionAxis(m_driverController.getLeftY()) * MAX_SPEED)
