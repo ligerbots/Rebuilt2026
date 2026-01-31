@@ -12,6 +12,7 @@ import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.Slot1Configs;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
+import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -21,6 +22,7 @@ import frc.robot.Constants;
 public class ChainClimber extends SubsystemBase {
 
     private final TalonFX m_motor;
+    private final TalonFX m_follower;
 
     // TODO need to calibrate the P value for the velocity loop, start small and increase until you get good response
     private static final double K_P = 3.0;
@@ -40,6 +42,7 @@ public class ChainClimber extends SubsystemBase {
 
     private double m_goalDistance;
 
+    // private Follower
 
     // Creates a new ClimberArms
     public ChainClimber() {
@@ -51,6 +54,7 @@ public class ChainClimber extends SubsystemBase {
         TalonFXConfiguration talonFXConfigs = new TalonFXConfiguration();
 
         m_motor = new TalonFX(Constants.CHAIN_CLIMBER_MOTOR_CAN_ID);
+        m_follower = new TalonFX(Constants.CHAIN_CLIMBER_FOLLOWER_MOTOR_CAN_ID);
 
         //TODO find out good K values for each term
         //set slot0 for unloaded state
@@ -85,6 +89,10 @@ public class ChainClimber extends SubsystemBase {
         // enable brake mode (after main config)
         m_motor.getConfigurator().apply(talonFXConfigs);
         m_motor.setNeutralMode(NeutralModeValue.Brake);
+
+        m_follower.getConfigurator().apply(talonFXConfigs);
+        m_follower.setNeutralMode(NeutralModeValue.Brake);
+        m_follower.setControl(new Follower(m_motor.getDeviceID(), null));
     }
 
     @Override
