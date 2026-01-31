@@ -36,7 +36,7 @@ public class ClimberArms extends SubsystemBase {
 
     private static final double ROTATIONS_PER_INCHES = 3; //TODO change to how many real rotation does it takes to extend 1 inch
 
-    private static final double TOLERANCE = 0.1;//TODO change to a better tolerance number
+    private static final double TOLERANCE = 1;//TODO change to a better tolerance number
 
 
     private double m_goalDistanceLeft;
