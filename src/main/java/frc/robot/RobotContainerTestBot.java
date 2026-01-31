@@ -21,12 +21,12 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 
 import frc.robot.commands.AutoCommandInterface;
 import frc.robot.commands.CtreTestAuto;
-import frc.robot.generated.TunerConstantsTest;
+import frc.robot.generated.TunerConstantsTestBot;
 import frc.robot.subsystems.AprilTagVision;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 
 public class RobotContainerTestBot extends RobotContainer {
-    private double MAX_SPEED = 1.0 * TunerConstantsTest.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
+    private double MAX_SPEED = 1.0 * TunerConstantsTestBot.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
     private double MAX_ANGULAR_RATE = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
 
     private static final double JOYSTICK_DEADBAND = 0.05;
@@ -56,8 +56,8 @@ public class RobotContainerTestBot extends RobotContainer {
         
         m_drivetrain = new CommandSwerveDrivetrain(
             m_aprilTagVision,
-            TunerConstantsTest.DrivetrainConstants,
-            TunerConstantsTest.FrontLeft, TunerConstantsTest.FrontRight, TunerConstantsTest.BackLeft, TunerConstantsTest.BackRight
+            TunerConstantsTestBot.DrivetrainConstants,
+            TunerConstantsTestBot.FrontLeft, TunerConstantsTestBot.FrontRight, TunerConstantsTestBot.BackLeft, TunerConstantsTestBot.BackRight
         );
 
         configureBindings();
