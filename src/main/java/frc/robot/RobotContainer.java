@@ -63,6 +63,10 @@ public class RobotContainer {
             DriverStation.silenceJoystickConnectionWarning(true);
         }
         
+        // Enable continuous input on the heading controller to prevent 360° rotations
+        // The PID controller will now take the shortest path between angles
+        m_driveWithHeading.HeadingController.enableContinuousInput(-Math.PI, Math.PI);
+        
         m_drivetrain = new CommandSwerveDrivetrain(
             m_aprilTagVision,
             TunerConstants.DrivetrainConstants,
