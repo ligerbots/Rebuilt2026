@@ -4,36 +4,35 @@
 
 package frc.robot.subsystems;
 
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
-
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 
-public class Hood extends SubsystemBase {
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 
+public class IntakePivot extends SubsystemBase {
   private Rotation2d m_goal = Rotation2d.fromDegrees(0.0);
 
-  private final TalonFX m_hoodMotor;
+  private final TalonFX m_pivotMotor;
 
   private static final double SUPPLY_CURRENT_LIMIT = 40;
   private static final double STATOR_CURRENT_LIMIT = 60;
 
   private static final double K_P = 1.0;
 
-  private static final double MAX_VEL_ROT_PER_SEC = 1;
-  private static final double MAX_ACC_ROT_PER_SEC = 1; // TODO change to better number (currently filler number)
+  private static final double MAX_VEL_ROT_PER_SEC = 1.0; // TODO change to more reasonable number (currently filler number)
+  private static final double MAX_ACC_ROT_PER_SEC2 = 1.0; // TODO change to more reasonable number (currently filler number)
 
 
-  /** Creates a new Hood. */
-  public Hood() {
-    m_hoodMotor = new TalonFX(Constants.HOOD_CAN_ID);
+  /** Creates a new IntakePivot. */
+  public IntakePivot() {
+    m_pivotMotor = new TalonFX(Constants.INTAKE_DEPLOY_ID);
 
     // set config to factory default
     
@@ -51,27 +50,27 @@ public class Hood extends SubsystemBase {
     MotionMagicConfigs magicConfigs = talonFXConfigs.MotionMagic;
         
     magicConfigs.MotionMagicCruiseVelocity = MAX_VEL_ROT_PER_SEC;
-    magicConfigs.MotionMagicAcceleration = MAX_ACC_ROT_PER_SEC;
+    magicConfigs.MotionMagicAcceleration = MAX_ACC_ROT_PER_SEC2;
 
-    m_hoodMotor.getConfigurator().apply(talonFXConfigs);
-    m_hoodMotor.setPosition(0);
+    m_pivotMotor.getConfigurator().apply(talonFXConfigs);
+    m_pivotMotor.setPosition(0);
   }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    SmartDashboard.putNumber("hood/goalAngle", m_goal.getDegrees());
-    SmartDashboard.putNumber("hood/currentAngle", getPosition().getDegrees());
-    SmartDashboard.putNumber("hood/rawMotorAngle",  m_hoodMotor.getPosition().getValueAsDouble());
+    SmartDashboard.putNumber("intakePivot/goalAngle", m_goal.getDegrees());
+    SmartDashboard.putNumber("intakePivot/currentAngle", getPosition().getDegrees());
+    SmartDashboard.putNumber("intakePivot/rawMotorAngle",  m_pivotMotor.getPosition().getValueAsDouble());
    
   }
 
   public void set(Rotation2d angle) {
     m_goal = angle;
-    m_hoodMotor.setControl(new MotionMagicVoltage(m_goal.getRotations()));
+    m_pivotMotor.setControl(new MotionMagicVoltage(m_goal.getRotations()));
   }
 
   public Rotation2d getPosition(){
-    return Rotation2d.fromRotations(m_hoodMotor.getPosition().getValueAsDouble());
+    return Rotation2d.fromRotations(m_pivotMotor.getPosition().getValueAsDouble());
   }
 }

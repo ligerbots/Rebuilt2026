@@ -18,7 +18,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import frc.robot.Constants;
 
-public class IntakeRoller extends SubsystemBase {
+public class HopperTransfer extends SubsystemBase {
   
   private final TalonFX m_motor;
 
@@ -32,10 +32,10 @@ public class IntakeRoller extends SubsystemBase {
   private double m_goalRPM;
   
   //Creates a new IntakeWheel
-  public IntakeRoller() {
+  public HopperTransfer() {
     TalonFXConfiguration talonFXConfigs = new TalonFXConfiguration();  
 
-    m_motor = new TalonFX(Constants.INTAKE_ROLLER_CAN_ID);
+    m_motor = new TalonFX(Constants.HOPPER_TRANSFER_CAN_ID);
     Slot0Configs slot0configs = talonFXConfigs.Slot0;
     slot0configs.kP = K_P;  // start small!!!
     slot0configs.kI = 0.0;
@@ -53,8 +53,8 @@ public class IntakeRoller extends SubsystemBase {
 
   @Override
   public void periodic() {
-    SmartDashboard.putNumber("intake/currentRPM", getRPM()); 
-    SmartDashboard.putNumber("intake/goalRPM", m_goalRPM);
+    SmartDashboard.putNumber("hopperTransfer/currentRPM", getRPM()); 
+    SmartDashboard.putNumber("hopperTransfer/goalRPM", m_goalRPM);
   }
 
   public double getRPM(){
