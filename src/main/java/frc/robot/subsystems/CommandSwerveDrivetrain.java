@@ -7,7 +7,6 @@ import java.util.function.Supplier;
 
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.Utils;
-import com.ctre.phoenix6.swerve.SwerveDrivetrain;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveRequest;
@@ -27,6 +26,7 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.RobotController;
@@ -34,7 +34,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-
+import frc.robot.FieldConstants;
 import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
 
 /**
@@ -56,11 +56,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     // values from 2024 competition. Maybe should be tuned
     private static final PIDConstants PATH_PLANNER_TRANSLATION_PID = new PIDConstants(5, 0, 0);
     private static final PIDConstants PATH_PLANNER_ANGLE_PID       = new PIDConstants(5, 0, 0);
-
-    public static boolean isRedAlliance() {
-        Optional<Alliance> alliance = DriverStation.getAlliance();
-        return alliance.isPresent() && alliance.get() == Alliance.Red;
-    }
 
     private final SwerveRequest.ApplyRobotSpeeds autoRequest = new SwerveRequest.ApplyRobotSpeeds();
 
@@ -157,6 +152,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             startSimThread();
         }
 
+        SmartDashboard.putData("Field", m_field);
+
         m_aprilTagVision = aprilTagVision;
     }
 
@@ -184,6 +181,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         if (Utils.isSimulation()) {
             startSimThread();
         }
+
+        SmartDashboard.putData("Field", m_field);
 
         m_aprilTagVision = aprilTagVision;
     }
@@ -219,6 +218,9 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         if (Utils.isSimulation()) {
             startSimThread();
         }
+
+        SmartDashboard.putData("Field", m_field);
+
         m_aprilTagVision = aprilTagVision;
     }
 
@@ -299,6 +301,22 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             updateSimState(deltaTime, RobotController.getBatteryVoltage());
         });
         m_simNotifier.startPeriodic(kSimLoopPeriod);
+    }
+
+    /**
+     * Set the robot pose on the field - generally used to set start of Auto
+     * @param pose  Pose of the robot, relative to Blue (0,0)
+     */
+    public void setPose(Pose2d pose) {
+        this.resetPose(pose);
+    }
+    
+    /**
+     * Fetch the current robot pose on the field
+     * @return Pose2d of the robot
+     */
+    public Pose2d getPose() {
+        return  getState().Pose;
     }
 
     /**
@@ -394,7 +412,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                     config,
                     // whether to flip directions for Red
                     // () -> FieldConstants.isRedAlliance(),
-                    () -> isRedAlliance(),
+                    () -> FieldConstants.isRedAlliance(),
                     this
             // Reference to this subsystem to set requirements
             );
