@@ -11,8 +11,7 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -27,7 +26,8 @@ import frc.robot.subsystems.AprilTagVision;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 
 public class RobotContainer {
-    private double MAX_SPEED = 1.0 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
+    private static double SPEED_LIMIT = 0.5;
+    private double MAX_SPEED = SPEED_LIMIT * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
     private double MAX_ANGULAR_RATE = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
 
     private static final double JOYSTICK_DEADBAND = 0.05;
@@ -114,12 +114,20 @@ public class RobotContainer {
     //     );
     // }
 
+    public CommandSwerveDrivetrain getDriveTrain() {
+        return m_drivetrain;
+    }
+
     public Command getAutonomousCommand() {
         if(null==m_autoCommand) {
             m_autoCommand = new CtreTestAuto(m_drivetrain, true);
         }
         return m_autoCommand;
     }
+
+    public Pose2d getInitialPose() {
+        return ((AutoCommandInterface) getAutonomousCommand()).getInitialPose();
+    }    
 
     public Command getDriveCommand() {
         // The controls are for field-oriented driving:

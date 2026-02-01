@@ -244,3 +244,51 @@ Use `periodic()` for:
     * Reacher.MAX_LENGTH  
   * Note: if the constant is in an appropriate class, you don't need to include the class name as part of the name. So, use "Reacher.MAX_LENGTH" instead of "Reacher.REACHER_MAX_LENGTH".  
 * **Exceptions**: Constants which need to have unique values across the whole robot should be in Constants.java. A specific example is CAN IDs.
+
+Your review best practices section is solid, but here's what I'd add to make it more actionable:
+
+## Review Best Practices
+
+The end goal of review is to make sure the code is relatively easy to read and understand as well as following best practices outlined in this document. 
+
+### When to Suggest Changes
+
+**Always flag these issues:**
+- Code that miscommunicates intent or confuses the reader (eg. out of date comments, misleading names, etc.)
+- Logic errors or bugs
+- Missing error handling for critical operations
+- Incorrect use of FRC libraries or motor controllers
+- Security issues or unsafe practices
+- violations of naming conventions (m_ prefix, camelCase, etc.)
+- Missing javadocs on public/private methods (except @Override methods) - Be lax on this though, if a function is very simple and self-explanatory, it's okay to skip
+- Constants in wrong location (CAN IDs not in Constants.java, subsystem-specific constants not in subsystem)
+
+**Consider the tradeoff before flagging:**
+- Minor formatting inconsistencies (unless they hurt readability)
+- Slightly verbose but clear code
+- Alternative approaches that work fine (don't enforce your preferred style)
+- Comments that could be more concise but are still helpful don't always need changes
+
+**Don't flag:**
+- Nitpicky style preferences with no real impact
+- Code that works well and reads clearly, even if you'd write it differently
+- Minor deviations from standards that don't affect understanding
+
+### How to Suggest Changes
+
+- Point out the specific issue and why it matters
+- Provide a concrete example of the fix (suggest a fix)
+- If multiple similar issues exist, note the pattern once rather than repeating for each instance
+- For learning opportunities, explain the reasoning behind the best practice
+- Be direct but constructive—focus on the code, not the person
+
+### Prioritization
+
+Focus review time on:
+1. Correctness and functionality
+2. Safety and error handling
+3. Readability and maintainability
+4. Following critical standards (naming, constants placement)
+5. Code organization and structure
+
+Remember: working code that's slightly imperfect beats perfect code that takes forever to review.
