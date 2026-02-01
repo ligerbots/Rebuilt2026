@@ -26,7 +26,8 @@ import frc.robot.subsystems.AprilTagVision;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 
 public class RobotContainerCompBot extends RobotContainer {
-    private double MAX_SPEED = 1.0 * TunerConstantsCompBot.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
+    private static double SPEED_LIMIT = 0.5;
+    private double MAX_SPEED = SPEED_LIMIT * TunerConstantsCompBot.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
     private double MAX_ANGULAR_RATE = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
 
     private static final double JOYSTICK_DEADBAND = 0.05;

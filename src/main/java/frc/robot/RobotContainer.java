@@ -8,7 +8,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 
-public abstract class RobotContainer  {
+public abstract class RobotContainer {
     public abstract Command getAutonomousCommand();
     public abstract Pose2d getInitialPose();
 
