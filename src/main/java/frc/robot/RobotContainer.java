@@ -57,92 +57,73 @@ public class RobotContainer {
     private final SendableChooser<String> m_chosenFieldSide = new SendableChooser<>();
     private int m_autoSelectionCode; 
     
-        public RobotContainer() {
-            if (Robot.isSimulation()) {
-                DriverStation.silenceJoystickConnectionWarning(true);
-            }
-            
-            m_drivetrain = new CommandSwerveDrivetrain(
-                m_aprilTagVision,
-                TunerConstants.DrivetrainConstants,
-                TunerConstants.FrontLeft, TunerConstants.FrontRight, TunerConstants.BackLeft, TunerConstants.BackRight
-            );
-    
-            configureBindings();
-            configureAutos();
+    public RobotContainer() {
+        if (Robot.isSimulation()) {
+            DriverStation.silenceJoystickConnectionWarning(true);
         }
-    
-        private void configureAutos() {
-            m_chosenFieldSide.setDefaultOption("Depot Side", "Depot Side");
-            m_chosenFieldSide.addOption("Outpost Side", "Outpost Side");
-    
-            SmartDashboard.putData("Field Side", m_chosenFieldSide);
-        }
-    
-        private void configureBindings() {
-            m_drivetrain.setupPathPlanner();
-    
-            m_drivetrain.setDefaultCommand(getDriveCommand());
-    
-            // Idle while the robot is disabled. This ensures the configured
-            // neutral mode is applied to the drive motors while disabled.
-            final var idle = new SwerveRequest.Idle();
-            RobotModeTriggers.disabled().whileTrue(
-                m_drivetrain.applyRequest(() -> idle).ignoringDisable(true)
-            );
-    
-            // lock wheels
-            m_driverController.a().whileTrue(m_drivetrain.applyRequest(() -> m_brakeRequest));
-            // m_driverController.b().whileTrue(drivetrain.applyRequest(() ->
-            //     point.withModuleDirection(new Rotation2d(-m_driverController.getLeftY(), -m_driverController.getLeftX()))
-            // ));
-    
-            // Run SysId routines when holding back/start and X/Y.
-            // Note that each routine should be run exactly once in a single log.
-            m_driverController.back().and(m_driverController.y()).whileTrue(m_drivetrain.sysIdDynamic(Direction.kForward));
-            m_driverController.back().and(m_driverController.x()).whileTrue(m_drivetrain.sysIdDynamic(Direction.kReverse));
-            m_driverController.start().and(m_driverController.y()).whileTrue(m_drivetrain.sysIdQuasistatic(Direction.kForward));
-            m_driverController.start().and(m_driverController.x()).whileTrue(m_drivetrain.sysIdQuasistatic(Direction.kReverse));
-    
-            // Reset the field-centric heading on left bumper press.
-            m_driverController.leftBumper().onTrue(m_drivetrain.runOnce(m_drivetrain::seedFieldCentric));
-    
-            m_drivetrain.registerTelemetry(m_logger::telemeterize);
-        }
-    
-        // public Command getAutonomousCommand() {
-        //     // Simple drive forward auton
-        //     final var idle = new SwerveRequest.Idle();
-        //     return Commands.sequence(
-        //         // Reset our field centric heading to match the robot
-        //         // facing away from our alliance station wall (0 deg).
-        //         drivetrain.runOnce(() -> drivetrain.seedFieldCentric(Rotation2d.kZero)),
-        //         // Then slowly drive forward (away from us) for 5 seconds.
-        //         drivetrain.applyRequest(() ->
-        //             drive.withVelocityX(0.5)
-        //                 .withVelocityY(0)
-        //                 .withRotationalRate(0)
-        //         )
-        //         .withTimeout(5.0),
-        //         // Finally idle for the rest of auton
-        //         drivetrain.applyRequest(() -> idle)
-        //     );
-        // }
-    
-        public CommandSwerveDrivetrain getDriveTrain() {
-            return m_drivetrain;
-        }
-    
-        public Command getAutonomousCommand() {
+        
+        m_drivetrain = new CommandSwerveDrivetrain(
+            m_aprilTagVision,
+            TunerConstants.DrivetrainConstants,
+            TunerConstants.FrontLeft, TunerConstants.FrontRight, TunerConstants.BackLeft, TunerConstants.BackRight
+        );
 
-            int currentAutoSelectionCode = Objects.hash(m_chosenFieldSide.getSelected(),
-             DriverStation.getAlliance());
-     
-            // Only call constructor if the auto selection inputs have changed
-            if (m_autoSelectionCode != currentAutoSelectionCode) {
-                m_autoCommand = new FirstBasicAuto(m_drivetrain,
-                        m_chosenFieldSide.getSelected().equals("Depot Side"));
-            }
+        m_drivetrain.setupPathPlanner();
+
+        configureBindings();
+
+        configureAutos();
+    }
+
+    private void configureAutos() {
+        m_chosenFieldSide.setDefaultOption("Depot Side", "Depot Side");
+        m_chosenFieldSide.addOption("Outpost Side", "Outpost Side");
+
+        SmartDashboard.putData("Field Side", m_chosenFieldSide);
+    }
+
+    private void configureBindings() {
+        m_drivetrain.setDefaultCommand(getDriveCommand());
+
+        // Idle while the robot is disabled. This ensures the configured
+        // neutral mode is applied to the drive motors while disabled.
+        final var idle = new SwerveRequest.Idle();
+        RobotModeTriggers.disabled().whileTrue(
+            m_drivetrain.applyRequest(() -> idle).ignoringDisable(true)
+        );
+
+        // lock wheels
+        m_driverController.a().whileTrue(m_drivetrain.applyRequest(() -> m_brakeRequest));
+        // m_driverController.b().whileTrue(drivetrain.applyRequest(() ->
+        //     point.withModuleDirection(new Rotation2d(-m_driverController.getLeftY(), -m_driverController.getLeftX()))
+        // ));
+
+        // Run SysId routines when holding back/start and X/Y.
+        // Note that each routine should be run exactly once in a single log.
+        m_driverController.back().and(m_driverController.y()).whileTrue(m_drivetrain.sysIdDynamic(Direction.kForward));
+        m_driverController.back().and(m_driverController.x()).whileTrue(m_drivetrain.sysIdDynamic(Direction.kReverse));
+        m_driverController.start().and(m_driverController.y()).whileTrue(m_drivetrain.sysIdQuasistatic(Direction.kForward));
+        m_driverController.start().and(m_driverController.x()).whileTrue(m_drivetrain.sysIdQuasistatic(Direction.kReverse));
+
+        // Reset the field-centric heading on left bumper press.
+        m_driverController.leftBumper().onTrue(m_drivetrain.runOnce(m_drivetrain::seedFieldCentric));
+
+        m_drivetrain.registerTelemetry(m_logger::telemeterize);
+    }
+    
+    public CommandSwerveDrivetrain getDriveTrain() {
+        return m_drivetrain;
+    }
+
+    public Command getAutonomousCommand() {
+        int currentAutoSelectionCode = Objects.hash(m_chosenFieldSide.getSelected(),
+            DriverStation.getAlliance());
+    
+        // Only call constructor if the auto selection inputs have changed
+        if (m_autoSelectionCode != currentAutoSelectionCode) {
+            m_autoCommand = new FirstBasicAuto(m_drivetrain,
+                    m_chosenFieldSide.getSelected().equals("Depot Side"));
+        }
         return m_autoCommand;
     }
 

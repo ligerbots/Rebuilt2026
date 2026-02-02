@@ -14,10 +14,9 @@ public class FirstBasicAuto extends AutoCommandInterface {
     protected Pose2d m_initPose;
     private CommandSwerveDrivetrain m_driveTrain;
     
-    PathConstraints constraints =  new PathConstraints(
-    4.0, 2.0,
-    Math.toRadians(540), Math.toRadians(720));
-
+    PathConstraints constraints = new PathConstraints(
+            4.0, 2.0,
+            Math.toRadians(540), Math.toRadians(720));
 
     /** Creates a new FirstBasicAuto. */
     public FirstBasicAuto(CommandSwerveDrivetrain driveTrain, boolean isDepotSide) {
@@ -46,8 +45,6 @@ public class FirstBasicAuto extends AutoCommandInterface {
                 }
                 addCommands(m_driveTrain.followPath(path));
             }
-            
-            
         } catch (Exception e) {
             DriverStation.reportError("Unable to load PP path Test", true);
             m_initPose = new Pose2d();
