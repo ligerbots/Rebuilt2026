@@ -1,0 +1,54 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 3.0341363636363634,
+        "y": 5.426420454545455
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 2.1422573897878445,
+        "y": 4.655801961437905
+      },
+      "isLocked": false,
+      "linkedName": "Bump Finish"
+    },
+    {
+      "anchor": {
+        "x": 1.6117954545454545,
+        "y": 4.199909090909091
+      },
+      "prevControl": {
+        "x": 2.214852620135079,
+        "y": 4.725425000769288
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "Climb A"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 180.0
+  },
+  "reversed": false,
+  "folder": null,
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": -171.01521906134323
+  },
+  "useDefaultConstraints": true
+}
