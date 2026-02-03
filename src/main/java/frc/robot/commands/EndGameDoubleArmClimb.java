@@ -11,16 +11,18 @@ import frc.robot.subsystems.ClimberArms;
 public class EndGameDoubleArmClimb extends Command {
   ClimberArms m_climber;
 
-  public ClimbState m_climbState = ClimbState.Beginning;
+  public ClimbState m_climbState;
 
   public static final int ARM_FULLY_EXTENDED_LENGTH_INCHES = 26;
+  public static final int ARM_FULLY_RETRACTED_LENGTH_INCHES = 0;
 
   private enum ClimbState {
-    Beginning,
-    LevelOne,
-    LevelTwo,
-    LevelThree,
-    GoToInitialPosition
+    GoToInitialPosition,
+    PullToLevelOne,
+    PullToLevelTwo,
+    PullToLevelThree,
+    WaitingToBeDone
+    
   }
 
   /** Creates a new Climb. */
@@ -41,35 +43,42 @@ public class EndGameDoubleArmClimb extends Command {
 
     switch (m_climbState) {
       case GoToInitialPosition:
-        m_climber.setDistance(ARM_FULLY_EXTENDED_LENGTH_INCHES, null, isScheduled());
+        m_climber.setDistance(ARM_FULLY_EXTENDED_LENGTH_INCHES, ClimberArms.MotorSelection.LEFT, false);
         m_climber.setDistance(ARM_FULLY_EXTENDED_LENGTH_INCHES, ClimberArms.MotorSelection.RIGHT, false);
+
+        m_climbState = ClimbState.PullToLevelOne;
+       
+
         break;
 
-      case Beginning:
+      case PullToLevelOne:
 
-        if (m_climber.onTarget(ClimberArms.MotorSelection.LEFT) && m_climber.onTarget(ClimberArms.MotorSelection.RIGHT)) {
-
-          m_climbState = ClimbState.LevelOne;
-          m_climber.setDistance(0, ClimberArms.MotorSelection.RIGHT, false);
+       if (m_climber.onTarget(ClimberArms.MotorSelection.LEFT) && m_climber.onTarget(ClimberArms.MotorSelection.RIGHT)) {
+          m_climber.setDistance(ARM_FULLY_RETRACTED_LENGTH_INCHES, ClimberArms.MotorSelection.RIGHT, false);
+          m_climbState = ClimbState.PullToLevelTwo;
         }
 
-        break;
-      case LevelOne:
-        
-        if (m_climber.onTarget(ClimberArms.MotorSelection.RIGHT)) {
-          
-          m_climbState = ClimbState.LevelTwo;
-          m_climber.setDistance(0, ClimberArms.MotorSelection.LEFT, false);
-          m_climber.setDistance(26, ClimberArms.MotorSelection.RIGHT, false);
-        }
+       
 
         break;
-      case LevelTwo:
       
-        if (m_climber.onTarget(ClimberArms.MotorSelection.LEFT) && m_climber.onTarget(ClimberArms.MotorSelection.RIGHT)) {
-          
-          m_climbState = ClimbState.LevelThree;
-          m_climber.setDistance(0, ClimberArms.MotorSelection.RIGHT, false);
+      case PullToLevelTwo:
+        if (m_climber.onTarget(ClimberArms.MotorSelection.RIGHT)) {
+          m_climber.setDistance(ARM_FULLY_RETRACTED_LENGTH_INCHES, ClimberArms.MotorSelection.LEFT, false);
+           m_climber.setDistance(ARM_FULLY_EXTENDED_LENGTH_INCHES, ClimberArms.MotorSelection.RIGHT, false);
+
+          m_climbState = ClimbState.PullToLevelThree;
+        }
+
+        break;
+      
+      case PullToLevelThree:
+        
+        if (m_climber.onTarget(ClimberArms.MotorSelection.RIGHT) && m_climber.onTarget(ClimberArms.MotorSelection.LEFT)) {
+
+          m_climber.setDistance(ARM_FULLY_RETRACTED_LENGTH_INCHES, ClimberArms.MotorSelection.RIGHT, false);
+
+          m_climbState = ClimbState.WaitingToBeDone;
         }
 
         break;
@@ -85,7 +94,7 @@ public class EndGameDoubleArmClimb extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    if (m_climber.onTarget(ClimberArms.MotorSelection.RIGHT)) {
+    if (m_climbState == ClimbState.WaitingToBeDone && m_climber.onTarget(ClimberArms.MotorSelection.RIGHT)) {
       return true;
     }
     return false;
