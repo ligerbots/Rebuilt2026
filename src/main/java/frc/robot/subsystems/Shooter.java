@@ -47,6 +47,9 @@ public class Shooter extends SubsystemBase {
     m_hubShooterLookupTable = new ShooterLookupTable(hubLookupTableFileName);
     m_shuttleShooterLookupTable = new ShooterLookupTable(shuttleLookupTableFileName);
 
+    SmartDashboard.getNumber("shooter/tuning/hoodAngle", 0.0); //TODO find values
+    SmartDashboard.getNumber("shooter/tuning/flywheelRpm", 0.0); //TODO find values
+
     m_hood = new Hood();
     m_flywheel = new Flywheel();
   }
@@ -128,12 +131,11 @@ public class Shooter extends SubsystemBase {
 
   private void pidTuning() {
     // For tuning purposes 
-    double tuningAngle = SmartDashboard.getNumber("Hood Angle Setpoint", 0.0);
-    double tuningSpeed = SmartDashboard.getNumber("Flywheel RPM Setpoint", 0.0);
+    double tuningAngle = SmartDashboard.getNumber("shooter/tuning/hoodAngle", 0.0);
+    double tuningSpeed = SmartDashboard.getNumber("shooter/tuning/flywheelRpm", 0.0);
 
     m_hood.setAngle(Rotation2d.fromDegrees(tuningAngle));
     m_flywheel.setRPM(tuningSpeed);
-
   }
 
   /**
