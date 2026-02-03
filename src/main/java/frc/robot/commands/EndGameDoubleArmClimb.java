@@ -13,11 +13,14 @@ public class EndGameDoubleArmClimb extends Command {
 
   public ClimbState m_climbState = ClimbState.Beginning;
 
+  public static final int ARM_FULLY_EXTENDED_LENGTH_INCHES = 26;
+
   private enum ClimbState {
     Beginning,
     LevelOne,
     LevelTwo,
-    LevelThree
+    LevelThree,
+    GoToInitialPosition
   }
 
   /** Creates a new Climb. */
@@ -30,8 +33,7 @@ public class EndGameDoubleArmClimb extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    m_climber.setPosition(26, ClimberArms.MotorSelection.LEFT, false);
-    m_climber.setPosition(26, ClimberArms.MotorSelection.RIGHT, false);
+    m_climbState = ClimbState.GoToInitialPosition;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -39,6 +41,11 @@ public class EndGameDoubleArmClimb extends Command {
   public void execute() {
 
     switch (m_climbState) {
+      case GoToInitialPosition:
+        m_climber.setPosition(ARM_FULLY_EXTENDED_LENGTH_INCHES, ClimberArms.MotorSelection.LEFT, false);
+        m_climber.setPosition(ARM_FULLY_EXTENDED_LENGTH_INCHES, ClimberArms.MotorSelection.RIGHT, false);
+        break;
+
       case Beginning:
 
         if (m_climber.onTarget(ClimberArms.MotorSelection.LEFT) && m_climber.onTarget(ClimberArms.MotorSelection.RIGHT)) {
