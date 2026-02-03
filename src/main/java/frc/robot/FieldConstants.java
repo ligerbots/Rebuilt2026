@@ -14,7 +14,7 @@ public class FieldConstants {
     public static final double FIELD_LENGTH = FlippingUtil.fieldSizeX;
     public static final double FIELD_WIDTH = FlippingUtil.fieldSizeY;  
 
-    public static final Translation2d HUB_POSITION_BLUE = new Translation2d(FIELD_WIDTH / 2,182.11);
+    public static final Translation2d HUB_POSITION_BLUE = new Translation2d(158.32,181.56);
  
     public static boolean isRedAlliance() {
         Optional<Alliance> alliance = DriverStation.getAlliance();
