@@ -27,7 +27,6 @@ public class EndGameDoubleArmClimb extends Command {
   public EndGameDoubleArmClimb(ClimberArms climberArms) {
     m_climber = climberArms;
     addRequirements(m_climber);
-    // Use addRequirements() here to declare subsystem dependencies.
   }
 
   // Called when the command is initially scheduled.
@@ -51,7 +50,7 @@ public class EndGameDoubleArmClimb extends Command {
         if (m_climber.onTarget(ClimberArms.MotorSelection.LEFT) && m_climber.onTarget(ClimberArms.MotorSelection.RIGHT)) {
 
           m_climbState = ClimbState.LevelOne;
-          m_climber.setPosition(0, ClimberArms.MotorSelection.RIGHT, false);
+          m_climber.setDistance(0, ClimberArms.MotorSelection.RIGHT, false);
         }
 
         break;
@@ -60,8 +59,8 @@ public class EndGameDoubleArmClimb extends Command {
         if (m_climber.onTarget(ClimberArms.MotorSelection.RIGHT)) {
           
           m_climbState = ClimbState.LevelTwo;
-          m_climber.setPosition(0, ClimberArms.MotorSelection.LEFT, false);
-          m_climber.setPosition(26, ClimberArms.MotorSelection.RIGHT, false);
+          m_climber.setDistance(0, ClimberArms.MotorSelection.LEFT, false);
+          m_climber.setDistance(26, ClimberArms.MotorSelection.RIGHT, false);
         }
 
         break;
@@ -70,7 +69,7 @@ public class EndGameDoubleArmClimb extends Command {
         if (m_climber.onTarget(ClimberArms.MotorSelection.LEFT) && m_climber.onTarget(ClimberArms.MotorSelection.RIGHT)) {
           
           m_climbState = ClimbState.LevelThree;
-          m_climber.setPosition(0, ClimberArms.MotorSelection.RIGHT, false);
+          m_climber.setDistance(0, ClimberArms.MotorSelection.RIGHT, false);
         }
 
         break;
