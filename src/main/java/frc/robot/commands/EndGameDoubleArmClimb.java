@@ -41,8 +41,8 @@ public class EndGameDoubleArmClimb extends Command {
 
     switch (m_climbState) {
       case GoToInitialPosition:
-        m_climber.setPosition(ARM_FULLY_EXTENDED_LENGTH_INCHES, ClimberArms.MotorSelection.LEFT, false);
-        m_climber.setPosition(ARM_FULLY_EXTENDED_LENGTH_INCHES, ClimberArms.MotorSelection.RIGHT, false);
+        m_climber.setDistance(ARM_FULLY_EXTENDED_LENGTH_INCHES, null, isScheduled());
+        m_climber.setDistance(ARM_FULLY_EXTENDED_LENGTH_INCHES, ClimberArms.MotorSelection.RIGHT, false);
         break;
 
       case Beginning:
