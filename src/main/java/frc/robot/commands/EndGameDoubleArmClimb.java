@@ -11,7 +11,7 @@ import frc.robot.subsystems.ClimberArms;
 public class EndGameDoubleArmClimb extends Command {
   ClimberArms m_climber;
 
-  public ClimbState m_climbState = ClimbState.Beginning;
+  private ClimbState m_climbState = ClimbState.Beginning;
 
   private enum ClimbState {
     Beginning,
@@ -24,7 +24,6 @@ public class EndGameDoubleArmClimb extends Command {
   public EndGameDoubleArmClimb(ClimberArms climberArms) {
     m_climber = climberArms;
     addRequirements(m_climber);
-    // Use addRequirements() here to declare subsystem dependencies.
   }
 
   // Called when the command is initially scheduled.

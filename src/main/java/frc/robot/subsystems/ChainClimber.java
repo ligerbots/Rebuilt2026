@@ -61,9 +61,6 @@ public class ChainClimber extends SubsystemBase {
     // Creates a new ChainClimber
     public ChainClimber() {
 
-        //TODO comment out when no longer testing
-
-
         TalonFXConfiguration talonFXConfigs = new TalonFXConfiguration();
 
         m_motor = new TalonFX(Constants.CHAIN_CLIMBER_MOTOR_CAN_ID);
@@ -106,6 +103,8 @@ public class ChainClimber extends SubsystemBase {
         m_follower.getConfigurator().apply(talonFXConfigs);
         m_follower.setNeutralMode(NeutralModeValue.Brake);
         m_follower.setControl(new Follower(m_motor.getDeviceID(), null));
+
+        //TODO comment out when no longer testing
 
         SmartDashboard.putNumber("ChainClimber/setMotor", 0);
     }
