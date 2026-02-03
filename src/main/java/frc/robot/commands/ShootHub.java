@@ -29,9 +29,6 @@ import frc.robot.subsystems.Turret;
  */
 public class ShootHub extends Command {
   // Tolerance values for comparing actual vs target values
-  private static final Rotation2d TURRET_ANGLE_TOLERANCE = Rotation2d.fromDegrees(2.0); // TODO: Tune this value
-  private static final double FEEDER_RPM_FOR_SHOOTING = 1500.0; // TODO: Tune this value
-
   private final Shooter m_shooter;
   private final Turret m_turret;
   private final ShooterFeeder m_feeder;
@@ -65,15 +62,15 @@ public class ShootHub extends Command {
   @Override
   public void execute() {
     // Calculate distance and angle to target, send to shooter and turret subsystems
-    double distanceToTarget = getDistanceToTarget();
+    double distanceToTarget = Turret.getDistanceToHub(m_drivetrain.getState().Pose);
     m_shooter.setDistanceToTarget(distanceToTarget);
 
-    Rotation2d angleToTarget = getAngleToTarget();
+    Rotation2d angleToTarget = Turret.getAngleToHub(m_drivetrain.getState().Pose);
     m_turret.set(angleToTarget);
 
     // Run feeder only when shooter and turret are ready
-    if (m_shooter.getCurrentState() == Shooter.ShooterState.READY_TO_SHOOT && isTurretAtTarget()) {
-      m_feeder.setRPM(FEEDER_RPM_FOR_SHOOTING);
+    if (m_shooter.getCurrentState() == Shooter.ShooterState.READY_TO_SHOOT && m_turret.isTurretAtTargetForHub(m_drivetrain.getState().Pose)) {
+      m_feeder.feedForShooting();
     }
   }
 
@@ -95,26 +92,4 @@ public class ShootHub extends Command {
     return false;
   }
 
-  private double getDistanceToTarget() {
-    return getTurretPosition().getDistance(FieldConstants.flipTranslation(FieldConstants.HUB_POSITION_BLUE));
-  }
-
-  private Rotation2d getAngleToTarget() {
-    Rotation2d overallAngle = getTurretPosition().minus(FieldConstants.flipTranslation(FieldConstants.HUB_POSITION_BLUE)).getAngle();
-    return overallAngle.plus(m_drivetrain.getState().Pose.getRotation());
-  }
-
-  private Translation2d getTurretPosition() {
-    Pose2d robotPose = m_drivetrain.getState().Pose;
-    return Turret.TURRET_OFFSET.rotateBy(robotPose.getRotation()).plus(robotPose.getTranslation());
-  }
-  
-  /**
-   * Checks if the turret is at the target angle within tolerance.
-   * 
-   * @return true if turret is within tolerance, false otherwise
-   */ 
-  private boolean isTurretAtTarget() {
-    return Math.abs(m_turret.getPosition().minus(getAngleToTarget()).getRadians()) < TURRET_ANGLE_TOLERANCE.getRadians(); 
-  }
 }

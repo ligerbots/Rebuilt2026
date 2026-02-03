@@ -14,6 +14,8 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import frc.robot.Constants;
@@ -28,6 +30,8 @@ public class ShooterFeeder extends SubsystemBase {
 
   private static final double SUPPLY_CURRENT_LIMIT = 40;
   private static final double STATOR_CURRENT_LIMIT = 60;
+
+  private static final double FEEDER_RPM_FOR_SHOOTING = 1500.0; // TODO: Tune this value
 
   private double m_goalRPM;
   
@@ -72,5 +76,9 @@ public class ShooterFeeder extends SubsystemBase {
 
   public void stop(){
     m_motor.setControl(new DutyCycleOut(0));
+  }
+
+  public void feedForShooting() {
+    setRPM(FEEDER_RPM_FOR_SHOOTING);
   }
 }
