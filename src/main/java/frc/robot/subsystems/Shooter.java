@@ -5,6 +5,7 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.utilities.ShooterLookupTable;
 
@@ -123,6 +124,16 @@ public class Shooter extends SubsystemBase {
   private boolean isHoodAtTarget(Rotation2d targetAngle) {
     Rotation2d currentHoodAngle = m_hood.getAngle();
     return Math.abs(currentHoodAngle.minus(targetAngle).getRadians()) < HOOD_ANGLE_TOLERANCE.getRadians();
+  }
+
+  private void pidTuning() {
+    // For tuning purposes 
+    double tuningAngle = SmartDashboard.getNumber("Hood Angle Setpoint", 0.0);
+    double tuningSpeed = SmartDashboard.getNumber("Flywheel RPM Setpoint", 0.0);
+
+    m_hood.setAngle(Rotation2d.fromDegrees(tuningAngle));
+    m_flywheel.setRPM(tuningSpeed);
+
   }
 
   /**
