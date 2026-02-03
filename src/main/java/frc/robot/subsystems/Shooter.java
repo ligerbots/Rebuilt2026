@@ -47,8 +47,8 @@ public class Shooter extends SubsystemBase {
     m_hubShooterLookupTable = new ShooterLookupTable(hubLookupTableFileName);
     m_shuttleShooterLookupTable = new ShooterLookupTable(shuttleLookupTableFileName);
 
-    SmartDashboard.getNumber("shooter/tuning/hoodAngle", 0.0); //TODO find values
-    SmartDashboard.getNumber("shooter/tuning/flywheelRpm", 0.0); //TODO find values
+    SmartDashboard.putNumber("shooter/tuning/hoodAngle", 0.0); //TODO find values
+    SmartDashboard.putNumber("shooter/tuning/flywheelRpm", 0.0); //TODO find values
 
     m_hood = new Hood();
     m_flywheel = new Flywheel();
