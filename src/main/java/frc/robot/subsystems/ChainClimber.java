@@ -26,7 +26,7 @@ public class ChainClimber extends SubsystemBase {
 
     // TODO need to calibrate the P value for the velocity loop, start small and increase until you get good response
     private static final double K_P = 3.0;
-    private static final double K_P_DOWN = 3.0; 
+    private static final double K_P_LOADED = 3.0; 
 
     private static final double SUPPLY_CURRENT_LIMIT = 40;
     private static final double STATOR_CURRENT_LIMIT = 60;
@@ -42,14 +42,27 @@ public class ChainClimber extends SubsystemBase {
 
     private double m_goalDistance;
 
+    private static enum SlotNumber {
+        ZERO(0),
+        ONE(1);
+
+        private final int value;
+
+        SlotNumber(final int newValue) {
+            value = newValue;
+        }
+
+        public int getValue() { return value; }
+
+    }
+
     // private Follower
 
-    // Creates a new ClimberArms
+    // Creates a new ChainClimber
     public ChainClimber() {
 
         //TODO comment out when no longer testing
 
-        SmartDashboard.putNumber("ClimberArms/setMotor", 0);
 
         TalonFXConfiguration talonFXConfigs = new TalonFXConfiguration();
 
@@ -69,7 +82,7 @@ public class ChainClimber extends SubsystemBase {
         Slot1Configs slot1configs = talonFXConfigs.Slot1;
         slot1configs.kV = 0.0; // A velocity target of 1 rps results in X V output
         slot1configs.kA = 0.0; // An acceleration of 1 rps/s requires X V output
-        slot1configs.kP = K_P_DOWN;  // start small!!!
+        slot1configs.kP = K_P_LOADED;  // start small!!!
         slot1configs.kI = 0.0; // no output for integrated error
         slot1configs.kD = 0.0; // A velocity error of 1 rps results in X V output
 
@@ -93,6 +106,8 @@ public class ChainClimber extends SubsystemBase {
         m_follower.getConfigurator().apply(talonFXConfigs);
         m_follower.setNeutralMode(NeutralModeValue.Brake);
         m_follower.setControl(new Follower(m_motor.getDeviceID(), null));
+
+        SmartDashboard.putNumber("ChainClimber/setMotor", 0);
     }
 
     @Override
@@ -100,7 +115,7 @@ public class ChainClimber extends SubsystemBase {
 
         //TODO comment out when no longer testing
 
-        setPosition(SmartDashboard.getNumber("ClimberArms/setMotor", 0), true);
+        setDistance(SmartDashboard.getNumber("ClimberArms/setMotor", 0), true);
 
         // SmartDashboard.getNumber("ClimberArms/setRight", 0);
 
@@ -111,11 +126,11 @@ public class ChainClimber extends SubsystemBase {
     }
 
 
-    public void setPosition(double distance, boolean loaded){
+    public void setDistance(double distance, boolean loaded){
         int slotNumber;
 
         if (loaded) {
-            slotNumber = 1;
+            slotNumber = SlotNumber.ONE.getValue();
         }else {
             slotNumber = 0;
         }

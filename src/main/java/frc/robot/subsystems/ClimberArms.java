@@ -25,7 +25,7 @@ public class ClimberArms extends SubsystemBase {
 
     // TODO need to calibrate the P value for the velocity loop, start small and increase until you get good response
     private static final double K_P = 3.0;
-    private static final double K_P_DOWN = 3.0; 
+    private static final double K_P_LOADED = 3.0; 
 
     private static final double SUPPLY_CURRENT_LIMIT = 40;
     private static final double STATOR_CURRENT_LIMIT = 60;
@@ -88,7 +88,7 @@ public class ClimberArms extends SubsystemBase {
         Slot1Configs slot1configs = talonFXConfigs.Slot1;
         slot1configs.kV = 0.0; // A velocity target of 1 rps results in X V output
         slot1configs.kA = 0.0; // An acceleration of 1 rps/s requires X V output
-        slot1configs.kP = K_P_DOWN;  // start small!!!
+        slot1configs.kP = K_P_LOADED;  // start small!!!
         slot1configs.kI = 0.0; // no output for integrated error
         slot1configs.kD = 0.0; // A velocity error of 1 rps results in X V output
 
