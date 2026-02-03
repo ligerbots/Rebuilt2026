@@ -30,8 +30,8 @@ public class EndGameDoubleArmClimb extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    m_climber.setPosition(26, ClimberArms.MotorSelection.LEFT, false);
-    m_climber.setPosition(26, ClimberArms.MotorSelection.RIGHT, false);
+    m_climber.setDistance(26, ClimberArms.MotorSelection.LEFT, false);
+    m_climber.setDistance(26, ClimberArms.MotorSelection.RIGHT, false);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -44,7 +44,7 @@ public class EndGameDoubleArmClimb extends Command {
         if (m_climber.onTarget(ClimberArms.MotorSelection.LEFT) && m_climber.onTarget(ClimberArms.MotorSelection.RIGHT)) {
 
           m_climbState = ClimbState.LevelOne;
-          m_climber.setPosition(0, ClimberArms.MotorSelection.RIGHT, false);
+          m_climber.setDistance(0, ClimberArms.MotorSelection.RIGHT, false);
         }
 
         break;
@@ -53,8 +53,8 @@ public class EndGameDoubleArmClimb extends Command {
         if (m_climber.onTarget(ClimberArms.MotorSelection.RIGHT)) {
           
           m_climbState = ClimbState.LevelTwo;
-          m_climber.setPosition(0, ClimberArms.MotorSelection.LEFT, false);
-          m_climber.setPosition(26, ClimberArms.MotorSelection.RIGHT, false);
+          m_climber.setDistance(0, ClimberArms.MotorSelection.LEFT, false);
+          m_climber.setDistance(26, ClimberArms.MotorSelection.RIGHT, false);
         }
 
         break;
@@ -63,7 +63,7 @@ public class EndGameDoubleArmClimb extends Command {
         if (m_climber.onTarget(ClimberArms.MotorSelection.LEFT) && m_climber.onTarget(ClimberArms.MotorSelection.RIGHT)) {
           
           m_climbState = ClimbState.LevelThree;
-          m_climber.setPosition(0, ClimberArms.MotorSelection.RIGHT, false);
+          m_climber.setDistance(0, ClimberArms.MotorSelection.RIGHT, false);
         }
 
         break;

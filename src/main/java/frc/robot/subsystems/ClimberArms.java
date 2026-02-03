@@ -47,6 +47,20 @@ public class ClimberArms extends SubsystemBase {
         RIGHT
     }
 
+    private static enum SlotNumber {
+        ZERO(0),
+        ONE(1);
+
+        private final int value;
+
+        SlotNumber(final int newValue) {
+            value = newValue;
+        }
+
+        public int getValue() { return value; }
+
+    }
+
 
     // Creates a new ClimberArms
     public ClimberArms() {
@@ -97,6 +111,9 @@ public class ClimberArms extends SubsystemBase {
 
         m_rightMotor.getConfigurator().apply(talonFXConfigs);
         m_rightMotor.setNeutralMode(NeutralModeValue.Brake);
+
+        m_leftMotor.setPosition(0);
+        m_rightMotor.setPosition(0);
     }
 
     @Override
@@ -104,8 +121,8 @@ public class ClimberArms extends SubsystemBase {
 
         //TODO comment out when no longer testing
 
-        setPosition(SmartDashboard.getNumber("ClimberArms/setLeft", 0), MotorSelection.LEFT, true);
-        setPosition(SmartDashboard.getNumber("ClimberArms/setRight", 0), MotorSelection.RIGHT, true);
+        setDistance(SmartDashboard.getNumber("ClimberArms/setLeft", 0), MotorSelection.LEFT, true);
+        setDistance(SmartDashboard.getNumber("ClimberArms/setRight", 0), MotorSelection.RIGHT, true);
 
         // SmartDashboard.getNumber("ClimberArms/setRight", 0);
 
@@ -120,13 +137,13 @@ public class ClimberArms extends SubsystemBase {
     }
 
 
-    public void setPosition(double distance, MotorSelection selectedMotor, boolean loaded){
+    public void setDistance(double distance, MotorSelection selectedMotor, boolean loaded){
         int slotNumber;
 
         if (loaded) {
-            slotNumber = 1;
+            slotNumber = SlotNumber.ONE.getValue();
         }else {
-            slotNumber = 0;
+            slotNumber = SlotNumber.ZERO.getValue();
         }
 
         if (selectedMotor == MotorSelection.LEFT) {
