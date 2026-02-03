@@ -13,11 +13,8 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.FieldConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.ShooterFeeder;
@@ -40,17 +37,15 @@ public class ShootHub extends Command {
    * @param shooter The shooter subsystem for managing flywheel and hood
    * @param turret The turret subsystem for aiming at the hub
    * @param feeder The feeder subsystem for feeding game pieces
-   * 
-   * @TODO Integrate vision subsystem or odometry provider to get robot position
-   *       for distance/angle calculations to the hub target
+   * @param drivetrain
    */
   public ShootHub(Shooter shooter, Turret turret, ShooterFeeder feeder, CommandSwerveDrivetrain drivetrain) {
-    addRequirements(shooter, turret, feeder);
-
     m_turret = turret;
     m_shooter = shooter;
     m_feeder = feeder;
     m_drivetrain = drivetrain;
+
+    addRequirements(shooter, turret, feeder);
   }
 
   // Called when the command is initially scheduled.
@@ -62,14 +57,14 @@ public class ShootHub extends Command {
   @Override
   public void execute() {
     // Calculate distance and angle to target, send to shooter and turret subsystems
-    double distanceToTarget = Turret.getDistanceToHub(m_drivetrain.getState().Pose);
+    double distanceToTarget = Turret.getDistanceToHub(m_drivetrain.getPose());
     m_shooter.setDistanceToTarget(distanceToTarget);
 
-    Rotation2d angleToTarget = Turret.getAngleToHub(m_drivetrain.getState().Pose);
+    Rotation2d angleToTarget = Turret.getAngleToHub(m_drivetrain.getPose());
     m_turret.set(angleToTarget);
 
     // Run feeder only when shooter and turret are ready
-    if (m_shooter.getCurrentState() == Shooter.ShooterState.READY_TO_SHOOT && m_turret.isTurretAtTargetForHub(m_drivetrain.getState().Pose)) {
+    if (m_shooter.getCurrentState() == Shooter.ShooterState.READY_TO_SHOOT && m_turret.isTurretAtTargetForHub(m_drivetrain.getPose())) {
       m_feeder.feedForShooting();
     }
   }
@@ -85,7 +80,7 @@ public class ShootHub extends Command {
    * 
    * @return true when the command should terminate (currently stubbed)
    * 
-   * TODO Define end condition: either when all game pieces are shot, when robot leaves shooting zone, or when match time expires
+   * TODO Define end condition: either when all game pieces are shot, when robot leaves shooting zone
    */
   @Override
   public boolean isFinished() {
