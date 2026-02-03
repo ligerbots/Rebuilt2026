@@ -170,9 +170,8 @@ public class AprilTagVision {
         }
     }
 
-    // TODO: enable this and fix with swervedrivetrain instead of swervedrive
     public void updateSimulation(CommandSwerveDrivetrain swerve) {    
-        m_visionSim.update(swerve.getState().Pose);
+        m_visionSim.update(swerve.getPose());
     }
     
     // Update all Pose estimates with the vision measurements
