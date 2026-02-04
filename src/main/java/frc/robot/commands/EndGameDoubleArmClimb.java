@@ -6,27 +6,20 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.ClimberArms;
+import frc.robot.subsystems.ClimberArms.ClimbState;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class EndGameDoubleArmClimb extends Command {
   ClimberArms m_climber;
 
-  public ClimbState m_climbState;
+  private ClimbState m_goalState;
 
-  public static final int ARM_FULLY_EXTENDED_LENGTH_INCHES = 26;
-  public static final int ARM_FULLY_RETRACTED_LENGTH_INCHES = 0;
-
-  private enum ClimbState {
-    GoToInitialPosition,
-    PullToLevelOne,
-    PullToLevelTwo,
-    PullToLevelThree,
-    WaitingToBeDone
-    
-  }
+  private static final int ARM_FULLY_EXTENDED_LENGTH_INCHES = 26;
+  private static final int ARM_FULLY_RETRACTED_LENGTH_INCHES = 0;
 
   /** Creates a new Climb. */
-  public EndGameDoubleArmClimb(ClimberArms climberArms) {
+  public EndGameDoubleArmClimb(ClimberArms climberArms, ClimbState goalState) {
+    m_goalState = goalState;
     m_climber = climberArms;
     addRequirements(m_climber);
   }
@@ -34,69 +27,61 @@ public class EndGameDoubleArmClimb extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    m_climbState = ClimbState.GoToInitialPosition;
+    
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
 
-    switch (m_climbState) {
-      case GoToInitialPosition:
+    switch (m_climber.getClimbState()) {
+      case Stowed:
         m_climber.setDistance(ARM_FULLY_EXTENDED_LENGTH_INCHES, ClimberArms.MotorSelection.LEFT, false);
         m_climber.setDistance(ARM_FULLY_EXTENDED_LENGTH_INCHES, ClimberArms.MotorSelection.RIGHT, false);
 
-        m_climbState = ClimbState.PullToLevelOne;
-       
-
-        break;
-
-      case PullToLevelOne:
-
-       if (m_climber.onTarget(ClimberArms.MotorSelection.LEFT) && m_climber.onTarget(ClimberArms.MotorSelection.RIGHT)) {
-          m_climber.setDistance(ARM_FULLY_RETRACTED_LENGTH_INCHES, ClimberArms.MotorSelection.RIGHT, false);
-          m_climbState = ClimbState.PullToLevelTwo;
-        }
-
-       
-
+        m_climber.setClimbState(ClimbState.Extended);
         break;
       
-      case PullToLevelTwo:
-        if (m_climber.onTarget(ClimberArms.MotorSelection.RIGHT)) {
-          m_climber.setDistance(ARM_FULLY_RETRACTED_LENGTH_INCHES, ClimberArms.MotorSelection.LEFT, false);
-           m_climber.setDistance(ARM_FULLY_EXTENDED_LENGTH_INCHES, ClimberArms.MotorSelection.RIGHT, false);
+      case Extended:
+        // Paused, waiting for command to start climb
+        break;
 
-          m_climbState = ClimbState.PullToLevelThree;
+      case LevelOne:
+
+        m_climber.setDistance(ARM_FULLY_RETRACTED_LENGTH_INCHES, ClimberArms.MotorSelection.RIGHT, false);
+       if (m_climber.onTarget(ClimberArms.MotorSelection.RIGHT)) {
+         
+          m_climber.setClimbState(ClimbState.LevelTwo);
         }
 
         break;
       
-      case PullToLevelThree:
+      case LevelTwo:
         
+        m_climber.setDistance(ARM_FULLY_RETRACTED_LENGTH_INCHES, ClimberArms.MotorSelection.LEFT, false);
+        m_climber.setDistance(ARM_FULLY_EXTENDED_LENGTH_INCHES, ClimberArms.MotorSelection.RIGHT, false);
+
         if (m_climber.onTarget(ClimberArms.MotorSelection.RIGHT) && m_climber.onTarget(ClimberArms.MotorSelection.LEFT)) {
-
-          m_climber.setDistance(ARM_FULLY_RETRACTED_LENGTH_INCHES, ClimberArms.MotorSelection.RIGHT, false);
-
-          m_climbState = ClimbState.WaitingToBeDone;
+          m_climber.setClimbState(ClimbState.LevelThree);
         }
 
         break;
+      
+      case LevelThree:
+        m_climber.setDistance(ARM_FULLY_RETRACTED_LENGTH_INCHES, ClimberArms.MotorSelection.RIGHT, false);
+      break;
     }
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-
+    m_climber.stop();
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    if (m_climbState == ClimbState.WaitingToBeDone && m_climber.onTarget(ClimberArms.MotorSelection.RIGHT)) {
-      return true;
-    }
-    return false;
+    return m_goalState == m_climber.getClimbState() && m_climber.onTarget(ClimberArms.MotorSelection.RIGHT) && m_climber.onTarget(ClimberArms.MotorSelection.LEFT);
   }
 }

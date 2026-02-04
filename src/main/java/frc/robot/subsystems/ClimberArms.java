@@ -38,9 +38,18 @@ public class ClimberArms extends SubsystemBase {
 
     private static final double TOLERANCE = 1;//TODO change to a better tolerance number
 
-
     private double m_goalDistanceLeft;
     private double m_goalDistanceRight;
+
+    public enum ClimbState {
+        Stowed,
+        Extended,
+        LevelOne,
+        LevelTwo,
+        LevelThree
+    }
+
+    private ClimbState m_climbState = ClimbState.Stowed;
     
     public static enum MotorSelection {
         LEFT,
@@ -180,6 +189,20 @@ public class ClimberArms extends SubsystemBase {
             return Math.abs(getCurrentDistance(MotorSelection.RIGHT) - m_goalDistanceRight) < TOLERANCE;
         }
         
+    }
+
+    public ClimbState getClimbState() {
+        return m_climbState;
+    }
+
+    public ClimbState setClimbState(ClimbState newState) {
+        m_climbState = newState;
+        return m_climbState;
+    }
+
+    public void stop() {
+        m_leftMotor.setControl(new MotionMagicVoltage(getCurrentDistance(MotorSelection.LEFT)).withSlot(0));
+        m_rightMotor.setControl(new MotionMagicVoltage(getCurrentDistance(MotorSelection.RIGHT)).withSlot(0));
     }
 
     /**
