@@ -57,8 +57,8 @@ public class ClimberArms extends SubsystemBase {
     }
 
     private static enum SlotNumber {
-        ZERO(0),
-        ONE(1);
+        UNLOADED(0),
+        LOADED(1);
 
         private final int value;
 
@@ -150,9 +150,9 @@ public class ClimberArms extends SubsystemBase {
         int slotNumber;
 
         if (loaded) {
-            slotNumber = SlotNumber.ONE.getValue();
+            slotNumber = SlotNumber.LOADED.getValue();
         }else {
-            slotNumber = SlotNumber.ZERO.getValue();
+            slotNumber = SlotNumber.UNLOADED.getValue();
         }
 
         if (selectedMotor == MotorSelection.LEFT) {

@@ -43,8 +43,8 @@ public class ChainClimber extends SubsystemBase {
     private double m_goalDistance;
 
     private static enum SlotNumber {
-        ZERO(0),
-        ONE(1);
+        UNLOADED(0),
+        LOADED(1);
 
         private final int value;
 
@@ -104,8 +104,9 @@ public class ChainClimber extends SubsystemBase {
         m_follower.setNeutralMode(NeutralModeValue.Brake);
         m_follower.setControl(new Follower(m_motor.getDeviceID(), null));
 
-        //TODO comment out when no longer testing
+        m_motor.setPosition(0);
 
+        //TODO comment out when no longer testing
         SmartDashboard.putNumber("ChainClimber/setMotor", 0);
     }
 
@@ -129,9 +130,9 @@ public class ChainClimber extends SubsystemBase {
         int slotNumber;
 
         if (loaded) {
-            slotNumber = SlotNumber.ONE.getValue();
+            slotNumber = SlotNumber.LOADED.getValue();
         }else {
-            slotNumber = 0;
+            slotNumber = SlotNumber.UNLOADED.getValue();;
         }
 
         m_goalDistance = distance;
