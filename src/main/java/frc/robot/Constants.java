@@ -3,7 +3,6 @@ package frc.robot;
 public class Constants {
 
     public static final int ROBOT_FREQUENCY_HZ = 50;
-    public static final int ODOMETRY_FREQUENCY_HZ = 100;
 
     public static final int FLYWHEEL_CAN_ID = 9;
     public static final int INTAKE_DEPLOY_ID = 16;

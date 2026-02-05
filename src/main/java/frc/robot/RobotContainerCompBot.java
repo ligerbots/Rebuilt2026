@@ -46,7 +46,7 @@ public class RobotContainerCompBot extends RobotContainer {
 
     private final Telemetry m_logger = new Telemetry(MAX_SPEED);
 
-    private AutoCommandInterface m_autoCommand;
+    private AutoCommandInterface m_autoCommand = null;
 
     private final CommandXboxController m_driverController = new CommandXboxController(0);
     // private final CommandJoystick m_farm = new CommandJoystick(1);
@@ -118,7 +118,7 @@ public class RobotContainerCompBot extends RobotContainer {
     public Command getAutonomousCommand() {
         int currentAutoSelectionCode = Objects.hash(m_chosenFieldSide.getSelected(),
             DriverStation.getAlliance());
-    
+
         // Only call constructor if the auto selection inputs have changed
         if (m_autoSelectionCode != currentAutoSelectionCode) {
             m_autoCommand = new FirstBasicAuto(m_drivetrain,

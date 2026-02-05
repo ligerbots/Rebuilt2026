@@ -55,7 +55,7 @@ public class Robot extends TimedRobot {
             m_robotType = RobotType.COMPBOT;
         } else {
             // default to the Test robot for now
-            m_robotType = RobotType.TESTBOT;
+            m_robotType = RobotType.COMPBOT;
         }
         SmartDashboard.putString("robotType", m_robotType.toString());
 

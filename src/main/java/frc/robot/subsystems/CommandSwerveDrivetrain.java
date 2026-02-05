@@ -10,9 +10,9 @@ import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.ParentDevice;
+import com.ctre.phoenix6.hardware.Pigeon2;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
-import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -153,7 +153,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         SwerveModuleConstants<?, ?, ?>... modules
     ) {
         super(drivetrainConstants, modules);
-        // setupPathPlanner();
         if (Utils.isSimulation()) {
             startSimThread();
         }
@@ -177,22 +176,21 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      *                                CAN FD, and 100 Hz on CAN 2.0.
      * @param modules                 Constants for each specific module
      */
-    public CommandSwerveDrivetrain(
-        AprilTagVision aprilTagVision,
-        SwerveDrivetrainConstants drivetrainConstants,
-        double odometryUpdateFrequency,
-        SwerveModuleConstants<?, ?, ?>... modules
-    ) {
-        super(drivetrainConstants, odometryUpdateFrequency, modules);
-        // setupPathPlanner();
-        if (Utils.isSimulation()) {
-            startSimThread();
-        }
+    // public CommandSwerveDrivetrain(
+    //     AprilTagVision aprilTagVision,
+    //     SwerveDrivetrainConstants drivetrainConstants,
+    //     double odometryUpdateFrequency,
+    //     SwerveModuleConstants<?, ?, ?>... modules
+    // ) {
+    //     super(drivetrainConstants, odometryUpdateFrequency, modules);
+    //     if (Utils.isSimulation()) {
+    //         startSimThread();
+    //     }
 
-        SmartDashboard.putData("Field", m_field);
+    //     SmartDashboard.putData("Field", m_field);
 
-        m_aprilTagVision = aprilTagVision;
-    }
+    //     m_aprilTagVision = aprilTagVision;
+    // }
 
     /**
      * Constructs a CTRE SwerveDrivetrain using the specified constants.
@@ -213,30 +211,33 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      *                                  and radians
      * @param modules                   Constants for each specific module
      */
-    public CommandSwerveDrivetrain(
-        AprilTagVision aprilTagVision,
-        SwerveDrivetrainConstants drivetrainConstants,
-        double odometryUpdateFrequency,
-        Matrix<N3, N1> odometryStandardDeviation,
-        Matrix<N3, N1> visionStandardDeviation,
-        SwerveModuleConstants<?, ?, ?>... modules
-    ) {
-        super(drivetrainConstants, odometryUpdateFrequency, odometryStandardDeviation, visionStandardDeviation, modules);
-        if (Utils.isSimulation()) {
-            startSimThread();
-        }
+    // public CommandSwerveDrivetrain(
+    //     AprilTagVision aprilTagVision,
+    //     SwerveDrivetrainConstants drivetrainConstants,
+    //     double odometryUpdateFrequency,
+    //     Matrix<N3, N1> odometryStandardDeviation,
+    //     Matrix<N3, N1> visionStandardDeviation,
+    //     SwerveModuleConstants<?, ?, ?>... modules
+    // ) {
+    //     super(drivetrainConstants, odometryUpdateFrequency, odometryStandardDeviation, visionStandardDeviation, modules);
+    //     if (Utils.isSimulation()) {
+    //         startSimThread();
+    //     }
 
-        SmartDashboard.putData("Field", m_field);
+    //     SmartDashboard.putData("Field", m_field);
 
-        m_aprilTagVision = aprilTagVision;
-    }
+    //     m_aprilTagVision = aprilTagVision;
+    // }
 
     private void optimizeCAN() {
-        for (var module : this.getModules()) {
+        DriverStation.reportWarning("Running Swerve CAN optimization", false);
 
+        double odometryHz = getOdometryFrequencyMeasure().in(Hertz);
+        DriverStation.reportWarning("Odometry frequency is " + odometryHz, false);
+
+        for (var module : this.getModules()) {
             TalonFX driveMotor = module.getDriveMotor();
             TalonFX steerMotor = module.getSteerMotor();
-
             CANcoder steerEncoder = module.getEncoder();
 
             BaseStatusSignal.setUpdateFrequencyForAll(
@@ -251,13 +252,19 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             );
             
             BaseStatusSignal.setUpdateFrequencyForAll(
-                Constants.ODOMETRY_FREQUENCY_HZ,
+                odometryHz,
                 driveMotor.getPosition(),
                 steerMotor.getPosition()
             );
 
             ParentDevice.optimizeBusUtilizationForAll(driveMotor, steerMotor, steerEncoder);
         }
+
+        // Also, do the Pigeon
+        Pigeon2 pigeon = this.getPigeon2();
+        pigeon.getYaw().setUpdateFrequency(odometryHz);
+        pigeon.getAngularVelocityZWorld().setUpdateFrequency(Constants.ROBOT_FREQUENCY_HZ);
+        pigeon.optimizeBusUtilization();
     }
 
     /**
