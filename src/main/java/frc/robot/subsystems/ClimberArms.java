@@ -127,22 +127,13 @@ public class ClimberArms extends SubsystemBase {
 
     @Override
     public void periodic() {
-
-        //TODO comment out when no longer testing
-
-        setDistance(SmartDashboard.getNumber("ClimberArms/setLeft", 0), MotorSelection.LEFT, true);
-        setDistance(SmartDashboard.getNumber("ClimberArms/setRight", 0), MotorSelection.RIGHT, true);
-
-        // SmartDashboard.getNumber("ClimberArms/setRight", 0);
-
-        SmartDashboard.putBoolean("ClimberArms/toTargetLeft", onTarget(MotorSelection.LEFT));
+        SmartDashboard.putBoolean("ClimberArms/onTargetLeft", onTarget(MotorSelection.LEFT));
         SmartDashboard.putNumber("ClimberArms/goalDistanceLeft", m_goalDistanceLeft);
         SmartDashboard.putNumber("ClimberArms/currentDistanceLeft", getCurrentDistance(MotorSelection.LEFT));
         
-        SmartDashboard.putBoolean("ClimberArms/toTargetRight", onTarget(MotorSelection.RIGHT));
+        SmartDashboard.putBoolean("ClimberArms/onTargetRight", onTarget(MotorSelection.RIGHT));
         SmartDashboard.putNumber("ClimberArms/goalDistanceRight", m_goalDistanceRight);
         SmartDashboard.putNumber("ClimberArms/currentDistanceRight", getCurrentDistance(MotorSelection.RIGHT));
-
     }
 
 
@@ -204,13 +195,4 @@ public class ClimberArms extends SubsystemBase {
         m_leftMotor.setControl(new MotionMagicVoltage(getCurrentDistance(MotorSelection.LEFT)).withSlot(0));
         m_rightMotor.setControl(new MotionMagicVoltage(getCurrentDistance(MotorSelection.RIGHT)).withSlot(0));
     }
-
-    /**
-     * Checks whether the selected climber arm has reached its goal rotation.
-     *
-     * @param selectedMotor which climber motor to check (left or right)
-     * @return {@code true} if the current rotation equals the goal rotation for the selected motor;
-     *         {@code false} otherwise
-     */
-    
 }

@@ -105,24 +105,13 @@ public class ChainClimber extends SubsystemBase {
         m_follower.setControl(new Follower(m_motor.getDeviceID(), null));
 
         m_motor.setPosition(0);
-
-        //TODO comment out when no longer testing
-        SmartDashboard.putNumber("ChainClimber/setMotor", 0);
     }
 
     @Override
     public void periodic() {
-
-        //TODO comment out when no longer testing
-
-        setDistance(SmartDashboard.getNumber("ClimberArms/setMotor", 0), true);
-
-        // SmartDashboard.getNumber("ClimberArms/setRight", 0);
-
-        SmartDashboard.putBoolean("ClimberArms/toTarget", onTarget());
+        SmartDashboard.putBoolean("ClimberArms/onTarget", onTarget());
         SmartDashboard.putNumber("ClimberArms/goalDistance", m_goalDistance);
         SmartDashboard.putNumber("ClimberArms/currentDistance", getCurrentDistance());
-
     }
 
 
@@ -137,32 +126,14 @@ public class ChainClimber extends SubsystemBase {
 
         m_goalDistance = distance;
         m_motor.setControl(new MotionMagicVoltage(distance).withSlot(slotNumber));
-        
     }
     
-
     public double getCurrentDistance() {
       return m_motor.getPosition().getValueAsDouble();
     }
-
-    /**
-     * Gets the current rotation of the selected climber motor.
-     *
-     * @param selectedMotor which climber motor to read (LEFT or RIGHT)
-     * @return the current motor position in rotations as reported by the TalonFX
-     */
 
     public boolean onTarget(){
         return Math.abs(getCurrentDistance() - m_goalDistance) < TOLERANCE;
         
     }
-
-    /**
-     * Checks whether the selected climber arm has reached its goal rotation.
-     *
-     * @param selectedMotor which climber motor to check (left or right)
-     * @return {@code true} if the current rotation equals the goal rotation for the selected motor;
-     *         {@code false} otherwise
-     */
-    
 }
