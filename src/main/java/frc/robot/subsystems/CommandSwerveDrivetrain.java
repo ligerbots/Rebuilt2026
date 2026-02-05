@@ -28,6 +28,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.units.measure.Frequency;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -232,7 +233,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private void optimizeCAN() {
         DriverStation.reportWarning("Running Swerve CAN optimization", false);
 
-        double odometryHz = getOdometryFrequencyMeasure().in(Hertz);
+        double odometryHz = getOdometryFrequency();
         DriverStation.reportWarning("Odometry frequency is " + odometryHz, false);
 
         for (var module : this.getModules()) {
