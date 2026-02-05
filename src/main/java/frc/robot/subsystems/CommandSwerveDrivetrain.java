@@ -28,7 +28,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
-import edu.wpi.first.units.measure.Frequency;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -236,10 +235,21 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         double odometryHz = getOdometryFrequency();
         DriverStation.reportWarning("Odometry frequency is " + odometryHz, false);
 
+        double updateFreq, updateFreqBase;
+
         for (var module : this.getModules()) {
             TalonFX driveMotor = module.getDriveMotor();
             TalonFX steerMotor = module.getSteerMotor();
             CANcoder steerEncoder = module.getEncoder();
+
+            updateFreq = driveMotor.getDeviceTemp().getAppliedUpdateFrequency();
+
+            // debug attempt - reset any changes from the CTR class
+            driveMotor.resetSignalFrequencies();
+            steerMotor.resetSignalFrequencies();
+            steerEncoder.resetSignalFrequencies();
+
+            updateFreqBase = driveMotor.getDeviceTemp().getAppliedUpdateFrequency();
 
             BaseStatusSignal.setUpdateFrequencyForAll(
                 Constants.ROBOT_FREQUENCY_HZ,
@@ -259,13 +269,21 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             );
 
             ParentDevice.optimizeBusUtilizationForAll(driveMotor, steerMotor, steerEncoder);
+
+            DriverStation.reportWarning("CAN Opt: drive temp freq: " + updateFreq + " ==> " + updateFreqBase + " ==> " +
+                    driveMotor.getDeviceTemp().getAppliedUpdateFrequency(), false);
         }
 
         // Also, do the Pigeon
         Pigeon2 pigeon = this.getPigeon2();
+        updateFreq = pigeon.getAngularVelocityZWorld().getAppliedUpdateFrequency();
+        pigeon.resetSignalFrequencies();
+        updateFreqBase = pigeon.getAngularVelocityZWorld().getAppliedUpdateFrequency();
         pigeon.getYaw().setUpdateFrequency(odometryHz);
         pigeon.getAngularVelocityZWorld().setUpdateFrequency(Constants.ROBOT_FREQUENCY_HZ);
         pigeon.optimizeBusUtilization();
+        DriverStation.reportWarning("CAN Opt: pigeon angVelZ freq: " + updateFreq + " ==> " + updateFreqBase + " ==> " +
+                pigeon.getAngularVelocityZWorld().getAppliedUpdateFrequency(), false);
     }
 
     /**
