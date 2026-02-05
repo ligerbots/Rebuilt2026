@@ -21,11 +21,11 @@ public class Robot extends TimedRobot {
     private Command m_autonomousCommand = null;
     private boolean m_prevIsRedAlliance = true;
 
-    public static final String TESTBOT_SERIAL_NUMBER = "0313baff";
-    public static final String COMP_V1_SERIAL_NUMBER = "0313bb3a";
+    public static final String TESTBOT_SERIAL_NUMBER = "0313baff";  // TODO: real value?
+    public static final String COMPBOT_SERIAL_NUMBER = "030fc268";
 
     public enum RobotType {
-        TESTBOT, COMP_V1
+        TESTBOT, COMPBOT
     }
     // we want this to be static so that it is easy for subsystems to query the robot type
     private static RobotType m_robotType;
@@ -51,8 +51,8 @@ public class Robot extends TimedRobot {
         SmartDashboard.putString("rioSerialNumber", serialNum);
         if (serialNum.equals(TESTBOT_SERIAL_NUMBER)) {
             m_robotType = RobotType.TESTBOT;
-        } else if (serialNum.equals(COMP_V1_SERIAL_NUMBER)) {
-            m_robotType = RobotType.COMP_V1;
+        } else if (serialNum.equals(COMPBOT_SERIAL_NUMBER)) {
+            m_robotType = RobotType.COMPBOT;
         } else {
             // default to the Test robot for now
             m_robotType = RobotType.TESTBOT;
@@ -61,12 +61,11 @@ public class Robot extends TimedRobot {
 
         // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
         // autonomous chooser on the dashboard.
-        // if (m_robotType == RobotType.TESTBOT) {
-        // m_robotContainer = new KitbotRobotContainer();
-        // } else if (m_robotType == RobotType.COMP_V1) {
-        // m_robotContainer = new CompRobotContainer();
-        // } else
-        m_robotContainer = new RobotContainer();
+        if (m_robotType == RobotType.TESTBOT) {
+            m_robotContainer = new RobotContainerTestBot();
+        } else {
+            m_robotContainer = new RobotContainerCompBot();
+        }
     }
 
     // Useful if a subsystem needs to know which chassis
