@@ -38,6 +38,7 @@ public class Shooter extends SubsystemBase {
 
   private Hood m_hood;
   private Flywheel m_flywheel;
+  private ShooterFeeder m_feeder;
 
   /**
    * Constructs a Shooter subsystem with lookup tables for hub and shuttle shooting.
@@ -51,6 +52,7 @@ public class Shooter extends SubsystemBase {
 
     m_hood = new Hood();
     m_flywheel = new Flywheel();
+    m_feeder = new ShooterFeeder();
   }
 
   @Override
@@ -104,6 +106,10 @@ public class Shooter extends SubsystemBase {
 
   public void setHoodAngle(Rotation2d angle) {
     m_hood.setAngle(angle);
+  }
+
+  public void setShooterFeederVoltage(double voltage) {
+    m_feeder.setVoltage(voltage);
   }
 
   /**

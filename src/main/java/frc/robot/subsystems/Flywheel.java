@@ -66,7 +66,7 @@ public class Flywheel extends SubsystemBase {
     SmartDashboard.putNumber("flywheel/goalRPM", m_goalRPM);
   }
 
-  public void setVoltage (double voltage) {
+  public void setVoltage(double voltage) {
     m_motor.setControl(new VoltageOut(voltage));
   }
 

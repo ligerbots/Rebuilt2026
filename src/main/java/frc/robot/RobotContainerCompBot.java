@@ -117,8 +117,11 @@ public class RobotContainerCompBot extends RobotContainer {
 
         SmartDashboard.putNumber("shooter/testHoodAngle", 0.0); //TODO find values
         SmartDashboard.putNumber("shooter/testFlywheelVoltage", 0.0); //TODO find values
+        SmartDashboard.putNumber("shooter/testFeederVoltage", 0.0); //TODO find values
         m_driverController.x().onTrue(new InstantCommand(() -> m_shooter.setHoodAngle(Rotation2d.fromDegrees(SmartDashboard.getNumber("shooter/testHoodAngle", 0.0)))));
         m_driverController.y().onTrue(new InstantCommand(() -> m_shooter.setFlywheelVoltage(SmartDashboard.getNumber("shooter/testFlywheelVoltage", 0.0))));
+        m_driverController.x().onTrue(new InstantCommand(() -> m_shooter.setShooterFeederVoltage(SmartDashboard.getNumber("shooter/testFeederVoltage", 0.0))));
+        
 
     }
     
