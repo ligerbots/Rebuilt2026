@@ -28,6 +28,8 @@ public class Shooter extends SubsystemBase {
   private ShooterState m_currentState = ShooterState.IDLE;
   private ShotType m_shootType = ShotType.HUB_SHOT;
 
+  private static final String HUB_LOOKUP_TABLE_FILE = "hub_shooting_lookup_table.csv";
+  private static final String SHUTTLE_LOOKUP_TABLE_FILE = "shuttle_shooting_lookup_table.csv";
 
   private final ShooterLookupTable m_hubShooterLookupTable;
   private final ShooterLookupTable m_shuttleShooterLookupTable;
@@ -43,12 +45,9 @@ public class Shooter extends SubsystemBase {
    * @param hubLookupTableFileName the file name for the lookup table for hub shooting calculations
    * @param shuttleLookupTableFileName the file name for the lookup table for shuttle shooting calculations
    */
-  public Shooter(String hubLookupTableFileName, String shuttleLookupTableFileName) {
-    m_hubShooterLookupTable = new ShooterLookupTable(hubLookupTableFileName);
-    m_shuttleShooterLookupTable = new ShooterLookupTable(shuttleLookupTableFileName);
-
-    SmartDashboard.putNumber("shooter/tuning/hoodAngle", 0.0); //TODO find values
-    SmartDashboard.putNumber("shooter/tuning/flywheelRpm", 0.0); //TODO find values
+  public Shooter() {
+    m_hubShooterLookupTable = new ShooterLookupTable(HUB_LOOKUP_TABLE_FILE);
+    m_shuttleShooterLookupTable = new ShooterLookupTable(SHUTTLE_LOOKUP_TABLE_FILE);
 
     m_hood = new Hood();
     m_flywheel = new Flywheel();
@@ -97,6 +96,14 @@ public class Shooter extends SubsystemBase {
     m_currentState = ShooterState.IDLE;
     m_flywheel.stop();
     m_hood.setAngle(Rotation2d.fromDegrees(0));
+  }
+
+  public void setFlywheelVoltage(double voltage) {
+    m_flywheel.setVoltage(voltage);
+  }
+
+  public void setHoodAngle(Rotation2d angle) {
+    m_hood.setAngle(angle);
   }
 
   /**

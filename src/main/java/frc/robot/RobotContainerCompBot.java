@@ -14,11 +14,13 @@ import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
@@ -28,6 +30,7 @@ import frc.robot.commands.FirstBasicAuto;
 import frc.robot.generated.TunerConstantsCompBot;
 import frc.robot.subsystems.AprilTagVision;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.Shooter;
 
 public class RobotContainerCompBot extends RobotContainer {
     private static double SPEED_LIMIT = 0.5;
@@ -53,6 +56,7 @@ public class RobotContainerCompBot extends RobotContainer {
 
     private final CommandSwerveDrivetrain m_drivetrain;
     private final AprilTagVision m_aprilTagVision = new AprilTagVision();
+    private final Shooter m_shooter = new Shooter();
 
     private final SendableChooser<String> m_chosenFieldSide = new SendableChooser<>();
     private int m_autoSelectionCode; 
@@ -109,6 +113,13 @@ public class RobotContainerCompBot extends RobotContainer {
         m_driverController.leftBumper().onTrue(m_drivetrain.runOnce(m_drivetrain::seedFieldCentric));
 
         m_drivetrain.registerTelemetry(m_logger::telemeterize);
+
+
+        SmartDashboard.putNumber("shooter/testHoodAngle", 0.0); //TODO find values
+        SmartDashboard.putNumber("shooter/testFlywheelVoltage", 0.0); //TODO find values
+        m_driverController.x().onTrue(new InstantCommand(() -> m_shooter.setHoodAngle(Rotation2d.fromDegrees(SmartDashboard.getNumber("shooter/testHoodAngle", 0.0)))));
+        m_driverController.y().onTrue(new InstantCommand(() -> m_shooter.setFlywheelVoltage(SmartDashboard.getNumber("shooter/testFlywheelVoltage", 0.0))));
+
     }
     
     public CommandSwerveDrivetrain getDriveTrain() {
