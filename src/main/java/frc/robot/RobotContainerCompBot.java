@@ -31,6 +31,7 @@ import frc.robot.generated.TunerConstantsCompBot;
 import frc.robot.subsystems.AprilTagVision;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.ShooterFeeder;
 
 public class RobotContainerCompBot extends RobotContainer {
     private static double SPEED_LIMIT = 0.5;
@@ -57,6 +58,7 @@ public class RobotContainerCompBot extends RobotContainer {
     private final CommandSwerveDrivetrain m_drivetrain;
     private final AprilTagVision m_aprilTagVision = new AprilTagVision();
     private final Shooter m_shooter = new Shooter();
+    private final ShooterFeeder m_shooterFeeder = new ShooterFeeder();
 
     private final SendableChooser<String> m_chosenFieldSide = new SendableChooser<>();
     private int m_autoSelectionCode; 
@@ -114,15 +116,16 @@ public class RobotContainerCompBot extends RobotContainer {
 
         m_drivetrain.registerTelemetry(m_logger::telemeterize);
 
-
-        SmartDashboard.putNumber("shooter/testHoodAngle", 0.0); //TODO find values
-        SmartDashboard.putNumber("shooter/testFlywheelVoltage", 0.0); //TODO find values
-        SmartDashboard.putNumber("shooter/testFeederVoltage", 0.0); //TODO find values
-        m_driverController.x().onTrue(new InstantCommand(() -> m_shooter.setHoodAngle(Rotation2d.fromDegrees(SmartDashboard.getNumber("shooter/testHoodAngle", 0.0)))));
-        m_driverController.y().onTrue(new InstantCommand(() -> m_shooter.setFlywheelVoltage(SmartDashboard.getNumber("shooter/testFlywheelVoltage", 0.0))));
-        m_driverController.x().onTrue(new InstantCommand(() -> m_shooter.setShooterFeederVoltage(SmartDashboard.getNumber("shooter/testFeederVoltage", 0.0))));
+        // *** Test Commands *** 
         
-
+        SmartDashboard.putNumber("shooter/testHoodAngle", 0.0); 
+        m_driverController.x().onTrue(new InstantCommand(() -> m_shooter.setHoodAngle(Rotation2d.fromDegrees(SmartDashboard.getNumber("shooter/testHoodAngle", 0.0)))));
+        
+        SmartDashboard.putNumber("shooter/testFlywheelVoltage", 0.0); 
+        m_driverController.y().onTrue(new InstantCommand(() -> m_shooter.setFlywheelVoltage(SmartDashboard.getNumber("shooter/testFlywheelVoltage", 0.0))));
+        
+        SmartDashboard.putNumber("shooterFeeder/testVoltage", 0.0); 
+        m_driverController.a().onTrue(new InstantCommand(() -> m_shooterFeeder.setVoltage(SmartDashboard.getNumber("shooterFeeder/testVoltage", 0.0))));
     }
     
     public CommandSwerveDrivetrain getDriveTrain() {
