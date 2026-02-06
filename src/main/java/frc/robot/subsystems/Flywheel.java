@@ -10,6 +10,7 @@ import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
+import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -22,6 +23,7 @@ import frc.robot.Constants;
 public class Flywheel extends SubsystemBase {
   
   private final TalonFX m_motor;
+  private final TalonFX m_follower;
 
   //need to calibrate the P value for the velocity loop, start small and increase until you get good response
   private static final double K_P = 3.0;
@@ -38,6 +40,8 @@ public class Flywheel extends SubsystemBase {
     TalonFXConfiguration talonFXConfigs = new TalonFXConfiguration();  
 
     m_motor = new TalonFX(Constants.FLYWHEEL_CAN_ID);
+    m_follower = new TalonFX(Constants.FLYWHEEL_FOLLOWER_CAN_ID);
+
     Slot0Configs slot0configs = talonFXConfigs.Slot0;
     slot0configs.kP = K_P;  // start small!!!
     slot0configs.kI = 0.0;
@@ -51,6 +55,10 @@ public class Flywheel extends SubsystemBase {
     // enable coast mode (after main config)
     m_motor.getConfigurator().apply(talonFXConfigs);
     m_motor.setNeutralMode(NeutralModeValue.Coast);
+
+    m_follower.getConfigurator().apply(talonFXConfigs);
+    m_follower.setNeutralMode(NeutralModeValue.Coast);
+    m_follower.setControl(new Follower(m_motor.getDeviceID(), null));
   }
   @Override
   public void periodic() {

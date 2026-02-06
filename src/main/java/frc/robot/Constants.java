@@ -2,6 +2,7 @@ package frc.robot;
 
 public class Constants {
     public static final int FLYWHEEL_CAN_ID = 9;
+    public static final int FLYWHEEL_FOLLOWER_CAN_ID = 10;
     public static final int INTAKE_DEPLOY_ID = 16;
     public static final int HOOD_CAN_ID = 11;
     public static final int INTAKE_ROLLER_CAN_ID = 17;
