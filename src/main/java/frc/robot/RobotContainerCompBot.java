@@ -52,7 +52,7 @@ public class RobotContainerCompBot extends RobotContainer {
     // private final CommandJoystick m_farm = new CommandJoystick(1);
 
     private final CommandSwerveDrivetrain m_drivetrain;
-    private final AprilTagVision m_aprilTagVision = new AprilTagVision();
+    private final AprilTagVision m_aprilTagVision = new AprilTagVision(Robot.RobotType.COMPBOT);
 
     private final SendableChooser<String> m_chosenFieldSide = new SendableChooser<>();
     private int m_autoSelectionCode; 
