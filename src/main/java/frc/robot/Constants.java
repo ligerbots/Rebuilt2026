@@ -8,6 +8,10 @@ public class Constants {
     public static final int SHOOTER_FEEDER_CAN_ID = 18;
     public static final int LINEAR_EXTENSION_CAN_ID = -1; //TODO set real id
     public static final int HOPPER_TRANSFER_CAN_ID = 19;
+    public static final int CLIMBER_LEFT_MOTOR_CAN_ID = 13;
+    public static final int CLIMBER_RIGHT_MOTOR_CAN_ID = 14;
+    public static final int CHAIN_CLIMBER_MOTOR_CAN_ID = 15; // TODO set real id
+    public static final int CHAIN_CLIMBER_FOLLOWER_MOTOR_CAN_ID = 16; // TODO set real id
 
     // NOTE: TalonFX motors (all Krakens and Falcons) share the same ID space, so CANNOT repeat
     // CAN ID 1-8 for Talons are for the Swerve motors
