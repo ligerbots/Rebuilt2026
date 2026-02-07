@@ -127,8 +127,8 @@ public class RobotContainerCompBot extends RobotContainer {
         SmartDashboard.putNumber("flywheel/testRPM", 0.0); 
         m_driverController.b().onTrue(new InstantCommand(() -> m_shooter.getFlywheel().setRPM(SmartDashboard.getNumber("flywheel/testRPM", 0.0))));
         
-        SmartDashboard.putNumber("shooterFeeder/testVoltage", 0.0); 
-        m_driverController.a().onTrue(new InstantCommand(() -> m_shooterFeeder.setVoltage(SmartDashboard.getNumber("shooterFeeder/testVoltage", 0.0))));
+        SmartDashboard.putNumber("shooterFeeder/testRPM", 0.0); 
+        m_driverController.a().onTrue(new InstantCommand(() -> m_shooterFeeder.setRPM(SmartDashboard.getNumber("shooterFeeder/testRPM", 0.0))));
     }
     
     public CommandSwerveDrivetrain getDriveTrain() {

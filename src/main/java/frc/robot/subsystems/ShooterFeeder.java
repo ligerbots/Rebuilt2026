@@ -11,6 +11,7 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
@@ -23,7 +24,7 @@ public class ShooterFeeder extends SubsystemBase {
     
     //need to calibrate the P value for the velocity loop, start small and increase until you get good response
     private static final double K_P = 0.1; 
-    private static final double K_FF = 0.0015; //TODO find new constant
+    private static final double K_FF = 0.0021; //TODO find new constant
     
     private static final double SUPPLY_CURRENT_LIMIT = 40;
     private static final double STATOR_CURRENT_LIMIT = 60;
@@ -42,6 +43,8 @@ public class ShooterFeeder extends SubsystemBase {
         slot0configs.kP = K_P;  // start small!!!
         slot0configs.kI = 0.0;
         slot0configs.kD = 0.0;
+
+        talonFXConfigs.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
         CurrentLimitsConfigs currentLimits = new CurrentLimitsConfigs()
         .withSupplyCurrentLimit(SUPPLY_CURRENT_LIMIT)
