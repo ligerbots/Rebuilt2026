@@ -20,6 +20,8 @@ public class Hood extends SubsystemBase {
 
     private static final double ANGLE_TOLERANCE_DEG = 2.0;
 
+    private static final double GEAR_RATIO = 12.0/36.0 * 15.0/24.0 * 10.0/174.0;
+
     private Rotation2d m_goal = Rotation2d.fromDegrees(0.0);
     
     private final TalonFX m_hoodMotor;
@@ -47,6 +49,8 @@ public class Hood extends SubsystemBase {
         slot0configs.kI = 0.0;
         slot0configs.kD = 0.0;
         
+        // talonFXConfigs.Feedback.withSensorToMechanismRatio(1/GEAR_RATIO); //pass down the conversion factor to motor
+
         MotionMagicConfigs magicConfigs = talonFXConfigs.MotionMagic;
         
         magicConfigs.MotionMagicCruiseVelocity = MAX_VEL_ROT_PER_SEC;
@@ -68,11 +72,13 @@ public class Hood extends SubsystemBase {
     
     public void setAngle(Rotation2d angle) {
         m_goal = angle;
-        m_hoodMotor.setControl(new MotionMagicVoltage(m_goal.getRotations()));
+        double rot = m_goal.getRotations() / GEAR_RATIO;
+        m_hoodMotor.setControl(new MotionMagicVoltage(rot));
     }
     
-    public Rotation2d getAngle(){
-        return Rotation2d.fromRotations(m_hoodMotor.getPosition().getValueAsDouble());
+    public Rotation2d getAngle() {
+        double rot = m_hoodMotor.getPosition().getValueAsDouble();
+        return Rotation2d.fromRotations(rot * GEAR_RATIO);
     }
     
     /**

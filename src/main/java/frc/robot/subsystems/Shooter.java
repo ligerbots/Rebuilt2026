@@ -76,6 +76,14 @@ public class Shooter extends SubsystemBase {
             m_currentState = ShooterState.SPINNING_UP;
         }
     }
+
+    public Flywheel getFlywheel() {
+        return m_flywheel;
+    }
+
+     public Hood getHood() {
+        return m_hood;
+    }
     
     /**
     * Stops all shooter-related subsystems.
@@ -84,15 +92,6 @@ public class Shooter extends SubsystemBase {
         m_currentState = ShooterState.IDLE;
         m_flywheel.stop();
         m_hood.setAngle(Rotation2d.fromDegrees(0));
-    }
-    
-    // Pass through routines, needed for testing and tuning
-    public void setFlywheelVoltage(double voltage) {
-        m_flywheel.setVoltage(voltage);
-    }
-    
-    public void setHoodAngle(Rotation2d angle) {
-        m_hood.setAngle(angle);
     }
     
     /**

@@ -99,17 +99,17 @@ public class RobotContainerCompBot extends RobotContainer {
         );
 
         // lock wheels
-        m_driverController.a().whileTrue(m_drivetrain.applyRequest(() -> m_brakeRequest));
+        // m_driverController.a().whileTrue(m_drivetrain.applyRequest(() -> m_brakeRequest));
         // m_driverController.b().whileTrue(drivetrain.applyRequest(() ->
         //     point.withModuleDirection(new Rotation2d(-m_driverController.getLeftY(), -m_driverController.getLeftX()))
         // ));
 
         // Run SysId routines when holding back/start and X/Y.
         // Note that each routine should be run exactly once in a single log.
-        m_driverController.back().and(m_driverController.y()).whileTrue(m_drivetrain.sysIdDynamic(Direction.kForward));
-        m_driverController.back().and(m_driverController.x()).whileTrue(m_drivetrain.sysIdDynamic(Direction.kReverse));
-        m_driverController.start().and(m_driverController.y()).whileTrue(m_drivetrain.sysIdQuasistatic(Direction.kForward));
-        m_driverController.start().and(m_driverController.x()).whileTrue(m_drivetrain.sysIdQuasistatic(Direction.kReverse));
+        // m_driverController.back().and(m_driverController.y()).whileTrue(m_drivetrain.sysIdDynamic(Direction.kForward));
+        // m_driverController.back().and(m_driverController.x()).whileTrue(m_drivetrain.sysIdDynamic(Direction.kReverse));
+        // m_driverController.start().and(m_driverController.y()).whileTrue(m_drivetrain.sysIdQuasistatic(Direction.kForward));
+        // m_driverController.start().and(m_driverController.x()).whileTrue(m_drivetrain.sysIdQuasistatic(Direction.kReverse));
 
         // Reset the field-centric heading on left bumper press.
         m_driverController.leftBumper().onTrue(m_drivetrain.runOnce(m_drivetrain::seedFieldCentric));
@@ -118,11 +118,14 @@ public class RobotContainerCompBot extends RobotContainer {
 
         // *** Test Commands *** 
         
-        SmartDashboard.putNumber("shooter/testHoodAngle", 0.0); 
-        m_driverController.x().onTrue(new InstantCommand(() -> m_shooter.setHoodAngle(Rotation2d.fromDegrees(SmartDashboard.getNumber("shooter/testHoodAngle", 0.0)))));
+        SmartDashboard.putNumber("hood/testAngle", 0.0); 
+        m_driverController.x().onTrue(new InstantCommand(() -> m_shooter.getHood().setAngle(Rotation2d.fromDegrees(SmartDashboard.getNumber("hood/testAngle", 0.0)))));
         
-        SmartDashboard.putNumber("shooter/testFlywheelVoltage", 0.0); 
-        m_driverController.y().onTrue(new InstantCommand(() -> m_shooter.setFlywheelVoltage(SmartDashboard.getNumber("shooter/testFlywheelVoltage", 0.0))));
+        SmartDashboard.putNumber("flywheel/testVoltage", 0.0); 
+        m_driverController.y().onTrue(new InstantCommand(() -> m_shooter.getFlywheel().setVoltage(SmartDashboard.getNumber("flywheel/testVoltage", 0.0))));
+
+        SmartDashboard.putNumber("flywheel/testRPM", 0.0); 
+        m_driverController.b().onTrue(new InstantCommand(() -> m_shooter.getFlywheel().setRPM(SmartDashboard.getNumber("flywheel/testRPM", 0.0))));
         
         SmartDashboard.putNumber("shooterFeeder/testVoltage", 0.0); 
         m_driverController.a().onTrue(new InstantCommand(() -> m_shooterFeeder.setVoltage(SmartDashboard.getNumber("shooterFeeder/testVoltage", 0.0))));

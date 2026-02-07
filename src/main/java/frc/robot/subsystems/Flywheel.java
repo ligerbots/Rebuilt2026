@@ -13,6 +13,8 @@ import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -27,7 +29,7 @@ public class Flywheel extends SubsystemBase {
     
     // need to calibrate the P value for the velocity loop, start small and increase until you get good response
     private static final double K_P = 0.1;   // TODO tune
-    private static final double K_FF = 0.0015; // TODO tune
+    private static final double K_FF = 0.0021;
 
     private static final double SUPPLY_CURRENT_LIMIT = 40;
     private static final double STATOR_CURRENT_LIMIT = 60;
@@ -50,20 +52,23 @@ public class Flywheel extends SubsystemBase {
                 .withSupplyCurrentLimit(SUPPLY_CURRENT_LIMIT)
                 .withStatorCurrentLimit(STATOR_CURRENT_LIMIT);
         talonFXConfigs.withCurrentLimits(currentLimits);
-        
+        talonFXConfigs.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+
         // enable coast mode (after main config)
         m_motor.getConfigurator().apply(talonFXConfigs);
         m_motor.setNeutralMode(NeutralModeValue.Coast);
-        
+
         m_follower.getConfigurator().apply(talonFXConfigs);
         m_follower.setNeutralMode(NeutralModeValue.Coast);
-        m_follower.setControl(new Follower(m_motor.getDeviceID(), null));
+        m_follower.setControl(new Follower(m_motor.getDeviceID(), MotorAlignmentValue.Opposed));
     }
 
     @Override
     public void periodic() {
         SmartDashboard.putNumber("flywheel/currentRPM", getRPM()); 
         SmartDashboard.putNumber("flywheel/goalRPM", m_goalRPM);
+        SmartDashboard.putNumber("flywheel/leaderCurrent", m_motor.getStatorCurrent().getValueAsDouble());
+        SmartDashboard.putNumber("flywheel/followerCurrent", m_follower.getStatorCurrent().getValueAsDouble());
     }
     
     public void setVoltage(double voltage) {
