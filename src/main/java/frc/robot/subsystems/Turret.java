@@ -37,19 +37,19 @@ public class Turret extends SubsystemBase {
     
     private static final double SUPPLY_CURRENT_LIMIT = 60;
     private static final double STATOR_CURRENT_LIMIT = 40;
-    
-    private static final double K_P = 1.0; //TODO tune
-    private static final double MAX_VEL_ROT_PER_SEC = 1;//TODO add new rotations/sec instead of meters
-    private static final double MAX_ACC_ROT_PER_SEC_SQ = 0.5;
-    private static final Rotation2d MAX_ROTATION = Rotation2d.fromDegrees(170.0);
-    private static final Rotation2d MIN_ROTATION = Rotation2d.fromDegrees(-170.0);
-    
+
     private static final int ENCODER_SMALL_TOOTH_COUNT = 11;
     private static final int ENCODER_LARGE_TOOTH_COUNT = 13;
     private static final int TURRET_TOOTH_COUNT = 100;
     private static final double TURRET_GEAR_RATIO =  54.0 / 12.0 * TURRET_TOOTH_COUNT / 10.0;
-
-    private static final Rotation2d CRT_POSITION_OFFSET = Rotation2d.fromDegrees(310.0);
+    
+    private static final double K_P = 2.0; 
+    private static final double MAX_VEL_ROT_PER_SEC = 4.0 * TURRET_GEAR_RATIO;
+    private static final double MAX_ACC_ROT_PER_SEC_SQ = 40.0 * TURRET_GEAR_RATIO;
+    private static final Rotation2d MAX_ROTATION = Rotation2d.fromDegrees(170.0);
+    private static final Rotation2d MIN_ROTATION = Rotation2d.fromDegrees(-170.0);
+    
+    private static final Rotation2d CRT_POSITION_OFFSET = Rotation2d.fromDegrees(322.3);
     
     /** Creates a new Turret. */
     public Turret() {
@@ -80,8 +80,8 @@ public class Turret extends SubsystemBase {
         
         m_turretMotor.getConfigurator().apply(talonFXConfigs);
         
-        double zeroPos = 0.0;
-        // double zeroPos = computeCRTAngle();
+        // double zeroPos = 0.0;
+        double zeroPos = getCRTAngle().getRotations() * TURRET_GEAR_RATIO;
         m_turretMotor.setPosition(zeroPos);
     }
     
@@ -94,6 +94,7 @@ public class Turret extends SubsystemBase {
         // Values for testing and tuning
         SmartDashboard.putNumber("turret/crtAngleRaw",getCRTAngleRaw().getDegrees());   
         SmartDashboard.putNumber("turret/crtAngle",getCRTAngle().getDegrees());   
+        SmartDashboard.putNumber("turret/motorVel", m_turretMotor.getVelocity().getValueAsDouble());
 
         SmartDashboard.putNumber("turret/absEncoder2", m_thruboreLarge.getAbsolutePosition().getValueAsDouble()*360);
         SmartDashboard.putNumber("turret/absEncoder1", m_thruboreSmall.getAbsolutePosition().getValueAsDouble()*360);
@@ -155,7 +156,7 @@ public class Turret extends SubsystemBase {
     }
 
     private Rotation2d limitRotation(Rotation2d angle){
-        return Rotation2d.fromRadians(MathUtil.clamp(angle.getDegrees(), MIN_ROTATION.getDegrees(), MAX_ROTATION.getDegrees()));
+        return Rotation2d.fromDegrees(MathUtil.clamp(angle.getDegrees(), MIN_ROTATION.getDegrees(), MAX_ROTATION.getDegrees()));
         //optimization in here
         //optimal path goes to 
     }
