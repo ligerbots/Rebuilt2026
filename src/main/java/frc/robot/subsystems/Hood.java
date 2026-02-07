@@ -4,8 +4,8 @@
 
 package frc.robot.subsystems;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -20,9 +20,12 @@ public class Hood extends SubsystemBase {
 
     private static final double ANGLE_TOLERANCE_DEG = 2.0;
 
+    private static final double MIN_ANGLE_DEG = 0.0;
+    private static final double MAX_ANGLE_DEG = 25.0;
+
     private static final double GEAR_RATIO = 12.0/36.0 * 15.0/24.0 * 10.0/174.0;
 
-    private Rotation2d m_goal = Rotation2d.fromDegrees(0.0);
+    private Rotation2d m_goal = Rotation2d.kZero;
     
     private final TalonFX m_hoodMotor;
     
@@ -71,9 +74,9 @@ public class Hood extends SubsystemBase {
     }
     
     public void setAngle(Rotation2d angle) {
-        m_goal = angle;
-        double rot = m_goal.getRotations() / GEAR_RATIO;
-        m_hoodMotor.setControl(new MotionMagicVoltage(rot));
+        double limitAngle = MathUtil.clamp(angle.getDegrees(), MIN_ANGLE_DEG, MAX_ANGLE_DEG);
+        m_goal = Rotation2d.fromDegrees(limitAngle);
+        m_hoodMotor.setControl(new MotionMagicVoltage(limitAngle / 360.0 / GEAR_RATIO));
     }
     
     public Rotation2d getAngle() {
@@ -91,5 +94,4 @@ public class Hood extends SubsystemBase {
         Rotation2d angle = getAngle();
         return Math.abs(angle.minus(m_goal).getDegrees()) < ANGLE_TOLERANCE_DEG;
     }
-    
 }
