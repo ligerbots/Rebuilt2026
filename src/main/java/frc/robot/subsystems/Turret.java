@@ -11,6 +11,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.FieldConstants;
 
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
@@ -32,6 +33,8 @@ public class Turret extends SubsystemBase {
   private static final double SUPPLY_CURRENT_LIMIT = 60;
   private static final double STATOR_CURRENT_LIMIT = 40;
 
+  private static final double GEAR_RATIO = 45.0 / 1.0;
+
   // TODO Tune the constants
   private static final double K_P = 1.0; 
   private static final double MAX_VEL_ROT_PER_SEC = 1;  // Target cruise velocity of 80 rps
@@ -42,7 +45,7 @@ public class Turret extends SubsystemBase {
 
   /** Creates a new Turret. */
   public Turret() {
-    m_turretMotor = new TalonFX(0); //TODO add the motor id constant
+    m_turretMotor = new TalonFX(Constants.TURRET_CAN_ID);
   
     TalonFXConfiguration talonFXConfigs = new TalonFXConfiguration();
 
@@ -65,18 +68,18 @@ public class Turret extends SubsystemBase {
   // This method will be called once per scheduler run
   @Override
   public void periodic() {    
-    SmartDashboard.putNumber("turret/goalAngle", m_goal.getRadians());
-    SmartDashboard.putNumber("turret/currentAngle", getPosition().getRadians());
+    SmartDashboard.putNumber("turret/goalAngle", m_goal.getDegrees());
+    SmartDashboard.putNumber("turret/currentAngle", getPosition().getDegrees());
     SmartDashboard.putNumber("turret/rawMotorAngle", m_turretMotor.getPosition().getValueAsDouble());
   }
 
   public void set(Rotation2d angle) {
     m_goal = limitRotation(angle);
-    m_turretMotor.setControl(new MotionMagicVoltage(m_goal.getRotations()));
+    m_turretMotor.setControl(new MotionMagicVoltage(m_goal.getRotations() * GEAR_RATIO));
   }
 
   public Rotation2d getPosition(){
-    return Rotation2d.fromRotations(m_turretMotor.getPosition().getValueAsDouble());
+    return Rotation2d.fromRotations(m_turretMotor.getPosition().getValueAsDouble() / GEAR_RATIO);
   }
 
   // max rotation and min rotation in constants

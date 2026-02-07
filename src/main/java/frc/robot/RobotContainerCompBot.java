@@ -32,6 +32,7 @@ import frc.robot.subsystems.AprilTagVision;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.ShooterFeeder;
+import frc.robot.subsystems.Turret;
 
 public class RobotContainerCompBot extends RobotContainer {
     private static double SPEED_LIMIT = 0.5;
@@ -59,7 +60,8 @@ public class RobotContainerCompBot extends RobotContainer {
     private final AprilTagVision m_aprilTagVision = new AprilTagVision();
     private final Shooter m_shooter = new Shooter();
     private final ShooterFeeder m_shooterFeeder = new ShooterFeeder();
-
+    private final Turret m_turret = new Turret();
+    
     private final SendableChooser<String> m_chosenFieldSide = new SendableChooser<>();
     private int m_autoSelectionCode; 
     
