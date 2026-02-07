@@ -7,9 +7,14 @@ package frc.robot.subsystems;
 import frc.robot.Constants;
 import frc.robot.utilities.ChineseRemainder;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.FieldConstants;
+
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -19,6 +24,9 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 
 public class Turret extends SubsystemBase {
+
+  private static final Translation2d TURRET_OFFSET = new Translation2d(Units.inchesToMeters(8.33),  Units.inchesToMeters(-4.36)); // TODO: Check offset hasn't changed
+  private static final Rotation2d TURRET_ANGLE_TOLERANCE = Rotation2d.fromDegrees(2.0); // TODO: Tune this value
 
   private Rotation2d m_goal = Rotation2d.fromDegrees(0.0);
 
@@ -148,5 +156,23 @@ public class Turret extends SubsystemBase {
     //optimization in here
     //optimal path goes to 
 
+  }
+
+  public boolean isTurretAtTargetForHub(Pose2d robotPose) {
+    return Math.abs(getPosition().minus(getAngleToHub(robotPose)).getRadians()) < TURRET_ANGLE_TOLERANCE.getRadians(); 
+  }
+
+  private static Translation2d getTurretPositionForRobotPose(Pose2d robotPose) {
+    // Pose2d robotPose = m_drivetrain.getState().Pose;
+    return Turret.TURRET_OFFSET.rotateBy(robotPose.getRotation()).plus(robotPose.getTranslation());
+  }
+
+  public static Rotation2d getAngleToHub(Pose2d robotPose) {
+    Rotation2d overallAngle = getTurretPositionForRobotPose(robotPose).minus(FieldConstants.flipTranslation(FieldConstants.HUB_POSITION_BLUE)).getAngle();
+    return overallAngle.plus(robotPose.getRotation());
+  }
+
+  public static double getDistanceToHub(Pose2d robotPose) {
+    return getTurretPositionForRobotPose(robotPose).getDistance(FieldConstants.flipTranslation(FieldConstants.HUB_POSITION_BLUE));
   }
 }

@@ -6,12 +6,29 @@ package frc.robot;
 
 import com.ctre.phoenix6.HootAutoReplay;
 
+import edu.wpi.first.hal.HALUtil;
+import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.livewindow.LiveWindow;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
+import frc.robot.subsystems.CommandSwerveDrivetrain;
+
 public class Robot extends TimedRobot {
-    private Command m_autonomousCommand;
+    private Command m_autonomousCommand = null;
+    private boolean m_prevIsRedAlliance = true;
+
+    public static final String TESTBOT_SERIAL_NUMBER = "0313baff";  // TODO: real value?
+    public static final String COMPBOT_SERIAL_NUMBER = "030fc268";
+
+    public enum RobotType {
+        TESTBOT, COMPBOT
+    }
+    // we want this to be static so that it is easy for subsystems to query the robot type
+    private static RobotType m_robotType;
 
     private final RobotContainer m_robotContainer;
 
@@ -21,7 +38,39 @@ public class Robot extends TimedRobot {
         .withJoystickReplay();
 
     public Robot() {
-        m_robotContainer = new RobotContainer();
+        // Disable the LiveWindow telemetry to lower the network load
+        LiveWindow.disableAllTelemetry();
+
+        // Enable local logging.
+        DataLogManager.start();
+        DriverStation.startDataLog(DataLogManager.getLog());
+
+        // Figure out which roboRio this is, so we know which version of the robot
+        //   code to run.
+        String serialNum = HALUtil.getSerialNumber();
+        SmartDashboard.putString("rioSerialNumber", serialNum);
+        if (serialNum.equals(TESTBOT_SERIAL_NUMBER)) {
+            m_robotType = RobotType.TESTBOT;
+        } else if (serialNum.equals(COMPBOT_SERIAL_NUMBER)) {
+            m_robotType = RobotType.COMPBOT;
+        } else {
+            // default to the Test robot for now
+            m_robotType = RobotType.TESTBOT;
+        }
+        SmartDashboard.putString("robotType", m_robotType.toString());
+
+        // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
+        // autonomous chooser on the dashboard.
+        if (m_robotType == RobotType.TESTBOT) {
+            m_robotContainer = new RobotContainerTestBot();
+        } else {
+            m_robotContainer = new RobotContainerCompBot();
+        }
+    }
+
+    // Useful if a subsystem needs to know which chassis
+    public static RobotType getRobotType() {
+        return m_robotType;
     }
 
     @Override
@@ -34,7 +83,23 @@ public class Robot extends TimedRobot {
     public void disabledInit() {}
 
     @Override
-    public void disabledPeriodic() {}
+    public void disabledPeriodic() {
+        boolean isRedAlliance = FieldConstants.isRedAlliance();
+        Command newAuto = m_robotContainer.getAutonomousCommand();
+
+        // don't change the initialPose unless the Auto or Alliance has changed
+        // don't want to override the true pose on the field (as determined by the AprilTags)
+        //
+        // Note: use "==" to compare autos - checks if they are the same object
+        if (isRedAlliance != m_prevIsRedAlliance || newAuto != m_autonomousCommand) {
+            m_autonomousCommand = newAuto;
+            m_prevIsRedAlliance = isRedAlliance;
+
+            // drivetrain might be null when testing code. So check
+            CommandSwerveDrivetrain driveTrain = m_robotContainer.getDriveTrain();
+            if (driveTrain != null) driveTrain.setPose(m_robotContainer.getInitialPose());
+        }
+    }
 
     @Override
     public void disabledExit() {}
