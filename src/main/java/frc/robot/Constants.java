@@ -13,10 +13,10 @@ public class Constants {
     public static final int SHOOTER_FEEDER_CAN_ID = 18;
     public static final int HOPPER_TRANSFER_CAN_ID = 19;
     public static final int CHAIN_CLIMBER_FOLLOWER_MOTOR_CAN_ID = 20; 
-
     public static final int TURRET_CAN_ID = 21;
-    public static final int CAN_CODER1 = 21;
-    public static final int CAN_CODER2 = 22;
+
+    public static final int TURRET_SMALL_CANCODER_ID = 5;
+    public static final int TURRET_LARGE_CANCODER_ID = 6;
 
     // NOTE: TalonFX motors (all Krakens and Falcons) share the same ID space, so CANNOT repeat
     // CAN ID 1-8 for Talons are for the Swerve motors
