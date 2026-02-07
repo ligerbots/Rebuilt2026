@@ -29,12 +29,11 @@ public class Turret extends SubsystemBase {
     private static final Translation2d TURRET_OFFSET = new Translation2d(Units.inchesToMeters(8.33),  Units.inchesToMeters(-4.36)); // TODO: Check offset hasn't changed
     private static final Rotation2d TURRET_ANGLE_TOLERANCE = Rotation2d.fromDegrees(2.0); // TODO: Tune this value
     
-    private Rotation2d m_goal = Rotation2d.fromDegrees(0.0);
+    private Rotation2d m_goal = Rotation2d.kZero;
     
     private final TalonFX m_turretMotor;
     private final CANcoder m_thruboreSmall; 
     private final CANcoder m_thruboreLarge; 
-    
     
     private static final double SUPPLY_CURRENT_LIMIT = 60;
     private static final double STATOR_CURRENT_LIMIT = 40;
@@ -90,7 +89,7 @@ public class Turret extends SubsystemBase {
     @Override
     public void periodic() {    
         SmartDashboard.putNumber("turret/goalAngle", m_goal.getDegrees());
-        SmartDashboard.putNumber("turret/currentAngle", getPosition().getDegrees());
+        SmartDashboard.putNumber("turret/currentAngle", getAngle().getDegrees());
 
         // Values for testing and tuning
         SmartDashboard.putNumber("turret/crtAngleRaw",getCRTAngleRaw().getDegrees());   
@@ -134,20 +133,20 @@ public class Turret extends SubsystemBase {
         return bestAngle;
     }
        
-    public void set(Rotation2d angle) {
+    public void setAngle(Rotation2d angle) {
         m_goal = limitRotation(angle);
         m_turretMotor.setControl(new MotionMagicVoltage(m_goal.getRotations() * TURRET_GEAR_RATIO));
     }
     
-    //get position of turret
-    public Rotation2d getPosition(){
+    // get angle of turret
+    public Rotation2d getAngle(){
         return Rotation2d.fromRotations(m_turretMotor.getPosition().getValueAsDouble() / TURRET_GEAR_RATIO);
     }
         
     private Rotation2d getCRTAngleRaw(){
         return ChineseRemainder.findAngle(
                 Rotation2d.fromRotations(m_thruboreSmall.getAbsolutePosition().getValueAsDouble()), ENCODER_SMALL_TOOTH_COUNT,
-                Rotation2d.fromRotations((m_thruboreLarge.getAbsolutePosition().getValueAsDouble())), ENCODER_LARGE_TOOTH_COUNT,
+                Rotation2d.fromRotations(m_thruboreLarge.getAbsolutePosition().getValueAsDouble()), ENCODER_LARGE_TOOTH_COUNT,
                 TURRET_TOOTH_COUNT);
     }
 
@@ -159,11 +158,10 @@ public class Turret extends SubsystemBase {
         return Rotation2d.fromRadians(MathUtil.clamp(angle.getDegrees(), MIN_ROTATION.getDegrees(), MAX_ROTATION.getDegrees()));
         //optimization in here
         //optimal path goes to 
-        
     }
     
     public boolean isTurretAtTargetForHub(Pose2d robotPose) {
-        return Math.abs(getPosition().minus(getAngleToHub(robotPose)).getRadians()) < TURRET_ANGLE_TOLERANCE.getRadians(); 
+        return Math.abs(getAngle().minus(getAngleToHub(robotPose)).getRadians()) < TURRET_ANGLE_TOLERANCE.getRadians(); 
     }
     
     private static Translation2d getTurretPositionForRobotPose(Pose2d robotPose) {
