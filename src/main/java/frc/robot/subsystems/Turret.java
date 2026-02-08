@@ -100,7 +100,36 @@ public class Turret extends SubsystemBase {
         SmartDashboard.putNumber("turret/absEncoder1", m_thruboreSmall.getAbsolutePosition().getValueAsDouble()*360);
     }
     
-    private double calculateTurretAngle(double setAngle, double minAngle, double maxAngle, double currentAngle) {
+    public void setAngle(Rotation2d angle) {
+        // for now, just limit angle. 
+        // when we allow overlap, use optimizeGoal()
+        m_goal = limitRotation(angle);
+        m_turretMotor.setControl(new MotionMagicVoltage(m_goal.getRotations() * TURRET_GEAR_RATIO));
+    }
+    
+    // get angle of turret
+    public Rotation2d getAngle(){
+        return Rotation2d.fromRotations(m_turretMotor.getPosition().getValueAsDouble() / TURRET_GEAR_RATIO);
+    }
+        
+    private Rotation2d getCRTAngleRaw(){
+        return ChineseRemainder.findAngle(
+                Rotation2d.fromRotations(m_thruboreSmall.getAbsolutePosition().getValueAsDouble()), ENCODER_SMALL_TOOTH_COUNT,
+                Rotation2d.fromRotations(m_thruboreLarge.getAbsolutePosition().getValueAsDouble()), ENCODER_LARGE_TOOTH_COUNT,
+                TURRET_TOOTH_COUNT);
+    }
+
+    private Rotation2d getCRTAngle() {
+        return getCRTAngleRaw().minus(CRT_POSITION_OFFSET);
+    }
+
+    private Rotation2d limitRotation(Rotation2d angle) {
+        // angleModulus forces the value -PI --> PI
+        double angleWrappedRad = MathUtil.angleModulus(angle.getRadians());
+        return Rotation2d.fromRadians(MathUtil.clamp(angleWrappedRad, MIN_ROTATION.getRadians(), MAX_ROTATION.getRadians()));
+    }
+    
+    private double optimizeGoal(double setAngle, double minAngle, double maxAngle, double currentAngle) {
         // Normalize set angle to 0-360
         double normalizedSetAngle = setAngle % 360.0;
         if (normalizedSetAngle < 0) {
@@ -134,33 +163,6 @@ public class Turret extends SubsystemBase {
         return bestAngle;
     }
        
-    public void setAngle(Rotation2d angle) {
-        m_goal = limitRotation(angle);
-        m_turretMotor.setControl(new MotionMagicVoltage(m_goal.getRotations() * TURRET_GEAR_RATIO));
-    }
-    
-    // get angle of turret
-    public Rotation2d getAngle(){
-        return Rotation2d.fromRotations(m_turretMotor.getPosition().getValueAsDouble() / TURRET_GEAR_RATIO);
-    }
-        
-    private Rotation2d getCRTAngleRaw(){
-        return ChineseRemainder.findAngle(
-                Rotation2d.fromRotations(m_thruboreSmall.getAbsolutePosition().getValueAsDouble()), ENCODER_SMALL_TOOTH_COUNT,
-                Rotation2d.fromRotations(m_thruboreLarge.getAbsolutePosition().getValueAsDouble()), ENCODER_LARGE_TOOTH_COUNT,
-                TURRET_TOOTH_COUNT);
-    }
-
-    private Rotation2d getCRTAngle() {
-        return getCRTAngleRaw().minus(CRT_POSITION_OFFSET);
-    }
-
-    private Rotation2d limitRotation(Rotation2d angle){
-        return Rotation2d.fromDegrees(MathUtil.clamp(angle.getDegrees(), MIN_ROTATION.getDegrees(), MAX_ROTATION.getDegrees()));
-        //optimization in here
-        //optimal path goes to 
-    }
-    
     public boolean isTurretAtTargetForHub(Pose2d robotPose) {
         return Math.abs(getAngle().minus(getAngleToHub(robotPose)).getRadians()) < TURRET_ANGLE_TOLERANCE.getRadians(); 
     }
