@@ -94,10 +94,10 @@ public class Turret extends SubsystemBase {
         // Values for testing and tuning
         SmartDashboard.putNumber("turret/crtAngleRaw",getCRTAngleRaw().getDegrees());   
         SmartDashboard.putNumber("turret/crtAngle",getCRTAngle().getDegrees());   
-        SmartDashboard.putNumber("turret/motorVel", m_turretMotor.getVelocity().getValueAsDouble());
+        // SmartDashboard.putNumber("turret/motorVel", m_turretMotor.getVelocity().getValueAsDouble());
 
-        SmartDashboard.putNumber("turret/absEncoder2", m_thruboreLarge.getAbsolutePosition().getValueAsDouble()*360);
-        SmartDashboard.putNumber("turret/absEncoder1", m_thruboreSmall.getAbsolutePosition().getValueAsDouble()*360);
+        // SmartDashboard.putNumber("turret/absEncoder2", m_thruboreLarge.getAbsolutePosition().getValueAsDouble()*360);
+        // SmartDashboard.putNumber("turret/absEncoder1", m_thruboreSmall.getAbsolutePosition().getValueAsDouble()*360);
     }
     
     public void setAngle(Rotation2d angle) {
