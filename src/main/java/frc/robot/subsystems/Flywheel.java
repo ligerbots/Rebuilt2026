@@ -27,8 +27,7 @@ public class Flywheel extends SubsystemBase {
     private final TalonFX m_motor;
     private final TalonFX m_follower;
     
-    // need to calibrate the P value for the velocity loop, start small and increase until you get good response
-    private static final double K_P = 0.1;   // TODO tune
+    private static final double K_P = 0.75;  // tuned 2/7
     private static final double K_FF = 0.0021;
 
     private static final double SUPPLY_CURRENT_LIMIT = 40;
