@@ -4,8 +4,8 @@
 
 package frc.robot.subsystems;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -18,56 +18,80 @@ import com.ctre.phoenix6.hardware.TalonFX;
 
 public class Hood extends SubsystemBase {
 
-  private Rotation2d m_goal = Rotation2d.fromDegrees(0.0);
+    private static final double ANGLE_TOLERANCE_DEG = 2.0;
 
-  private final TalonFX m_hoodMotor;
+    private static final double MIN_ANGLE_DEG = 0.0;
+    private static final double MAX_ANGLE_DEG = 25.0;
 
-  private static final double SUPPLY_CURRENT_LIMIT = 40;
-  private static final double STATOR_CURRENT_LIMIT = 60;
+    private static final double GEAR_RATIO = 12.0/36.0 * 15.0/24.0 * 10.0/174.0;
 
-  private static final double K_P = 1.0;
-
-  private static final double MAX_VEL_ROT_PER_SEC = 1;
-  private static final double MAX_ACC_ROT_PER_SEC = 1; // TODO change to better number (currently filler number)
-
-
-  /** Creates a new Hood. */
-  public Hood() {
-    m_hoodMotor = new TalonFX(Constants.HOOD_CAN_ID);
-
-    TalonFXConfiguration talonFXConfigs = new TalonFXConfiguration();
-
-    talonFXConfigs.CurrentLimits.SupplyCurrentLimit = SUPPLY_CURRENT_LIMIT;
-    talonFXConfigs.CurrentLimits.StatorCurrentLimit = STATOR_CURRENT_LIMIT;
-
-    Slot0Configs slot0configs = talonFXConfigs.Slot0;
-    slot0configs.kP = K_P;
-    slot0configs.kI = 0.0;
-    slot0configs.kD = 0.0;
-
-    MotionMagicConfigs magicConfigs = talonFXConfigs.MotionMagic;
+    private Rotation2d m_goal = Rotation2d.kZero;
+    
+    private final TalonFX m_hoodMotor;
+    
+    private static final double SUPPLY_CURRENT_LIMIT = 40;
+    private static final double STATOR_CURRENT_LIMIT = 60;
+    
+    private static final double K_P = 5.0;
+    
+    private static final double MAX_VEL_ROT_PER_SEC = 12 / GEAR_RATIO;
+    private static final double MAX_ACC_ROT_PER_SEC = 20.0 / GEAR_RATIO;
+    
+    
+    /** Creates a new Hood. */
+    public Hood() {
+        m_hoodMotor = new TalonFX(Constants.HOOD_CAN_ID);
         
-    magicConfigs.MotionMagicCruiseVelocity = MAX_VEL_ROT_PER_SEC;
-    magicConfigs.MotionMagicAcceleration = MAX_ACC_ROT_PER_SEC;
+        TalonFXConfiguration talonFXConfigs = new TalonFXConfiguration();
+        
+        talonFXConfigs.CurrentLimits.SupplyCurrentLimit = SUPPLY_CURRENT_LIMIT;
+        talonFXConfigs.CurrentLimits.StatorCurrentLimit = STATOR_CURRENT_LIMIT;
+        
+        Slot0Configs slot0configs = talonFXConfigs.Slot0;
+        slot0configs.kP = K_P;
+        slot0configs.kI = 0.0;
+        slot0configs.kD = 0.0;
+        
+        // talonFXConfigs.Feedback.withSensorToMechanismRatio(1/GEAR_RATIO); //pass down the conversion factor to motor
 
-    m_hoodMotor.getConfigurator().apply(talonFXConfigs);
-    m_hoodMotor.setPosition(0);
-  }
-
-  @Override
-  public void periodic() {
-    // This method will be called once per scheduler run
-    SmartDashboard.putNumber("hood/goalAngle", m_goal.getDegrees());
-    SmartDashboard.putNumber("hood/currentAngle", getAngle().getDegrees());
-    SmartDashboard.putNumber("hood/rawMotorAngle",  m_hoodMotor.getPosition().getValueAsDouble());
-  }
-
-  public void setAngle(Rotation2d angle) {
-    m_goal = angle;
-    m_hoodMotor.setControl(new MotionMagicVoltage(m_goal.getRotations()));
-  }
-
-  public Rotation2d getAngle(){
-    return Rotation2d.fromRotations(m_hoodMotor.getPosition().getValueAsDouble());
-  }
+        MotionMagicConfigs magicConfigs = talonFXConfigs.MotionMagic;
+        
+        magicConfigs.MotionMagicCruiseVelocity = MAX_VEL_ROT_PER_SEC;
+        magicConfigs.MotionMagicAcceleration = MAX_ACC_ROT_PER_SEC;
+        
+        // TODO set gear ratio
+        
+        m_hoodMotor.getConfigurator().apply(talonFXConfigs);
+        m_hoodMotor.setPosition(0);
+    }
+    
+    @Override
+    public void periodic() {
+        // This method will be called once per scheduler run
+        SmartDashboard.putNumber("hood/goalAngle", m_goal.getDegrees());
+        SmartDashboard.putNumber("hood/currentAngle", getAngle().getDegrees());
+        SmartDashboard.putNumber("hood/rawMotorAngle",  m_hoodMotor.getPosition().getValueAsDouble());
+    }
+    
+    public void setAngle(Rotation2d angle) {
+        double limitAngle = MathUtil.clamp(angle.getDegrees(), MIN_ANGLE_DEG, MAX_ANGLE_DEG);
+        m_goal = Rotation2d.fromDegrees(limitAngle);
+        m_hoodMotor.setControl(new MotionMagicVoltage(limitAngle / 360.0 / GEAR_RATIO));
+    }
+    
+    public Rotation2d getAngle() {
+        double rot = m_hoodMotor.getPosition().getValueAsDouble();
+        return Rotation2d.fromRotations(rot * GEAR_RATIO);
+    }
+    
+    /**
+    * Checks if the hood is at the target angle within tolerance.
+    * 
+    * @param targetAngle The target hood angle as a Rotation2d object
+    * @return true if hood is within tolerance, false otherwise
+    */
+    public boolean onTarget() {
+        Rotation2d angle = getAngle();
+        return Math.abs(angle.minus(m_goal).getDegrees()) < ANGLE_TOLERANCE_DEG;
+    }
 }
