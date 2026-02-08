@@ -56,7 +56,7 @@ public class RobotContainerCompBot extends RobotContainer {
     // private final CommandJoystick m_farm = new CommandJoystick(1);
 
     private final CommandSwerveDrivetrain m_drivetrain;
-    private final AprilTagVision m_aprilTagVision = new AprilTagVision();
+    private final AprilTagVision m_aprilTagVision = new AprilTagVision(Robot.RobotType.COMPBOT);
     private final Shooter m_shooter = new Shooter();
     private final ShooterFeeder m_shooterFeeder = new ShooterFeeder();
     private final Turret m_turret = new Turret();
