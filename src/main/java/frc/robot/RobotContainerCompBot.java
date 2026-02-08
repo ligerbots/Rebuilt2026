@@ -34,7 +34,7 @@ import frc.robot.subsystems.ShooterFeeder;
 import frc.robot.subsystems.Turret;
 
 public class RobotContainerCompBot extends RobotContainer {
-    private static double SPEED_LIMIT = 0.5;
+    private static double SPEED_LIMIT = 1.0;
     private double MAX_SPEED = SPEED_LIMIT * TunerConstantsCompBot.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
     private double MAX_ANGULAR_RATE = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
 
