@@ -61,7 +61,7 @@ public class ShootHub extends Command {
     m_shooter.setDistanceToTarget(distanceToTarget);
 
     Rotation2d angleToTarget = Turret.getAngleToHub(m_drivetrain.getPose());
-    m_turret.set(angleToTarget);
+    m_turret.setAngle(angleToTarget);
 
     // Run feeder only when shooter and turret are ready
     if (m_shooter.getCurrentState() == Shooter.ShooterState.READY_TO_SHOOT && m_turret.isTurretAtTargetForHub(m_drivetrain.getPose())) {

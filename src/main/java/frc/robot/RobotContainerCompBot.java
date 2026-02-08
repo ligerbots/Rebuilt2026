@@ -23,7 +23,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 
 import frc.robot.commands.AutoCommandInterface;
 import frc.robot.commands.FirstBasicAuto;
@@ -32,9 +31,10 @@ import frc.robot.subsystems.AprilTagVision;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.ShooterFeeder;
+import frc.robot.subsystems.Turret;
 
 public class RobotContainerCompBot extends RobotContainer {
-    private static double SPEED_LIMIT = 0.5;
+    private static final double SPEED_LIMIT = 1.0;
     private double MAX_SPEED = SPEED_LIMIT * TunerConstantsCompBot.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
     private double MAX_ANGULAR_RATE = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
 
@@ -59,6 +59,7 @@ public class RobotContainerCompBot extends RobotContainer {
     private final AprilTagVision m_aprilTagVision = new AprilTagVision();
     private final Shooter m_shooter = new Shooter();
     private final ShooterFeeder m_shooterFeeder = new ShooterFeeder();
+    private final Turret m_turret = new Turret();
 
     private final SendableChooser<String> m_chosenFieldSide = new SendableChooser<>();
     private int m_autoSelectionCode; 
@@ -118,17 +119,29 @@ public class RobotContainerCompBot extends RobotContainer {
 
         // *** Test Commands *** 
         
-        SmartDashboard.putNumber("hood/testAngle", 0.0); 
-        m_driverController.x().onTrue(new InstantCommand(() -> m_shooter.getHood().setAngle(Rotation2d.fromDegrees(SmartDashboard.getNumber("hood/testAngle", 0.0)))));
+        // SmartDashboard.putNumber("hood/testAngle", 0.0); 
+        // m_driverController.x().onTrue(new InstantCommand(() -> m_shooter.getHood().setAngle(Rotation2d.fromDegrees(SmartDashboard.getNumber("hood/testAngle", 0.0)))));
         
-        SmartDashboard.putNumber("flywheel/testVoltage", 0.0); 
-        m_driverController.y().onTrue(new InstantCommand(() -> m_shooter.getFlywheel().setVoltage(SmartDashboard.getNumber("flywheel/testVoltage", 0.0))));
+        // SmartDashboard.putNumber("flywheel/testVoltage", 0.0); 
+        // m_driverController.y().onTrue(new InstantCommand(() -> m_shooter.getFlywheel().setVoltage(SmartDashboard.getNumber("flywheel/testVoltage", 0.0))));
 
-        SmartDashboard.putNumber("flywheel/testRPM", 0.0); 
-        m_driverController.b().onTrue(new InstantCommand(() -> m_shooter.getFlywheel().setRPM(SmartDashboard.getNumber("flywheel/testRPM", 0.0))));
+        // SmartDashboard.putNumber("flywheel/testRPM", 0.0); 
+        // m_driverController.b().onTrue(new InstantCommand(() -> m_shooter.getFlywheel().setRPM(SmartDashboard.getNumber("flywheel/testRPM", 0.0))));
         
-        SmartDashboard.putNumber("shooterFeeder/testRPM", 0.0); 
-        m_driverController.a().onTrue(new InstantCommand(() -> m_shooterFeeder.setRPM(SmartDashboard.getNumber("shooterFeeder/testRPM", 0.0))));
+        // SmartDashboard.putNumber("shooterFeeder/testRPM", 0.0); 
+        // m_driverController.a().onTrue(new InstantCommand(() -> m_shooterFeeder.setRPM(SmartDashboard.getNumber("shooterFeeder/testRPM", 0.0))));
+
+        SmartDashboard.putNumber("turret/testAngle", 0.0);
+        m_driverController.a().onTrue(new InstantCommand(() -> m_turret.setAngle(Rotation2d.fromDegrees(SmartDashboard.getNumber("turret/testAngle", 0.0)))));
+
+        m_driverController.y().onTrue(
+            new InstantCommand(() -> m_shooter.getFlywheel().setRPM(SmartDashboard.getNumber("flywheel/testRPM", 0.0)))
+            .alongWith(
+                new InstantCommand(() -> m_shooterFeeder.setRPM(SmartDashboard.getNumber("shooterFeeder/testRPM", 0.0))),
+                new InstantCommand(() -> m_shooter.getHood().setAngle(Rotation2d.fromDegrees(SmartDashboard.getNumber("hood/testAngle", 0.0))))
+            )
+        );
+        m_driverController.x().onTrue(new InstantCommand(m_shooter::stop).alongWith(new InstantCommand(m_shooterFeeder::stop)));
     }
     
     public CommandSwerveDrivetrain getDriveTrain() {
