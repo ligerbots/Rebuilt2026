@@ -107,12 +107,13 @@ public class AprilTagVision {
     };
 
     private AprilTagFieldLayout m_aprilTagFieldLayout;
+    private final Field2d m_field;
 
     // Simulation support
     private VisionSystemSim m_visionSim;
     private boolean m_isSimulation;
 
-    public AprilTagVision(RobotType robotType) {
+    public AprilTagVision(RobotType robotType, Field2d field) {
         try {
             m_aprilTagFieldLayout = AprilTagFieldLayout.loadField(APRILTAG_FIELD);
             SmartDashboard.putString("aprilTagVision/field", APRILTAG_FIELD.toString());
@@ -128,6 +129,9 @@ public class AprilTagVision {
         //     System.out.println("Unable to load AprilTag layout " + e.getMessage());
         //     m_aprilTagFieldLayout = null;
         // }
+
+        // used to publish found tags, etc
+        m_field = field;
 
         // initialize cameras
         if (robotType == RobotType.TESTBOT) {
@@ -175,7 +179,7 @@ public class AprilTagVision {
     }
     
     // Update all Pose estimates with the vision measurements
-    public void addVisionMeasurements(CommandSwerveDrivetrain swerve, Field2d field) {
+    public void addVisionMeasurements(CommandSwerveDrivetrain swerve) {
         // Cannot do anything if there is no field layout
         if (m_aprilTagFieldLayout == null)
             return;
@@ -257,10 +261,10 @@ public class AprilTagVision {
         }
 
         if (PLOT_VISIBLE_TAGS) {
-            plotPoses(field, "visibleTags", visibleTags);
+            plotPoses(m_field, "visibleTags", visibleTags);
         }
         if (PLOT_POSE_SOLUTIONS) {
-            plotPoses(field, "visionPoses", globalMeasurements);
+            plotPoses(m_field, "visionPoses", globalMeasurements);
         }
     }
 
