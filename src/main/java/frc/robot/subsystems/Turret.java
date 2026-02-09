@@ -163,21 +163,34 @@ public class Turret extends SubsystemBase {
         return bestAngle;
     }
        
-    public boolean isTurretAtTargetForHub(Pose2d robotPose) {
-        return Math.abs(getAngle().minus(getAngleToHub(robotPose)).getRadians()) < TURRET_ANGLE_TOLERANCE.getRadians(); 
+    public boolean isOnTarget() {
+        return Math.abs(getAngle().getRadians()) < TURRET_ANGLE_TOLERANCE.getRadians(); 
     }
     
     private static Translation2d getTurretPositionForRobotPose(Pose2d robotPose) {
-        // Pose2d robotPose = m_drivetrain.getState().Pose;
         return Turret.TURRET_OFFSET.rotateBy(robotPose.getRotation()).plus(robotPose.getTranslation());
     }
     
-    public static Rotation2d getAngleToHub(Pose2d robotPose) {
-        Rotation2d overallAngle = getTurretPositionForRobotPose(robotPose).minus(FieldConstants.flipTranslation(FieldConstants.HUB_POSITION_BLUE)).getAngle();
-        return overallAngle.plus(robotPose.getRotation());
-    }
+    // public static Rotation2d getAngleToHub(Pose2d robotPose) {
+    //     Rotation2d overallAngle = getTurretPositionForRobotPose(robotPose).minus(FieldConstants.flipTranslation(FieldConstants.HUB_POSITION_BLUE)).getAngle();
+    //     return overallAngle.plus(robotPose.getRotation());
+    // }
     
-    public static double getDistanceToHub(Pose2d robotPose) {
-        return getTurretPositionForRobotPose(robotPose).getDistance(FieldConstants.flipTranslation(FieldConstants.HUB_POSITION_BLUE));
+    // public static double getDistanceToHub(Pose2d robotPose) {
+    //     return getTurretPositionForRobotPose(robotPose).getDistance(FieldConstants.flipTranslation(FieldConstants.HUB_POSITION_BLUE));
+    // }
+
+    /**
+     * Get the robot-centric vector to a goal position.
+     * 
+     * @param robotPose The current pose of the robot in field coordinates
+     * @param goalTranslation The position of the goal in field coordinates
+     * @return A Translation2d representing the vector from the turret to the goal in robot coordinates.
+     *         Use .getAngle() to get the robot-centric angle, and .getNorm() to get the distance.
+     */
+    public static Translation2d getTranslationToGoal(Pose2d robotPose, Translation2d goalTranslation) {
+        Translation2d overallAngle = getTurretPositionForRobotPose(robotPose).minus(goalTranslation).rotateBy(robotPose.getRotation());
+        return overallAngle;
     }
 }
+
