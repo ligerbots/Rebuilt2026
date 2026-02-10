@@ -26,6 +26,7 @@ import com.ctre.phoenix6.configs.CANcoderConfiguration;
 public class Turret extends SubsystemBase {
     
     private static final Translation2d TURRET_OFFSET = new Translation2d(Units.inchesToMeters(8.33),  Units.inchesToMeters(-4.36)); // TODO: Check offset hasn't changed
+    private static final double TURRET_HEADING_OFFSET_DEG = 180.0; // TODO: Tune this value
     private static final double ANGLE_TOLERANCE_DEG = 2.0; // TODO: Tune this value
     
     private double m_goalDeg = 0.0;
@@ -190,7 +191,7 @@ public class Turret extends SubsystemBase {
      *         Use .getAngle() to get the robot-centric angle, and .getNorm() to get the distance.
      */
     public static Translation2d getTranslationToGoal(Pose2d robotPose, Translation2d goalTranslation) {
-        Translation2d overallAngle = getTurretPositionForRobotPose(robotPose).minus(goalTranslation).rotateBy(robotPose.getRotation());
+        Translation2d overallAngle = getTurretPositionForRobotPose(robotPose).minus(goalTranslation).rotateBy(robotPose.getRotation()).rotateBy(Rotation2d.fromDegrees(TURRET_HEADING_OFFSET_DEG));
         return overallAngle;
     }
 }
