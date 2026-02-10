@@ -83,8 +83,6 @@ public class ShootHub extends Command {
    * Determines when the shoot command should end.
    * 
    * @return true when the command should terminate (currently stubbed)
-   * 
-   * TODO Define end condition: either when all game pieces are shot, when robot leaves shooting zone
    */
   @Override
   public boolean isFinished() {
