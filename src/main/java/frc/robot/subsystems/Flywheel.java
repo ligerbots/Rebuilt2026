@@ -72,7 +72,7 @@ public class Flywheel extends SubsystemBase {
     }
     
     public void setVoltage(double voltage) {
-        m_motor.setControl(new VoltageOut(voltage));
+        m_motor.setControl(new VoltageOut(voltage).withEnableFOC(true));
     }
     
     public double getRPM(){
