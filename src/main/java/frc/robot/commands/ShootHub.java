@@ -14,7 +14,9 @@
 package frc.robot.commands;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.FieldConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.ShooterFeeder;
@@ -56,15 +58,17 @@ public class ShootHub extends Command {
 
   @Override
   public void execute() {
+    Translation2d translationToHub = Turret.getTranslationToGoal(m_drivetrain.getPose(), FieldConstants.flipTranslation(FieldConstants.HUB_POSITION_BLUE));
+
     // Calculate distance and angle to target, send to shooter and turret subsystems
-    double distanceToTarget = Turret.getDistanceToHub(m_drivetrain.getPose());
+    double distanceToTarget = translationToHub.getNorm();
     m_shooter.setDistanceToTarget(distanceToTarget);
 
-    Rotation2d angleToTarget = Turret.getAngleToHub(m_drivetrain.getPose());
+    Rotation2d angleToTarget = translationToHub.getAngle();
     m_turret.setAngle(angleToTarget);
 
     // Run feeder only when shooter and turret are ready
-    if (m_shooter.getCurrentState() == Shooter.ShooterState.READY_TO_SHOOT && m_turret.isTurretAtTargetForHub(m_drivetrain.getPose())) {
+    if (m_shooter.getCurrentState() == Shooter.ShooterState.READY_TO_SHOOT && m_turret.isOnTarget()) {
       m_feeder.feedForShooting();
     }
   }
@@ -79,8 +83,6 @@ public class ShootHub extends Command {
    * Determines when the shoot command should end.
    * 
    * @return true when the command should terminate (currently stubbed)
-   * 
-   * TODO Define end condition: either when all game pieces are shot, when robot leaves shooting zone
    */
   @Override
   public boolean isFinished() {
