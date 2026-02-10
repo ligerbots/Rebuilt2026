@@ -13,7 +13,6 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.FieldConstants;
 
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
@@ -27,9 +26,9 @@ import com.ctre.phoenix6.configs.CANcoderConfiguration;
 public class Turret extends SubsystemBase {
     
     private static final Translation2d TURRET_OFFSET = new Translation2d(Units.inchesToMeters(8.33),  Units.inchesToMeters(-4.36)); // TODO: Check offset hasn't changed
-    private static final Rotation2d TURRET_ANGLE_TOLERANCE = Rotation2d.fromDegrees(2.0); // TODO: Tune this value
+    private static final double ANGLE_TOLERANCE_DEG = 2.0; // TODO: Tune this value
     
-    private Rotation2d m_goal = Rotation2d.kZero;
+    private double m_goalDeg = 0.0;
     
     private final TalonFX m_turretMotor;
     private final CANcoder m_thruboreSmall; 
@@ -46,8 +45,9 @@ public class Turret extends SubsystemBase {
     private static final double K_P = 2.0; 
     private static final double MAX_VEL_ROT_PER_SEC = 4.0 * TURRET_GEAR_RATIO;
     private static final double MAX_ACC_ROT_PER_SEC_SQ = 40.0 * TURRET_GEAR_RATIO;
-    private static final Rotation2d MAX_ROTATION = Rotation2d.fromDegrees(170.0);
-    private static final Rotation2d MIN_ROTATION = Rotation2d.fromDegrees(-170.0);
+
+    private static final double MAX_ROTATION_DEG = 170.0;
+    private static final double MIN_ROTATION_DEG = -170.0;
     
     private static final Rotation2d CRT_POSITION_OFFSET = Rotation2d.fromDegrees(322.3);
     
@@ -88,7 +88,7 @@ public class Turret extends SubsystemBase {
     // This method will be called once per scheduler run
     @Override
     public void periodic() {    
-        SmartDashboard.putNumber("turret/goalAngle", m_goal.getDegrees());
+        SmartDashboard.putNumber("turret/goalAngle", m_goalDeg);
         SmartDashboard.putNumber("turret/currentAngle", getAngle().getDegrees());
 
         // Values for testing and tuning
@@ -103,15 +103,19 @@ public class Turret extends SubsystemBase {
     public void setAngle(Rotation2d angle) {
         // for now, just limit angle. 
         // when we allow overlap, use optimizeGoal()
-        m_goal = limitRotation(angle);
-        m_turretMotor.setControl(new MotionMagicVoltage(m_goal.getRotations() * TURRET_GEAR_RATIO));
+        m_goalDeg = limitRotationDeg(angle.getDegrees());
+        m_turretMotor.setControl(new MotionMagicVoltage(m_goalDeg/360.0 * TURRET_GEAR_RATIO));
     }
     
     // get angle of turret
     public Rotation2d getAngle(){
         return Rotation2d.fromRotations(m_turretMotor.getPosition().getValueAsDouble() / TURRET_GEAR_RATIO);
     }
-        
+       
+    public boolean isOnTarget() {
+        return Math.abs(getAngle().getDegrees() - m_goalDeg) < ANGLE_TOLERANCE_DEG; 
+    }
+    
     private Rotation2d getCRTAngleRaw(){
         return ChineseRemainder.findAngle(
                 Rotation2d.fromRotations(m_thruboreSmall.getAbsolutePosition().getValueAsDouble()), ENCODER_SMALL_TOOTH_COUNT,
@@ -123,34 +127,35 @@ public class Turret extends SubsystemBase {
         return getCRTAngleRaw().minus(CRT_POSITION_OFFSET);
     }
 
-    private Rotation2d limitRotation(Rotation2d angle) {
-        // angleModulus forces the value -PI --> PI
-        double angleWrappedRad = MathUtil.angleModulus(angle.getRadians());
-        return Rotation2d.fromRadians(MathUtil.clamp(angleWrappedRad, MIN_ROTATION.getRadians(), MAX_ROTATION.getRadians()));
+    private double limitRotationDeg(double angleDeg) {
+        while (angleDeg >= 180.0) angleDeg -= 360.0;
+        while (angleDeg < -180.0) angleDeg += 360.0;
+        return MathUtil.clamp(angleDeg, MIN_ROTATION_DEG, MAX_ROTATION_DEG);
     }
     
-    private double optimizeGoal(double setAngle, double minAngle, double maxAngle, double currentAngle) {
-        // Normalize set angle to 0-360
-        double normalizedSetAngle = setAngle % 360.0;
-        if (normalizedSetAngle < 0) {
-            normalizedSetAngle += 360.0;
-        }
+    // compute the optimum goal angle
+    // this assumes the Turret can turn >360 degrees
+    private double optimizeGoal(double setAngleDeg) {
+        // Normalize target angle to -180 -> 180
+        while (setAngleDeg >= 180.0) setAngleDeg -= 360.0;
+        while (setAngleDeg < -180.0) setAngleDeg += 360.0;
         
         // Find all possible target angles that correspond to the desired position
         // These are: normalizedSetAngle, normalizedSetAngle ± 360, normalizedSetAngle ± 720, etc.
         // But we only need to check nearby rotations since our range is limited
         double[] candidates = {
-            normalizedSetAngle - 360.0,
-            normalizedSetAngle,
-            normalizedSetAngle + 360.0
+            setAngleDeg - 360.0,
+            setAngleDeg,
+            setAngleDeg + 360.0
         };
         
+        double currentAngle = getAngle().getDegrees();
+
         double bestAngle = currentAngle;
         double shortestDistance = Double.MAX_VALUE;
-        
         for (double candidate : candidates) {
             // Check if this candidate is within physical limits
-            if (candidate >= minAngle && candidate <= maxAngle) {
+            if (candidate >= MIN_ROTATION_DEG && candidate <= MAX_ROTATION_DEG) {
                 double distance = Math.abs(candidate - currentAngle);
                 
                 if (distance < shortestDistance) {
@@ -163,10 +168,6 @@ public class Turret extends SubsystemBase {
         return bestAngle;
     }
        
-    public boolean isOnTarget() {
-        return Math.abs(getAngle().getRadians()) < TURRET_ANGLE_TOLERANCE.getRadians(); 
-    }
-    
     private static Translation2d getTurretPositionForRobotPose(Pose2d robotPose) {
         return Turret.TURRET_OFFSET.rotateBy(robotPose.getRotation()).plus(robotPose.getTranslation());
     }
