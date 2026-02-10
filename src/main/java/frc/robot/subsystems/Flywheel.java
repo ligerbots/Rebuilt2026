@@ -10,6 +10,7 @@ import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -83,6 +84,8 @@ public class Flywheel extends SubsystemBase {
         double rps = m_goalRPM / 60; //convert rpm to rps
         
         m_motor.setControl(new VelocityVoltage(rps).withFeedForward(K_FF * rpm).withEnableFOC(true));
+
+        // m_motor.setControl(new VelocityTorqueCurrentFOC(rps).withFeedForward(K_FF * rpm));
     }
     
     /**
