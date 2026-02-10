@@ -119,20 +119,20 @@ public class RobotContainerCompBot extends RobotContainer {
 
         // *** Test Commands *** 
         
-        // SmartDashboard.putNumber("hood/testAngle", 0.0); 
+        SmartDashboard.putNumber("hood/testAngle", 0.0); 
         // m_driverController.x().onTrue(new InstantCommand(() -> m_shooter.getHood().setAngle(Rotation2d.fromDegrees(SmartDashboard.getNumber("hood/testAngle", 0.0)))));
         
         // SmartDashboard.putNumber("flywheel/testVoltage", 0.0); 
         // m_driverController.y().onTrue(new InstantCommand(() -> m_shooter.getFlywheel().setVoltage(SmartDashboard.getNumber("flywheel/testVoltage", 0.0))));
 
-        // SmartDashboard.putNumber("flywheel/testRPM", 0.0); 
+        SmartDashboard.putNumber("flywheel/testRPM", 0.0); 
         // m_driverController.b().onTrue(new InstantCommand(() -> m_shooter.getFlywheel().setRPM(SmartDashboard.getNumber("flywheel/testRPM", 0.0))));
         
-        // SmartDashboard.putNumber("shooterFeeder/testRPM", 0.0); 
+        SmartDashboard.putNumber("shooterFeeder/testRPM", 0.0); 
         // m_driverController.a().onTrue(new InstantCommand(() -> m_shooterFeeder.setRPM(SmartDashboard.getNumber("shooterFeeder/testRPM", 0.0))));
 
-        SmartDashboard.putNumber("turret/testAngle", 0.0);
-        m_driverController.a().onTrue(new InstantCommand(() -> m_turret.setAngle(Rotation2d.fromDegrees(SmartDashboard.getNumber("turret/testAngle", 0.0)))));
+        // SmartDashboard.putNumber("turret/testAngle", 0.0);
+        // m_driverController.a().onTrue(new InstantCommand(() -> m_turret.setAngle(Rotation2d.fromDegrees(SmartDashboard.getNumber("turret/testAngle", 0.0)))));
 
         m_driverController.y().onTrue(
             new InstantCommand(() -> m_shooter.getFlywheel().setRPM(SmartDashboard.getNumber("flywheel/testRPM", 0.0)))
