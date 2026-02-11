@@ -25,7 +25,7 @@ import com.ctre.phoenix6.configs.CANcoderConfiguration;
 
 public class Turret extends SubsystemBase {
     
-    private static final Translation2d TURRET_OFFSET = new Translation2d(Units.inchesToMeters(8.33),  Units.inchesToMeters(-4.36)); // TODO: Check offset hasn't changed
+    private static final Translation2d TURRET_OFFSET = new Translation2d(Units.inchesToMeters(-8.33),  Units.inchesToMeters(-4.36)); // TODO: Check offset hasn't changed
     private static final double TURRET_HEADING_OFFSET_DEG = 180.0;
     private static final double ANGLE_TOLERANCE_DEG = 2.0; // TODO: Tune this value
     
@@ -200,7 +200,7 @@ public class Turret extends SubsystemBase {
         Translation2d goalRelativeToTurret = goalTranslation.minus(turretPose);
         SmartDashboard.putNumber("turretTesting/goalRelativeToTurretX", goalRelativeToTurret.getX());
         SmartDashboard.putNumber("turretTesting/goalRelativeToTurretY", goalRelativeToTurret.getY());
-        Translation2d translationRelativeToRobot = goalRelativeToTurret.rotateBy(robotPose.getRotation());
+        Translation2d translationRelativeToRobot = goalRelativeToTurret.rotateBy(robotPose.getRotation().unaryMinus());
         SmartDashboard.putNumber("turretTesting/rotationRelativeToRobot", translationRelativeToRobot.getAngle().getDegrees());
         
         return translationRelativeToRobot;
