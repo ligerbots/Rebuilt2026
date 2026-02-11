@@ -217,10 +217,10 @@
     "SwerveModuleType": 4,
     "SwerveModuleConfiguration": {
       "ModuleBrand": 4,
-      "DriveRatio": 6.746031746031747,
+      "DriveRatio": 6.122448979591837,
       "SteerRatio": 21.428571428571427,
       "CouplingRatio": 3.5714285714285716,
-      "CustomName": "L2"
+      "CustomName": "L3"
     },
     "HasVerifiedSteer": true,
     "SelectedModuleManufacturer": "Swerve Drive Specialties (SDS)",
