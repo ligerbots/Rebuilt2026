@@ -3,41 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.4557613636363635,
-        "y": 1.2109318181818185
+        "x": 7.847420454545453,
+        "y": 7.013670454545454
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.597179825523621,
-        "y": 2.6375591660983733
+        "x": 6.729192771084338,
+        "y": 5.663228915662651
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 7.756397590361445,
-        "y": 4.013144578313253
+        "x": 3.0341363636363634,
+        "y": 5.426420454545455
       },
       "prevControl": {
-        "x": 7.706491414932584,
-        "y": 3.0347239882630603
-      },
-      "nextControl": {
-        "x": 7.819767582965298,
-        "y": 5.255526007507738
-      },
-      "isLocked": false,
-      "linkedName": "Fuel Middle"
-    },
-    {
-      "anchor": {
-        "x": 7.756397590361445,
-        "y": 6.832493975903614
-      },
-      "prevControl": {
-        "x": 7.7189769395775185,
-        "y": 5.7271400060961
+        "x": 4.4564772727272715,
+        "y": 5.818079545454545
       },
       "nextControl": null,
       "isLocked": false,
@@ -47,7 +31,14 @@
   "rotationTargets": [],
   "constraintZones": [],
   "pointTowardsZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "Run Intake",
+      "waypointRelativePos": 0.21339950372208294,
+      "endWaypointRelativePos": 0.8129032258064486,
+      "command": null
+    }
+  ],
   "globalConstraints": {
     "maxVelocity": 3.0,
     "maxAcceleration": 3.0,
@@ -58,13 +49,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 92.48955292199908
+    "rotation": 93.12931195397921
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 82.90345831760825
+    "rotation": 107.07434264137335
   },
   "useDefaultConstraints": true
 }

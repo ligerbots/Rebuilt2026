@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.597179825523621,
-        "y": 2.6375591660983733
+        "x": 7.592889123709761,
+        "y": 2.4710135846417645
       },
       "isLocked": false,
       "linkedName": null
@@ -20,24 +20,8 @@
         "y": 4.013144578313253
       },
       "prevControl": {
-        "x": 7.706491414932584,
-        "y": 3.0347239882630603
-      },
-      "nextControl": {
-        "x": 7.819767582965298,
-        "y": 5.255526007507738
-      },
-      "isLocked": false,
-      "linkedName": "Fuel Middle"
-    },
-    {
-      "anchor": {
-        "x": 7.756397590361445,
-        "y": 6.832493975903614
-      },
-      "prevControl": {
-        "x": 7.7189769395775185,
-        "y": 5.7271400060961
+        "x": 7.658534659666667,
+        "y": 3.2126451853906657
       },
       "nextControl": null,
       "isLocked": false,
@@ -58,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 92.48955292199908
+    "rotation": 89.34893961977049
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 82.90345831760825
+    "rotation": 82.11845932922415
   },
   "useDefaultConstraints": true
 }

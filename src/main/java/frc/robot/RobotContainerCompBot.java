@@ -12,6 +12,7 @@ import java.util.Objects;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
+import com.pathplanner.lib.events.EventTrigger;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.MathUtil;
@@ -19,11 +20,14 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 
 import frc.robot.commands.AutoCommandInterface;
+import frc.robot.commands.CoreAuto;
 import frc.robot.commands.FirstBasicAuto;
 import frc.robot.generated.TunerConstantsCompBot;
 import frc.robot.subsystems.AprilTagVision;
@@ -80,6 +84,13 @@ public class RobotContainerCompBot extends RobotContainer {
         m_chosenFieldSide.addOption("Outpost Side", "Outpost Side");
 
         SmartDashboard.putData("Field Side", m_chosenFieldSide);
+
+        SmartDashboard.putBoolean("autoStatus/runningIntake", false);
+        SmartDashboard.putBoolean("autoStatus/runningShooter", false);
+
+        new EventTrigger("Run Intake").whileTrue(new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningIntake", true)));
+        new EventTrigger("Stop Intake").whileTrue(new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningIntake", false)));
+        
     }
 
     private void configureBindings() {
@@ -121,7 +132,8 @@ public class RobotContainerCompBot extends RobotContainer {
     
         // Only call constructor if the auto selection inputs have changed
         if (m_autoSelectionCode != currentAutoSelectionCode) {
-            m_autoCommand = new FirstBasicAuto(m_drivetrain,
+            m_autoSelectionCode = currentAutoSelectionCode;
+            m_autoCommand = new CoreAuto(m_drivetrain,
                     m_chosenFieldSide.getSelected().equals("Depot Side"));
         }
         return m_autoCommand;

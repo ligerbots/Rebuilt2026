@@ -3,41 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.4557613636363635,
-        "y": 1.2109318181818185
+        "x": 7.756397590361445,
+        "y": 4.013144578313253
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.597179825523621,
-        "y": 2.6375591660983733
+        "x": 7.773066708700495,
+        "y": 4.670841568262936
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 7.756397590361445,
-        "y": 4.013144578313253
+        "x": 7.847420454545453,
+        "y": 7.013670454545454
       },
       "prevControl": {
-        "x": 7.706491414932584,
-        "y": 3.0347239882630603
-      },
-      "nextControl": {
-        "x": 7.819767582965298,
-        "y": 5.255526007507738
-      },
-      "isLocked": false,
-      "linkedName": "Fuel Middle"
-    },
-    {
-      "anchor": {
-        "x": 7.756397590361445,
-        "y": 6.832493975903614
-      },
-      "prevControl": {
-        "x": 7.7189769395775185,
-        "y": 5.7271400060961
+        "x": 7.792408171816308,
+        "y": 5.922681632738621
       },
       "nextControl": null,
       "isLocked": false,
@@ -58,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 92.48955292199908
+    "rotation": 90.27962929040888
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 82.90345831760825
+    "rotation": 88.89829388479339
   },
   "useDefaultConstraints": true
 }

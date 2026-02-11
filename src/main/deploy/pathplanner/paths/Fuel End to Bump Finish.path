@@ -8,11 +8,11 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.827045454545454,
-        "y": 5.611943181818182
+        "x": 6.729192771084338,
+        "y": 5.663228915662651
       },
       "isLocked": false,
-      "linkedName": "Fuel End"
+      "linkedName": null
     },
     {
       "anchor": {
@@ -25,7 +25,7 @@
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Bump Finish"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],
@@ -42,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -171.01521906134323
+    "rotation": 93.12931195397921
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 90.0
+    "rotation": 107.07434264137335
   },
   "useDefaultConstraints": true
 }
