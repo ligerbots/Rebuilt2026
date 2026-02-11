@@ -135,8 +135,7 @@ public class Turret extends SubsystemBase {
     }
 
     private double limitRotationDeg(double angleDeg) {
-        while (angleDeg >= 180.0) angleDeg -= 360.0;
-        while (angleDeg < -180.0) angleDeg += 360.0;
+        angleDeg = degreesModulus(angleDeg);
         return MathUtil.clamp(angleDeg, MIN_ROTATION_DEG, MAX_ROTATION_DEG);
     }
     
@@ -144,8 +143,7 @@ public class Turret extends SubsystemBase {
     // this assumes the Turret can turn >360 degrees
     private double optimizeGoal(double setAngleDeg) {
         // Normalize target angle to -180 -> 180
-        while (setAngleDeg >= 180.0) setAngleDeg -= 360.0;
-        while (setAngleDeg < -180.0) setAngleDeg += 360.0;
+        setAngleDeg = degreesModulus(setAngleDeg);
         
         // Find all possible target angles that correspond to the desired position
         // These are: normalizedSetAngle, normalizedSetAngle ± 360, normalizedSetAngle ± 720, etc.
@@ -175,6 +173,18 @@ public class Turret extends SubsystemBase {
         return bestAngle;
     }
        
+    /**
+     * Map angle in degrees to -180 ==> 180
+     * Analogous to MathUtils.angleModulus()
+     * @param angleDeg  angle in degrees
+     * @return angle    same angle but mapped to -180 ==> 180
+     */
+    private double degreesModulus(double angleDeg) {
+        while (angleDeg >= 180.0) angleDeg -= 360.0;
+        while (angleDeg < -180.0) angleDeg += 360.0;
+        return angleDeg;
+    }
+
     private static Translation2d getTurretPositionForRobotPose(Pose2d robotPose) {
         return Turret.TURRET_OFFSET.rotateBy(robotPose.getRotation()).plus(robotPose.getTranslation());
     }
