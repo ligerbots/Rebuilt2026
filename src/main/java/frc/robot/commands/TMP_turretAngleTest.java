@@ -37,7 +37,6 @@ public class TMP_turretAngleTest extends Command {
     Rotation2d rotationGoal = Turret.getTranslationToGoal(m_robotPose.get(), FieldConstants.HUB_POSITION_BLUE).getAngle();
     SmartDashboard.putNumber("turretTesting/ComputedAngle", rotationGoal.getDegrees());
     m_Turret.setAngle(rotationGoal);
-
   }
 
   // Called once the command ends or is interrupted.

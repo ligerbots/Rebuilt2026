@@ -192,8 +192,17 @@ public class Turret extends SubsystemBase {
      *         Use .getAngle() to get the robot-centric angle, and .getNorm() to get the distance.
      */
     public static Translation2d getTranslationToGoal(Pose2d robotPose, Translation2d goalTranslation) {
-        Translation2d overallAngle = getTurretPositionForRobotPose(robotPose).minus(goalTranslation).rotateBy(robotPose.getRotation());
+        // Translation2d overallAngle = getTurretPositionForRobotPose(robotPose).minus(goalTranslation).rotateBy(robotPose.getRotation());
+
+        Translation2d turretPose = getTurretPositionForRobotPose(robotPose);
+        SmartDashboard.putNumber("turretTesting/turretPoseX", turretPose.getX());
+        SmartDashboard.putNumber("turretTesting/turretPoseY", turretPose.getY());
+        Translation2d goalRelativeToTurret = goalTranslation.minus(turretPose);
+        SmartDashboard.putNumber("turretTesting/goalRelativeToTurretX", goalRelativeToTurret.getX());
+        SmartDashboard.putNumber("turretTesting/goalRelativeToTurretY", goalRelativeToTurret.getY());
+        Translation2d translationRelativeToRobot = goalRelativeToTurret.rotateBy(robotPose.getRotation());
+        SmartDashboard.putNumber("turretTesting/rotationRelativeToRobot", translationRelativeToRobot.getAngle().getDegrees());
         
-        return overallAngle;
+        return translationRelativeToRobot;
     }
 }
