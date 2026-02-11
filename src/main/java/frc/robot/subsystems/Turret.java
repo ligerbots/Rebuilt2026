@@ -50,7 +50,7 @@ public class Turret extends SubsystemBase {
     private static final double MAX_ROTATION_DEG = 170.0;
     private static final double MIN_ROTATION_DEG = -170.0;
     
-    private static final Rotation2d CRT_POSITION_OFFSET = Rotation2d.fromDegrees(322.3);
+    private static final Rotation2d CRT_POSITION_OFFSET = Rotation2d.fromDegrees(167.8);
     
     /** Creates a new Turret. */
     public Turret() {
@@ -89,7 +89,7 @@ public class Turret extends SubsystemBase {
     // This method will be called once per scheduler run
     @Override
     public void periodic() {    
-        SmartDashboard.putNumber("turret/goalAngle", m_goalDeg);
+        SmartDashboard.putNumber("turret/goalAngle", m_goalDeg + TURRET_HEADING_OFFSET_DEG);
         SmartDashboard.putNumber("turret/currentAngle", getAngle().getDegrees());
 
         // Values for testing and tuning
@@ -104,13 +104,14 @@ public class Turret extends SubsystemBase {
     public void setAngle(Rotation2d angle) {
         // for now, just limit angle. 
         // when we allow overlap, use optimizeGoal()
-        m_goalDeg = limitRotationDeg(angle.getDegrees());
+        m_goalDeg = limitRotationDeg(angle.getDegrees() - TURRET_HEADING_OFFSET_DEG);
         m_turretMotor.setControl(new MotionMagicVoltage(m_goalDeg/360.0 * TURRET_GEAR_RATIO));
     }
     
     // get angle of turret
     public Rotation2d getAngle(){
-        return Rotation2d.fromRotations(m_turretMotor.getPosition().getValueAsDouble() / TURRET_GEAR_RATIO);
+        double rot = m_turretMotor.getPosition().getValueAsDouble() / TURRET_GEAR_RATIO + TURRET_HEADING_OFFSET_DEG / 360.0;
+        return Rotation2d.fromRotations(rot);
     }
        
     public boolean isOnTarget() {
@@ -191,8 +192,8 @@ public class Turret extends SubsystemBase {
      *         Use .getAngle() to get the robot-centric angle, and .getNorm() to get the distance.
      */
     public static Translation2d getTranslationToGoal(Pose2d robotPose, Translation2d goalTranslation) {
-        Translation2d overallAngle = getTurretPositionForRobotPose(robotPose).minus(goalTranslation).rotateBy(robotPose.getRotation()).rotateBy(Rotation2d.fromDegrees(TURRET_HEADING_OFFSET_DEG));
+        Translation2d overallAngle = getTurretPositionForRobotPose(robotPose).minus(goalTranslation).rotateBy(robotPose.getRotation());
+        
         return overallAngle;
     }
 }
-
