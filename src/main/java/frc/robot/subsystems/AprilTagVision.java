@@ -46,6 +46,7 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import frc.robot.Constants;
+import frc.robot.Robot.RobotType;
 
 public class AprilTagVision {
     static final AprilTagFields APRILTAG_FIELD = AprilTagFields.k2026RebuiltAndymark;
@@ -63,15 +64,6 @@ public class AprilTagVision {
     // Base standard deviations for vision results
     static final Matrix<N3, N1> SINGLE_TAG_BASE_STDDEV = VecBuilder.fill(0.9, 0.9, 0.9);
     static final Matrix<N3, N1> MULTI_TAG_BASE_STDDEV = VecBuilder.fill(0.45, 0.45, 0.45);
-
-    private enum Cam {
-        FRONT_RIGHT(0);
-        // FRONT_LEFT(1);
-        // BACK(2);
-
-        int idx;
-        Cam(int idx) { this.idx = idx; }
-    }
 
     private class Camera {
         PhotonCamera photonCamera;
@@ -115,12 +107,13 @@ public class AprilTagVision {
     };
 
     private AprilTagFieldLayout m_aprilTagFieldLayout;
+    private final Field2d m_field;
 
     // Simulation support
     private VisionSystemSim m_visionSim;
     private boolean m_isSimulation;
 
-    public AprilTagVision() {
+    public AprilTagVision(RobotType robotType, Field2d field) {
         try {
             m_aprilTagFieldLayout = AprilTagFieldLayout.loadField(APRILTAG_FIELD);
             SmartDashboard.putString("aprilTagVision/field", APRILTAG_FIELD.toString());
@@ -137,15 +130,30 @@ public class AprilTagVision {
         //     m_aprilTagFieldLayout = null;
         // }
 
-        // initialize cameras
-        m_cameras = new Camera[Cam.values().length];
+        // used to publish found tags, etc
+        m_field = field;
 
-        // Test Bot
-        m_cameras[Cam.FRONT_RIGHT.idx] = new Camera("ArducamFrontRight", new Transform3d(
-            new Translation3d(Units.inchesToMeters(9.32), Units.inchesToMeters(-9.5), Units.inchesToMeters(10.53)),
-            new Rotation3d(0.0, Math.toRadians(-10), 0)
-                .rotateBy(new Rotation3d(0, 0, Math.toRadians(12.5)))
-        ));
+        // initialize cameras
+        if (robotType == RobotType.TESTBOT) {
+            // Test Bot
+            m_cameras = new Camera[] {
+                    new Camera("ArducamFrontRight", new Transform3d(
+                            new Translation3d(Units.inchesToMeters(9.32), Units.inchesToMeters(-9.5),
+                                    Units.inchesToMeters(10.53)),
+                            new Rotation3d(0.0, Math.toRadians(-10), 0)
+                                    .rotateBy(new Rotation3d(0, 0, Math.toRadians(12.5)))))
+            };
+        } 
+        else
+        {
+            m_cameras = new Camera[] {
+                    new Camera("ArducamBackRight", new Transform3d(
+                            new Translation3d(Units.inchesToMeters(-9.32), Units.inchesToMeters(-9.5),
+                                    Units.inchesToMeters(10.53)),
+                            new Rotation3d(0.0, Math.toRadians(-10), 0)
+                                    .rotateBy(new Rotation3d(0, 0, Math.toRadians(180-12.5)))))
+            };
+        }
 
         // m_cameras[Cam.FRONT_LEFT.idx] = new Camera("ArducamFrontLeft", new Transform3d(
         //     new Translation3d(Units.inchesToMeters(9.82), Units.inchesToMeters(10.0), Units.inchesToMeters(10.53)),
@@ -166,13 +174,12 @@ public class AprilTagVision {
         }
     }
 
-    // TODO: enable this and fix with swervedrivetrain instead of swervedrive
     public void updateSimulation(CommandSwerveDrivetrain swerve) {    
-        m_visionSim.update(swerve.getState().Pose);
+        m_visionSim.update(swerve.getPose());
     }
     
     // Update all Pose estimates with the vision measurements
-    public void addVisionMeasurements(CommandSwerveDrivetrain swerve, Field2d field) {
+    public void addVisionMeasurements(CommandSwerveDrivetrain swerve) {
         // Cannot do anything if there is no field layout
         if (m_aprilTagFieldLayout == null)
             return;
@@ -254,10 +261,10 @@ public class AprilTagVision {
         }
 
         if (PLOT_VISIBLE_TAGS) {
-            plotPoses(field, "visibleTags", visibleTags);
+            plotPoses(m_field, "visibleTags", visibleTags);
         }
         if (PLOT_POSE_SOLUTIONS) {
-            plotPoses(field, "visionPoses", globalMeasurements);
+            plotPoses(m_field, "visionPoses", globalMeasurements);
         }
     }
 

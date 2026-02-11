@@ -15,26 +15,27 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.events.EventTrigger;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 
 import frc.robot.commands.AutoCommandInterface;
 import frc.robot.commands.CoreAuto;
-import frc.robot.commands.FirstBasicAuto;
 import frc.robot.generated.TunerConstantsCompBot;
 import frc.robot.subsystems.AprilTagVision;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.ShooterFeeder;
+import frc.robot.subsystems.Turret;
 
 public class RobotContainerCompBot extends RobotContainer {
-    private static double SPEED_LIMIT = 0.5;
+    private static final double SPEED_LIMIT = 1.0;
     private double MAX_SPEED = SPEED_LIMIT * TunerConstantsCompBot.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
     private double MAX_ANGULAR_RATE = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
 
@@ -56,7 +57,10 @@ public class RobotContainerCompBot extends RobotContainer {
     // private final CommandJoystick m_farm = new CommandJoystick(1);
 
     private final CommandSwerveDrivetrain m_drivetrain;
-    private final AprilTagVision m_aprilTagVision = new AprilTagVision();
+    private final AprilTagVision m_aprilTagVision = new AprilTagVision(Robot.RobotType.COMPBOT, m_logger.getField2d());
+    private final Shooter m_shooter = new Shooter();
+    private final ShooterFeeder m_shooterFeeder = new ShooterFeeder();
+    private final Turret m_turret = new Turret();
 
     private final SendableChooser<String> m_chosenFieldSide = new SendableChooser<>();
     private int m_autoSelectionCode; 
@@ -104,22 +108,48 @@ public class RobotContainerCompBot extends RobotContainer {
         );
 
         // lock wheels
-        m_driverController.a().whileTrue(m_drivetrain.applyRequest(() -> m_brakeRequest));
+        // m_driverController.a().whileTrue(m_drivetrain.applyRequest(() -> m_brakeRequest));
         // m_driverController.b().whileTrue(drivetrain.applyRequest(() ->
         //     point.withModuleDirection(new Rotation2d(-m_driverController.getLeftY(), -m_driverController.getLeftX()))
         // ));
 
         // Run SysId routines when holding back/start and X/Y.
         // Note that each routine should be run exactly once in a single log.
-        m_driverController.back().and(m_driverController.y()).whileTrue(m_drivetrain.sysIdDynamic(Direction.kForward));
-        m_driverController.back().and(m_driverController.x()).whileTrue(m_drivetrain.sysIdDynamic(Direction.kReverse));
-        m_driverController.start().and(m_driverController.y()).whileTrue(m_drivetrain.sysIdQuasistatic(Direction.kForward));
-        m_driverController.start().and(m_driverController.x()).whileTrue(m_drivetrain.sysIdQuasistatic(Direction.kReverse));
+        // m_driverController.back().and(m_driverController.y()).whileTrue(m_drivetrain.sysIdDynamic(Direction.kForward));
+        // m_driverController.back().and(m_driverController.x()).whileTrue(m_drivetrain.sysIdDynamic(Direction.kReverse));
+        // m_driverController.start().and(m_driverController.y()).whileTrue(m_drivetrain.sysIdQuasistatic(Direction.kForward));
+        // m_driverController.start().and(m_driverController.x()).whileTrue(m_drivetrain.sysIdQuasistatic(Direction.kReverse));
 
         // Reset the field-centric heading on left bumper press.
         m_driverController.leftBumper().onTrue(m_drivetrain.runOnce(m_drivetrain::seedFieldCentric));
 
         m_drivetrain.registerTelemetry(m_logger::telemeterize);
+
+        // *** Test Commands *** 
+        
+        // SmartDashboard.putNumber("hood/testAngle", 0.0); 
+        // m_driverController.x().onTrue(new InstantCommand(() -> m_shooter.getHood().setAngle(Rotation2d.fromDegrees(SmartDashboard.getNumber("hood/testAngle", 0.0)))));
+        
+        // SmartDashboard.putNumber("flywheel/testVoltage", 0.0); 
+        // m_driverController.y().onTrue(new InstantCommand(() -> m_shooter.getFlywheel().setVoltage(SmartDashboard.getNumber("flywheel/testVoltage", 0.0))));
+
+        // SmartDashboard.putNumber("flywheel/testRPM", 0.0); 
+        // m_driverController.b().onTrue(new InstantCommand(() -> m_shooter.getFlywheel().setRPM(SmartDashboard.getNumber("flywheel/testRPM", 0.0))));
+        
+        // SmartDashboard.putNumber("shooterFeeder/testRPM", 0.0); 
+        // m_driverController.a().onTrue(new InstantCommand(() -> m_shooterFeeder.setRPM(SmartDashboard.getNumber("shooterFeeder/testRPM", 0.0))));
+
+        SmartDashboard.putNumber("turret/testAngle", 0.0);
+        m_driverController.a().onTrue(new InstantCommand(() -> m_turret.setAngle(Rotation2d.fromDegrees(SmartDashboard.getNumber("turret/testAngle", 0.0)))));
+
+        m_driverController.y().onTrue(
+            new InstantCommand(() -> m_shooter.getFlywheel().setRPM(SmartDashboard.getNumber("flywheel/testRPM", 0.0)))
+            .alongWith(
+                new InstantCommand(() -> m_shooterFeeder.setRPM(SmartDashboard.getNumber("shooterFeeder/testRPM", 0.0))),
+                new InstantCommand(() -> m_shooter.getHood().setAngle(Rotation2d.fromDegrees(SmartDashboard.getNumber("hood/testAngle", 0.0))))
+            )
+        );
+        m_driverController.x().onTrue(new InstantCommand(m_shooter::stop).alongWith(new InstantCommand(m_shooterFeeder::stop)));
     }
     
     public CommandSwerveDrivetrain getDriveTrain() {

@@ -53,7 +53,7 @@ public class RobotContainerTestBot extends RobotContainer {
     // private final CommandJoystick m_farm = new CommandJoystick(1);
 
     private final CommandSwerveDrivetrain m_drivetrain;
-    private final AprilTagVision m_aprilTagVision = new AprilTagVision();
+    private final AprilTagVision m_aprilTagVision = new AprilTagVision(Robot.RobotType.TESTBOT, m_logger.getField2d());
 
     private final SendableChooser<String> m_chosenFieldSide = new SendableChooser<>();
     private int m_autoSelectionCode; 
