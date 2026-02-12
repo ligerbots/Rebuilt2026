@@ -25,7 +25,7 @@ import com.ctre.phoenix6.configs.CANcoderConfiguration;
 
 public class Turret extends SubsystemBase {
     
-    private static final Translation2d TURRET_OFFSET = new Translation2d(Units.inchesToMeters(-8.33),  Units.inchesToMeters(-4.36)); // TODO: Check offset hasn't changed
+    private static final Translation2d TURRET_OFFSET = new Translation2d(Units.inchesToMeters(-8.33),  Units.inchesToMeters(-4.36));
     private static final double TURRET_HEADING_OFFSET_DEG = 180.0;
     private static final double ANGLE_TOLERANCE_DEG = 2.0; // TODO: Tune this value
     
@@ -89,7 +89,7 @@ public class Turret extends SubsystemBase {
     // This method will be called once per scheduler run
     @Override
     public void periodic() {    
-        SmartDashboard.putNumber("turret/goalAngle", m_goalDeg + TURRET_HEADING_OFFSET_DEG);
+        SmartDashboard.putNumber("turret/goalAngle", getGoalDeg());
         SmartDashboard.putNumber("turret/currentAngle", getAngle().getDegrees());
 
         // Values for testing and tuning
@@ -116,8 +116,13 @@ public class Turret extends SubsystemBase {
         return Rotation2d.fromRotations(rot);
     }
        
+    // private so we don't need to create a Rotation2d
+    private double getGoalDeg(){
+        return m_goalDeg + TURRET_HEADING_OFFSET_DEG;
+    }
+
     public boolean isOnTarget() {
-        return Math.abs(getAngle().getDegrees() - m_goalDeg) < ANGLE_TOLERANCE_DEG; 
+        return Math.abs(getAngle().getDegrees() - getGoalDeg()) < ANGLE_TOLERANCE_DEG; 
     }
     
     private Rotation2d getCRTAngleRaw(){
@@ -132,8 +137,7 @@ public class Turret extends SubsystemBase {
     }
 
     private double limitRotationDeg(double angleDeg) {
-        while (angleDeg >= 180.0) angleDeg -= 360.0;
-        while (angleDeg < -180.0) angleDeg += 360.0;
+        angleDeg = degreesModulus(angleDeg);
         return MathUtil.clamp(angleDeg, MIN_ROTATION_DEG, MAX_ROTATION_DEG);
     }
     
@@ -141,9 +145,7 @@ public class Turret extends SubsystemBase {
     // this assumes the Turret can turn >360 degrees
     private double optimizeGoal(double setAngleDeg) {
         // Normalize target angle to -180 -> 180
-        while (setAngleDeg >= 180.0) setAngleDeg -= 360.0;
-        while (setAngleDeg < -180.0) setAngleDeg += 360.0;
-        System.out.println("Set Angle: " + setAngleDeg);
+        setAngleDeg = degreesModulus(setAngleDeg);
         
         // Find all possible target angles that correspond to the desired position
         // These are: normalizedSetAngle, normalizedSetAngle ± 360, normalizedSetAngle ± 720, etc.
@@ -175,6 +177,18 @@ public class Turret extends SubsystemBase {
         return bestAngle;
     }
        
+    /**
+     * Map angle in degrees to -180 ==> 180
+     * Analogous to MathUtils.angleModulus()
+     * @param angleDeg  angle in degrees
+     * @return angle    same angle but mapped to -180 ==> 180
+     */
+    private double degreesModulus(double angleDeg) {
+        while (angleDeg >= 180.0) angleDeg -= 360.0;
+        while (angleDeg < -180.0) angleDeg += 360.0;
+        return angleDeg;
+    }
+
     private static Translation2d getTurretPositionForRobotPose(Pose2d robotPose) {
         return Turret.TURRET_OFFSET.rotateBy(robotPose.getRotation()).plus(robotPose.getTranslation());
     }
