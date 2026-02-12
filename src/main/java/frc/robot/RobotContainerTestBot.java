@@ -119,10 +119,16 @@ public class RobotContainerTestBot extends RobotContainer {
     public Command getAutonomousCommand() {
         int currentAutoSelectionCode = Objects.hash(m_chosenFieldSide.getSelected(),
             DriverStation.getAlliance());
-    
+            String[] pathFiles = {
+                "Start Bump to Fuel Begin",
+                "Fuel Begin to Fuel End With Events",
+                "Fuel End to Bump Finish With Events",
+                "Bump Finish to Climb A"
+            };
+
         // Only call constructor if the auto selection inputs have changed
         if (m_autoSelectionCode != currentAutoSelectionCode) {
-            m_autoCommand = new CoreAuto(m_drivetrain,
+            m_autoCommand = new CoreAuto(pathFiles, m_drivetrain,
                     m_chosenFieldSide.getSelected().equals("Depot Side"));
         }
         return m_autoCommand;
