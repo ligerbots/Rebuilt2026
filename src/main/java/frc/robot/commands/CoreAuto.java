@@ -38,13 +38,6 @@ public class CoreAuto extends AutoCommandInterface {
 
         try {
 
-            // String[] pathFiles = {
-            //     "Start Bump to Fuel Begin",
-            //     "Fuel Begin to Fuel End With Events",
-            //     "Fuel End to Bump Finish With Events",
-            //     "Bump Finish to Climb A"
-            // };
-
             PathPlannerPath startPath = PathPlannerPath.fromPathFile(pathFiles[0]);
             if (isDepotSide) {
                 startPath = startPath.mirrorPath();
