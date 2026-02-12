@@ -87,9 +87,6 @@ public class RobotContainerCompBot extends RobotContainer {
     }
 
     private void configureAutos() {
-        m_chosenFieldSide.setDefaultOption("Depot Side", "Depot Side");
-        m_chosenFieldSide.addOption("Outpost Side", "Outpost Side");
-        SmartDashboard.putData("Field Side", m_chosenFieldSide);
 
         m_chosenAutoPaths.setDefaultOption("First Basic Auto", new String[] {
             "Start Bump to Fuel Begin",
@@ -101,8 +98,13 @@ public class RobotContainerCompBot extends RobotContainer {
         m_chosenAutoPaths.addOption("Drive Straight to Climb", new String[] {
             "Start Bump to Climb A"
         });
-
+        
         SmartDashboard.putData("Auto Choice", m_chosenAutoPaths);
+
+        m_chosenFieldSide.setDefaultOption("Depot Side", "Depot Side");
+        m_chosenFieldSide.addOption("Outpost Side", "Outpost Side");
+        SmartDashboard.putData("Field Side", m_chosenFieldSide);
+
         SmartDashboard.putBoolean("autoStatus/runningIntake", false);
         SmartDashboard.putBoolean("autoStatus/runningShooter", false);
 
