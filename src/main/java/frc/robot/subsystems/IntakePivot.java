@@ -11,13 +11,12 @@ import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
 public class IntakePivot extends SubsystemBase {
-  private Rotation2d m_goal = Rotation2d.fromDegrees(0.0);
+  private Rotation2d m_goal = Rotation2d.kZero;
 
   private final TalonFX m_pivotMotor;
 
@@ -29,13 +28,11 @@ public class IntakePivot extends SubsystemBase {
   private static final double MAX_VEL_ROT_PER_SEC = 1.0; // TODO change to more reasonable number (currently filler number)
   private static final double MAX_ACC_ROT_PER_SEC2 = 1.0; // TODO change to more reasonable number (currently filler number)
 
+  private static final double GEAR_RATIO = 1.0;
 
   /** Creates a new IntakePivot. */
   public IntakePivot() {
     m_pivotMotor = new TalonFX(Constants.INTAKE_DEPLOY_ID);
-
-    // set config to factory default
-    
         
     TalonFXConfiguration talonFXConfigs = new TalonFXConfiguration();
 
@@ -62,15 +59,14 @@ public class IntakePivot extends SubsystemBase {
     SmartDashboard.putNumber("intakePivot/goalAngle", m_goal.getDegrees());
     SmartDashboard.putNumber("intakePivot/currentAngle", getPosition().getDegrees());
     SmartDashboard.putNumber("intakePivot/rawMotorAngle",  m_pivotMotor.getPosition().getValueAsDouble());
-   
   }
 
-  public void set(Rotation2d angle) {
+  public void setPosition(Rotation2d angle) {
     m_goal = angle;
-    m_pivotMotor.setControl(new MotionMagicVoltage(m_goal.getRotations()));
+    m_pivotMotor.setControl(new MotionMagicVoltage(m_goal.getRotations() / GEAR_RATIO));
   }
 
   public Rotation2d getPosition(){
-    return Rotation2d.fromRotations(m_pivotMotor.getPosition().getValueAsDouble());
+    return Rotation2d.fromRotations(m_pivotMotor.getPosition().getValueAsDouble() * GEAR_RATIO);
   }
 }
