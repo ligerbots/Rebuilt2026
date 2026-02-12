@@ -18,7 +18,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import frc.robot.Constants;
 
-public class HopperTransfer extends SubsystemBase {
+public class Hopper extends SubsystemBase {
     
     private final TalonFX m_motor;
     
@@ -32,7 +32,7 @@ public class HopperTransfer extends SubsystemBase {
     private double m_goalRPM;
     
     //Creates a new IntakeWheel
-    public HopperTransfer() {
+    public Hopper() {
         TalonFXConfiguration talonFXConfigs = new TalonFXConfiguration();  
         
         m_motor = new TalonFX(Constants.HOPPER_TRANSFER_CAN_ID);
@@ -53,8 +53,8 @@ public class HopperTransfer extends SubsystemBase {
     
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("hopperTransfer/currentRPM", getRPM()); 
-        SmartDashboard.putNumber("hopperTransfer/goalRPM", m_goalRPM);
+        SmartDashboard.putNumber("hopper/currentRPM", getRPM()); 
+        SmartDashboard.putNumber("hopper/goalRPM", m_goalRPM);
     }
     
     public double getRPM(){

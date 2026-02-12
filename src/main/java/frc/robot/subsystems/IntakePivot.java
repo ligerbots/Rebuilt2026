@@ -32,7 +32,7 @@ public class IntakePivot extends SubsystemBase {
     
     private static final Rotation2d STOW_POSITION = Rotation2d.kZero;
     private static final Rotation2d DEPLOY_POSITION = Rotation2d.fromDegrees(30.0);  // TODO real value
-    
+
     /** Creates a new IntakePivot. */
     public IntakePivot() {
         m_pivotMotor = new TalonFX(Constants.INTAKE_DEPLOY_ID);
@@ -59,25 +59,25 @@ public class IntakePivot extends SubsystemBase {
     @Override
     public void periodic() {
         // This method will be called once per scheduler run
-        SmartDashboard.putNumber("intakePivot/goalAngle", m_goal.getDegrees());
-        SmartDashboard.putNumber("intakePivot/currentAngle", getPosition().getDegrees());
-        SmartDashboard.putNumber("intakePivot/rawMotorAngle",  m_pivotMotor.getPosition().getValueAsDouble());
+        SmartDashboard.putNumber("intake/deployGoal", m_goal.getDegrees());
+        SmartDashboard.putNumber("intake/deployAngle", getAngle().getDegrees());
+        // SmartDashboard.putNumber("intake/rawMotorAngle",  m_pivotMotor.getPosition().getValueAsDouble());
     }
     
     public void deploy() {
-        setPosition(DEPLOY_POSITION);
+        setAngle(DEPLOY_POSITION);
     }
 
     public void stow() {
-        setPosition(STOW_POSITION);
+        setAngle(STOW_POSITION);
     }
 
-    public void setPosition(Rotation2d angle) {
+    public void setAngle(Rotation2d angle) {
         m_goal = angle;
         m_pivotMotor.setControl(new MotionMagicVoltage(m_goal.getRotations() / GEAR_RATIO));
     }
     
-    public Rotation2d getPosition(){
+    public Rotation2d getAngle(){
         return Rotation2d.fromRotations(m_pivotMotor.getPosition().getValueAsDouble() * GEAR_RATIO);
     }
 }

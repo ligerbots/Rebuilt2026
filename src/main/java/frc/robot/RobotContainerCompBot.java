@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 
@@ -29,6 +30,9 @@ import frc.robot.commands.FirstBasicAuto;
 import frc.robot.generated.TunerConstantsCompBot;
 import frc.robot.subsystems.AprilTagVision;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.Hopper;
+import frc.robot.subsystems.IntakePivot;
+import frc.robot.subsystems.IntakeRoller;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.ShooterFeeder;
 import frc.robot.subsystems.Turret;
@@ -60,6 +64,10 @@ public class RobotContainerCompBot extends RobotContainer {
     private final Shooter m_shooter = new Shooter();
     private final ShooterFeeder m_shooterFeeder = new ShooterFeeder();
     private final Turret m_turret = new Turret();
+
+    private final IntakePivot m_intakePivot = new IntakePivot();
+    private final IntakeRoller m_intakeRoller = new IntakeRoller();
+    private final Hopper m_hopper = new Hopper();
 
     private final SendableChooser<String> m_chosenFieldSide = new SendableChooser<>();
     private int m_autoSelectionCode; 
@@ -116,6 +124,15 @@ public class RobotContainerCompBot extends RobotContainer {
         m_driverController.leftBumper().onTrue(m_drivetrain.runOnce(m_drivetrain::seedFieldCentric));
 
         m_drivetrain.registerTelemetry(m_logger::telemeterize);
+
+        SmartDashboard.putNumber("intake/testVoltage", 0.0); 
+        SmartDashboard.putNumber("intake/testAngle", 0.0); 
+        SmartDashboard.putNumber("hopper/testVoltage", 0.0); 
+        m_driverController.leftBumper().whileTrue(new StartEndCommand(
+            () -> m_intakeRoller.setVoltage(SmartDashboard.getNumber("intake/testVoltage", 0.0)), m_intakeRoller::stop, m_intakeRoller));
+        m_driverController.rightBumper().whileTrue(new StartEndCommand(
+            () -> m_hopper.setVoltage(SmartDashboard.getNumber("hopper/testVoltage", 0.0)), m_hopper::stop, m_hopper));
+        m_driverController.b().onTrue(new InstantCommand(() -> m_intakePivot.setAngle(Rotation2d.fromDegrees(SmartDashboard.getNumber("intake/testAngle", 0.0)))));
 
         // *** Test Commands *** 
         
