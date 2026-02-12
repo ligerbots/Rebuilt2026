@@ -105,6 +105,8 @@ public class Turret extends SubsystemBase {
         // for now, just limit angle. 
         // when we allow overlap, use optimizeGoal()
         m_goalDeg = limitRotationDeg(angle.getDegrees() - TURRET_HEADING_OFFSET_DEG);
+        // m_goalDeg = optimizeGoal(angle.getDegrees() - TURRET_HEADING_OFFSET_DEG);
+
         m_turretMotor.setControl(new MotionMagicVoltage(m_goalDeg/360.0 * TURRET_GEAR_RATIO));
     }
     
@@ -141,6 +143,7 @@ public class Turret extends SubsystemBase {
         // Normalize target angle to -180 -> 180
         while (setAngleDeg >= 180.0) setAngleDeg -= 360.0;
         while (setAngleDeg < -180.0) setAngleDeg += 360.0;
+        System.out.println("Set Angle: " + setAngleDeg);
         
         // Find all possible target angles that correspond to the desired position
         // These are: normalizedSetAngle, normalizedSetAngle ± 360, normalizedSetAngle ± 720, etc.
@@ -167,6 +170,8 @@ public class Turret extends SubsystemBase {
             }
         }
         
+        System.out.println("Best Angle: " + bestAngle);
+
         return bestAngle;
     }
        
