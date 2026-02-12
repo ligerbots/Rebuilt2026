@@ -16,57 +16,68 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
 public class IntakePivot extends SubsystemBase {
-  private Rotation2d m_goal = Rotation2d.kZero;
-
-  private final TalonFX m_pivotMotor;
-
-  private static final double SUPPLY_CURRENT_LIMIT = 40;
-  private static final double STATOR_CURRENT_LIMIT = 60;
-
-  private static final double K_P = 1.0;
-
-  private static final double MAX_VEL_ROT_PER_SEC = 1.0; // TODO change to more reasonable number (currently filler number)
-  private static final double MAX_ACC_ROT_PER_SEC2 = 1.0; // TODO change to more reasonable number (currently filler number)
-
-  private static final double GEAR_RATIO = 1.0;
-
-  /** Creates a new IntakePivot. */
-  public IntakePivot() {
-    m_pivotMotor = new TalonFX(Constants.INTAKE_DEPLOY_ID);
-        
-    TalonFXConfiguration talonFXConfigs = new TalonFXConfiguration();
-
-    talonFXConfigs.CurrentLimits.SupplyCurrentLimit = SUPPLY_CURRENT_LIMIT;
-    talonFXConfigs.CurrentLimits.StatorCurrentLimit = STATOR_CURRENT_LIMIT;
+    private Rotation2d m_goal = Rotation2d.kZero;
     
-    Slot0Configs slot0configs = talonFXConfigs.Slot0;
-    slot0configs.kP = K_P;
-    slot0configs.kI = 0.0;
-    slot0configs.kD = 0.0;
-
-    MotionMagicConfigs magicConfigs = talonFXConfigs.MotionMagic;
+    private final TalonFX m_pivotMotor;
+    
+    private static final double SUPPLY_CURRENT_LIMIT = 40;
+    private static final double STATOR_CURRENT_LIMIT = 60;
+    
+    private static final double K_P = 1.0;
+    
+    private static final double MAX_VEL_ROT_PER_SEC = 1.0; // TODO change to more reasonable number (currently filler number)
+    private static final double MAX_ACC_ROT_PER_SEC2 = 1.0; // TODO change to more reasonable number (currently filler number)
+    
+    private static final double GEAR_RATIO = 1.0;
+    
+    private static final Rotation2d STOW_POSITION = Rotation2d.kZero;
+    private static final Rotation2d DEPLOY_POSITION = Rotation2d.fromDegrees(30.0);  // TODO real value
+    
+    /** Creates a new IntakePivot. */
+    public IntakePivot() {
+        m_pivotMotor = new TalonFX(Constants.INTAKE_DEPLOY_ID);
         
-    magicConfigs.MotionMagicCruiseVelocity = MAX_VEL_ROT_PER_SEC;
-    magicConfigs.MotionMagicAcceleration = MAX_ACC_ROT_PER_SEC2;
+        TalonFXConfiguration talonFXConfigs = new TalonFXConfiguration();
+        
+        talonFXConfigs.CurrentLimits.SupplyCurrentLimit = SUPPLY_CURRENT_LIMIT;
+        talonFXConfigs.CurrentLimits.StatorCurrentLimit = STATOR_CURRENT_LIMIT;
+        
+        Slot0Configs slot0configs = talonFXConfigs.Slot0;
+        slot0configs.kP = K_P;
+        slot0configs.kI = 0.0;
+        slot0configs.kD = 0.0;
+        
+        MotionMagicConfigs magicConfigs = talonFXConfigs.MotionMagic;
+        
+        magicConfigs.MotionMagicCruiseVelocity = MAX_VEL_ROT_PER_SEC;
+        magicConfigs.MotionMagicAcceleration = MAX_ACC_ROT_PER_SEC2;
+        
+        m_pivotMotor.getConfigurator().apply(talonFXConfigs);
+        m_pivotMotor.setPosition(0);
+    }
+    
+    @Override
+    public void periodic() {
+        // This method will be called once per scheduler run
+        SmartDashboard.putNumber("intakePivot/goalAngle", m_goal.getDegrees());
+        SmartDashboard.putNumber("intakePivot/currentAngle", getPosition().getDegrees());
+        SmartDashboard.putNumber("intakePivot/rawMotorAngle",  m_pivotMotor.getPosition().getValueAsDouble());
+    }
+    
+    public void deploy() {
+        setPosition(DEPLOY_POSITION);
+    }
 
-    m_pivotMotor.getConfigurator().apply(talonFXConfigs);
-    m_pivotMotor.setPosition(0);
-  }
+    public void stow() {
+        setPosition(STOW_POSITION);
+    }
 
-  @Override
-  public void periodic() {
-    // This method will be called once per scheduler run
-    SmartDashboard.putNumber("intakePivot/goalAngle", m_goal.getDegrees());
-    SmartDashboard.putNumber("intakePivot/currentAngle", getPosition().getDegrees());
-    SmartDashboard.putNumber("intakePivot/rawMotorAngle",  m_pivotMotor.getPosition().getValueAsDouble());
-  }
-
-  public void setPosition(Rotation2d angle) {
-    m_goal = angle;
-    m_pivotMotor.setControl(new MotionMagicVoltage(m_goal.getRotations() / GEAR_RATIO));
-  }
-
-  public Rotation2d getPosition(){
-    return Rotation2d.fromRotations(m_pivotMotor.getPosition().getValueAsDouble() * GEAR_RATIO);
-  }
+    public void setPosition(Rotation2d angle) {
+        m_goal = angle;
+        m_pivotMotor.setControl(new MotionMagicVoltage(m_goal.getRotations() / GEAR_RATIO));
+    }
+    
+    public Rotation2d getPosition(){
+        return Rotation2d.fromRotations(m_pivotMotor.getPosition().getValueAsDouble() * GEAR_RATIO);
+    }
 }
