@@ -32,6 +32,9 @@ public class IntakeRoller extends SubsystemBase {
     
     private double m_goalRPM;
     
+    private static final double INTAKE_VOLTAGE = 9.0;
+    private static final double OUTTAKE_VOLTAGE = 5.0;
+
     //Creates a new IntakeWheel
     public IntakeRoller() {
         TalonFXConfiguration talonFXConfigs = new TalonFXConfiguration();
@@ -58,7 +61,19 @@ public class IntakeRoller extends SubsystemBase {
         SmartDashboard.putNumber("intake/currentRPM", getRPM()); 
         SmartDashboard.putNumber("intake/goalRPM", m_goalRPM);
     }
-    
+         
+    public void intake() {
+        m_motor.setControl(new VoltageOut(INTAKE_VOLTAGE));
+    }
+
+    public void outtake() {
+        m_motor.setControl(new VoltageOut(OUTTAKE_VOLTAGE));
+    }
+
+    public void stop(){
+        m_motor.setControl(new VoltageOut(0));
+    }
+
     public double getRPM(){
         return m_motor.getVelocity().getValueAsDouble() * 60; //convert rps to rpm
     }
@@ -74,9 +89,5 @@ public class IntakeRoller extends SubsystemBase {
         final VelocityVoltage m_request = new VelocityVoltage(rps).withFeedForward(K_FF * rpm);
         
         m_motor.setControl(m_request);
-    }
-    
-    public void stop(){
-        m_motor.setControl(new VoltageOut(0));
     }
 }
