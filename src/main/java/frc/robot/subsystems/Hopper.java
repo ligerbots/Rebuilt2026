@@ -29,6 +29,8 @@ public class Hopper extends SubsystemBase {
     
     private static final double K_FF = 0.0015; //TODO find new constant
     
+    private static final double RUN_VOLTAGE = 4.0;
+
     private double m_goalRPM;
     
     //Creates a new IntakeWheel
@@ -57,6 +59,14 @@ public class Hopper extends SubsystemBase {
         SmartDashboard.putNumber("hopper/goalRPM", m_goalRPM);
     }
     
+    public void run(){
+        m_motor.setControl(new VoltageOut(RUN_VOLTAGE));
+    }
+    
+    public void stop(){
+        m_motor.setControl(new VoltageOut(0));
+    }
+    
     public double getRPM(){
         return m_motor.getVelocity().getValueAsDouble() * 60; //convert rps to rpm
     }
@@ -72,9 +82,5 @@ public class Hopper extends SubsystemBase {
         final VelocityVoltage m_request = new VelocityVoltage(rps).withFeedForward(K_FF * rpm);
         
         m_motor.setControl(m_request);
-    }
-    
-    public void stop(){
-        m_motor.setControl(new VoltageOut(0));
     }
 }

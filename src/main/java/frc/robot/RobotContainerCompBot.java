@@ -107,6 +107,11 @@ public class RobotContainerCompBot extends RobotContainer {
             m_drivetrain.applyRequest(() -> idle).ignoringDisable(true)
         );
 
+        m_driverController.rightTrigger().whileTrue(new StartEndCommand(m_intakeRoller::intake, m_intakeRoller::stop, m_intakeRoller));
+        m_driverController.leftTrigger().whileTrue(new StartEndCommand(m_hopper::run, m_hopper::stop, m_hopper));
+        m_driverController.rightBumper().whileTrue(new InstantCommand(m_intakePivot::deploy));
+        m_driverController.leftBumper().whileTrue(new InstantCommand(m_intakePivot::stow));
+
         // lock wheels
         // m_driverController.a().whileTrue(m_drivetrain.applyRequest(() -> m_brakeRequest));
         // m_driverController.b().whileTrue(drivetrain.applyRequest(() ->
@@ -121,18 +126,18 @@ public class RobotContainerCompBot extends RobotContainer {
         // m_driverController.start().and(m_driverController.x()).whileTrue(m_drivetrain.sysIdQuasistatic(Direction.kReverse));
 
         // Reset the field-centric heading on left bumper press.
-        m_driverController.leftBumper().onTrue(m_drivetrain.runOnce(m_drivetrain::seedFieldCentric));
+        // m_driverController.leftBumper().onTrue(m_drivetrain.runOnce(m_drivetrain::seedFieldCentric));
 
         m_drivetrain.registerTelemetry(m_logger::telemeterize);
 
-        SmartDashboard.putNumber("intake/testVoltage", 0.0); 
-        SmartDashboard.putNumber("intake/testAngle", 0.0); 
-        SmartDashboard.putNumber("hopper/testVoltage", 0.0); 
-        m_driverController.leftBumper().whileTrue(new StartEndCommand(
-            () -> m_intakeRoller.setVoltage(SmartDashboard.getNumber("intake/testVoltage", 0.0)), m_intakeRoller::stop, m_intakeRoller));
-        m_driverController.rightBumper().whileTrue(new StartEndCommand(
-            () -> m_hopper.setVoltage(SmartDashboard.getNumber("hopper/testVoltage", 0.0)), m_hopper::stop, m_hopper));
-        m_driverController.b().onTrue(new InstantCommand(() -> m_intakePivot.setAngle(Rotation2d.fromDegrees(SmartDashboard.getNumber("intake/testAngle", 0.0)))));
+        // SmartDashboard.putNumber("intake/testVoltage", 0.0); 
+        // SmartDashboard.putNumber("intake/testAngle", 0.0); 
+        // SmartDashboard.putNumber("hopper/testVoltage", 0.0); 
+        // m_driverController.leftBumper().whileTrue(new StartEndCommand(
+        //     () -> m_intakeRoller.setVoltage(SmartDashboard.getNumber("intake/testVoltage", 0.0)), m_intakeRoller::stop, m_intakeRoller));
+        // m_driverController.rightBumper().whileTrue(new StartEndCommand(
+        //     () -> m_hopper.setVoltage(SmartDashboard.getNumber("hopper/testVoltage", 0.0)), m_hopper::stop, m_hopper));
+        // m_driverController.b().onTrue(new InstantCommand(() -> m_intakePivot.setAngle(Rotation2d.fromDegrees(SmartDashboard.getNumber("intake/testAngle", 0.0)))));
 
         // *** Test Commands *** 
         
