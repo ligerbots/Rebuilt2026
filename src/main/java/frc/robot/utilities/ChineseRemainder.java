@@ -25,8 +25,9 @@ public class ChineseRemainder {
      */
     public static Rotation2d findAngle(double rotationsEnc1, int totalTeeth1, double rotationsEnc2, int totalTeeth2, int bigGearTeeth) {
         // Convert encoder rotations to teeth count for easier calculation
-        double rotatedTeeth1 = (rotationsEnc1 % 1) * totalTeeth1;
-        double rotatedTeeth2 = (rotationsEnc2 % 1) * totalTeeth2;
+
+        double rotatedTeeth1 = wrapRotation(rotationsEnc1) * totalTeeth1;
+        double rotatedTeeth2 = wrapRotation(rotationsEnc2) * totalTeeth2;
 
         double bestN1 = -1;
         double bestError1 = Double.MAX_VALUE;
@@ -95,6 +96,11 @@ public class ChineseRemainder {
         SmartDashboard.putNumber("CRT/abs2OffsetRotation", gear2offsetToApply);
     }
 
+    private static double wrapRotation(double rot) {
+        while (rot > 1.0) rot -= 1.0;
+        while (rot < 0.0) rot += 1.0;
+        return rot;
+    }
     /**
      * Runs automated tests to verify the Chinese Remainder Theorem implementation.
      */

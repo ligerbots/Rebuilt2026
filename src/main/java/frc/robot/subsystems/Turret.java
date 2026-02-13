@@ -40,8 +40,8 @@ public class Turret extends SubsystemBase {
 
     private static final int ENCODER_SMALL_TOOTH_COUNT = 11;
     private static final int ENCODER_LARGE_TOOTH_COUNT = 13;
-    private static final double ENCODER_SMALL_OFFSET_ROTATIONS = -0.501;
-    private static final double ENCODER_LARGE_OFFSET_ROTATIONS = -0.275;
+    private static final double ENCODER_SMALL_OFFSET_ROTATIONS = -0.503;
+    private static final double ENCODER_LARGE_OFFSET_ROTATIONS = -0.283;
     private static final int TURRET_TOOTH_COUNT = 100;
     private static final double TURRET_GEAR_RATIO =  54.0 / 12.0 * TURRET_TOOTH_COUNT / 10.0;
     
