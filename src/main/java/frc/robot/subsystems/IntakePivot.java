@@ -16,8 +16,20 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
 public class IntakePivot extends SubsystemBase {
+
+    /// deployed
+    /// stowed
+    /// poweredStow - low voltage
+        ///-> Might need smaller P, seperate PID
+
+    public enum IntakePivotState {
+        DEPLOYED,
+        STOWED,
+        POWERED_STOW
+    }
+
     private Rotation2d m_goal = Rotation2d.kZero;
-    
+
     private final TalonFX m_pivotMotor;
     
     private static final double SUPPLY_CURRENT_LIMIT = 40;
