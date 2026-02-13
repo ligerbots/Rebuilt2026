@@ -23,15 +23,15 @@ public class IntakePivot extends SubsystemBase {
     private static final double SUPPLY_CURRENT_LIMIT = 40;
     private static final double STATOR_CURRENT_LIMIT = 60;
     
-    private static final double K_P = 1.0;
+    private static final double K_P = 15.0;
     
-    private static final double MAX_VEL_ROT_PER_SEC = 1.0; // TODO change to more reasonable number (currently filler number)
-    private static final double MAX_ACC_ROT_PER_SEC2 = 1.0; // TODO change to more reasonable number (currently filler number)
+    private static final double MAX_VEL_ROT_PER_SEC = 20.0; // TODO change to more reasonable number (currently filler number)
+    private static final double MAX_ACC_ROT_PER_SEC2 = 50.0; // TODO change to more reasonable number (currently filler number)
     
-    private static final double GEAR_RATIO = 1.0;
+    private static final double GEAR_RATIO = 1.0 / 24.0;
     
     private static final Rotation2d STOW_POSITION = Rotation2d.kZero;
-    private static final Rotation2d DEPLOY_POSITION = Rotation2d.fromDegrees(30.0);  // TODO real value
+    private static final Rotation2d DEPLOY_POSITION = Rotation2d.fromDegrees(75.0);
 
     /** Creates a new IntakePivot. */
     public IntakePivot() {
@@ -61,6 +61,9 @@ public class IntakePivot extends SubsystemBase {
         // This method will be called once per scheduler run
         SmartDashboard.putNumber("intake/deployGoal", m_goal.getDegrees());
         SmartDashboard.putNumber("intake/deployAngle", getAngle().getDegrees());
+        SmartDashboard.putNumber("intake/supplyCurrent", m_pivotMotor.getSupplyCurrent().getValueAsDouble());
+        SmartDashboard.putNumber("intake/statorCurrent", m_pivotMotor.getStatorCurrent().getValueAsDouble());
+
         // SmartDashboard.putNumber("intake/rawMotorAngle",  m_pivotMotor.getPosition().getValueAsDouble());
     }
     

@@ -11,6 +11,7 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
@@ -33,7 +34,7 @@ public class IntakeRoller extends SubsystemBase {
     
     //Creates a new IntakeWheel
     public IntakeRoller() {
-        TalonFXConfiguration talonFXConfigs = new TalonFXConfiguration();  
+        TalonFXConfiguration talonFXConfigs = new TalonFXConfiguration();
         
         m_motor = new TalonFX(Constants.INTAKE_ROLLER_CAN_ID);
         Slot0Configs slot0configs = talonFXConfigs.Slot0;
@@ -45,6 +46,7 @@ public class IntakeRoller extends SubsystemBase {
         .withSupplyCurrentLimit(SUPPLY_CURRENT_LIMIT)
         .withStatorCurrentLimit(STATOR_CURRENT_LIMIT);
         talonFXConfigs.withCurrentLimits(currentLimits);
+        talonFXConfigs.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         
         // enable brake mode (after main config)
         m_motor.getConfigurator().apply(talonFXConfigs);
