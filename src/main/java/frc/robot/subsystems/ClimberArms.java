@@ -67,7 +67,6 @@ public class ClimberArms extends SubsystemBase {
         }
 
         public int getValue() { return value; }
-
     }
 
 

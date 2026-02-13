@@ -77,7 +77,7 @@ public class ShooterFeeder extends SubsystemBase {
     }
     
     public void stop(){
-        m_motor.setVoltage(0);;
+        m_motor.setVoltage(0);
     }
     
     public void feedForShooting() {
