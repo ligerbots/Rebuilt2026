@@ -20,7 +20,18 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 
 public class IntakeRoller extends SubsystemBase {
+
+    /// STAY ON RPMS
+    /// intaking
+    /// break
+    /// static intake - stop ball from rolling out
     
+    public enum IntakeRollerState {
+        INTAKING,
+        BREAKING,
+        STATIC_INTAKE
+    }
+
     private final TalonFX m_motor;
     
     //need to calibrate the P value for the velocity loop, start small and increase until you get good response
