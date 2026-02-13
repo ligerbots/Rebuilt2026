@@ -40,8 +40,8 @@ public class Turret extends SubsystemBase {
 
     private static final int ENCODER_SMALL_TOOTH_COUNT = 11;
     private static final int ENCODER_LARGE_TOOTH_COUNT = 13;
-    private static final double ENCODER_SMALL_OFFSET_ROTATIONS = 0.0; // TODO: Tune this value
-    private static final double ENCODER_LARGE_OFFSET_ROTATIONS = 0.0; // TODO: Tune this value
+    private static final double ENCODER_SMALL_OFFSET_ROTATIONS = -0.501; // TODO: Tune this value
+    private static final double ENCODER_LARGE_OFFSET_ROTATIONS = -0.275; // TODO: Tune this value
     private static final int TURRET_TOOTH_COUNT = 100;
     private static final double TURRET_GEAR_RATIO =  54.0 / 12.0 * TURRET_TOOTH_COUNT / 10.0;
     
@@ -52,7 +52,7 @@ public class Turret extends SubsystemBase {
     private static final double MAX_ROTATION_DEG = 170.0;
     private static final double MIN_ROTATION_DEG = -170.0;
     
-    private static final Rotation2d CRT_POSITION_OFFSET = Rotation2d.fromDegrees(167.8);
+    private static final Rotation2d CRT_POSITION_OFFSET = Rotation2d.fromRotations(1.0 * ENCODER_SMALL_TOOTH_COUNT*ENCODER_LARGE_TOOTH_COUNT/TURRET_TOOTH_COUNT/2.0);
     
     /** Creates a new Turret. */
     public Turret() {
@@ -129,7 +129,7 @@ public class Turret extends SubsystemBase {
     
     private Rotation2d getCRTAngleRaw(){
         // USE ME FOR TUNING ABSOLUTE ENCODER OFFSETS ONLY:
-        // ChineseRemainder.smartDashboardLogABSOffsets(TURRET_TOOTH_COUNT, ENCODER_SMALL_TOOTH_COUNT, ENCODER_LARGE_TOOTH_COUNT, m_thruboreSmall.getAbsolutePosition().getValueAsDouble(), m_thruboreLarge.getAbsolutePosition().getValueAsDouble());
+        ChineseRemainder.smartDashboardLogABSOffsets(TURRET_TOOTH_COUNT, ENCODER_SMALL_TOOTH_COUNT, ENCODER_LARGE_TOOTH_COUNT, m_thruboreSmall.getAbsolutePosition().getValueAsDouble(), m_thruboreLarge.getAbsolutePosition().getValueAsDouble());
         return ChineseRemainder.findAngle(
                 m_thruboreSmall.getAbsolutePosition().getValueAsDouble()+ENCODER_SMALL_OFFSET_ROTATIONS, ENCODER_SMALL_TOOTH_COUNT,
                 m_thruboreLarge.getAbsolutePosition().getValueAsDouble()+ENCODER_LARGE_OFFSET_ROTATIONS, ENCODER_LARGE_TOOTH_COUNT,
