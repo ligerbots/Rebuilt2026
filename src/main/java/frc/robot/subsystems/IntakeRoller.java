@@ -8,57 +8,33 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import frc.robot.Constants;
 
 public class IntakeRoller extends SubsystemBase {
-
-    /// STAY ON RPMS
-    /// intaking
-    /// break
-    /// static intake - stop ball from rolling out
-    
-    public enum IntakeRollerState {
-        INTAKING,
-        BREAKING,
-        STATIC_INTAKE
-    }
-
-    private final TalonFX m_motor;
-    
-    //need to calibrate the P value for the velocity loop, start small and increase until you get good response
-    private static final double K_P = 3.0; 
     private static final double SUPPLY_CURRENT_LIMIT = 40;
     private static final double STATOR_CURRENT_LIMIT = 60;
-    
-    private static final double K_FF = 0.0015; //TODO find new constant
-    
-    private double m_goalRPM;
     
     private static final double INTAKE_VOLTAGE = 9.0;
     private static final double OUTTAKE_VOLTAGE = 5.0;
 
-    //Creates a new IntakeWheel
+    private final TalonFX m_motor;
+    
+    // Creates a new IntakeRoller
     public IntakeRoller() {
         TalonFXConfiguration talonFXConfigs = new TalonFXConfiguration();
         
         m_motor = new TalonFX(Constants.INTAKE_ROLLER_CAN_ID);
-        Slot0Configs slot0configs = talonFXConfigs.Slot0;
-        slot0configs.kP = K_P;  // start small!!!
-        slot0configs.kI = 0.0;
-        slot0configs.kD = 0.0;
         
         CurrentLimitsConfigs currentLimits = new CurrentLimitsConfigs()
-        .withSupplyCurrentLimit(SUPPLY_CURRENT_LIMIT)
-        .withStatorCurrentLimit(STATOR_CURRENT_LIMIT);
+                .withSupplyCurrentLimit(SUPPLY_CURRENT_LIMIT)
+                .withStatorCurrentLimit(STATOR_CURRENT_LIMIT);
         talonFXConfigs.withCurrentLimits(currentLimits);
         talonFXConfigs.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         
@@ -69,8 +45,7 @@ public class IntakeRoller extends SubsystemBase {
     
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("intake/currentRPM", getRPM()); 
-        SmartDashboard.putNumber("intake/goalRPM", m_goalRPM);
+        SmartDashboard.putNumber("intake/voltage", m_motor.getMotorVoltage().getValueAsDouble()); 
     }
          
     public void intake() {
@@ -85,20 +60,7 @@ public class IntakeRoller extends SubsystemBase {
         m_motor.setControl(new VoltageOut(0));
     }
 
-    public double getRPM(){
-        return m_motor.getVelocity().getValueAsDouble() * 60; //convert rps to rpm
-    }
-    
     public void setVoltage(double volts) {
         m_motor.setControl(new VoltageOut(volts));
-    }
-    
-    public void setRPM(double rpm){
-        m_goalRPM = rpm;
-        double rps = m_goalRPM / 60; //convert rpm to rps
-        
-        final VelocityVoltage m_request = new VelocityVoltage(rps).withFeedForward(K_FF * rpm);
-        
-        m_motor.setControl(m_request);
     }
 }
