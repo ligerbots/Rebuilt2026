@@ -115,6 +115,10 @@ public class RobotContainerCompBot extends RobotContainer {
         SmartDashboard.putBoolean("autoStatus/runningIntake", false);
         SmartDashboard.putBoolean("autoStatus/runningShooter", false);
 
+        configureAutoEventTriggers();
+    }
+
+    private void configureAutoEventTriggers() {
         new EventTrigger("Run Intake").onTrue(new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningIntake", true)));
         new EventTrigger("Stop Intake").onTrue(new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningIntake", false)));
 
