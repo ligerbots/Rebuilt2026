@@ -9,50 +9,41 @@ import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.Slot1Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
 public class IntakePivot extends SubsystemBase {
-
-    /// deployed
-    /// stowed
-    /// poweredStow - low voltage
-        ///-> Might need smaller P, seperate PID
-
-    public enum IntakePivotState {
-        DEPLOYED,
-        STOWED,
-        POWERED_STOW
-    }
-
-    public IntakePivotState m_currentState = IntakePivotState.STOWED;
-
-    private Rotation2d m_goal = Rotation2d.kZero;
-
-    private final TalonFX m_pivotMotor;
-    
     private static final double SUPPLY_CURRENT_LIMIT = 40;
     private static final double STATOR_CURRENT_LIMIT = 60;
     
-    private static final double K_P_STOWED = 8.0;
-    private static final double K_P_DEPLOYED = 15.0; // TODO TUNE
+    private static final double K_P = 15.0;
+    private static final double K_P_HOLD = 3.0;
     
-    private static final double MAX_VEL_ROT_PER_SEC = 20.0; // TODO change to more reasonable number (currently filler number)
-    private static final double MAX_ACC_ROT_PER_SEC2 = 50.0; // TODO change to more reasonable number (currently filler number)
+    private static final double MAX_VEL_ROT_PER_SEC = 20.0;
+    private static final double MAX_ACC_ROT_PER_SEC2 = 50.0;
     
+    private static final double ANGLE_TOLERANCE_DEG = 3.0;
+
     private static final double GEAR_RATIO = 1.0 / 24.0;
     
     private static final Rotation2d STOW_POSITION = Rotation2d.kZero;
     private static final Rotation2d DEPLOY_POSITION = Rotation2d.fromDegrees(75.0);
 
+    private Rotation2d m_goal = Rotation2d.kZero;
+
+    private final TalonFX m_pivotMotor;
+    
     private static enum SlotNumber {
-        STOWED(0),
-        DEPLOYED(1);
+        MOVE(0),
+        HOLD(1);
 
         private final int value;
 
@@ -73,16 +64,14 @@ public class IntakePivot extends SubsystemBase {
         talonFXConfigs.CurrentLimits.StatorCurrentLimit = STATOR_CURRENT_LIMIT;
         
         Slot0Configs slot0configs = talonFXConfigs.Slot0;
-        slot0configs.kP = K_P_STOWED;
+        slot0configs.kP = K_P;
         slot0configs.kI = 0.0;
         slot0configs.kD = 0.0;
 
         Slot1Configs slot1configs = talonFXConfigs.Slot1;
-        slot1configs.kV = 0.0; // A velocity target of 1 rps results in X V output
-        slot1configs.kA = 0.0; // An acceleration of 1 rps/s requires X V output
-        slot1configs.kP = K_P_DEPLOYED;  // start small!!!
-        slot1configs.kI = 0.0; // no output for integrated error
-        slot1configs.kD = 0.0; // A velocity error of 1 rps results in X V output
+        slot1configs.kP = K_P_HOLD;
+        slot1configs.kI = 0.0;
+        slot1configs.kD = 0.0;
         
         MotionMagicConfigs magicConfigs = talonFXConfigs.MotionMagic;
         
@@ -96,22 +85,6 @@ public class IntakePivot extends SubsystemBase {
     
     @Override
     public void periodic() {
-
-        switch (m_currentState) {
-
-            case DEPLOYED:
-                setAngle(DEPLOY_POSITION);
-                break;
-
-            case STOWED:
-                setAngle(STOW_POSITION);
-                break;
-
-            case POWERED_STOW:
-                setAngle(STOW_POSITION);
-                break;
-        }
-
         // This method will be called once per scheduler run
         SmartDashboard.putNumber("intake/deployGoal", m_goal.getDegrees());
         SmartDashboard.putNumber("intake/deployAngle", getAngle().getDegrees());
@@ -121,21 +94,45 @@ public class IntakePivot extends SubsystemBase {
         // SmartDashboard.putNumber("intake/rawMotorAngle",  m_pivotMotor.getPosition().getValueAsDouble());
     }
     
-    public void deploy() {
-        setAngle(DEPLOY_POSITION);
+    public Command deployCommand() {
+        return new InstantCommand(() -> setAngle(DEPLOY_POSITION))
+                .until(this::onTarget)
+                .andThen(new InstantCommand(this::stop));
     }
 
-    public void stow() {
-        setAngle(STOW_POSITION);
+    public Command stowCommand() {
+        return new InstantCommand(() -> setAngle(STOW_POSITION))
+                .until(this::onTarget)
+                .andThen(new InstantCommand(() -> setAngle(STOW_POSITION, SlotNumber.HOLD)));
     }
+
+    // public void deploy() {
+    //     setAngle(DEPLOY_POSITION);
+    // }
+
+    // public void stow() {
+    //     setAngle(STOW_POSITION);
+    // }
 
     public void setAngle(Rotation2d angle) {
+        setAngle(angle, SlotNumber.MOVE);
+    }
+
+    private void setAngle(Rotation2d angle, SlotNumber slot) {
         m_goal = angle;
-        int slot = (m_currentState == IntakePivotState.DEPLOYED) ? SlotNumber.DEPLOYED.getValue() : SlotNumber.STOWED.getValue();
-        m_pivotMotor.setControl(new MotionMagicVoltage(m_goal.getRotations() / GEAR_RATIO).withSlot(slot));
+        m_pivotMotor.setControl(new MotionMagicVoltage(m_goal.getRotations() / GEAR_RATIO).withSlot(slot.getValue()));
     }
     
     public Rotation2d getAngle(){
         return Rotation2d.fromRotations(m_pivotMotor.getPosition().getValueAsDouble() * GEAR_RATIO);
+    }
+
+    public void stop() {
+        m_pivotMotor.setControl(new VoltageOut(0));
+    }
+    
+    public boolean onTarget() {
+        Rotation2d angle = getAngle();
+        return Math.abs(angle.minus(m_goal).getDegrees()) < ANGLE_TOLERANCE_DEG;
     }
 }
