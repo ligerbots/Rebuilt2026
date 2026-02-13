@@ -45,14 +45,14 @@ public class Turret extends SubsystemBase {
     private static final int TURRET_TOOTH_COUNT = 100;
     private static final double TURRET_GEAR_RATIO =  54.0 / 12.0 * TURRET_TOOTH_COUNT / 10.0;
     
-    private static final double K_P = 2.0; 
+    private static final double K_P = 2.0;
     private static final double MAX_VEL_ROT_PER_SEC = 4.0 * TURRET_GEAR_RATIO;
     private static final double MAX_ACC_ROT_PER_SEC_SQ = 40.0 * TURRET_GEAR_RATIO;
 
     private static final double MAX_ROTATION_DEG = 170.0;
     private static final double MIN_ROTATION_DEG = -170.0;
     
-    private static final Rotation2d CRT_POSITION_OFFSET = Rotation2d.fromRotations(1.0 * ENCODER_SMALL_TOOTH_COUNT*ENCODER_LARGE_TOOTH_COUNT/TURRET_TOOTH_COUNT/2.0);
+    private static final Rotation2d CRT_POSITION_OFFSET = Rotation2d.fromRotations(1.0 * (ENCODER_SMALL_TOOTH_COUNT*ENCODER_LARGE_TOOTH_COUNT)/TURRET_TOOTH_COUNT/2.0);
     
     /** Creates a new Turret. */
     public Turret() {
