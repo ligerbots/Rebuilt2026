@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.Constants;
 
@@ -36,14 +37,16 @@ public class IntakePivot extends SubsystemBase {
 
     private static final double GEAR_RATIO = 1.0 / 24.0;
     
-    private static final Rotation2d STOW_POSITION = Rotation2d.fromDegrees(-5.0);
-    private static final Rotation2d DEPLOY_POSITION = Rotation2d.fromDegrees(75.0);
+    public static final Rotation2d STOW_POSITION = Rotation2d.fromDegrees(-5.0);
+    public static final Rotation2d DEPLOY_POSITION = Rotation2d.fromDegrees(75.0);
+
+    public static final Rotation2d PULSE_POSITION = Rotation2d.fromDegrees(10.0);
 
     private Rotation2d m_goal = Rotation2d.kZero;
 
     private final TalonFX m_pivotMotor;
     
-    private static enum SlotNumber {
+    public static enum SlotNumber {
         MOVE(0),
         HOLD(1);
 
@@ -100,7 +103,7 @@ public class IntakePivot extends SubsystemBase {
         setAngle(angle, SlotNumber.MOVE);
     }
 
-    private void setAngle(Rotation2d angle, SlotNumber slot) {
+    public void setAngle(Rotation2d angle, SlotNumber slot) {
         m_goal = angle;
         m_pivotMotor.setControl(new MotionMagicVoltage(m_goal.getRotations() / GEAR_RATIO).withSlot(slot.getValue()));
     }
@@ -119,18 +122,16 @@ public class IntakePivot extends SubsystemBase {
     }
 
     public Command runPulseCommand() {
-        return deployCommand().andThen(new WaitUntilCommand(this::onTarget)).andThen(stowCommand()).andThen(new WaitUntilCommand(this::onTarget)).repeatedly();
+        return new InstantCommand(() -> setAngle(PULSE_POSITION), this)
+            .andThen(new WaitCommand(0.5))
+            .andThen(new InstantCommand(() -> setAngle(STOW_POSITION), this))
+            .andThen(new WaitCommand(0.5))
+            .repeatedly();
     }
     
     public Command deployCommand() {
         return new InstantCommand(() -> setAngle(DEPLOY_POSITION), this)
                 .andThen(new WaitUntilCommand(this::onTarget))
                 .andThen(new InstantCommand(this::stop));
-    }
-
-    public Command stowCommand() {
-        return new InstantCommand(() -> setAngle(STOW_POSITION), this)
-                .andThen(new WaitUntilCommand(this::onTarget))
-                .andThen(new InstantCommand(() -> setAngle(STOW_POSITION, SlotNumber.HOLD)));
     }
 }
