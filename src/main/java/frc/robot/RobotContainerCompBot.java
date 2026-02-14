@@ -13,6 +13,7 @@ import java.util.Objects;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
+import com.pathplanner.lib.events.EventTrigger;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -26,9 +27,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 
 import frc.robot.commands.AutoCommandInterface;
-import frc.robot.commands.FirstBasicAuto;
-import frc.robot.commands.ShootHub;
-import frc.robot.commands.TMP_turretAngleTest;
+import frc.robot.commands.CoreAuto;
 import frc.robot.generated.TunerConstantsCompBot;
 import frc.robot.subsystems.AprilTagVision;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
@@ -65,6 +64,8 @@ public class RobotContainerCompBot extends RobotContainer {
     private final Turret m_turret = new Turret();
 
     private final SendableChooser<String> m_chosenFieldSide = new SendableChooser<>();
+    private final SendableChooser<String[]> m_chosenAutoPaths = new SendableChooser<>();
+
     private int m_autoSelectionCode; 
     
     public RobotContainerCompBot() {
@@ -86,10 +87,44 @@ public class RobotContainerCompBot extends RobotContainer {
     }
 
     private void configureAutos() {
+
+        m_chosenAutoPaths.setDefaultOption("First Basic Auto", new String[] {
+            "Start Bump to Fuel Begin",
+            "Fuel Begin to Fuel End With Events",
+            "Fuel End to Bump Finish With Events",
+            "Bump Finish to Climb A"
+        });
+
+        m_chosenAutoPaths.addOption("Depot Simple", new String[] {
+            "Depot Simple V1"
+        });
+
+        m_chosenAutoPaths.addOption("Depot Full Pass", new String[] {
+            "Depot Full Pass Disrupt V2"
+        });
+        
+        m_chosenAutoPaths.addOption("Drive Straight to Climb", new String[] {
+            "Start Bump to Climb A"
+        });
+        
+        SmartDashboard.putData("Auto Choice", m_chosenAutoPaths);
+
         m_chosenFieldSide.setDefaultOption("Depot Side", "Depot Side");
         m_chosenFieldSide.addOption("Outpost Side", "Outpost Side");
-
         SmartDashboard.putData("Field Side", m_chosenFieldSide);
+
+        SmartDashboard.putBoolean("autoStatus/runningIntake", false);
+        SmartDashboard.putBoolean("autoStatus/runningShooter", false);
+
+        configureAutoEventTriggers();
+    }
+
+    private void configureAutoEventTriggers() {
+        new EventTrigger("Run Intake").onTrue(new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningIntake", true)));
+        new EventTrigger("Stop Intake").onTrue(new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningIntake", false)));
+
+        new EventTrigger("Run Shooter").onTrue(getStartShootCommand().alongWith(new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningShooter", true))));
+        new EventTrigger("Stop Shooter").onTrue(getStopShootCommand().alongWith(new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningShooter", false))));
     }
 
     private void configureBindings() {
@@ -137,7 +172,7 @@ public class RobotContainerCompBot extends RobotContainer {
         SmartDashboard.putNumber("turret/testAngle", 0.0);
         m_driverController.a().whileTrue(new InstantCommand(() -> m_turret.setAngle(Rotation2d.fromDegrees(SmartDashboard.getNumber("turret/testAngle", 0.0)))));
 
-        m_driverController.x().whileTrue(new TMP_turretAngleTest(m_drivetrain::getPose, m_turret));
+        // m_driverController.x().whileTrue(new TMP_turretAngleTest(m_drivetrain::getPose, m_turret));
         // m_driverController.y().onTrue(
         //     new InstantCommand(() -> m_shooter.getFlywheel().setRPM(SmartDashboard.getNumber("flywheel/testRPM", 0.0)))
         //     .alongWith(
@@ -152,23 +187,41 @@ public class RobotContainerCompBot extends RobotContainer {
     }
 
     // Determines wether we should start shooting at the hub because we are in our zone.
-    private boolean shouldShootHub() {
-        boolean onRedShouldHub = FieldConstants.isRedAlliance() && (m_drivetrain.getPose().getX() >= FieldConstants.FIELD_WIDTH - FieldConstants.SHOOT_HUB_LINE_BLUE);
-        boolean onBlueShouldHub = !FieldConstants.isRedAlliance() && (m_drivetrain.getPose().getX() <= FieldConstants.SHOOT_HUB_LINE_BLUE);
-        return onBlueShouldHub || onRedShouldHub;
-    }
+    // private boolean shouldShootHub() {
+    //     boolean onRedShouldHub = FieldConstants.isRedAlliance() && (m_drivetrain.getPose().getX() >= FieldConstants.FIELD_WIDTH - FieldConstants.SHOOT_HUB_LINE_BLUE);
+    //     boolean onBlueShouldHub = !FieldConstants.isRedAlliance() && (m_drivetrain.getPose().getX() <= FieldConstants.SHOOT_HUB_LINE_BLUE);
+    //     return onBlueShouldHub || onRedShouldHub;
+    //     m_driverController.y().onTrue(getStartShootCommand());
+
+    //     m_driverController.x().onTrue(getStopShootCommand());
+    // }
     
+    private Command getStartShootCommand() {
+            return new InstantCommand(() -> m_shooter.getFlywheel().setRPM(SmartDashboard.getNumber("flywheel/testRPM", 0.0)))
+            .alongWith(
+                new InstantCommand(() -> m_shooterFeeder.setRPM(SmartDashboard.getNumber("shooterFeeder/testRPM", 0.0))),
+                new InstantCommand(() -> m_shooter.getHood().setAngle(Rotation2d.fromDegrees(SmartDashboard.getNumber("hood/testAngle", 0.0))))
+            );
+    }
+
+    private Command getStopShootCommand() {
+            return new InstantCommand(m_shooter::stop).alongWith(new InstantCommand(m_shooterFeeder::stop));
+    }
+
     public CommandSwerveDrivetrain getDriveTrain() {
         return m_drivetrain;
     }
 
     public Command getAutonomousCommand() {
-        int currentAutoSelectionCode = Objects.hash(m_chosenFieldSide.getSelected(),
+        int currentAutoSelectionCode = Objects.hash(
+            m_chosenAutoPaths.getSelected(),
+            m_chosenFieldSide.getSelected(),
             DriverStation.getAlliance());
     
         // Only call constructor if the auto selection inputs have changed
         if (m_autoSelectionCode != currentAutoSelectionCode) {
-            m_autoCommand = new FirstBasicAuto(m_drivetrain,
+            m_autoSelectionCode = currentAutoSelectionCode;
+            m_autoCommand = new CoreAuto(m_chosenAutoPaths.getSelected(), m_drivetrain,
                     m_chosenFieldSide.getSelected().equals("Depot Side"));
         }
         return m_autoCommand;
