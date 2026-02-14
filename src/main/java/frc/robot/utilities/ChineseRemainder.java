@@ -3,6 +3,7 @@ package frc.robot.utilities;
 import java.util.Random;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  * Implements Chinese Remainder Theorem to determine absolute encoder positions from two relative encoders
@@ -22,10 +23,11 @@ public class ChineseRemainder {
      * @param bigGearTeeth Number of teeth on the large gear
      * @return Absolute angle of the large gear
      */
-    public static Rotation2d findAngle(Rotation2d rotationsEnc1, int totalTeeth1, Rotation2d rotationsEnc2, int totalTeeth2, int bigGearTeeth) {
+    public static Rotation2d findAngle(double rotationsEnc1, int totalTeeth1, double rotationsEnc2, int totalTeeth2, int bigGearTeeth) {
         // Convert encoder rotations to teeth count for easier calculation
-        double rotatedTeeth1 = rotationsEnc1.getRotations() * totalTeeth1;
-        double rotatedTeeth2 = rotationsEnc2.getRotations() * totalTeeth2;
+
+        double rotatedTeeth1 = wrapRotation(rotationsEnc1) * totalTeeth1;
+        double rotatedTeeth2 = wrapRotation(rotationsEnc2) * totalTeeth2;
 
         double bestN1 = -1;
         double bestError1 = Double.MAX_VALUE;
@@ -74,6 +76,32 @@ public class ChineseRemainder {
     }
 
     /**
+     * SET TURRET TO DESIRED 0 POSITION, THEN CALL THIS TO LOG OFFSETS TO SMARTDASHBOARD
+     * @param bigNTeeth
+     * @param gear1teeth
+     * @param gear2teeth
+     * @param gear1rotations
+     * @param gear2rotations
+    */
+    public static void smartDashboardLogABSOffsets(int gear1teeth, int gear2teeth, double gear1rotations, double gear2rotations) {
+        // TODO: Make sure abs encoders wrap in other logic bc they may be big
+        double middleTeeth = (gear1teeth * gear2teeth) / 2;
+
+        double gear1remainder = middleTeeth % gear1teeth;
+        double gear1offsetToApply = gear1remainder / gear1teeth - gear1rotations;
+        SmartDashboard.putNumber("CRT/abs1OffsetRotation", gear1offsetToApply);
+
+        double gear2remainder = middleTeeth % gear2teeth;
+        double gear2offsetToApply = gear2remainder / gear2teeth - gear2rotations;
+        SmartDashboard.putNumber("CRT/abs2OffsetRotation", gear2offsetToApply);
+    }
+
+    private static double wrapRotation(double rot) {
+        while (rot > 1.0) rot -= 1.0;
+        while (rot < 0.0) rot += 1.0;
+        return rot;
+    }
+    /**
      * Runs automated tests to verify the Chinese Remainder Theorem implementation.
      */
     public static void runTests() {
@@ -120,8 +148,8 @@ public class ChineseRemainder {
         
         // Reconstruct angle from simulated encoder readings
         Rotation2d teeth = ChineseRemainder.findAngle(
-                Rotation2d.fromRotations(gear1remainder / gear1teeth), gear1teeth,
-                Rotation2d.fromRotations(gear2remainder / gear2teeth), gear2teeth, bigNTeeth);
+                gear1remainder / gear1teeth, gear1teeth,
+                gear2remainder / gear2teeth, gear2teeth, bigNTeeth);
 
         System.out.println("Testing: " + bigNAngle.getDegrees() + " degrees with (" + gear1teeth + ","
                 + gear2teeth + "):   result = " + teeth.getDegrees() + " degrees");
