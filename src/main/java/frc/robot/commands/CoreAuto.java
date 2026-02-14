@@ -1,21 +1,11 @@
 
 package frc.robot.commands;
 
-import java.io.IOException;
-
-import org.json.simple.parser.ParseException;
-
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
-import com.pathplanner.lib.util.FileVersionException;
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import edu.wpi.first.wpilibj2.command.PrintCommand;
 import frc.robot.FieldConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 
@@ -28,8 +18,18 @@ public class CoreAuto extends AutoCommandInterface {
             4.0, 2.0,
             Math.toRadians(540), Math.toRadians(720));
 
+    public static CoreAuto createCoreAuto(CommandSwerveDrivetrain driveTrain, boolean isDepotSide) {
+        String[] pathNames = {
+                "Start Bump to Fuel Begin",
+                "Fuel Begin to Fuel End",
+                "Fuel End to Bump Finish",
+                "Bump Finish to Climb A"
+        };
+        return new CoreAuto(pathNames, driveTrain, isDepotSide);
+    }
+    
     /** Creates a new CoreAuto. */
-    public CoreAuto(String[] pathFiles, CommandSwerveDrivetrain driveTrain, boolean isDepotSide) {
+    private CoreAuto(String[] pathFiles, CommandSwerveDrivetrain driveTrain, boolean isDepotSide) {
 
         m_driveTrain = driveTrain;
 
