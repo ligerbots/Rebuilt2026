@@ -18,7 +18,7 @@ import edu.wpi.first.wpilibj.Filesystem;
  */
 public class ShooterLookupTable { 
   private static final String LOOKUP_TABLE_DIRECTORY = "lookupTables/";
-  private static final String LOOKUP_TABLE_EXTENSION = ".lookupTable";
+  private static final String LOOKUP_TABLE_EXTENSION = ".csv";
 
   private final TreeMap<Double, ShootValue> m_lookupTable;
 

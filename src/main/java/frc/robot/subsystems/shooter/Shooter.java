@@ -25,8 +25,8 @@ public class Shooter extends SubsystemBase {
     private ShooterState m_currentState = ShooterState.IDLE;
     private ShotType m_shootType = ShotType.HUB_SHOT;
     
-    private static final String HUB_LOOKUP_TABLE_FILE = "hub_shooting_lookup_table.csv"; // TODO: Update with values
-    private static final String SHUTTLE_LOOKUP_TABLE_FILE = "shuttle_shooting_lookup_table.csv"; // TODO: Update with values
+    private static final String HUB_LOOKUP_TABLE_FILE = "hub_shooting_lookup_table"; // TODO: Update with values
+    private static final String SHUTTLE_LOOKUP_TABLE_FILE = "shuttle_shooting_lookup_table"; // TODO: Update with values
     
     private final ShooterLookupTable m_hubShooterLookupTable;
     private final ShooterLookupTable m_shuttleShooterLookupTable;
