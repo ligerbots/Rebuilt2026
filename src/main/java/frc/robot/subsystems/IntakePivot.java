@@ -92,7 +92,6 @@ public class IntakePivot extends SubsystemBase {
         SmartDashboard.putNumber("intake/supplyCurrent", m_pivotMotor.getSupplyCurrent().getValueAsDouble());
         SmartDashboard.putNumber("intake/statorCurrent", m_pivotMotor.getStatorCurrent().getValueAsDouble());
         SmartDashboard.putBoolean("intake/onTarget", onTarget());
-
         // SmartDashboard.putNumber("intake/rawMotorAngle",  m_pivotMotor.getPosition().getValueAsDouble());
     }
     
@@ -107,14 +106,6 @@ public class IntakePivot extends SubsystemBase {
                 .andThen(new WaitUntilCommand(this::onTarget))
                 .andThen(new InstantCommand(() -> setAngle(STOW_POSITION, SlotNumber.HOLD)));
     }
-
-    // public void deploy() {
-    //     setAngle(DEPLOY_POSITION);
-    // }
-
-    // public void stow() {
-    //     setAngle(STOW_POSITION);
-    // }
 
     public void setAngle(Rotation2d angle) {
         setAngle(angle, SlotNumber.MOVE);
