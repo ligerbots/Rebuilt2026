@@ -33,6 +33,11 @@ public class Intake extends SubsystemBase {
                 .andThen(new InstantCommand(m_intakeRoller::stop, m_intakeRoller));
   }
 
+   public Command deployAndRollCommand() {
+    return m_intakePivot.deployCommand()
+      .alongWith(this.runRollers());
+  }
+
   public Command deployCommand() {
     return m_intakePivot.deployCommand();
   }
