@@ -31,6 +31,10 @@ public class Intake extends SubsystemBase {
         .andThen(m_intakePivot.stowCommand());
   }
 
+  public Command deployIntakeCommand() {
+    return m_intakePivot.deployCommand();
+  }
+
   public IntakeRoller getIntakeRoller() {
     return m_intakeRoller;
   }
