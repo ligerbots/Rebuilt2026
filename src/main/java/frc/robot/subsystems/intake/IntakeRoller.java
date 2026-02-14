@@ -4,7 +4,7 @@
 
 /**integrate motors and tell them to run, when button is pressed, then brake!! */
 
-package frc.robot.subsystems;
+package frc.robot.subsystems.intake;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;

@@ -35,11 +35,11 @@ import frc.robot.generated.TunerConstantsCompBot;
 import frc.robot.subsystems.AprilTagVision;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Hopper;
-import frc.robot.subsystems.IntakePivot;
-import frc.robot.subsystems.IntakeRoller;
-import frc.robot.subsystems.Shooter;
-import frc.robot.subsystems.ShooterFeeder;
-import frc.robot.subsystems.Turret;
+import frc.robot.subsystems.intake.IntakePivot;
+import frc.robot.subsystems.intake.IntakeRoller;
+import frc.robot.subsystems.shooter.Shooter;
+import frc.robot.subsystems.shooter.ShooterFeeder;
+import frc.robot.subsystems.shooter.Turret;
 
 public class RobotContainerCompBot extends RobotContainer {
     private static final double SPEED_LIMIT = 1.0;

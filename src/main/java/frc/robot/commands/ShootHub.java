@@ -21,9 +21,9 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.FieldConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.subsystems.Shooter;
-import frc.robot.subsystems.ShooterFeeder;
-import frc.robot.subsystems.Turret;
+import frc.robot.subsystems.shooter.Shooter;
+import frc.robot.subsystems.shooter.ShooterFeeder;
+import frc.robot.subsystems.shooter.Turret;
 
 /**
  * Command that coordinates shooting at the hub target.

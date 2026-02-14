@@ -4,7 +4,7 @@
 
 /**integrate motors and tell them to run, when button is pressed, then brake!! */
 
-package frc.robot.subsystems;
+package frc.robot.subsystems.shooter;
 
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
