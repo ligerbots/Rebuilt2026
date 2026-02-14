@@ -12,7 +12,7 @@
         "y": 2.829102272727273
       },
       "isLocked": false,
-      "linkedName": "Start Bump"
+      "linkedName": null
     },
     {
       "anchor": {
@@ -25,13 +25,20 @@
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Fuel Begin"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],
   "constraintZones": [],
   "pointTowardsZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "test Event",
+      "waypointRelativePos": 0.21066846725185676,
+      "endWaypointRelativePos": 0.7616475354490206,
+      "command": null
+    }
+  ],
   "globalConstraints": {
     "maxVelocity": 3.0,
     "maxAcceleration": 3.0,
@@ -42,13 +49,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 64.44003482817617
+    "rotation": 81.93664998012345
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 46.847610265994525
+    "rotation": -18.84508900970018
   },
   "useDefaultConstraints": true
 }
