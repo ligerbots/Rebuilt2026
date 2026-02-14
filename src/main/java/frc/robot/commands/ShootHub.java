@@ -13,6 +13,9 @@
 
 package frc.robot.commands;
 
+import java.util.function.Supplier;
+
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -31,7 +34,7 @@ public class ShootHub extends Command {
   private final Shooter m_shooter;
   private final Turret m_turret;
   private final ShooterFeeder m_feeder;
-  private final CommandSwerveDrivetrain m_drivetrain;
+  private final Supplier<Pose2d> m_drivetrainPoseSupplier;
 
   /**
    * Constructs a ShootHub command.
@@ -41,11 +44,11 @@ public class ShootHub extends Command {
    * @param feeder The feeder subsystem for feeding game pieces
    * @param drivetrain
    */
-  public ShootHub(Shooter shooter, Turret turret, ShooterFeeder feeder, CommandSwerveDrivetrain drivetrain) {
+  public ShootHub(Shooter shooter, Turret turret, ShooterFeeder feeder, Supplier<Pose2d> drivetrainPoseSupplier) {
     m_turret = turret;
     m_shooter = shooter;
     m_feeder = feeder;
-    m_drivetrain = drivetrain;
+    m_drivetrainPoseSupplier = drivetrainPoseSupplier;
 
     addRequirements(shooter, turret, feeder);
   }
@@ -58,7 +61,7 @@ public class ShootHub extends Command {
 
   @Override
   public void execute() {
-    Translation2d translationToHub = Turret.getTranslationToGoal(m_drivetrain.getPose(), FieldConstants.flipTranslation(FieldConstants.HUB_POSITION_BLUE));
+    Translation2d translationToHub = Turret.getTranslationToGoal(m_drivetrainPoseSupplier.get(), FieldConstants.flipTranslation(FieldConstants.HUB_POSITION_BLUE));
 
     // Calculate distance and angle to target, send to shooter and turret subsystems
     double distanceToTarget = translationToHub.getNorm();

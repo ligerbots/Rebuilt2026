@@ -17,6 +17,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.Constants;
@@ -127,5 +128,9 @@ public class IntakePivot extends SubsystemBase {
     public boolean onTarget() {
         Rotation2d angle = getAngle();
         return Math.abs(angle.getDegrees() - m_goal.getDegrees()) < ANGLE_TOLERANCE_DEG;
+    }
+
+    public Command runPulse() {
+        return deployCommand().andThen(new WaitUntilCommand(this::onTarget)).andThen(stowCommand()).andThen(new WaitUntilCommand(this::onTarget)).repeatedly();
     }
 }

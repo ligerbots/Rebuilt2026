@@ -6,6 +6,8 @@
 
 package frc.robot.subsystems;
 
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.VelocityVoltage;
@@ -82,5 +84,9 @@ public class Hopper extends SubsystemBase {
         final VelocityVoltage m_request = new VelocityVoltage(rps).withFeedForward(K_FF * rpm);
         
         m_motor.setControl(m_request);
+    }
+
+    public Command runPulse() {
+        return new RunCommand(() -> setVoltage(RUN_VOLTAGE)).withTimeout(1).andThen(() -> setVoltage(0)).repeatedly();
     }
 }
