@@ -54,8 +54,8 @@ public class Robot extends TimedRobot {
         } else if (serialNum.equals(COMPBOT_SERIAL_NUMBER)) {
             m_robotType = RobotType.COMPBOT;
         } else {
-            // default to the Test robot unless we're running in simulation
-            m_robotType = isSimulation() ? RobotType.COMPBOT : RobotType.TESTBOT;
+            // default to the Test robot for now
+            m_robotType = RobotType.TESTBOT;
         }
         SmartDashboard.putString("robotType", m_robotType.toString());
 
@@ -77,9 +77,6 @@ public class Robot extends TimedRobot {
     public void robotPeriodic() {
         m_timeAndJoystickReplay.update();
         CommandScheduler.getInstance().run(); 
-
-        // poll this for our SmartDashboard turret test button
-        SmartDashboard.getBoolean("TurretAngleTest", false);
     }
 
     @Override
