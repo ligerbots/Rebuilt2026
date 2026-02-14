@@ -1,5 +1,5 @@
 
-package frc.robot.commands;
+package frc.robot.commands.autoCommands;
 
 import java.io.IOException;
 

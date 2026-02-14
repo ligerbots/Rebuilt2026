@@ -23,9 +23,9 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 
-import frc.robot.commands.AutoCommandInterface;
-import frc.robot.commands.CoreAuto;
-import frc.robot.commands.FirstBasicAuto;
+import frc.robot.commands.autoCommands.AutoCommandInterface;
+import frc.robot.commands.autoCommands.CoreAuto;
+import frc.robot.commands.autoCommands.FirstBasicAuto;
 import frc.robot.generated.TunerConstantsTestBot;
 import frc.robot.subsystems.AprilTagVision;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
