@@ -96,18 +96,6 @@ public class IntakePivot extends SubsystemBase {
         // SmartDashboard.putNumber("intake/rawMotorAngle",  m_pivotMotor.getPosition().getValueAsDouble());
     }
     
-    public Command deployCommand() {
-        return new InstantCommand(() -> setAngle(DEPLOY_POSITION), this)
-                .andThen(new WaitUntilCommand(this::onTarget))
-                .andThen(new InstantCommand(this::stop));
-    }
-
-    public Command stowCommand() {
-        return new InstantCommand(() -> setAngle(STOW_POSITION), this)
-                .andThen(new WaitUntilCommand(this::onTarget))
-                .andThen(new InstantCommand(() -> setAngle(STOW_POSITION, SlotNumber.HOLD)));
-    }
-
     public void setAngle(Rotation2d angle) {
         setAngle(angle, SlotNumber.MOVE);
     }
@@ -130,7 +118,19 @@ public class IntakePivot extends SubsystemBase {
         return Math.abs(angle.getDegrees() - m_goal.getDegrees()) < ANGLE_TOLERANCE_DEG;
     }
 
-    public Command runPulse() {
+    public Command runPulseCommand() {
         return deployCommand().andThen(new WaitUntilCommand(this::onTarget)).andThen(stowCommand()).andThen(new WaitUntilCommand(this::onTarget)).repeatedly();
+    }
+    
+    public Command deployCommand() {
+        return new InstantCommand(() -> setAngle(DEPLOY_POSITION), this)
+                .andThen(new WaitUntilCommand(this::onTarget))
+                .andThen(new InstantCommand(this::stop));
+    }
+
+    public Command stowCommand() {
+        return new InstantCommand(() -> setAngle(STOW_POSITION), this)
+                .andThen(new WaitUntilCommand(this::onTarget))
+                .andThen(new InstantCommand(() -> setAngle(STOW_POSITION, SlotNumber.HOLD)));
     }
 }
