@@ -24,7 +24,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
-
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.AutoCommandInterface;
 import frc.robot.commands.FirstBasicAuto;
 import frc.robot.commands.ShootHub;
@@ -137,7 +137,12 @@ public class RobotContainerCompBot extends RobotContainer {
         SmartDashboard.putNumber("turret/testAngle", 0.0);
         m_driverController.a().whileTrue(new InstantCommand(() -> m_turret.setAngle(Rotation2d.fromDegrees(SmartDashboard.getNumber("turret/testAngle", 0.0)))));
 
-        m_driverController.x().whileTrue(new TMP_turretAngleTest(m_drivetrain::getPose, m_turret));
+        Command turretAngleTest = new TMP_turretAngleTest(m_drivetrain::getPose, m_turret);
+        m_driverController.x().whileTrue(turretAngleTest);
+        SmartDashboard.putBoolean("TurretAngleTest", false);
+        Trigger turretAngleTestTrigger = new Trigger(() -> SmartDashboard.getBoolean("TurretAngleTest", false));
+        turretAngleTestTrigger.whileTrue(turretAngleTest);
+
         // m_driverController.y().onTrue(
         //     new InstantCommand(() -> m_shooter.getFlywheel().setRPM(SmartDashboard.getNumber("flywheel/testRPM", 0.0)))
         //     .alongWith(
