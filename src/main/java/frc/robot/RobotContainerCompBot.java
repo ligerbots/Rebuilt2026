@@ -26,9 +26,10 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
-
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.AutoCommandInterface;
 import frc.robot.commands.CoreAuto;
+import frc.robot.commands.TMP_turretAngleTest;
 import frc.robot.generated.TunerConstantsCompBot;
 import frc.robot.subsystems.AprilTagVision;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
@@ -209,7 +210,20 @@ public class RobotContainerCompBot extends RobotContainer {
         // SmartDashboard.putNumber("turret/testAngle", 0.0);
         // m_driverController.a().onTrue(new InstantCommand(() -> m_turret.setAngle(Rotation2d.fromDegrees(SmartDashboard.getNumber("turret/testAngle", 0.0)))));
 
-        // m_driverController.x().whileTrue(new TMP_turretAngleTest(m_drivetrain::getPose, m_turret));
+        Command turretAngleTest = new TMP_turretAngleTest(m_drivetrain::getPose, m_turret);
+        m_driverController.start().whileTrue(turretAngleTest);
+        SmartDashboard.putBoolean("TurretAngleTest", false);
+        Trigger turretAngleTestTrigger = new Trigger(() -> SmartDashboard.getBoolean("TurretAngleTest", false));
+        turretAngleTestTrigger.whileTrue(turretAngleTest);
+
+        // m_driverController.y().onTrue(
+        //     new InstantCommand(() -> m_shooter.getFlywheel().setRPM(SmartDashboard.getNumber("flywheel/testRPM", 0.0)))
+        //     .alongWith(
+        //         new InstantCommand(() -> m_shooterFeeder.setRPM(SmartDashboard.getNumber("shooterFeeder/testRPM", 0.0))),
+        //         new InstantCommand(() -> m_shooter.getHood().setAngle(Rotation2d.fromDegrees(SmartDashboard.getNumber("hood/testAngle", 0.0))))
+        //     )
+        // );
+        // m_driverController.x().onTrue(new InstantCommand(m_shooter::stop).alongWith(new InstantCommand(m_shooterFeeder::stop)));
         
         // TODO: Enable me once shooter tabels are ready
         // new Trigger(this::shouldShootHub).whileTrue(new ShootHub(m_shooter, m_turret, m_shooterFeeder, m_drivetrain));

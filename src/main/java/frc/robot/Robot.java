@@ -54,8 +54,8 @@ public class Robot extends TimedRobot {
         } else if (serialNum.equals(COMPBOT_SERIAL_NUMBER)) {
             m_robotType = RobotType.COMPBOT;
         } else {
-            // default to the Test robot for now
-            m_robotType = RobotType.COMPBOT;
+            // default to the Test robot unless we're running in simulation
+            m_robotType = isSimulation() ? RobotType.COMPBOT : RobotType.TESTBOT;
         }
         SmartDashboard.putString("robotType", m_robotType.toString());
 
