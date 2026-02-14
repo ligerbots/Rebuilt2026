@@ -7,6 +7,7 @@ package frc.robot.subsystems.intake;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 
 public class Intake extends SubsystemBase {
 
@@ -27,11 +28,17 @@ public class Intake extends SubsystemBase {
   public Command retractIntakeCommand() {
     return new InstantCommand(m_intakeRoller::intake, m_intakeRoller)
         .withTimeout(0.3)
-        .andThen(m_intakePivot.stowCommand());
+        .andThen(m_intakePivot.stowCommand())
+        .andThen(new WaitUntilCommand(m_intakePivot::onTarget))
+        .andThen(m_intakeRoller::stop);
   }
 
   public Command deployIntakeCommand() {
     return m_intakePivot.deployCommand();
+  }
+
+  public Command runIntakeRollers() {
+    return new InstantCommand(m_intakeRoller::intake, m_intakeRoller);
   }
 
   public IntakeRoller getIntakeRoller() {
