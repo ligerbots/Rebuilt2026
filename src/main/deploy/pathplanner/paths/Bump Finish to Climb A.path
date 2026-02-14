@@ -12,7 +12,7 @@
         "y": 4.655801961437905
       },
       "isLocked": false,
-      "linkedName": "Bump Finish"
+      "linkedName": null
     },
     {
       "anchor": {
@@ -48,7 +48,7 @@
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -171.01521906134323
+    "rotation": 121.1543054303004
   },
   "useDefaultConstraints": true
 }
