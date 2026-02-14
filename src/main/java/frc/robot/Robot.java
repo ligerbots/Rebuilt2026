@@ -77,9 +77,6 @@ public class Robot extends TimedRobot {
     public void robotPeriodic() {
         m_timeAndJoystickReplay.update();
         CommandScheduler.getInstance().run(); 
-
-        // poll this for our SmartDashboard turret test button
-        SmartDashboard.getBoolean("TurretAngleTest", false);
     }
 
     @Override

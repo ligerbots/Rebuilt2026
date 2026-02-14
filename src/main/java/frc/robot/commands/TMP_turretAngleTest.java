@@ -25,6 +25,8 @@ public class TMP_turretAngleTest extends Command {
     // Use addRequirements() here to declare subsystem dependencies.
     m_robotPose = robotPose;
     m_Turret = turret;
+
+    SmartDashboard.getBoolean("TurretAngleTest", false);
   }
 
   // Called when the command is initially scheduled.
