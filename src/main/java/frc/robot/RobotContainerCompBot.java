@@ -8,6 +8,7 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
+import java.lang.reflect.Field;
 import java.util.Objects;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
@@ -169,12 +170,31 @@ public class RobotContainerCompBot extends RobotContainer {
         // m_driverController.a().onTrue(new InstantCommand(() -> m_shooterFeeder.setRPM(SmartDashboard.getNumber("shooterFeeder/testRPM", 0.0))));
 
         SmartDashboard.putNumber("turret/testAngle", 0.0);
-        m_driverController.a().onTrue(new InstantCommand(() -> m_turret.setAngle(Rotation2d.fromDegrees(SmartDashboard.getNumber("turret/testAngle", 0.0)))));
+        m_driverController.a().whileTrue(new InstantCommand(() -> m_turret.setAngle(Rotation2d.fromDegrees(SmartDashboard.getNumber("turret/testAngle", 0.0)))));
 
-        m_driverController.y().onTrue(getStartShootCommand());
-
-        m_driverController.x().onTrue(getStopShootCommand());
+        // m_driverController.x().whileTrue(new TMP_turretAngleTest(m_drivetrain::getPose, m_turret));
+        // m_driverController.y().onTrue(
+        //     new InstantCommand(() -> m_shooter.getFlywheel().setRPM(SmartDashboard.getNumber("flywheel/testRPM", 0.0)))
+        //     .alongWith(
+        //         new InstantCommand(() -> m_shooterFeeder.setRPM(SmartDashboard.getNumber("shooterFeeder/testRPM", 0.0))),
+        //         new InstantCommand(() -> m_shooter.getHood().setAngle(Rotation2d.fromDegrees(SmartDashboard.getNumber("hood/testAngle", 0.0))))
+        //     )
+        // );
+        // m_driverController.x().onTrue(new InstantCommand(m_shooter::stop).alongWith(new InstantCommand(m_shooterFeeder::stop)));
+        
+        // TODO: Enable me once shooter tabels are ready
+        // new Trigger(this::shouldShootHub).whileTrue(new ShootHub(m_shooter, m_turret, m_shooterFeeder, m_drivetrain));
     }
+
+    // Determines wether we should start shooting at the hub because we are in our zone.
+    // private boolean shouldShootHub() {
+    //     boolean onRedShouldHub = FieldConstants.isRedAlliance() && (m_drivetrain.getPose().getX() >= FieldConstants.FIELD_WIDTH - FieldConstants.SHOOT_HUB_LINE_BLUE);
+    //     boolean onBlueShouldHub = !FieldConstants.isRedAlliance() && (m_drivetrain.getPose().getX() <= FieldConstants.SHOOT_HUB_LINE_BLUE);
+    //     return onBlueShouldHub || onRedShouldHub;
+    //     m_driverController.y().onTrue(getStartShootCommand());
+
+    //     m_driverController.x().onTrue(getStopShootCommand());
+    // }
     
     private Command getStartShootCommand() {
             return new InstantCommand(() -> m_shooter.getFlywheel().setRPM(SmartDashboard.getNumber("flywheel/testRPM", 0.0)))
