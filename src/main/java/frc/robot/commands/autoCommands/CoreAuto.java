@@ -18,14 +18,8 @@ public class CoreAuto extends AutoCommandInterface {
             4.0, 2.0,
             Math.toRadians(540), Math.toRadians(720));
 
-    public static CoreAuto createCoreAuto(CommandSwerveDrivetrain driveTrain, boolean isDepotSide) {
-        String[] pathNames = {
-                "Start Bump to Fuel Begin",
-                "Fuel Begin to Fuel End",
-                "Fuel End to Bump Finish",
-                "Bump Finish to Climb A"
-        };
-        return new CoreAuto(pathNames, driveTrain, isDepotSide);
+    public static CoreAuto getInstance(String[] pathFiles, CommandSwerveDrivetrain driveTrain, boolean isDepotSide) {
+        return new CoreAuto(pathFiles, driveTrain, isDepotSide);
     }
     
     /** Creates a new CoreAuto. */

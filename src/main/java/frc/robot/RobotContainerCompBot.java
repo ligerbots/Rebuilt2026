@@ -8,7 +8,6 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
-import java.lang.reflect.Field;
 import java.util.Objects;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
@@ -29,15 +28,12 @@ import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.autoCommands.AutoCommandInterface;
 import frc.robot.commands.autoCommands.CoreAuto;
-import frc.robot.commands.ShootHub;
 import frc.robot.commands.TMP_turretAngleTest;
 import frc.robot.generated.TunerConstantsCompBot;
 import frc.robot.subsystems.AprilTagVision;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Hopper;
 import frc.robot.subsystems.intake.Intake;
-import frc.robot.subsystems.intake.IntakePivot;
-import frc.robot.subsystems.intake.IntakeRoller;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.ShooterFeeder;
 import frc.robot.subsystems.shooter.Turret;
@@ -130,8 +126,8 @@ public class RobotContainerCompBot extends RobotContainer {
     }
 
     private void configureAutoEventTriggers() {
-        new EventTrigger("Run Intake").onTrue(new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningIntake", true)));
-        new EventTrigger("Stop Intake").onTrue(new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningIntake", false)));
+        new EventTrigger("Run Intake").onTrue(m_intake.deployIntakeCommand().andThen(new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningIntake", true))));
+        new EventTrigger("Stop Intake").onTrue(m_intake.retractIntakeCommand().andThen(new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningIntake", false))));
 
         new EventTrigger("Run Shooter").onTrue(getTestingStartShootCommand().alongWith(new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningShooter", true))));
         new EventTrigger("Stop Shooter").onTrue(getTestingStopShootCommand().alongWith(new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningShooter", false))));
@@ -265,7 +261,7 @@ public class RobotContainerCompBot extends RobotContainer {
         // Only call constructor if the auto selection inputs have changed
         if (m_autoSelectionCode != currentAutoSelectionCode) {
             m_autoSelectionCode = currentAutoSelectionCode;
-            m_autoCommand = new CoreAuto(m_chosenAutoPaths.getSelected(), m_drivetrain,
+            m_autoCommand = CoreAuto.getInstance(m_chosenAutoPaths.getSelected(), m_drivetrain,
                     m_chosenFieldSide.getSelected().equals("Depot Side"));
         }
         return m_autoCommand;

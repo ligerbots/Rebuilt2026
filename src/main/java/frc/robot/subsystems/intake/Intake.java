@@ -7,7 +7,6 @@ package frc.robot.subsystems.intake;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 
 public class Intake extends SubsystemBase {
 
