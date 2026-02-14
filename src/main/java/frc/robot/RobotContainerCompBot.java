@@ -228,7 +228,7 @@ public class RobotContainerCompBot extends RobotContainer {
 
     // Determines wether we should start shooting at the hub because we are in our zone.
     // private boolean shouldShootHub() {
-    //     boolean onRedShouldHub = FieldConstants.isRedAlliance() && (m_drivetrain.getPose().getX() >= FieldConstants.FIELD_WIDTH - FieldConstants.SHOOT_HUB_LINE_BLUE);
+    //     boolean onRedShouldHub = FieldConstants.isRedAlliance() && (m_drivetrain.getPose().getX() >= FieldConstants.FIELD_LENGTH - FieldConstants.SHOOT_HUB_LINE_BLUE);
     //     boolean onBlueShouldHub = !FieldConstants.isRedAlliance() && (m_drivetrain.getPose().getX() <= FieldConstants.SHOOT_HUB_LINE_BLUE);
     //     return onBlueShouldHub || onRedShouldHub;
     //     // m_driverController.y().onTrue(getTestingStartShootCommand());
