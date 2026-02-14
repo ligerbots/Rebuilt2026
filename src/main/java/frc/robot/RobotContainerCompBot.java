@@ -29,6 +29,7 @@ import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.AutoCommandInterface;
 import frc.robot.commands.CoreAuto;
+import frc.robot.commands.TMP_turretAngleTest;
 import frc.robot.generated.TunerConstantsCompBot;
 import frc.robot.subsystems.AprilTagVision;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
@@ -210,7 +211,7 @@ public class RobotContainerCompBot extends RobotContainer {
         // m_driverController.a().onTrue(new InstantCommand(() -> m_turret.setAngle(Rotation2d.fromDegrees(SmartDashboard.getNumber("turret/testAngle", 0.0)))));
 
         Command turretAngleTest = new TMP_turretAngleTest(m_drivetrain::getPose, m_turret);
-        m_driverController.x().whileTrue(turretAngleTest);
+        m_driverController.start().whileTrue(turretAngleTest);
         SmartDashboard.putBoolean("TurretAngleTest", false);
         Trigger turretAngleTestTrigger = new Trigger(() -> SmartDashboard.getBoolean("TurretAngleTest", false));
         turretAngleTestTrigger.whileTrue(turretAngleTest);
