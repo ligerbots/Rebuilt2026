@@ -33,23 +33,23 @@ public class Intake extends SubsystemBase {
                 .andThen(new InstantCommand(m_intakeRoller::stop, m_intakeRoller));
   }
 
-  public Command deployIntakeCommand() {
+  public Command deployCommand() {
     return m_intakePivot.deployCommand();
   }
 
-  public Command runIntakeRollers() {
+  public Command runRollers() {
     return new InstantCommand(m_intakeRoller::intake, m_intakeRoller);
   }
 
-  public Command stopIntakeRollers() {
+  public Command stopRollers() {
     return new InstantCommand(m_intakeRoller::intake, m_intakeRoller);
   }
   
-  public IntakeRoller getIntakeRoller() {
+  public IntakeRoller getRoller() {
     return m_intakeRoller;
   }
 
-  public IntakePivot getIntakePivot() {
+  public IntakePivot getPivot() {
     return m_intakePivot;
   }
 }

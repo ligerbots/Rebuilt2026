@@ -126,7 +126,7 @@ public class RobotContainerCompBot extends RobotContainer {
     }
 
     private void configureAutoEventTriggers() {
-        new EventTrigger("Run Intake").onTrue(m_intake.deployIntakeCommand().andThen(new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningIntake", true))));
+        new EventTrigger("Run Intake").onTrue(m_intake.deployCommand().andThen(new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningIntake", true))));
         new EventTrigger("Stop Intake").onTrue(m_intake.stowCommand().andThen(new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningIntake", false))));
 
         new EventTrigger("Run Shooter").onTrue(getTestingStartShootCommand().alongWith(new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningShooter", true))));
@@ -143,14 +143,14 @@ public class RobotContainerCompBot extends RobotContainer {
             m_drivetrain.applyRequest(() -> idle).ignoringDisable(true)
         );
 
-        m_driverController.leftTrigger().whileTrue(new StartEndCommand(m_intake.getIntakeRoller()::intake, m_intake.getIntakeRoller()::stop, m_intake.getIntakeRoller()));
+        m_driverController.leftTrigger().whileTrue(new StartEndCommand(m_intake.getRoller()::intake, m_intake.getRoller()::stop, m_intake.getRoller()));
         m_driverController.rightBumper().whileTrue(new StartEndCommand(m_hopper::run, m_hopper::stop, m_hopper));
         m_driverController.rightTrigger().whileTrue(new StartEndCommand(m_hopper::run, m_hopper::stop, m_hopper));
 
         SmartDashboard.putNumber("shooterFeeder/testRPM", 0.0); 
         m_driverController.leftTrigger().onTrue(new InstantCommand(() -> m_shooterFeeder.setRPM(SmartDashboard.getNumber("shooterFeeder/testRPM", 0.0))));
 
-        m_driverController.leftTrigger().onTrue(m_intake.getIntakePivot().deployCommand());
+        m_driverController.leftTrigger().onTrue(m_intake.getPivot().deployCommand());
         m_driverController.leftBumper().onTrue(m_intake.stowCommand());
 
         SmartDashboard.putNumber("hood/testAngle", 0.0);
