@@ -11,41 +11,38 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
-
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import frc.robot.Constants;
 
-public class ShooterFeeder extends SubsystemBase {
+public class Hopper extends SubsystemBase {
+    
+    private final TalonFX m_motor;
     
     //need to calibrate the P value for the velocity loop, start small and increase until you get good response
-    private static final double K_P = 0.1; 
-    private static final double K_FF = 0.0021; //TODO find new constant
-    
+    private static final double K_P = 3.0; 
     private static final double SUPPLY_CURRENT_LIMIT = 40;
     private static final double STATOR_CURRENT_LIMIT = 60;
     
-    private static final double FEEDER_RPM_FOR_SHOOTING = 1500.0; // TODO: Tune this value
+    private static final double K_FF = 0.0015; //TODO find new constant
     
+    private static final double RUN_VOLTAGE = 4.0;
+
     private double m_goalRPM;
-    private final TalonFX m_motor;
-        
-    //Creates a new ShooterFeeder
-    public ShooterFeeder() {
+    
+    //Creates a new IntakeWheel
+    public Hopper() {
         TalonFXConfiguration talonFXConfigs = new TalonFXConfiguration();  
         
-        m_motor = new TalonFX(Constants.SHOOTER_FEEDER_CAN_ID);
+        m_motor = new TalonFX(Constants.HOPPER_TRANSFER_CAN_ID);
         Slot0Configs slot0configs = talonFXConfigs.Slot0;
         slot0configs.kP = K_P;  // start small!!!
         slot0configs.kI = 0.0;
         slot0configs.kD = 0.0;
-
-        talonFXConfigs.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-
+        
         CurrentLimitsConfigs currentLimits = new CurrentLimitsConfigs()
         .withSupplyCurrentLimit(SUPPLY_CURRENT_LIMIT)
         .withStatorCurrentLimit(STATOR_CURRENT_LIMIT);
@@ -58,29 +55,32 @@ public class ShooterFeeder extends SubsystemBase {
     
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("shooterFeeder/currentRPM", getRPM()); 
-        SmartDashboard.putNumber("shooterFeeder/goalRPM", m_goalRPM);
+        SmartDashboard.putNumber("hopper/currentRPM", getRPM()); 
+        SmartDashboard.putNumber("hopper/goalRPM", m_goalRPM);
+    }
+    
+    public void run(){
+        m_motor.setControl(new VoltageOut(RUN_VOLTAGE));
+    }
+    
+    public void stop(){
+        m_motor.setControl(new VoltageOut(0));
     }
     
     public double getRPM(){
         return m_motor.getVelocity().getValueAsDouble() * 60; //convert rps to rpm
     }
     
-    public void setVoltage(double voltage) {
-        m_motor.setControl(new VoltageOut(voltage));
+    public void setVoltage(double volts) {
+        m_motor.setControl(new VoltageOut(volts));
     }
     
     public void setRPM(double rpm){
         m_goalRPM = rpm;
         double rps = m_goalRPM / 60; //convert rpm to rps
-        m_motor.setControl(new VelocityVoltage(rps).withFeedForward(K_FF * rpm));
-    }
-    
-    public void stop(){
-        m_motor.setVoltage(0);
-    }
-    
-    public void feedForShooting() {
-        setRPM(FEEDER_RPM_FOR_SHOOTING);
+        
+        final VelocityVoltage m_request = new VelocityVoltage(rps).withFeedForward(K_FF * rpm);
+        
+        m_motor.setControl(m_request);
     }
 }
