@@ -21,7 +21,7 @@ public class Hood extends SubsystemBase {
     private static final double ANGLE_TOLERANCE_DEG = 2.0;
 
     private static final double MIN_ANGLE_DEG = 0.0;
-    private static final double MAX_ANGLE_DEG = 25.0;
+    private static final double MAX_ANGLE_DEG = 22.5;
 
     private static final double GEAR_RATIO = 12.0/36.0 * 15.0/24.0 * 10.0/174.0;
 
@@ -34,8 +34,8 @@ public class Hood extends SubsystemBase {
     
     private static final double K_P = 5.0;
     
-    private static final double MAX_VEL_ROT_PER_SEC = 12 / GEAR_RATIO;
-    private static final double MAX_ACC_ROT_PER_SEC = 20.0 / GEAR_RATIO;
+    private static final double MAX_VEL_ROT_PER_SEC = 8.0 / GEAR_RATIO;
+    private static final double MAX_ACC_ROT_PER_SEC = 15.0 / GEAR_RATIO;
     
     
     /** Creates a new Hood. */

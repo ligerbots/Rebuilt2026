@@ -5,7 +5,6 @@
 package frc.robot.subsystems.shooter;
 
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.utilities.ShooterLookupTable;
 
@@ -25,8 +24,8 @@ public class Shooter extends SubsystemBase {
     private ShooterState m_currentState = ShooterState.IDLE;
     private ShotType m_shootType = ShotType.HUB_SHOT;
     
-    private static final String HUB_LOOKUP_TABLE_FILE = "hub_shooting_lookup_table"; // TODO: Update with values
-    private static final String SHUTTLE_LOOKUP_TABLE_FILE = "shuttle_shooting_lookup_table"; // TODO: Update with values
+    private static final String HUB_LOOKUP_TABLE_FILE = "hub_shooting_lookup_table"; 
+    private static final String SHUTTLE_LOOKUP_TABLE_FILE = "shuttle_shooting_lookup_table";
     
     private final ShooterLookupTable m_hubShooterLookupTable;
     private final ShooterLookupTable m_shuttleShooterLookupTable;
