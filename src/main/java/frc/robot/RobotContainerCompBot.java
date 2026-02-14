@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -31,6 +32,9 @@ import frc.robot.commands.CoreAuto;
 import frc.robot.generated.TunerConstantsCompBot;
 import frc.robot.subsystems.AprilTagVision;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.Hopper;
+import frc.robot.subsystems.IntakePivot;
+import frc.robot.subsystems.IntakeRoller;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.ShooterFeeder;
 import frc.robot.subsystems.Turret;
@@ -62,6 +66,10 @@ public class RobotContainerCompBot extends RobotContainer {
     private final Shooter m_shooter = new Shooter();
     private final ShooterFeeder m_shooterFeeder = new ShooterFeeder();
     private final Turret m_turret = new Turret();
+
+    private final IntakePivot m_intakePivot = new IntakePivot();
+    private final IntakeRoller m_intakeRoller = new IntakeRoller();
+    private final Hopper m_hopper = new Hopper();
 
     private final SendableChooser<String> m_chosenFieldSide = new SendableChooser<>();
     private final SendableChooser<String[]> m_chosenAutoPaths = new SendableChooser<>();
@@ -137,6 +145,29 @@ public class RobotContainerCompBot extends RobotContainer {
             m_drivetrain.applyRequest(() -> idle).ignoringDisable(true)
         );
 
+        m_driverController.leftTrigger().whileTrue(new StartEndCommand(m_intakeRoller::intake, m_intakeRoller::stop, m_intakeRoller));
+        m_driverController.rightBumper().whileTrue(new StartEndCommand(m_hopper::run, m_hopper::stop, m_hopper));
+        m_driverController.rightTrigger().whileTrue(new StartEndCommand(m_hopper::run, m_hopper::stop, m_hopper));
+
+        SmartDashboard.putNumber("shooterFeeder/testRPM", 0.0); 
+        m_driverController.leftTrigger().onTrue(new InstantCommand(() -> m_shooterFeeder.setRPM(SmartDashboard.getNumber("shooterFeeder/testRPM", 0.0))));
+
+        m_driverController.leftTrigger().onTrue(m_intakePivot.deployCommand());
+        m_driverController.leftBumper().onTrue(m_intakePivot.stowCommand());
+
+        SmartDashboard.putNumber("hood/testAngle", 0.0);
+        SmartDashboard.putNumber("flywheel/testRPM", 0.0); 
+        SmartDashboard.putNumber("shooterFeeder/testRPM", 0.0); 
+
+        m_driverController.y().onTrue(
+            new InstantCommand(() -> m_shooter.getFlywheel().setRPM(SmartDashboard.getNumber("flywheel/testRPM", 0.0)))
+            .alongWith(
+                new InstantCommand(() -> m_shooterFeeder.setRPM(SmartDashboard.getNumber("shooterFeeder/testRPM", 0.0))),
+                new InstantCommand(() -> m_shooter.getHood().setAngle(Rotation2d.fromDegrees(SmartDashboard.getNumber("hood/testAngle", 0.0))))
+            )
+        );
+        m_driverController.x().onTrue(new InstantCommand(m_shooter::stop).alongWith(new InstantCommand(m_shooterFeeder::stop)));
+
         // lock wheels
         // m_driverController.a().whileTrue(m_drivetrain.applyRequest(() -> m_brakeRequest));
         // m_driverController.b().whileTrue(drivetrain.applyRequest(() ->
@@ -151,26 +182,32 @@ public class RobotContainerCompBot extends RobotContainer {
         // m_driverController.start().and(m_driverController.x()).whileTrue(m_drivetrain.sysIdQuasistatic(Direction.kReverse));
 
         // Reset the field-centric heading on left bumper press.
-        m_driverController.leftBumper().onTrue(m_drivetrain.runOnce(m_drivetrain::seedFieldCentric));
+        // m_driverController.leftBumper().onTrue(m_drivetrain.runOnce(m_drivetrain::seedFieldCentric));
 
         m_drivetrain.registerTelemetry(m_logger::telemeterize);
 
+        // SmartDashboard.putNumber("intake/testVoltage", 0.0); 
+        // SmartDashboard.putNumber("intake/testAngle", 0.0); 
+        // SmartDashboard.putNumber("hopper/testVoltage", 0.0); 
+        // m_driverController.leftBumper().whileTrue(new StartEndCommand(
+        //     () -> m_intakeRoller.setVoltage(SmartDashboard.getNumber("intake/testVoltage", 0.0)), m_intakeRoller::stop, m_intakeRoller));
+        // m_driverController.rightBumper().whileTrue(new StartEndCommand(
+        //     () -> m_hopper.setVoltage(SmartDashboard.getNumber("hopper/testVoltage", 0.0)), m_hopper::stop, m_hopper));
+        // m_driverController.b().onTrue(new InstantCommand(() -> m_intakePivot.setAngle(Rotation2d.fromDegrees(SmartDashboard.getNumber("intake/testAngle", 0.0)))));
+
         // *** Test Commands *** 
         
-        // SmartDashboard.putNumber("hood/testAngle", 0.0); 
         // m_driverController.x().onTrue(new InstantCommand(() -> m_shooter.getHood().setAngle(Rotation2d.fromDegrees(SmartDashboard.getNumber("hood/testAngle", 0.0)))));
         
         // SmartDashboard.putNumber("flywheel/testVoltage", 0.0); 
         // m_driverController.y().onTrue(new InstantCommand(() -> m_shooter.getFlywheel().setVoltage(SmartDashboard.getNumber("flywheel/testVoltage", 0.0))));
 
-        // SmartDashboard.putNumber("flywheel/testRPM", 0.0); 
         // m_driverController.b().onTrue(new InstantCommand(() -> m_shooter.getFlywheel().setRPM(SmartDashboard.getNumber("flywheel/testRPM", 0.0))));
         
-        // SmartDashboard.putNumber("shooterFeeder/testRPM", 0.0); 
         // m_driverController.a().onTrue(new InstantCommand(() -> m_shooterFeeder.setRPM(SmartDashboard.getNumber("shooterFeeder/testRPM", 0.0))));
 
-        SmartDashboard.putNumber("turret/testAngle", 0.0);
-        m_driverController.a().whileTrue(new InstantCommand(() -> m_turret.setAngle(Rotation2d.fromDegrees(SmartDashboard.getNumber("turret/testAngle", 0.0)))));
+        // SmartDashboard.putNumber("turret/testAngle", 0.0);
+        // m_driverController.a().onTrue(new InstantCommand(() -> m_turret.setAngle(Rotation2d.fromDegrees(SmartDashboard.getNumber("turret/testAngle", 0.0)))));
 
         Command turretAngleTest = new TMP_turretAngleTest(m_drivetrain::getPose, m_turret);
         m_driverController.x().whileTrue(turretAngleTest);

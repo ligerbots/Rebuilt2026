@@ -95,7 +95,7 @@ public class Flywheel extends SubsystemBase {
         return Math.abs(getRPM() - m_goalRPM) < SPEED_TOLERANCE_RPM;
     }
         
-    public void stop(){
+    public void stop() { 
         setVoltage(0);
     }
 }
