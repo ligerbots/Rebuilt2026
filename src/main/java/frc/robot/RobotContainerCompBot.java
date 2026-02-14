@@ -14,31 +14,32 @@ import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.events.EventTrigger;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.commands.autoCommands.AutoCommandInterface;
-import frc.robot.commands.autoCommands.CoreAuto;
 import frc.robot.commands.Shoot;
 import frc.robot.commands.TMP_turretAngleTest;
+import frc.robot.commands.autoCommands.AutoCommandInterface;
+import frc.robot.commands.autoCommands.CoreAuto;
 import frc.robot.generated.TunerConstantsCompBot;
 import frc.robot.subsystems.AprilTagVision;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Hopper;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.shooter.Shooter;
+import frc.robot.subsystems.shooter.Shooter.ShotType;
 import frc.robot.subsystems.shooter.ShooterFeeder;
 import frc.robot.subsystems.shooter.Turret;
-import frc.robot.subsystems.shooter.Shooter.ShotType;
 
 public class RobotContainerCompBot extends RobotContainer {
     private static final double SPEED_LIMIT = 1.0;
@@ -151,27 +152,35 @@ public class RobotContainerCompBot extends RobotContainer {
             m_drivetrain.applyRequest(() -> idle).ignoringDisable(true)
         );
 
-        m_driverController.leftTrigger().whileTrue(new StartEndCommand(m_intake.getRoller()::intake, m_intake.getRoller()::stop, m_intake.getRoller()));
-        m_driverController.rightBumper().whileTrue(new StartEndCommand(m_hopper::run, m_hopper::stop, m_hopper));
-        m_driverController.rightTrigger().whileTrue(new StartEndCommand(m_hopper::run, m_hopper::stop, m_hopper));
+        // shoot command - test version
+        m_driverController.rightTrigger().whileTrue(
+            new StartEndCommand(
+                () -> m_shooter.getFlywheel().setRPM(SmartDashboard.getNumber("flywheel/testRPM", 0.0)),
+                m_shooter::stop)
+            .alongWith(
+                    new StartEndCommand(
+                        () -> m_shooterFeeder.setRPM(SmartDashboard.getNumber("shooterFeeder/testRPM", 0.0)), 
+                        m_shooterFeeder::stop),
+                    new StartEndCommand(
+                        () -> m_shooter.getHood().setAngle(Rotation2d.fromDegrees(SmartDashboard.getNumber("hood/testAngle", 0.0))),
+                        () -> m_shooter.getHood().setAngle(Rotation2d.kZero)),
+                    new StartEndCommand(m_hopper::run, m_hopper::stop, m_hopper))
+        );
+
 
         SmartDashboard.putNumber("shooterFeeder/testRPM", 0.0); 
-        m_driverController.leftTrigger().onTrue(new InstantCommand(() -> m_shooterFeeder.setRPM(SmartDashboard.getNumber("shooterFeeder/testRPM", 0.0))));
+        // m_driverController.leftTrigger().onTrue(new InstantCommand(() -> m_shooterFeeder.setRPM(SmartDashboard.getNumber("shooterFeeder/testRPM", 0.0))));
 
+        m_driverController.leftTrigger().whileTrue(new StartEndCommand(m_intake.getRoller()::intake, m_intake.getRoller()::stop, m_intake.getRoller()));
         m_driverController.leftTrigger().onTrue(m_intake.getPivot().deployCommand());
+        m_driverController.leftTrigger().whileTrue(new StartEndCommand(m_hopper::run, m_hopper::stop, m_hopper));
+
         m_driverController.leftBumper().onTrue(m_intake.stowCommand());
 
         SmartDashboard.putNumber("hood/testAngle", 0.0);
         SmartDashboard.putNumber("flywheel/testRPM", 0.0); 
         SmartDashboard.putNumber("shooterFeeder/testRPM", 0.0); 
 
-        m_driverController.y().onTrue(
-            new InstantCommand(() -> m_shooter.getFlywheel().setRPM(SmartDashboard.getNumber("flywheel/testRPM", 0.0)))
-            .alongWith(
-                new InstantCommand(() -> m_shooterFeeder.setRPM(SmartDashboard.getNumber("shooterFeeder/testRPM", 0.0))),
-                new InstantCommand(() -> m_shooter.getHood().setAngle(Rotation2d.fromDegrees(SmartDashboard.getNumber("hood/testAngle", 0.0))))
-            )
-        );
         m_driverController.x().onTrue(new InstantCommand(m_shooter::stop).alongWith(new InstantCommand(m_shooterFeeder::stop)));
 
         // lock wheels
