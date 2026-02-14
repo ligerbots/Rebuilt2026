@@ -35,7 +35,7 @@ public class IntakePivot extends SubsystemBase {
 
     private static final double GEAR_RATIO = 1.0 / 24.0;
     
-    private static final Rotation2d STOW_POSITION = Rotation2d.kZero;
+    private static final Rotation2d STOW_POSITION = Rotation2d.fromDegrees(-5.0);
     private static final Rotation2d DEPLOY_POSITION = Rotation2d.fromDegrees(75.0);
 
     private Rotation2d m_goal = Rotation2d.kZero;
