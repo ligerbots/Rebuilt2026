@@ -55,9 +55,8 @@ public class Robot extends TimedRobot {
             m_robotType = RobotType.COMPBOT;
         } else {
             // default to the Test robot for now
-            m_robotType = RobotType.TESTBOT;
+            m_robotType = RobotType.COMPBOT;
         }
-        m_robotType = RobotType.COMPBOT;
         SmartDashboard.putString("robotType", m_robotType.toString());
 
         // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
