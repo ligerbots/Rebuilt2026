@@ -112,8 +112,8 @@ public class RobotContainerCompBot extends RobotContainer {
         SmartDashboard.putNumber("shooterFeeder/testRPM", 0.0); 
         m_driverController.leftTrigger().onTrue(new InstantCommand(() -> m_shooterFeeder.setRPM(SmartDashboard.getNumber("shooterFeeder/testRPM", 0.0))));
 
-        m_driverController.rightBumper().whileTrue(m_intakePivot.deployCommand());
-        m_driverController.leftBumper().whileTrue(m_intakePivot.stowCommand());
+        m_driverController.rightBumper().onTrue(m_intakePivot.deployCommand());
+        m_driverController.leftBumper().onTrue(m_intakePivot.stowCommand());
 
         // lock wheels
         // m_driverController.a().whileTrue(m_drivetrain.applyRequest(() -> m_brakeRequest));
@@ -166,7 +166,7 @@ public class RobotContainerCompBot extends RobotContainer {
         //         new InstantCommand(() -> m_shooter.getHood().setAngle(Rotation2d.fromDegrees(SmartDashboard.getNumber("hood/testAngle", 0.0))))
         //     )
         // );
-        m_driverController.x().onTrue(new InstantCommand(m_shooter::stop).alongWith(new InstantCommand(m_shooterFeeder::stop)));
+        // m_driverController.x().onTrue(new InstantCommand(m_shooter::stop).alongWith(new InstantCommand(m_shooterFeeder::stop)));
     }
     
     public CommandSwerveDrivetrain getDriveTrain() {

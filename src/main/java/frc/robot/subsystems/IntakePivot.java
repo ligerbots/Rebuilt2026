@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.Constants;
 
 public class IntakePivot extends SubsystemBase {
@@ -90,19 +91,20 @@ public class IntakePivot extends SubsystemBase {
         SmartDashboard.putNumber("intake/deployAngle", getAngle().getDegrees());
         SmartDashboard.putNumber("intake/supplyCurrent", m_pivotMotor.getSupplyCurrent().getValueAsDouble());
         SmartDashboard.putNumber("intake/statorCurrent", m_pivotMotor.getStatorCurrent().getValueAsDouble());
+        SmartDashboard.putBoolean("intake/onTarget", onTarget());
 
         // SmartDashboard.putNumber("intake/rawMotorAngle",  m_pivotMotor.getPosition().getValueAsDouble());
     }
     
     public Command deployCommand() {
-        return new InstantCommand(() -> setAngle(DEPLOY_POSITION))
-                .until(this::onTarget)
+        return new InstantCommand(() -> setAngle(DEPLOY_POSITION), this)
+                .andThen(new WaitUntilCommand(this::onTarget))
                 .andThen(new InstantCommand(this::stop));
     }
 
     public Command stowCommand() {
-        return new InstantCommand(() -> setAngle(STOW_POSITION))
-                .until(this::onTarget)
+        return new InstantCommand(() -> setAngle(STOW_POSITION), this)
+                .andThen(new WaitUntilCommand(this::onTarget))
                 .andThen(new InstantCommand(() -> setAngle(STOW_POSITION, SlotNumber.HOLD)));
     }
 
@@ -133,6 +135,6 @@ public class IntakePivot extends SubsystemBase {
     
     public boolean onTarget() {
         Rotation2d angle = getAngle();
-        return Math.abs(angle.minus(m_goal).getDegrees()) < ANGLE_TOLERANCE_DEG;
+        return Math.abs(angle.getDegrees() - m_goal.getDegrees()) < ANGLE_TOLERANCE_DEG;
     }
 }
