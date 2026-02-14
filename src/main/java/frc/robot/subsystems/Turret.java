@@ -132,9 +132,9 @@ public class Turret extends SubsystemBase {
     
     private Rotation2d getCRTAngleRaw(){
         // USE ME FOR TUNING ABSOLUTE ENCODER OFFSETS ONLY:
-        ChineseRemainder.smartDashboardLogABSOffsets(ENCODER_SMALL_TOOTH_COUNT, ENCODER_LARGE_TOOTH_COUNT, 
-                m_thruboreSmall.getAbsolutePosition().getValueAsDouble(),
-                m_thruboreLarge.getAbsolutePosition().getValueAsDouble());
+        // ChineseRemainder.smartDashboardLogABSOffsets(ENCODER_SMALL_TOOTH_COUNT, ENCODER_LARGE_TOOTH_COUNT, 
+        //         m_thruboreSmall.getAbsolutePosition().getValueAsDouble(),
+        //         m_thruboreLarge.getAbsolutePosition().getValueAsDouble());
         return ChineseRemainder.findAngle(
                 m_thruboreSmall.getAbsolutePosition().getValueAsDouble() + ENCODER_SMALL_OFFSET_ROTATIONS,
                 ENCODER_SMALL_TOOTH_COUNT,
@@ -183,7 +183,7 @@ public class Turret extends SubsystemBase {
             }
         }
         
-        System.out.println("Best Angle: " + bestAngle);
+        // System.out.println("Best Angle: " + bestAngle);
 
         return bestAngle;
     }
@@ -225,13 +225,13 @@ public class Turret extends SubsystemBase {
         // Translation2d overallAngle = getTurretPositionForRobotPose(robotPose).minus(goalTranslation).rotateBy(robotPose.getRotation());
 
         Translation2d turretPose = getTurretPositionForRobotPose(robotPose);
-        SmartDashboard.putNumber("turretTesting/turretPoseX", turretPose.getX());
-        SmartDashboard.putNumber("turretTesting/turretPoseY", turretPose.getY());
+        // SmartDashboard.putNumber("turretTesting/turretPoseX", turretPose.getX());
+        // SmartDashboard.putNumber("turretTesting/turretPoseY", turretPose.getY());
         Translation2d goalRelativeToTurret = goalTranslation.minus(turretPose);
-        SmartDashboard.putNumber("turretTesting/goalRelativeToTurretX", goalRelativeToTurret.getX());
-        SmartDashboard.putNumber("turretTesting/goalRelativeToTurretY", goalRelativeToTurret.getY());
+        // SmartDashboard.putNumber("turretTesting/goalRelativeToTurretX", goalRelativeToTurret.getX());
+        // SmartDashboard.putNumber("turretTesting/goalRelativeToTurretY", goalRelativeToTurret.getY());
         Translation2d translationRelativeToRobot = goalRelativeToTurret.rotateBy(robotPose.getRotation().unaryMinus());
-        SmartDashboard.putNumber("turretTesting/rotationRelativeToRobot", translationRelativeToRobot.getAngle().getDegrees());
+        // SmartDashboard.putNumber("turretTesting/rotationRelativeToRobot", translationRelativeToRobot.getAngle().getDegrees());
         
         return translationRelativeToRobot;
     }
