@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 public class FieldConstants {
     public static final double FIELD_LENGTH = FlippingUtil.fieldSizeX;
     public static final double FIELD_WIDTH = FlippingUtil.fieldSizeY;  
+    public static final double SHOOT_HUB_LINE_BLUE = Units.inchesToMeters(158); // distance from the wall to the line where we want to shoot from
 
     public static final Translation2d HUB_POSITION_BLUE = new Translation2d(Units.inchesToMeters(158.32),Units.inchesToMeters(181.56));
  

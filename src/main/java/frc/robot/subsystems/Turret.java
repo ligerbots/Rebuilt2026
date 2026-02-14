@@ -27,7 +27,7 @@ public class Turret extends SubsystemBase {
     
     private static final Translation2d TURRET_OFFSET = new Translation2d(Units.inchesToMeters(-8.33),  Units.inchesToMeters(-4.36));
     private static final double TURRET_HEADING_OFFSET_DEG = 180.0;
-    private static final double ANGLE_TOLERANCE_DEG = 2.0; // TODO: Tune this value
+    private static final double ANGLE_TOLERANCE_DEG = 2.0; 
     
     private double m_goalDeg = 0.0;
     
@@ -40,17 +40,22 @@ public class Turret extends SubsystemBase {
 
     private static final int ENCODER_SMALL_TOOTH_COUNT = 11;
     private static final int ENCODER_LARGE_TOOTH_COUNT = 13;
+    private static final double ENCODER_SMALL_OFFSET_ROTATIONS = -0.503;
+    private static final double ENCODER_LARGE_OFFSET_ROTATIONS = -0.283;
     private static final int TURRET_TOOTH_COUNT = 100;
     private static final double TURRET_GEAR_RATIO =  54.0 / 12.0 * TURRET_TOOTH_COUNT / 10.0;
     
-    private static final double K_P = 2.0; 
+    private static final double K_P = 2.0;
     private static final double MAX_VEL_ROT_PER_SEC = 4.0 * TURRET_GEAR_RATIO;
     private static final double MAX_ACC_ROT_PER_SEC_SQ = 40.0 * TURRET_GEAR_RATIO;
 
     private static final double MAX_ROTATION_DEG = 170.0;
     private static final double MIN_ROTATION_DEG = -170.0;
     
-    private static final Rotation2d CRT_POSITION_OFFSET = Rotation2d.fromDegrees(167.8);
+    // this is just the middle point of the full CRT range
+    // include "1.0 *" to make sure it does floating point arithmetic
+    private static final Rotation2d CRT_POSITION_OFFSET = 
+            Rotation2d.fromRotations(1.0 * ENCODER_SMALL_TOOTH_COUNT * ENCODER_LARGE_TOOTH_COUNT / TURRET_TOOTH_COUNT / 2.0);
     
     /** Creates a new Turret. */
     public Turret() {
@@ -105,6 +110,8 @@ public class Turret extends SubsystemBase {
         // for now, just limit angle. 
         // when we allow overlap, use optimizeGoal()
         m_goalDeg = limitRotationDeg(angle.getDegrees() - TURRET_HEADING_OFFSET_DEG);
+        // m_goalDeg = optimizeGoal(angle.getDegrees() - TURRET_HEADING_OFFSET_DEG);
+
         m_turretMotor.setControl(new MotionMagicVoltage(m_goalDeg/360.0 * TURRET_GEAR_RATIO));
     }
     
@@ -124,9 +131,15 @@ public class Turret extends SubsystemBase {
     }
     
     private Rotation2d getCRTAngleRaw(){
+        // USE ME FOR TUNING ABSOLUTE ENCODER OFFSETS ONLY:
+        ChineseRemainder.smartDashboardLogABSOffsets(ENCODER_SMALL_TOOTH_COUNT, ENCODER_LARGE_TOOTH_COUNT, 
+                m_thruboreSmall.getAbsolutePosition().getValueAsDouble(),
+                m_thruboreLarge.getAbsolutePosition().getValueAsDouble());
         return ChineseRemainder.findAngle(
-                Rotation2d.fromRotations(m_thruboreSmall.getAbsolutePosition().getValueAsDouble()), ENCODER_SMALL_TOOTH_COUNT,
-                Rotation2d.fromRotations(m_thruboreLarge.getAbsolutePosition().getValueAsDouble()), ENCODER_LARGE_TOOTH_COUNT,
+                m_thruboreSmall.getAbsolutePosition().getValueAsDouble() + ENCODER_SMALL_OFFSET_ROTATIONS,
+                ENCODER_SMALL_TOOTH_COUNT,
+                m_thruboreLarge.getAbsolutePosition().getValueAsDouble() + ENCODER_LARGE_OFFSET_ROTATIONS,
+                ENCODER_LARGE_TOOTH_COUNT,
                 TURRET_TOOTH_COUNT);
     }
 
@@ -170,6 +183,8 @@ public class Turret extends SubsystemBase {
             }
         }
         
+        System.out.println("Best Angle: " + bestAngle);
+
         return bestAngle;
     }
        
