@@ -36,14 +36,14 @@ public class IntakePivot extends SubsystemBase {
 
     private static final double GEAR_RATIO = 1.0 / 24.0;
     
-    private static final Rotation2d STOW_POSITION = Rotation2d.fromDegrees(-5.0);
-    private static final Rotation2d DEPLOY_POSITION = Rotation2d.fromDegrees(75.0);
+    public static final Rotation2d STOW_POSITION = Rotation2d.fromDegrees(-5.0);
+    public static final Rotation2d DEPLOY_POSITION = Rotation2d.fromDegrees(75.0);
 
     private Rotation2d m_goal = Rotation2d.kZero;
 
     private final TalonFX m_pivotMotor;
     
-    private static enum SlotNumber {
+    public static enum SlotNumber {
         MOVE(0),
         HOLD(1);
 
@@ -100,7 +100,7 @@ public class IntakePivot extends SubsystemBase {
         setAngle(angle, SlotNumber.MOVE);
     }
 
-    private void setAngle(Rotation2d angle, SlotNumber slot) {
+    public void setAngle(Rotation2d angle, SlotNumber slot) {
         m_goal = angle;
         m_pivotMotor.setControl(new MotionMagicVoltage(m_goal.getRotations() / GEAR_RATIO).withSlot(slot.getValue()));
     }
@@ -126,11 +126,5 @@ public class IntakePivot extends SubsystemBase {
         return new InstantCommand(() -> setAngle(DEPLOY_POSITION), this)
                 .andThen(new WaitUntilCommand(this::onTarget))
                 .andThen(new InstantCommand(this::stop));
-    }
-
-    public Command stowCommand() {
-        return new InstantCommand(() -> setAngle(STOW_POSITION), this)
-                .andThen(new WaitUntilCommand(this::onTarget))
-                .andThen(new InstantCommand(() -> setAngle(STOW_POSITION, SlotNumber.HOLD)));
     }
 }

@@ -127,7 +127,7 @@ public class RobotContainerCompBot extends RobotContainer {
 
     private void configureAutoEventTriggers() {
         new EventTrigger("Run Intake").onTrue(m_intake.deployIntakeCommand().andThen(new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningIntake", true))));
-        new EventTrigger("Stop Intake").onTrue(m_intake.retractIntakeCommand().andThen(new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningIntake", false))));
+        new EventTrigger("Stop Intake").onTrue(m_intake.stowCommand().andThen(new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningIntake", false))));
 
         new EventTrigger("Run Shooter").onTrue(getTestingStartShootCommand().alongWith(new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningShooter", true))));
         new EventTrigger("Stop Shooter").onTrue(getTestingStopShootCommand().alongWith(new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningShooter", false))));
@@ -151,7 +151,7 @@ public class RobotContainerCompBot extends RobotContainer {
         m_driverController.leftTrigger().onTrue(new InstantCommand(() -> m_shooterFeeder.setRPM(SmartDashboard.getNumber("shooterFeeder/testRPM", 0.0))));
 
         m_driverController.leftTrigger().onTrue(m_intake.getIntakePivot().deployCommand());
-        m_driverController.leftBumper().onTrue(m_intake.retractIntakeCommand());
+        m_driverController.leftBumper().onTrue(m_intake.stowCommand());
 
         SmartDashboard.putNumber("hood/testAngle", 0.0);
         SmartDashboard.putNumber("flywheel/testRPM", 0.0); 

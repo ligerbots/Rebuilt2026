@@ -25,12 +25,12 @@ public class Intake extends SubsystemBase {
     // This method will be called once per scheduler run
   }
 
-  public Command retractIntakeCommand() {
-    return new InstantCommand(m_intakeRoller::intake, m_intakeRoller)
-        .withTimeout(0.3)
-        .andThen(m_intakePivot.stowCommand())
-        .andThen(new WaitUntilCommand(m_intakePivot::onTarget))
-        .andThen(m_intakeRoller::stop);
+  public Command stowCommand() {
+    return new InstantCommand(() -> m_intakeRoller.intake(), m_intakeRoller)
+                .andThen(new InstantCommand(() -> m_intakePivot.setAngle(IntakePivot.STOW_POSITION), m_intakePivot))
+                .andThen(new WaitUntilCommand(m_intakePivot::onTarget))
+                .andThen(new InstantCommand(() -> m_intakePivot.setAngle(IntakePivot.STOW_POSITION, IntakePivot.SlotNumber.HOLD), m_intakePivot))
+                .andThen(new InstantCommand(m_intakeRoller::stop, m_intakeRoller));
   }
 
   public Command deployIntakeCommand() {
