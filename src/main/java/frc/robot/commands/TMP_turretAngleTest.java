@@ -34,17 +34,14 @@ public class TMP_turretAngleTest extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    Rotation2d rotationGoal = Turret.getTranslationToGoal(m_robotPose.get(),  FieldConstants.flipTranslation(FieldConstants.HUB_POSITION_BLUE)).getAngle();
-    SmartDashboard.putBoolean("TurretAngleTest", true);
+    Rotation2d rotationGoal = Turret.getTranslationToGoal(m_robotPose.get(), FieldConstants.HUB_POSITION_BLUE).getAngle();
     SmartDashboard.putNumber("turretTesting/ComputedAngle", rotationGoal.getDegrees());
     m_Turret.setAngle(rotationGoal);
   }
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {
-    SmartDashboard.putBoolean("TurretAngleTest", false);
-  }
+  public void end(boolean interrupted) {}
 
   // Returns true when the command should end.
   @Override
