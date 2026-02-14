@@ -35,6 +35,7 @@ import frc.robot.generated.TunerConstantsCompBot;
 import frc.robot.subsystems.AprilTagVision;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Hopper;
+import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakePivot;
 import frc.robot.subsystems.intake.IntakeRoller;
 import frc.robot.subsystems.shooter.Shooter;
@@ -69,8 +70,7 @@ public class RobotContainerCompBot extends RobotContainer {
     private final ShooterFeeder m_shooterFeeder = new ShooterFeeder();
     private final Turret m_turret = new Turret();
 
-    private final IntakePivot m_intakePivot = new IntakePivot();
-    private final IntakeRoller m_intakeRoller = new IntakeRoller();
+    private final Intake m_intake = new Intake();
     private final Hopper m_hopper = new Hopper();
 
     private final SendableChooser<String> m_chosenFieldSide = new SendableChooser<>();
@@ -133,8 +133,8 @@ public class RobotContainerCompBot extends RobotContainer {
         new EventTrigger("Run Intake").onTrue(new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningIntake", true)));
         new EventTrigger("Stop Intake").onTrue(new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningIntake", false)));
 
-        new EventTrigger("Run Shooter").onTrue(getStartShootCommand().alongWith(new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningShooter", true))));
-        new EventTrigger("Stop Shooter").onTrue(getStopShootCommand().alongWith(new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningShooter", false))));
+        new EventTrigger("Run Shooter").onTrue(getTestingStartShootCommand().alongWith(new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningShooter", true))));
+        new EventTrigger("Stop Shooter").onTrue(getTestingStopShootCommand().alongWith(new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningShooter", false))));
     }
 
     private void configureBindings() {
@@ -147,15 +147,15 @@ public class RobotContainerCompBot extends RobotContainer {
             m_drivetrain.applyRequest(() -> idle).ignoringDisable(true)
         );
 
-        m_driverController.leftTrigger().whileTrue(new StartEndCommand(m_intakeRoller::intake, m_intakeRoller::stop, m_intakeRoller));
+        m_driverController.leftTrigger().whileTrue(new StartEndCommand(m_intake.getIntakeRoller()::intake, m_intake.getIntakeRoller()::stop, m_intake.getIntakeRoller()));
         m_driverController.rightBumper().whileTrue(new StartEndCommand(m_hopper::run, m_hopper::stop, m_hopper));
         m_driverController.rightTrigger().whileTrue(new StartEndCommand(m_hopper::run, m_hopper::stop, m_hopper));
 
         SmartDashboard.putNumber("shooterFeeder/testRPM", 0.0); 
         m_driverController.leftTrigger().onTrue(new InstantCommand(() -> m_shooterFeeder.setRPM(SmartDashboard.getNumber("shooterFeeder/testRPM", 0.0))));
 
-        m_driverController.leftTrigger().onTrue(m_intakePivot.deployCommand());
-        m_driverController.leftBumper().onTrue(m_intakePivot.stowCommand());
+        m_driverController.leftTrigger().onTrue(m_intake.getIntakePivot().deployCommand());
+        m_driverController.leftBumper().onTrue(m_intake.retractIntakeCommand());
 
         SmartDashboard.putNumber("hood/testAngle", 0.0);
         SmartDashboard.putNumber("flywheel/testRPM", 0.0); 
@@ -235,12 +235,12 @@ public class RobotContainerCompBot extends RobotContainer {
     //     boolean onRedShouldHub = FieldConstants.isRedAlliance() && (m_drivetrain.getPose().getX() >= FieldConstants.FIELD_WIDTH - FieldConstants.SHOOT_HUB_LINE_BLUE);
     //     boolean onBlueShouldHub = !FieldConstants.isRedAlliance() && (m_drivetrain.getPose().getX() <= FieldConstants.SHOOT_HUB_LINE_BLUE);
     //     return onBlueShouldHub || onRedShouldHub;
-    //     // m_driverController.y().onTrue(getStartShootCommand());
+    //     // m_driverController.y().onTrue(getTestingStartShootCommand());
 
-    //     // m_driverController.x().onTrue(getStopShootCommand());
+    //     // m_driverController.x().onTrue(getTestingStopShootCommand());
     // }
     
-    private Command getStartShootCommand() {
+    private Command getTestingStartShootCommand() {
             return new InstantCommand(() -> m_shooter.getFlywheel().setRPM(SmartDashboard.getNumber("flywheel/testRPM", 0.0)))
             .alongWith(
                 new InstantCommand(() -> m_shooterFeeder.setRPM(SmartDashboard.getNumber("shooterFeeder/testRPM", 0.0))),
@@ -248,7 +248,7 @@ public class RobotContainerCompBot extends RobotContainer {
             );
     }
 
-    private Command getStopShootCommand() {
+    private Command getTestingStopShootCommand() {
             return new InstantCommand(m_shooter::stop).alongWith(new InstantCommand(m_shooterFeeder::stop));
     }
 
