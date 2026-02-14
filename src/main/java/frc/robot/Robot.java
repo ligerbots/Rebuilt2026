@@ -20,6 +20,7 @@ import frc.robot.subsystems.CommandSwerveDrivetrain;
 public class Robot extends TimedRobot {
     private Command m_autonomousCommand = null;
     private boolean m_prevIsRedAlliance = true;
+    int m_robotTicks = 0;
 
     public static final String TESTBOT_SERIAL_NUMBER = "0313baff";  // TODO: real value?
     public static final String COMPBOT_SERIAL_NUMBER = "030fc268";
@@ -77,6 +78,12 @@ public class Robot extends TimedRobot {
     public void robotPeriodic() {
         m_timeAndJoystickReplay.update();
         CommandScheduler.getInstance().run(); 
+        
+        // SmartDashBoard toggles won't work unless we poll them
+        // But we don't want to poll too often in ...Period functions
+        if (m_robotTicks++ % 10 == 0) {
+            SmartDashboard.getBoolean("TurretAngleTest", false);
+        }
     }
 
     @Override
