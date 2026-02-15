@@ -78,7 +78,8 @@ public class Robot extends TimedRobot {
     public void robotPeriodic() {
         m_timeAndJoystickReplay.update();
         CommandScheduler.getInstance().run(); 
-        SmartDashboard.putNumber("logging/CAN Bus Utilization %", RobotController.getCANStatus().percentBusUtilization * 100);
+        SmartDashboard.putNumber("logging/CAN Bus Utilization", RobotController.getCANStatus().percentBusUtilization);
+
     }
 
     @Override
