@@ -133,13 +133,21 @@ public class RobotContainerCompBot extends RobotContainer {
         new EventTrigger("Run Intake").onTrue(m_intake.deployAndRollCommand().alongWith(new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningIntake", true))));
         new EventTrigger("Stop Intake").onTrue(m_intake.stowCommand().alongWith(new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningIntake", false))));
 
-        new EventTrigger("Hub Shot Running").whileTrue(new Shoot(m_shooter, m_turret, m_shooterFeeder, m_drivetrain::getPose, ShotType.HUB).alongWith(new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningShooter", true))));
+        // TODO: should need only 1 AUTO shot trigger
+        new EventTrigger("Hub Shot Running").whileTrue(
+            new Shoot(m_shooter, m_turret, m_shooterFeeder, m_drivetrain::getPose, ShotType.HUB)
+                        .alongWith(
+                            m_hopper.pulseCommand(),
+                            new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningShooter", true))));
         new EventTrigger("Hub Shot Running").onFalse(new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningShooter", false)));
 
-        new EventTrigger("Passing Shot Running").whileTrue(new Shoot(m_shooter, m_turret, m_shooterFeeder, m_drivetrain::getPose, ShotType.PASS).alongWith(new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningShooter", true))));
+        new EventTrigger("Passing Shot Running").whileTrue(new Shoot(m_shooter, m_turret, m_shooterFeeder, m_drivetrain::getPose, ShotType.PASS)
+                        .alongWith(
+                            m_hopper.pulseCommand(),
+                            new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningShooter", true))));
         new EventTrigger("Passing Shot Running").onFalse(new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningShooter", false)));
  
-         // new EventTrigger("Run Shooter").onTrue(getTestingStartShootCommand().alongWith(new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningShooter", true))));
+        // new EventTrigger("Run Shooter").onTrue(getTestingStartShootCommand().alongWith(new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningShooter", true))));
         // new EventTrigger("Stop Shooter").onTrue(getTestingStopShootCommand().alongWith(new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningShooter", false))));
     }
 
@@ -167,13 +175,12 @@ public class RobotContainerCompBot extends RobotContainer {
         //                 () -> m_shooter.getHood().setAngle(Rotation2d.kZero)),
         //             m_hopper.pulseCommand())
         // );
+        // TEST Shot - allow shot calibratin
         m_driverController.rightTrigger().whileTrue(new Shoot(m_shooter, m_turret, m_shooterFeeder, m_drivetrain::getPose, ShotType.TEST)
                         .alongWith(m_hopper.pulseCommand()));
         m_driverController.a().whileTrue(new Shoot(m_shooter, m_turret, m_shooterFeeder, m_drivetrain::getPose, ShotType.AUTO)
                         .alongWith(m_hopper.pulseCommand()));
                              
-        // m_driverController.leftTrigger().onTrue(new InstantCommand(() -> m_shooterFeeder.setRPM(SmartDashboard.getNumber("shooterFeeder/testRPM", 0.0))));
-
         m_driverController.leftTrigger().onTrue(m_intake.getPivot().deployCommand());
         m_driverController.leftTrigger().whileTrue(
                 new StartEndCommand(m_intake.getRoller()::intake, m_intake.getRoller()::stop, m_intake.getRoller())
@@ -205,14 +212,6 @@ public class RobotContainerCompBot extends RobotContainer {
 
         m_drivetrain.registerTelemetry(m_logger::telemeterize);
 
-        // SmartDashboard.putNumber("intake/testVoltage", 0.0); 
-        // SmartDashboard.putNumber("intake/testAngle", 0.0); 
-        // SmartDashboard.putNumber("hopper/testVoltage", 0.0); 
-        // m_driverController.leftBumper().whileTrue(new StartEndCommand(
-        //     () -> m_intakeRoller.setVoltage(SmartDashboard.getNumber("intake/testVoltage", 0.0)), m_intakeRoller::stop, m_intakeRoller));
-        // m_driverController.rightBumper().whileTrue(new StartEndCommand(
-        //     () -> m_hopper.setVoltage(SmartDashboard.getNumber("hopper/testVoltage", 0.0)), m_hopper::stop, m_hopper));
-        // m_driverController.b().onTrue(new InstantCommand(() -> m_intakePivot.setAngle(Rotation2d.fromDegrees(SmartDashboard.getNumber("intake/testAngle", 0.0)))));
 
         // *** Test Commands *** 
         
@@ -233,18 +232,6 @@ public class RobotContainerCompBot extends RobotContainer {
         SmartDashboard.putBoolean("TurretAngleTest", false);
         Trigger turretAngleTestTrigger = new Trigger(() -> SmartDashboard.getBoolean("TurretAngleTest", false));
         turretAngleTestTrigger.whileTrue(turretAngleTest);
-
-        // m_driverController.y().onTrue(
-        //     new InstantCommand(() -> m_shooter.getFlywheel().setRPM(SmartDashboard.getNumber("flywheel/testRPM", 0.0)))
-        //     .alongWith(
-        //         new InstantCommand(() -> m_shooterFeeder.setRPM(SmartDashboard.getNumber("shooterFeeder/testRPM", 0.0))),
-        //         new InstantCommand(() -> m_shooter.getHood().setAngle(Rotation2d.fromDegrees(SmartDashboard.getNumber("hood/testAngle", 0.0))))
-        //     )
-        // );
-        // m_driverController.x().onTrue(new InstantCommand(m_shooter::stop).alongWith(new InstantCommand(m_shooterFeeder::stop)));
-        
-        // TODO: Enable me once shooter tabels are ready
-        // new Trigger(this::shouldShootHub).whileTrue(new ShootHub(m_shooter, m_turret, m_shooterFeeder, m_drivetrain::getPose));
     }
 
     private Command getTestingStartShootCommand() {
