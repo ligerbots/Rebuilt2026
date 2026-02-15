@@ -22,8 +22,8 @@ public class Shooter extends SubsystemBase {
         PASSING
     }
     
-    private ShooterState m_currentState = ShooterState.IDLE;
-    private ShotType m_shootType = ShotType.HUB_SHOT;
+    // private ShooterState m_currentState = ShooterState.IDLE;
+    // private ShotType m_shootType = ShotType.HUB_SHOT;
     
     private static final String HUB_LOOKUP_TABLE_FILE = "hub_shooting_lookup_table"; 
     private static final String SHUTTLE_LOOKUP_TABLE_FILE = "shuttle_shooting_lookup_table";
@@ -31,8 +31,8 @@ public class Shooter extends SubsystemBase {
     private final ShooterLookupTable m_hubShooterLookupTable;
     private final ShooterLookupTable m_shuttleShooterLookupTable;
     
-    private double m_targetDistanceMeters = 0.0;
-    ShooterLookupTable.ShootValue m_shootValues;
+    // private double m_targetDistanceMeters = 0.0;
+    // ShooterLookupTable.ShootValue m_shootValues;
     
     private Hood m_hood;
     private Flywheel m_flywheel;
@@ -92,7 +92,7 @@ public class Shooter extends SubsystemBase {
     * Stops all shooter-related subsystems.
     */
     public void stop() {
-        m_currentState = ShooterState.IDLE;
+        // m_currentState = ShooterState.IDLE;
         m_flywheel.stop();
         m_hood.setAngle(Rotation2d.kZero);
     }
@@ -100,7 +100,7 @@ public class Shooter extends SubsystemBase {
     public boolean onTarget() {
         return m_flywheel.onTarget() && m_hood.onTarget();
     }
-    
+
     public void setShootValues(ShootValue shootValues) {
         // Phase 2: Set shooter speed, and hood angle
         m_flywheel.setRPM(shootValues.flyRPM);
@@ -112,9 +112,9 @@ public class Shooter extends SubsystemBase {
     * 
     * @param distanceMeters The target distance in meters
     */
-    public ShootValue getShootValues(double distanceMeters, ShotType shotType) {
+    public ShootValue getShootValue(double distanceMeters, ShotType shotType) {
         // Calculate distance to target and retrieve shooter hood angle and speed from shot type.
-        if (m_shootType == ShotType.HUB_SHOT)
+        if (shotType == ShotType.HUB_SHOT)
             return m_hubShooterLookupTable.getShootValues(distanceMeters);
 
         return m_shuttleShooterLookupTable.getShootValues(distanceMeters);
@@ -125,11 +125,11 @@ public class Shooter extends SubsystemBase {
     * 
     * @return The current ShooterState (IDLE, SPINNING_UP, or READY_TO_SHOOT)
     */
-    public ShooterState getCurrentState() {
-        return m_currentState;
-    }
+    // public ShooterState getCurrentState() {
+    //     return m_currentState;
+    // }
     
-    public void setShootType(ShotType shootType) {
-        m_shootType = shootType;
-    }
+    // public void setShootType(ShotType shootType) {
+    //     m_shootType = shootType;
+    // }
 }

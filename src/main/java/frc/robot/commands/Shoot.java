@@ -50,7 +50,7 @@ public class Shoot extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    m_shooter.setShootType(m_shotType);
+    // m_shooter.setShootType(m_shotType);
   }
 
   @Override
@@ -72,15 +72,15 @@ public class Shoot extends Command {
 
     // Calculate distance and angle to target, send to shooter and turret subsystems
     double distanceToTarget = translationToHub.getNorm();
-    ShootValue shootValues = m_shooter.getShootValues(distanceToTarget, m_shotType);
-    m_shooter.setShootValues(shootValues);
+    ShootValue shootValue = m_shooter.getShootValue(distanceToTarget, m_shotType);
+    m_shooter.setShootValues(shootValue);
 
     Rotation2d angleToTarget = translationToHub.getAngle();
     m_turret.setAngle(angleToTarget);
 
     // Run feeder only when shooter and turret are ready
     if (m_shooter.onTarget()) {
-      m_feeder.setRPM(shootValues.feedRPM);
+      m_feeder.setRPM(shootValue.feedRPM);
       // m_hopper.run();
     }
   }
