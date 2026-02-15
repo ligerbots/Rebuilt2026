@@ -4,11 +4,8 @@
 
 package frc.robot.subsystems.shooter;
 
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.FieldConstants;
 import frc.robot.utilities.ShooterLookupTable;
 import frc.robot.utilities.ShooterLookupTable.ShootValue;
 
@@ -20,8 +17,8 @@ public class Shooter extends SubsystemBase {
         AUTO    // auto select hub vs pass
     }
     
-    private static final String HUB_LOOKUP_TABLE_FILE = "hub_shooting_lookup_table"; 
-    private static final String SHUTTLE_LOOKUP_TABLE_FILE = "shuttle_shooting_lookup_table";
+    private static final String HUB_LOOKUP_TABLE_FILE = "hub_shot_lookup_table.csv"; 
+    private static final String SHUTTLE_LOOKUP_TABLE_FILE = "pass_shot_lookup_table.csv";
     
     private final ShooterLookupTable m_hubShooterLookupTable;
     private final ShooterLookupTable m_shuttleShooterLookupTable;

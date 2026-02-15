@@ -18,7 +18,6 @@ import edu.wpi.first.wpilibj.Filesystem;
  */
 public class ShooterLookupTable { 
   private static final String LOOKUP_TABLE_DIRECTORY = "lookupTables/";
-  private static final String LOOKUP_TABLE_EXTENSION = ".csv";
 
   private final TreeMap<Double, ShootValue> m_lookupTable;
 
@@ -108,7 +107,7 @@ public class ShooterLookupTable {
     try (BufferedReader br = new BufferedReader(
         new FileReader(
             new File(
-                Filesystem.getDeployDirectory(), LOOKUP_TABLE_DIRECTORY + fileName + LOOKUP_TABLE_EXTENSION)))) {
+                Filesystem.getDeployDirectory(), LOOKUP_TABLE_DIRECTORY + fileName)))) {
       TreeMap<Double, ShootValue> parsedTable = new TreeMap<>();
       String line;
       
