@@ -224,7 +224,7 @@
       "minWaypointRelativePos": 1.1295681063122962,
       "maxWaypointRelativePos": 1.8161683277962544,
       "constraints": {
-        "maxVelocity": 1.5,
+        "maxVelocity": 0.75,
         "maxAcceleration": 3.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0,
@@ -275,15 +275,15 @@
   "pointTowardsZones": [],
   "eventMarkers": [
     {
-      "name": "Run Intake",
-      "waypointRelativePos": 0.664451827242541,
-      "endWaypointRelativePos": null,
+      "name": "Hub Shot Running",
+      "waypointRelativePos": 0.22,
+      "endWaypointRelativePos": 1.7275747508306023,
       "command": null
     },
     {
-      "name": "Hub Shot Running",
-      "waypointRelativePos": 0.9759358288770054,
-      "endWaypointRelativePos": 1.7275747508306023,
+      "name": "Run Intake",
+      "waypointRelativePos": 0.664451827242541,
+      "endWaypointRelativePos": null,
       "command": null
     },
     {
