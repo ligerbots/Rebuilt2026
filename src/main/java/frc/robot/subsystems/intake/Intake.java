@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems.intake;
 
+import java.net.CookieHandler;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -26,16 +28,17 @@ public class Intake extends SubsystemBase {
   }
 
   public Command stowCommand() {
-    return new InstantCommand(() -> m_intakeRoller.intake(), m_intakeRoller)
-                .andThen(new InstantCommand(() -> m_intakePivot.setAngle(IntakePivot.STOW_POSITION), m_intakePivot))
+    Command cmd = new InstantCommand(() -> m_intakeRoller.intake())
+                .andThen(new InstantCommand(() -> m_intakePivot.setAngle(IntakePivot.STOW_POSITION)))
                 .andThen(new WaitUntilCommand(m_intakePivot::onTarget))
-                .andThen(new InstantCommand(() -> m_intakePivot.setAngle(IntakePivot.STOW_POSITION, IntakePivot.SlotNumber.HOLD), m_intakePivot))
-                .andThen(new InstantCommand(m_intakeRoller::stop, m_intakeRoller));
+                .andThen(new InstantCommand(() -> m_intakePivot.setAngle(IntakePivot.STOW_POSITION, IntakePivot.SlotNumber.HOLD)))
+                .andThen(new InstantCommand(m_intakeRoller::stop));
+    cmd.addRequirements(m_intakePivot, m_intakeRoller);
+    return cmd;
   }
 
    public Command deployAndRollCommand() {
-    return m_intakePivot.deployCommand()
-      .alongWith(this.runRollers());
+    return m_intakePivot.deployCommand().alongWith(this.runRollers());
   }
 
   public Command deployCommand() {

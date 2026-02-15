@@ -120,7 +120,7 @@
         "y": 6.005748099189171
       },
       "nextControl": {
-        "x": 2.406650251142451,
+        "x": 2.40665025114245,
         "y": 6.41097942386161
       },
       "isLocked": false,
@@ -288,7 +288,7 @@
     },
     {
       "name": "Stop Intake",
-      "waypointRelativePos": 4.075304540420822,
+      "waypointRelativePos": 2.754010695187161,
       "endWaypointRelativePos": null,
       "command": null
     },
