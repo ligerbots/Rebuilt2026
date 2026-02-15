@@ -15,6 +15,7 @@ import frc.robot.subsystems.Hopper;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.ShooterFeeder;
 import frc.robot.subsystems.shooter.Turret;
+import frc.robot.utilities.ShooterLookupTable.ShootValue;
 
 /**
  * Command that coordinates shooting at the hub target.
@@ -25,7 +26,6 @@ public class Shoot extends Command {
   private final Shooter m_shooter;
   private final Turret m_turret;
   private final ShooterFeeder m_feeder;
-  private final Hopper m_hopper;
   private final Supplier<Pose2d> m_drivetrainPoseSupplier;
   private final Shooter.ShotType m_shotType;
 
@@ -37,11 +37,10 @@ public class Shoot extends Command {
    * @param feeder The feeder subsystem for feeding game pieces
    * @param drivetrain
    */
-  public Shoot(Shooter shooter, Turret turret, ShooterFeeder feeder, Hopper hopper, Supplier<Pose2d> drivetrainPoseSupplier, Shooter.ShotType shotType) {
+  public Shoot(Shooter shooter, Turret turret, ShooterFeeder feeder, Supplier<Pose2d> drivetrainPoseSupplier, Shooter.ShotType shotType) {
     m_turret = turret;
     m_shooter = shooter;
     m_feeder = feeder;
-    m_hopper = hopper;
     m_drivetrainPoseSupplier = drivetrainPoseSupplier;
     m_shotType = shotType;
 
@@ -68,19 +67,21 @@ public class Shoot extends Command {
     //   }
     // }
 
-    Translation2d translationToHub = Turret.getTranslationToGoal(m_drivetrainPoseSupplier.get(), FieldConstants.flipTranslation(FieldConstants.HUB_POSITION_BLUE));
+    Translation2d translationToHub = Turret.getTranslationToGoal(m_drivetrainPoseSupplier.get(), 
+          FieldConstants.flipTranslation(FieldConstants.HUB_POSITION_BLUE));
 
     // Calculate distance and angle to target, send to shooter and turret subsystems
     double distanceToTarget = translationToHub.getNorm();
-    m_shooter.setDistanceToTarget(distanceToTarget);
+    ShootValue shootValues = m_shooter.getShootValues(distanceToTarget, m_shotType);
+    m_shooter.setShootValues(shootValues);
 
     Rotation2d angleToTarget = translationToHub.getAngle();
     m_turret.setAngle(angleToTarget);
 
     // Run feeder only when shooter and turret are ready
-    if (m_shooter.getCurrentState() == Shooter.ShooterState.READY_TO_SHOOT && m_turret.isOnTarget()) {
-      m_feeder.feedForShooting();
-      m_hopper.run();
+    if (m_shooter.onTarget()) {
+      m_feeder.setRPM(shootValues.feedRPM);
+      // m_hopper.run();
     }
   }
 
@@ -88,7 +89,7 @@ public class Shoot extends Command {
   public void end(boolean interrupted) {
     m_shooter.stop();
     m_feeder.stop();
-    m_hopper.stop();
+    // m_hopper.stop();
   }
 
   /**

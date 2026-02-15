@@ -7,6 +7,7 @@ package frc.robot.subsystems.shooter;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.utilities.ShooterLookupTable;
+import frc.robot.utilities.ShooterLookupTable.ShootValue;
 
 public class Shooter extends SubsystemBase {
     
@@ -56,27 +57,27 @@ public class Shooter extends SubsystemBase {
     public void periodic() {
         // This method will be called once per scheduler run
         
-        // If in IDLE state, do nothing (skip shooting logic below)
-        if (m_currentState == ShooterState.IDLE) {
-            return;
-        }
+        // // If in IDLE state, do nothing (skip shooting logic below)
+        // if (m_currentState == ShooterState.IDLE) {
+        //     return;
+        // }
         
-        // Handle case where distance is out of range
-        if (m_shootValues == null) {
-            return;
-        }
+        // // Handle case where distance is out of range
+        // if (m_shootValues == null) {
+        //     return;
+        // }
         
-        // Phase 2: Set shooter speed, and hood angle
-        m_flywheel.setRPM(m_shootValues.flyRPM);
-        m_hood.setAngle(m_shootValues.hoodAngle);
-        m_feeder.setRPM(m_shootValues.feedRPM);
+        // // Phase 2: Set shooter speed, and hood angle
+        // m_flywheel.setRPM(m_shootValues.flyRPM);
+        // m_hood.setAngle(m_shootValues.hoodAngle);
+        // m_feeder.setRPM(m_shootValues.feedRPM);
         
-        // Phase 3: Check if all subsystems are at target values before running feeder
-        if (m_flywheel.onTarget() && m_hood.onTarget()) {
-            m_currentState = ShooterState.READY_TO_SHOOT;
-        } else {
-            m_currentState = ShooterState.SPINNING_UP;
-        }
+        // // Phase 3: Check if all subsystems are at target values before running feeder
+        // if (m_flywheel.onTarget() && m_hood.onTarget()) {
+        //     m_currentState = ShooterState.READY_TO_SHOOT;
+        // } else {
+        //     m_currentState = ShooterState.SPINNING_UP;
+        // }
     }
 
     public Flywheel getFlywheel() {
@@ -96,20 +97,27 @@ public class Shooter extends SubsystemBase {
         m_hood.setAngle(Rotation2d.kZero);
     }
     
+    public boolean onTarget() {
+        return m_flywheel.onTarget() && m_hood.onTarget();
+    }
+    
+    public void setShootValues(ShootValue shootValues) {
+        // Phase 2: Set shooter speed, and hood angle
+        m_flywheel.setRPM(shootValues.flyRPM);
+        m_hood.setAngle(shootValues.hoodAngle);
+    }
+
     /**
     * Sets the target distance for the shooter to use when calculating ballistic parameters.
     * 
     * @param distanceMeters The target distance in meters
     */
-    public void setDistanceToTarget(double distanceMeters) {
-        m_targetDistanceMeters = distanceMeters;
-
+    public ShootValue getShootValues(double distanceMeters, ShotType shotType) {
         // Calculate distance to target and retrieve shooter hood angle and speed from shot type.
-        if (m_shootType == ShotType.HUB_SHOT) {
-            m_shootValues = m_hubShooterLookupTable.getShootValues(m_targetDistanceMeters);
-        } else {
-            m_shootValues = m_shuttleShooterLookupTable.getShootValues(m_targetDistanceMeters);
-        }
+        if (m_shootType == ShotType.HUB_SHOT)
+            return m_hubShooterLookupTable.getShootValues(distanceMeters);
+
+        return m_shuttleShooterLookupTable.getShootValues(distanceMeters);
     }
     
     /**

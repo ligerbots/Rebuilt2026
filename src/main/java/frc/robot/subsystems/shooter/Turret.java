@@ -41,17 +41,19 @@ public class Turret extends SubsystemBase {
 
     private static final int ENCODER_SMALL_TOOTH_COUNT = 11;
     private static final int ENCODER_LARGE_TOOTH_COUNT = 13;
-    private static final double ENCODER_SMALL_OFFSET_ROTATIONS = -0.503;
-    private static final double ENCODER_LARGE_OFFSET_ROTATIONS = -0.283;
+    private static final double ENCODER_SMALL_OFFSET_ROTATIONS = 0.437;
+    private static final double ENCODER_LARGE_OFFSET_ROTATIONS = 0.050;
     private static final int TURRET_TOOTH_COUNT = 100;
     private static final double TURRET_GEAR_RATIO =  54.0 / 12.0 * TURRET_TOOTH_COUNT / 10.0;
     
     private static final double K_P = 2.0;
-    private static final double MAX_VEL_ROT_PER_SEC = 4.0 * TURRET_GEAR_RATIO;
-    private static final double MAX_ACC_ROT_PER_SEC_SQ = 40.0 * TURRET_GEAR_RATIO;
+    // private static final double MAX_VEL_ROT_PER_SEC = 4.0 * TURRET_GEAR_RATIO;
+    // private static final double MAX_ACC_ROT_PER_SEC_SQ = 40.0 * TURRET_GEAR_RATIO;
+    private static final double MAX_VEL_ROT_PER_SEC = 2.0 * TURRET_GEAR_RATIO;
+    private static final double MAX_ACC_ROT_PER_SEC_SQ = 10.0 * TURRET_GEAR_RATIO;
 
-    private static final double MAX_ROTATION_DEG = 170.0;
-    private static final double MIN_ROTATION_DEG = -170.0;
+    private static final double MAX_ROTATION_DEG = 180.0;
+    private static final double MIN_ROTATION_DEG = -140.0;
     
     // this is just the middle point of the full CRT range
     // include "1.0 *" to make sure it does floating point arithmetic
@@ -103,8 +105,8 @@ public class Turret extends SubsystemBase {
         SmartDashboard.putNumber("turret/crtAngle",getCRTAngle().getDegrees());   
         // SmartDashboard.putNumber("turret/motorVel", m_turretMotor.getVelocity().getValueAsDouble());
 
-        // SmartDashboard.putNumber("turret/absEncoder2", m_thruboreLarge.getAbsolutePosition().getValueAsDouble()*360);
-        // SmartDashboard.putNumber("turret/absEncoder1", m_thruboreSmall.getAbsolutePosition().getValueAsDouble()*360);
+        SmartDashboard.putNumber("turret/absEncoder2", m_thruboreLarge.getAbsolutePosition().getValueAsDouble()*360);
+        SmartDashboard.putNumber("turret/absEncoder1", m_thruboreSmall.getAbsolutePosition().getValueAsDouble()*360);
     }
     
     public void setAngle(Rotation2d angle) {
@@ -133,9 +135,9 @@ public class Turret extends SubsystemBase {
     
     private Rotation2d getCRTAngleRaw(){
         // USE ME FOR TUNING ABSOLUTE ENCODER OFFSETS ONLY:
-        // ChineseRemainder.smartDashboardLogABSOffsets(ENCODER_SMALL_TOOTH_COUNT, ENCODER_LARGE_TOOTH_COUNT, 
-        //         m_thruboreSmall.getAbsolutePosition().getValueAsDouble(),
-        //         m_thruboreLarge.getAbsolutePosition().getValueAsDouble());
+        ChineseRemainder.smartDashboardLogABSOffsets(ENCODER_SMALL_TOOTH_COUNT, ENCODER_LARGE_TOOTH_COUNT, 
+                m_thruboreSmall.getAbsolutePosition().getValueAsDouble(),
+                m_thruboreLarge.getAbsolutePosition().getValueAsDouble());
         return ChineseRemainder.findAngle(
                 m_thruboreSmall.getAbsolutePosition().getValueAsDouble() + ENCODER_SMALL_OFFSET_ROTATIONS,
                 ENCODER_SMALL_TOOTH_COUNT,
