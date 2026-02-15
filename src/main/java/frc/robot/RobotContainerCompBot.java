@@ -123,6 +123,9 @@ public class RobotContainerCompBot extends RobotContainer {
             "Bump Finish to Climb A"
         });
 
+        m_chosenAutoPaths.addOption("Depot Single Pass Blitz", new String[] {
+            "Depot Single Pass Blitz"
+        });
 
         m_chosenAutoPaths.addOption("Depot Double Blitz", new String[] {
             "Depot Double Blitz"
