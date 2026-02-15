@@ -275,7 +275,7 @@
   "pointTowardsZones": [],
   "eventMarkers": [
     {
-      "name": "Hub Shot Running",
+      "name": "Passing Shot Running",
       "waypointRelativePos": 0.22,
       "endWaypointRelativePos": 1.7275747508306023,
       "command": null
