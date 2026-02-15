@@ -5,6 +5,7 @@
 package frc.robot.subsystems.shooter;
 
 import frc.robot.Constants;
+import frc.robot.FieldConstants;
 import frc.robot.utilities.ChineseRemainder;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;

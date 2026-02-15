@@ -65,8 +65,8 @@ public class RobotContainerCompBot extends RobotContainer {
 
     private final CommandSwerveDrivetrain m_drivetrain;
     private final AprilTagVision m_aprilTagVision = new AprilTagVision(Robot.RobotType.COMPBOT, m_logger.getField2d());
-    private final Shooter m_shooter = new Shooter();
     private final ShooterFeeder m_shooterFeeder = new ShooterFeeder();
+    private final Shooter m_shooter = new Shooter(m_shooterFeeder);
     private final Turret m_turret = new Turret();
 
     private final Intake m_intake = new Intake();

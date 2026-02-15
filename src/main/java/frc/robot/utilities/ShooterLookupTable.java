@@ -35,17 +35,19 @@ public class ShooterLookupTable {
    * Represents RPM and hood angle for a given distance.
    */
   public static class ShootValue {
-    public final double rpm;
+    public final double flyRPM;
+    public final double feedRPM;
     public final Rotation2d hoodAngle;
 
     /**
      * Creates a new ShootValue.
      * 
-     * @param rpm       The shooter RPM
+     * @param flyRPM       The shooter RPM
      * @param hoodAngle The hood angle as a Rotation2d object
      */
-    public ShootValue(double rpm, Rotation2d hoodAngle) {
-      this.rpm = rpm;
+    public ShootValue(double flyRPM, double feedRPM, Rotation2d hoodAngle) {
+      this.flyRPM = flyRPM;
+      this.feedRPM = feedRPM;
       this.hoodAngle = hoodAngle;
     }
   }
@@ -59,10 +61,12 @@ public class ShooterLookupTable {
    * @return A new ShootValue instance with interpolated values
    */
   private static ShootValue interpolate(ShootValue start, ShootValue end, double ratio) {
-    double interpolatedRpm = start.rpm + (end.rpm - start.rpm) * ratio;
+    double interpolatedFlyRpm = start.flyRPM + (end.flyRPM - start.flyRPM) * ratio;
+    double feedRPM = start.feedRPM + (end.feedRPM - start.feedRPM) * ratio;
+
     // Interpolate hood angle using Rotation2d arithmetic: start + (end - start) * ratio
     Rotation2d interpolatedHoodAngle = start.hoodAngle.plus(end.hoodAngle.minus(start.hoodAngle).times(ratio));
-    return new ShootValue(interpolatedRpm, interpolatedHoodAngle);
+    return new ShootValue(interpolatedFlyRpm, feedRPM, interpolatedHoodAngle);
   }
 
   /**
@@ -125,14 +129,15 @@ public class ShooterLookupTable {
         
         try {
           double distanceInches = Double.parseDouble(values[0]);
-          double rpm = Double.parseDouble(values[1]);
-          double hoodAngleDegrees = Double.parseDouble(values[2]);
+          double flyRPM = Double.parseDouble(values[1]);
+          double feedRPM = Double.parseDouble(values[2]);
+          double hoodAngleDegrees = Double.parseDouble(values[3]);
           
           // Convert distance from inches to meters
           double distanceMeters = Units.inchesToMeters(distanceInches);
           Rotation2d hoodAngle = Rotation2d.fromDegrees(hoodAngleDegrees);
           
-          parsedTable.put(distanceMeters, new ShootValue(rpm, hoodAngle));
+          parsedTable.put(distanceMeters, new ShootValue(flyRPM, feedRPM, hoodAngle));
         } catch (NumberFormatException e) {
           // Skip entries with invalid number formats
           continue;

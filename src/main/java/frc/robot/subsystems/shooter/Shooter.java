@@ -35,18 +35,20 @@ public class Shooter extends SubsystemBase {
     
     private Hood m_hood;
     private Flywheel m_flywheel;
-    
+    private final ShooterFeeder m_feeder;
+
     /**
     * Constructs a Shooter subsystem with lookup tables for hub and shuttle shooting.
     *
     * @param hubLookupTableFileName the file name for the lookup table for hub shooting calculations
     * @param shuttleLookupTableFileName the file name for the lookup table for shuttle shooting calculations
     */
-    public Shooter() {
+    public Shooter(ShooterFeeder feeder) {
         m_hubShooterLookupTable = new ShooterLookupTable(HUB_LOOKUP_TABLE_FILE);
         m_shuttleShooterLookupTable = new ShooterLookupTable(SHUTTLE_LOOKUP_TABLE_FILE);
         
         m_hood = new Hood();
+        m_feeder = feeder;
         m_flywheel = new Flywheel();
     }
     
@@ -65,8 +67,9 @@ public class Shooter extends SubsystemBase {
         }
         
         // Phase 2: Set shooter speed, and hood angle
-        m_flywheel.setRPM(m_shootValues.rpm);
+        m_flywheel.setRPM(m_shootValues.flyRPM);
         m_hood.setAngle(m_shootValues.hoodAngle);
+        m_feeder.setRPM(m_shootValues.feedRPM);
         
         // Phase 3: Check if all subsystems are at target values before running feeder
         if (m_flywheel.onTarget() && m_hood.onTarget()) {

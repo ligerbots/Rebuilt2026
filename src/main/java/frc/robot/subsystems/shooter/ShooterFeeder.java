@@ -73,7 +73,7 @@ public class ShooterFeeder extends SubsystemBase {
     public void setRPM(double rpm){
         m_goalRPM = rpm;
         double rps = m_goalRPM / 60; //convert rpm to rps
-        m_motor.setControl(new VelocityVoltage(rps).withFeedForward(K_FF * rpm));
+        m_motor.setControl(new VelocityVoltage(rps).withFeedForward(K_FF * rpm).withEnableFOC(true));
     }
     
     public void stop(){

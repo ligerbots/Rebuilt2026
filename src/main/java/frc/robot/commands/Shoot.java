@@ -1,12 +1,3 @@
-// TODO List:
-// - Implement shuttle command (basically copy of this but with shuttle lookup table & changing shoot to target based off location)
-// 
-// 
-// 
-
-
-
-
 // Copyright (c) FIRST and other WPILib contributors.
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
@@ -20,7 +11,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.FieldConstants;
-import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Hopper;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.ShooterFeeder;
@@ -66,17 +56,17 @@ public class Shoot extends Command {
 
   @Override
   public void execute() {
-    Translation2d goalTranslation;
+    // Translation2d goalTranslation;
 
-    if (m_shotType == Shooter.ShotType.HUB_SHOT) {
-      goalTranslation = FieldConstants.flipTranslation(FieldConstants.HUB_POSITION_BLUE);
-    } else {
-      if (FieldConstants.FIELD_LENGTH/2.0 < m_drivetrainPoseSupplier.get().getX()) {
-        goalTranslation = FieldConstants.mirrorTranslationX(FieldConstants.PASSING_TARGET_UPPER);
-      } else {
-        goalTranslation = FieldConstants.mirrorTranslationX(FieldConstants.PASSING_TARGET_LOWER);
-      }
-    }
+    // if (m_shotType == Shooter.ShotType.HUB_SHOT) {
+    //   goalTranslation = FieldConstants.flipTranslation(FieldConstants.HUB_POSITION_BLUE);
+    // } else {
+    //   if (FieldConstants.FIELD_LENGTH/2.0 < m_drivetrainPoseSupplier.get().getX()) {
+    //     goalTranslation = FieldConstants.mirrorTranslationX(FieldConstants.PASSING_TARGET_UPPER);
+    //   } else {
+    //     goalTranslation = FieldConstants.mirrorTranslationX(FieldConstants.PASSING_TARGET_LOWER);
+    //   }
+    // }
 
     Translation2d translationToHub = Turret.getTranslationToGoal(m_drivetrainPoseSupplier.get(), FieldConstants.flipTranslation(FieldConstants.HUB_POSITION_BLUE));
 
