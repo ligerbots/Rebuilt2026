@@ -11,19 +11,11 @@ import frc.robot.utilities.ShooterLookupTable.ShootValue;
 
 public class Shooter extends SubsystemBase {
     
-    public enum ShooterState {
-        IDLE,
-        SPINNING_UP,
-        READY_TO_SHOOT
-    }
-    
     public enum ShotType {
-        HUB_SHOT,
-        PASSING
+        HUB,
+        PASS,
+        TEST
     }
-    
-    // private ShooterState m_currentState = ShooterState.IDLE;
-    // private ShotType m_shootType = ShotType.HUB_SHOT;
     
     private static final String HUB_LOOKUP_TABLE_FILE = "hub_shooting_lookup_table"; 
     private static final String SHUTTLE_LOOKUP_TABLE_FILE = "shuttle_shooting_lookup_table";
@@ -31,12 +23,8 @@ public class Shooter extends SubsystemBase {
     private final ShooterLookupTable m_hubShooterLookupTable;
     private final ShooterLookupTable m_shuttleShooterLookupTable;
     
-    // private double m_targetDistanceMeters = 0.0;
-    // ShooterLookupTable.ShootValue m_shootValues;
-    
     private Hood m_hood;
     private Flywheel m_flywheel;
-    private final ShooterFeeder m_feeder;
 
     /**
     * Constructs a Shooter subsystem with lookup tables for hub and shuttle shooting.
@@ -44,47 +32,23 @@ public class Shooter extends SubsystemBase {
     * @param hubLookupTableFileName the file name for the lookup table for hub shooting calculations
     * @param shuttleLookupTableFileName the file name for the lookup table for shuttle shooting calculations
     */
-    public Shooter(ShooterFeeder feeder) {
+    public Shooter() {
         m_hubShooterLookupTable = new ShooterLookupTable(HUB_LOOKUP_TABLE_FILE);
         m_shuttleShooterLookupTable = new ShooterLookupTable(SHUTTLE_LOOKUP_TABLE_FILE);
         
         m_hood = new Hood();
-        m_feeder = feeder;
         m_flywheel = new Flywheel();
     }
     
-    @Override
-    public void periodic() {
-        // This method will be called once per scheduler run
-        
-        // // If in IDLE state, do nothing (skip shooting logic below)
-        // if (m_currentState == ShooterState.IDLE) {
-        //     return;
-        // }
-        
-        // // Handle case where distance is out of range
-        // if (m_shootValues == null) {
-        //     return;
-        // }
-        
-        // // Phase 2: Set shooter speed, and hood angle
-        // m_flywheel.setRPM(m_shootValues.flyRPM);
-        // m_hood.setAngle(m_shootValues.hoodAngle);
-        // m_feeder.setRPM(m_shootValues.feedRPM);
-        
-        // // Phase 3: Check if all subsystems are at target values before running feeder
-        // if (m_flywheel.onTarget() && m_hood.onTarget()) {
-        //     m_currentState = ShooterState.READY_TO_SHOOT;
-        // } else {
-        //     m_currentState = ShooterState.SPINNING_UP;
-        // }
-    }
+    // @Override
+    // public void periodic() {
+    // }
 
     public Flywheel getFlywheel() {
         return m_flywheel;
     }
 
-     public Hood getHood() {
+    public Hood getHood() {
         return m_hood;
     }
     
@@ -92,7 +56,6 @@ public class Shooter extends SubsystemBase {
     * Stops all shooter-related subsystems.
     */
     public void stop() {
-        // m_currentState = ShooterState.IDLE;
         m_flywheel.stop();
         m_hood.setAngle(Rotation2d.kZero);
     }
@@ -114,22 +77,9 @@ public class Shooter extends SubsystemBase {
     */
     public ShootValue getShootValue(double distanceMeters, ShotType shotType) {
         // Calculate distance to target and retrieve shooter hood angle and speed from shot type.
-        if (shotType == ShotType.HUB_SHOT)
+        if (shotType == ShotType.HUB)
             return m_hubShooterLookupTable.getShootValues(distanceMeters);
 
         return m_shuttleShooterLookupTable.getShootValues(distanceMeters);
     }
-    
-    /**
-    * Gets the current state of the shooter.
-    * 
-    * @return The current ShooterState (IDLE, SPINNING_UP, or READY_TO_SHOOT)
-    */
-    // public ShooterState getCurrentState() {
-    //     return m_currentState;
-    // }
-    
-    // public void setShootType(ShotType shootType) {
-    //     m_shootType = shootType;
-    // }
 }

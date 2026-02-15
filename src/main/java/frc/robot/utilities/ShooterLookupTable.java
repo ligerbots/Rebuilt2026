@@ -26,8 +26,8 @@ public class ShooterLookupTable {
   private static final String SEPARATOR = ",";
 
 
-  public ShooterLookupTable(String path) {
-    m_lookupTable = loadLookupTableFromFile(path);
+  public ShooterLookupTable(String filename) {
+    m_lookupTable = loadLookupTableFromFile(filename);
   }
 
   /**
@@ -123,9 +123,6 @@ public class ShooterLookupTable {
         
         // Parse the three separator-delimited values
         String[] values = cleanedEntry.split(SEPARATOR);
-        if (values.length != 3) {
-          continue; // Skip malformed entries
-        }
         
         try {
           double distanceInches = Double.parseDouble(values[0]);
