@@ -176,17 +176,24 @@ public class RobotContainerCompBot extends RobotContainer {
         //             m_hopper.pulseCommand())
         // );
         // TEST Shot - allow shot calibratin
-        m_driverController.rightTrigger().whileTrue(new Shoot(m_shooter, m_turret, m_shooterFeeder, m_drivetrain::getPose, ShotType.TEST)
+        m_driverController.rightTrigger().whileTrue(new Shoot(m_shooter, m_turret, m_shooterFeeder, m_drivetrain::getPose, ShotType.AUTO)
                         .alongWith(m_hopper.pulseCommand()));
-        m_driverController.a().whileTrue(new Shoot(m_shooter, m_turret, m_shooterFeeder, m_drivetrain::getPose, ShotType.AUTO)
+
+        m_driverController.rightBumper().whileTrue(new Shoot(m_shooter, m_turret, m_shooterFeeder, m_drivetrain::getPose, ShotType.AUTO)
                         .alongWith(m_hopper.pulseCommand()));
+        m_driverController.rightBumper().onTrue(m_intake.getPivot().deployCommand());
+        m_driverController.rightBumper().whileTrue(
+                new StartEndCommand(m_intake.getRoller()::intake, m_intake.getRoller()::stop, m_intake.getRoller()));
                              
         m_driverController.leftTrigger().onTrue(m_intake.getPivot().deployCommand());
         m_driverController.leftTrigger().whileTrue(
                 new StartEndCommand(m_intake.getRoller()::intake, m_intake.getRoller()::stop, m_intake.getRoller())
-                        .alongWith(new StartEndCommand(m_hopper::run, m_hopper::stop, m_hopper)));
+                        .alongWith(new StartEndCommand(m_hopper::intake, m_hopper::stop, m_hopper)));
 
         m_driverController.leftBumper().onTrue(m_intake.stowCommand());
+
+        m_driverController.a().whileTrue(new Shoot(m_shooter, m_turret, m_shooterFeeder, m_drivetrain::getPose, ShotType.TEST)
+                        .alongWith(m_hopper.pulseCommand()));
 
         // SmartDashboard.putNumber("hood/testAngle", 0.0);
         // SmartDashboard.putNumber("flywheel/testRPM", 0.0); 

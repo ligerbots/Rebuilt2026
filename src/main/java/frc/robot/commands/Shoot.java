@@ -52,6 +52,7 @@ public class Shoot extends Command {
     public void initialize() {
         switch (m_shotType) {
             case AUTO:
+            case TEST:
                 m_target = shotTarget(m_poseSupplier.get());
                 break;
             case HUB:
@@ -71,20 +72,17 @@ public class Shoot extends Command {
     
     @Override
     public void execute() {
-        ShootValue shootValue;
+        Translation2d translationToHub = Turret.getTranslationToGoal(m_poseSupplier.get(), m_target);
 
+        ShootValue shootValue;
         if (m_shotType == ShotType.TEST) {
             shootValue = testShootValue();
-            // NOTE: do not set the turret in the test command
         } else {
-            Translation2d translationToHub = Turret.getTranslationToGoal(m_poseSupplier.get(), m_target);
-            
             // Calculate distance and angle to target, send to shooter and turret subsystems
             shootValue = m_shooter.getShootValue(translationToHub.getNorm(), m_shotType);
-            
-            m_turret.setAngle(translationToHub.getAngle());
         }
         
+        m_turret.setAngle(translationToHub.getAngle());
         m_shooter.setShootValues(shootValue);
         
         // Run feeder only when shooter and turret are ready
