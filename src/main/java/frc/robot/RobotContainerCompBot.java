@@ -105,6 +105,10 @@ public class RobotContainerCompBot extends RobotContainer {
                 "Depot Simple"
         });
 
+        m_chosenAutoPaths.addOption("Depot Full Pass", new String[] {
+                "Depot Full Pass"
+        });
+
         m_chosenAutoPaths.addOption("Basic Center Auto - Trench", new String[] {
             "Start Trench to Fuel Begin",
             "Fuel Begin to Fuel End With Events",
