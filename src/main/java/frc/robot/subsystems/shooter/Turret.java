@@ -25,7 +25,7 @@ import com.ctre.phoenix6.configs.CANcoderConfiguration;
 
 public class Turret extends SubsystemBase {
     
-    private static final Translation2d TURRET_OFFSET = new Translation2d(Units.inchesToMeters(-8.33),  Units.inchesToMeters(-4.36));
+    private static final Translation2d TURRET_OFFSET = new Translation2d(Units.inchesToMeters(-2.5626),  Units.inchesToMeters(-4.875));
     private static final double TURRET_HEADING_OFFSET_DEG = 180.0;
     private static final double ANGLE_TOLERANCE_DEG = 2.0; 
     
