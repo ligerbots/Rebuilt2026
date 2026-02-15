@@ -34,6 +34,10 @@ public class Hood extends SubsystemBase {
     
     private static final double K_P = 5.0;
     
+    // private static final double MAX_VEL_ROT_PER_SEC = 12.0 / GEAR_RATIO;
+    // private static final double MAX_ACC_ROT_PER_SEC = 20.0 / GEAR_RATIO;
+    //
+    // 2/14 testing at WPI - slowed down; jumping off end. Still needed??
     private static final double MAX_VEL_ROT_PER_SEC = 8.0 / GEAR_RATIO;
     private static final double MAX_ACC_ROT_PER_SEC = 15.0 / GEAR_RATIO;
     
