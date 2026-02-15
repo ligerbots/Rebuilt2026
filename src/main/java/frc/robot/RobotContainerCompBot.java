@@ -35,6 +35,7 @@ import frc.robot.generated.TunerConstantsCompBot;
 import frc.robot.subsystems.AprilTagVision;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Hopper;
+import frc.robot.subsystems.PowerSystem;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.Shooter.ShotType;
@@ -72,6 +73,8 @@ public class RobotContainerCompBot extends RobotContainer {
 
     private final Intake m_intake = new Intake();
     private final Hopper m_hopper = new Hopper();
+
+    private final PowerSystem m_powerSystem = new PowerSystem();
 
     private final SendableChooser<String> m_chosenFieldSide = new SendableChooser<>();
     private final SendableChooser<String[]> m_chosenAutoPaths = new SendableChooser<>();
