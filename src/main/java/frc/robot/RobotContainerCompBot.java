@@ -29,7 +29,6 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.*;
-import frc.robot.commands.TMP_turretAngleTest;
 import frc.robot.commands.autoCommands.AutoCommandInterface;
 import frc.robot.commands.autoCommands.CoreAuto;
 import frc.robot.generated.TunerConstantsCompBot;
@@ -154,38 +153,37 @@ public class RobotContainerCompBot extends RobotContainer {
             m_drivetrain.applyRequest(() -> idle).ignoringDisable(true)
         );
 
-        // shoot command - test version
-        m_driverController.rightTrigger().whileTrue(
-            new StartEndCommand(
-                () -> m_shooter.getFlywheel().setRPM(SmartDashboard.getNumber("flywheel/testRPM", 0.0)),
-                m_shooter::stop)
-            .alongWith(
-                    new StartEndCommand(
-                        () -> m_shooterFeeder.setRPM(SmartDashboard.getNumber("shooterFeeder/testRPM", 0.0)), 
-                        m_shooterFeeder::stop),
-                    new StartEndCommand(
-                        () -> m_shooter.getHood().setAngle(Rotation2d.fromDegrees(SmartDashboard.getNumber("hood/testAngle", 0.0))),
-                        () -> m_shooter.getHood().setAngle(Rotation2d.kZero)),
-                    m_hopper.pulseCommand())
-        );
-
-        m_driverController.a().whileTrue(new Shoot(m_shooter, m_turret, m_shooterFeeder, m_drivetrain::getPose, ShotType.HUB)
-                .alongWith(m_hopper.pulseCommand()));
-         
-        m_driverController.b().whileTrue(m_hopper.pulseCommand());
-                    
-        SmartDashboard.putNumber("shooterFeeder/testRPM", 0.0); 
+        // // shoot command - test version
+        // m_driverController.rightTrigger().whileTrue(
+        //     new StartEndCommand(
+        //         () -> m_shooter.getFlywheel().setRPM(SmartDashboard.getNumber("flywheel/testRPM", 0.0)),
+        //         m_shooter::stop)
+        //     .alongWith(
+        //             new StartEndCommand(
+        //                 () -> m_shooterFeeder.setRPM(SmartDashboard.getNumber("shooterFeeder/testRPM", 0.0)), 
+        //                 m_shooterFeeder::stop),
+        //             new StartEndCommand(
+        //                 () -> m_shooter.getHood().setAngle(Rotation2d.fromDegrees(SmartDashboard.getNumber("hood/testAngle", 0.0))),
+        //                 () -> m_shooter.getHood().setAngle(Rotation2d.kZero)),
+        //             m_hopper.pulseCommand())
+        // );
+        m_driverController.rightTrigger().whileTrue(new Shoot(m_shooter, m_turret, m_shooterFeeder, m_drivetrain::getPose, ShotType.TEST)
+                        .alongWith(m_hopper.pulseCommand()));
+        m_driverController.a().whileTrue(new Shoot(m_shooter, m_turret, m_shooterFeeder, m_drivetrain::getPose, ShotType.AUTO)
+                        .alongWith(m_hopper.pulseCommand()));
+                             
         // m_driverController.leftTrigger().onTrue(new InstantCommand(() -> m_shooterFeeder.setRPM(SmartDashboard.getNumber("shooterFeeder/testRPM", 0.0))));
 
-        m_driverController.leftTrigger().whileTrue(new StartEndCommand(m_intake.getRoller()::intake, m_intake.getRoller()::stop, m_intake.getRoller()));
         m_driverController.leftTrigger().onTrue(m_intake.getPivot().deployCommand());
-        m_driverController.leftTrigger().whileTrue(new StartEndCommand(m_hopper::run, m_hopper::stop, m_hopper));
+        m_driverController.leftTrigger().whileTrue(
+                new StartEndCommand(m_intake.getRoller()::intake, m_intake.getRoller()::stop, m_intake.getRoller())
+                        .alongWith(new StartEndCommand(m_hopper::run, m_hopper::stop, m_hopper)));
 
         m_driverController.leftBumper().onTrue(m_intake.stowCommand());
 
-        SmartDashboard.putNumber("hood/testAngle", 0.0);
-        SmartDashboard.putNumber("flywheel/testRPM", 0.0); 
-        SmartDashboard.putNumber("shooterFeeder/testRPM", 0.0); 
+        // SmartDashboard.putNumber("hood/testAngle", 0.0);
+        // SmartDashboard.putNumber("flywheel/testRPM", 0.0); 
+        // SmartDashboard.putNumber("shooterFeeder/testRPM", 0.0); 
 
         m_driverController.x().onTrue(new InstantCommand(m_shooter::stop).alongWith(new InstantCommand(m_shooterFeeder::stop)));
 
@@ -249,16 +247,6 @@ public class RobotContainerCompBot extends RobotContainer {
         // new Trigger(this::shouldShootHub).whileTrue(new ShootHub(m_shooter, m_turret, m_shooterFeeder, m_drivetrain::getPose));
     }
 
-    // Determines wether we should start shooting at the hub because we are in our zone.
-    // private boolean shouldShootHub() {
-    //     boolean onRedShouldHub = FieldConstants.isRedAlliance() && (m_drivetrain.getPose().getX() >= FieldConstants.FIELD_LENGTH - FieldConstants.SHOOT_HUB_LINE_BLUE);
-    //     boolean onBlueShouldHub = !FieldConstants.isRedAlliance() && (m_drivetrain.getPose().getX() <= FieldConstants.SHOOT_HUB_LINE_BLUE);
-    //     return onBlueShouldHub || onRedShouldHub;
-    //     // m_driverController.y().onTrue(getTestingStartShootCommand());
-
-    //     // m_driverController.x().onTrue(getTestingStopShootCommand());
-    // }
-    
     private Command getTestingStartShootCommand() {
             return new InstantCommand(() -> m_shooter.getFlywheel().setRPM(SmartDashboard.getNumber("flywheel/testRPM", 0.0)))
             .alongWith(

@@ -4,17 +4,20 @@
 
 package frc.robot.subsystems.shooter;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.FieldConstants;
 import frc.robot.utilities.ShooterLookupTable;
 import frc.robot.utilities.ShooterLookupTable.ShootValue;
 
 public class Shooter extends SubsystemBase {
-    
     public enum ShotType {
         HUB,
         PASS,
-        TEST
+        TEST,   // test shot using SmartDashboard values. See Shoot cmd
+        AUTO    // auto select hub vs pass
     }
     
     private static final String HUB_LOOKUP_TABLE_FILE = "hub_shooting_lookup_table"; 
@@ -77,9 +80,8 @@ public class Shooter extends SubsystemBase {
     */
     public ShootValue getShootValue(double distanceMeters, ShotType shotType) {
         // Calculate distance to target and retrieve shooter hood angle and speed from shot type.
-        if (shotType == ShotType.HUB)
-            return m_hubShooterLookupTable.getShootValues(distanceMeters);
-
-        return m_shuttleShooterLookupTable.getShootValues(distanceMeters);
+        if (shotType == ShotType.PASS)
+            return m_shuttleShooterLookupTable.getShootValues(distanceMeters);
+        return m_hubShooterLookupTable.getShootValues(distanceMeters);
     }
 }

@@ -9,11 +9,13 @@ import java.util.function.Supplier;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.FieldConstants;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.ShooterFeeder;
 import frc.robot.subsystems.shooter.Turret;
+import frc.robot.subsystems.shooter.Shooter.ShotType;
 import frc.robot.utilities.ShooterLookupTable.ShootValue;
 
 /**
@@ -25,57 +27,65 @@ public class Shoot extends Command {
     private final Shooter m_shooter;
     private final Turret m_turret;
     private final ShooterFeeder m_feeder;
-    private final Supplier<Pose2d> m_drivetrainPoseSupplier;
+    private final Supplier<Pose2d> m_poseSupplier;
+
     private final Shooter.ShotType m_shotType;
-    
-    /**
-    * Constructs a ShootHub command.
-    * 
-    * @param shooter The shooter subsystem for managing flywheel and hood
-    * @param turret The turret subsystem for aiming at the hub
-    * @param feeder The feeder subsystem for feeding game pieces
-    * @param drivetrain
-    */
-    public Shoot(Shooter shooter, Turret turret, ShooterFeeder feeder, Supplier<Pose2d> drivetrainPoseSupplier, Shooter.ShotType shotType) {
+    private Translation2d m_target;
+
+    public Shoot(Shooter shooter, Turret turret, ShooterFeeder feeder, Supplier<Pose2d> poseSupplier, Shooter.ShotType shotType) {
         m_turret = turret;
         m_shooter = shooter;
         m_feeder = feeder;
-        m_drivetrainPoseSupplier = drivetrainPoseSupplier;
+        m_poseSupplier = poseSupplier;
+
         m_shotType = shotType;
-        
         addRequirements(shooter, turret, feeder);
+
+        // SD values used in the Test command
+        SmartDashboard.putNumber("hood/testAngle", 0.0);
+        SmartDashboard.putNumber("flywheel/testRPM", 0.0); 
+        SmartDashboard.putNumber("shooterFeeder/testRPM", 0.0); 
     }
     
     // Called when the command is initially scheduled.
     @Override
     public void initialize() {
-        // m_shooter.setShootType(m_shotType);
+        switch (m_shotType) {
+            case AUTO:
+                m_target = shotTarget(m_poseSupplier.get());
+                break;
+            case HUB:
+                m_target = FieldConstants.flipTranslation(FieldConstants.HUB_POSITION_BLUE);
+                break;
+            case PASS:
+                if (m_poseSupplier.get().getY() < FieldConstants.FIELD_WIDTH / 2.0)
+                    m_target = FieldConstants.flipTranslation(FieldConstants.PASSING_TARGET_LOWER);
+                else
+                    m_target = FieldConstants.flipTranslation(FieldConstants.PASSING_TARGET_UPPER);
+                break;
+                
+            default:
+                break;
+        }
     }
     
     @Override
     public void execute() {
-        // Translation2d goalTranslation;
+        ShootValue shootValue;
+
+        if (m_shotType == ShotType.TEST) {
+            shootValue = testShootValue();
+            // NOTE: do not set the turret in the test command
+        } else {
+            Translation2d translationToHub = Turret.getTranslationToGoal(m_poseSupplier.get(), m_target);
+            
+            // Calculate distance and angle to target, send to shooter and turret subsystems
+            shootValue = m_shooter.getShootValue(translationToHub.getNorm(), m_shotType);
+            
+            m_turret.setAngle(translationToHub.getAngle());
+        }
         
-        // if (m_shotType == Shooter.ShotType.HUB_SHOT) {
-        //   goalTranslation = FieldConstants.flipTranslation(FieldConstants.HUB_POSITION_BLUE);
-        // } else {
-        //   if (FieldConstants.FIELD_LENGTH/2.0 < m_drivetrainPoseSupplier.get().getX()) {
-        //     goalTranslation = FieldConstants.mirrorTranslationX(FieldConstants.PASSING_TARGET_UPPER);
-        //   } else {
-        //     goalTranslation = FieldConstants.mirrorTranslationX(FieldConstants.PASSING_TARGET_LOWER);
-        //   }
-        // }
-        
-        Translation2d translationToHub = Turret.getTranslationToGoal(m_drivetrainPoseSupplier.get(), 
-        FieldConstants.flipTranslation(FieldConstants.HUB_POSITION_BLUE));
-        
-        // Calculate distance and angle to target, send to shooter and turret subsystems
-        double distanceToTarget = translationToHub.getNorm();
-        ShootValue shootValue = m_shooter.getShootValue(distanceToTarget, m_shotType);
         m_shooter.setShootValues(shootValue);
-        
-        Rotation2d angleToTarget = translationToHub.getAngle();
-        m_turret.setAngle(angleToTarget);
         
         // Run feeder only when shooter and turret are ready
         if (m_shooter.onTarget()) {
@@ -97,5 +107,27 @@ public class Shoot extends Command {
     @Override
     public boolean isFinished() {
         return false;
+    }
+
+    // Determines whether we should start shooting at the hub because we are in our zone.
+    private Translation2d shotTarget(Pose2d robotPose) {
+        Translation2d blueLocation = FieldConstants.flipTranslation(robotPose.getTranslation());
+        Translation2d target;
+        if (blueLocation.getX() < FieldConstants.HUB_POSITION_BLUE.getX()) {
+            target = FieldConstants.HUB_POSITION_BLUE;
+        } else if (blueLocation.getY() < FieldConstants.FIELD_WIDTH / 2.0) {
+            target = FieldConstants.PASSING_TARGET_LOWER;
+        } else {
+            target = FieldConstants.PASSING_TARGET_UPPER;
+        }
+
+        return FieldConstants.flipTranslation(target);
+    }
+
+    private ShootValue testShootValue() {
+        return new ShootValue(
+                SmartDashboard.getNumber("flywheel/testRPM", 0.0),
+                SmartDashboard.getNumber("shooterFeeder/testRPM", 0.0),
+                Rotation2d.fromDegrees(SmartDashboard.getNumber("hood/testAngle", 0.0)));
     }
 }
