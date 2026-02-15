@@ -28,7 +28,7 @@ import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.commands.Shoot;
+import frc.robot.commands.*;
 import frc.robot.commands.TMP_turretAngleTest;
 import frc.robot.commands.autoCommands.AutoCommandInterface;
 import frc.robot.commands.autoCommands.CoreAuto;
@@ -166,10 +166,14 @@ public class RobotContainerCompBot extends RobotContainer {
                     new StartEndCommand(
                         () -> m_shooter.getHood().setAngle(Rotation2d.fromDegrees(SmartDashboard.getNumber("hood/testAngle", 0.0))),
                         () -> m_shooter.getHood().setAngle(Rotation2d.kZero)),
-                    new StartEndCommand(m_hopper::run, m_hopper::stop, m_hopper))
+                    m_hopper.pulseCommand())
         );
 
-
+        // m_driverController.a().whileTrue(new Shoot(m_shooter, m_turret, m_shooterFeeder, m_hopper,
+        //             m_drivetrain::getPose, ShotType.HUB_SHOT));
+         
+        m_driverController.b().whileTrue(m_hopper.pulseCommand());
+                    
         SmartDashboard.putNumber("shooterFeeder/testRPM", 0.0); 
         // m_driverController.leftTrigger().onTrue(new InstantCommand(() -> m_shooterFeeder.setRPM(SmartDashboard.getNumber("shooterFeeder/testRPM", 0.0))));
 
