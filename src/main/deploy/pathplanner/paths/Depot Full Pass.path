@@ -120,7 +120,7 @@
         "y": 6.005748099189171
       },
       "nextControl": {
-        "x": 2.406650251142451,
+        "x": 2.40665025114245,
         "y": 6.41097942386161
       },
       "isLocked": false,
@@ -282,8 +282,20 @@
     },
     {
       "name": "Hub Shot Running",
-      "waypointRelativePos": 1.1738648947951413,
+      "waypointRelativePos": 0.9759358288770054,
       "endWaypointRelativePos": 1.7275747508306023,
+      "command": null
+    },
+    {
+      "name": "Stop Intake",
+      "waypointRelativePos": 1.3636363636363658,
+      "endWaypointRelativePos": null,
+      "command": null
+    },
+    {
+      "name": "Run Intake",
+      "waypointRelativePos": 1.4171122994652423,
+      "endWaypointRelativePos": null,
       "command": null
     },
     {
