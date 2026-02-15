@@ -12,6 +12,7 @@ import java.util.Objects;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
+import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.events.EventTrigger;
 
 import edu.wpi.first.math.MathUtil;
@@ -59,6 +60,7 @@ public class RobotContainerCompBot extends RobotContainer {
     private final Telemetry m_logger = new Telemetry(MAX_SPEED);
 
     private AutoCommandInterface m_autoCommand;
+    // private Command m_autoCommand;
 
     private final CommandXboxController m_driverController = new CommandXboxController(0);
     // private final CommandJoystick m_farm = new CommandJoystick(1);
@@ -280,6 +282,7 @@ public class RobotContainerCompBot extends RobotContainer {
             m_autoSelectionCode = currentAutoSelectionCode;
             m_autoCommand = CoreAuto.getInstance(m_chosenAutoPaths.getSelected(), m_drivetrain,
                     m_chosenFieldSide.getSelected().equals("Depot Side"));
+            // m_autoCommand = new PathPlannerAuto(coreCommand);
         }
         return m_autoCommand;
     }

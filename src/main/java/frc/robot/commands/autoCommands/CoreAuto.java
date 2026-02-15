@@ -1,6 +1,7 @@
 
 package frc.robot.commands.autoCommands;
 
+import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -13,6 +14,7 @@ public class CoreAuto extends AutoCommandInterface {
 
     protected Pose2d m_initPose;
     private CommandSwerveDrivetrain m_driveTrain;
+    // private PathPlannerAuto m_pathPlannerAuto;
 
     PathConstraints constraints = new PathConstraints(
             4.0, 2.0,
