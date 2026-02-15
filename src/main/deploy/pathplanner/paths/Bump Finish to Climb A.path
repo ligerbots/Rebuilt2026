@@ -34,7 +34,7 @@
   "eventMarkers": [
     {
       "name": "Hub Shot Running",
-      "waypointRelativePos": 0.13200992555830848,
+      "waypointRelativePos": 0.0,
       "endWaypointRelativePos": 0.848635235732006,
       "command": null
     }
