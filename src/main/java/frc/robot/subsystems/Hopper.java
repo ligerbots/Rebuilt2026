@@ -34,7 +34,8 @@ public class Hopper extends SubsystemBase {
     
     private static final double K_FF = 0.0015; //TODO find new constant
     
-    private static final double RUN_VOLTAGE = 4.0;
+    private static final double PULSE_VOLTAGE = 4.0;
+    private static final double INTAKE_VOLTAGE = 2.0;
 
     private double m_goalRPM;
     
@@ -64,8 +65,8 @@ public class Hopper extends SubsystemBase {
         SmartDashboard.putNumber("hopper/goalRPM", m_goalRPM);
     }
     
-    public void run(){
-        m_motor.setControl(new VoltageOut(RUN_VOLTAGE));
+    public void intake(){
+        m_motor.setControl(new VoltageOut(INTAKE_VOLTAGE));
     }
     
     public void stop(){
@@ -90,9 +91,9 @@ public class Hopper extends SubsystemBase {
     }
 
     public Command pulseCommand() {
-        return new InstantCommand(() -> setVoltage(RUN_VOLTAGE))
-            .andThen(new WaitCommand(0.9))
+        return new InstantCommand(() -> setVoltage(PULSE_VOLTAGE))
+            .andThen(new WaitCommand(0.5))
             .andThen(new InstantCommand(() -> setVoltage(0)))
-            .andThen(new WaitCommand(0.1)).repeatedly().finallyDo(this::stop);
+            .andThen(new WaitCommand(0.05)).repeatedly().finallyDo(this::stop);
     }
 }
