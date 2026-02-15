@@ -120,7 +120,7 @@
         "y": 6.005748099189171
       },
       "nextControl": {
-        "x": 2.40665025114245,
+        "x": 2.406650251142451,
         "y": 6.41097942386161
       },
       "isLocked": false,
@@ -224,7 +224,7 @@
       "minWaypointRelativePos": 1.1295681063122962,
       "maxWaypointRelativePos": 1.8161683277962544,
       "constraints": {
-        "maxVelocity": 0.75,
+        "maxVelocity": 1.5,
         "maxAcceleration": 3.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0,
@@ -275,32 +275,20 @@
   "pointTowardsZones": [],
   "eventMarkers": [
     {
-      "name": "Passing Shot Running",
-      "waypointRelativePos": 0.22,
-      "endWaypointRelativePos": 1.7275747508306023,
-      "command": null
-    },
-    {
       "name": "Run Intake",
       "waypointRelativePos": 0.664451827242541,
       "endWaypointRelativePos": null,
       "command": null
     },
     {
-      "name": "Stop Intake",
-      "waypointRelativePos": 1.3636363636363658,
-      "endWaypointRelativePos": null,
-      "command": null
-    },
-    {
-      "name": "Run Intake",
-      "waypointRelativePos": 1.4171122994652423,
-      "endWaypointRelativePos": null,
+      "name": "Hub Shot Running",
+      "waypointRelativePos": 1.1738648947951413,
+      "endWaypointRelativePos": 1.9490586932447387,
       "command": null
     },
     {
       "name": "Stop Intake",
-      "waypointRelativePos": 2.56921373200443,
+      "waypointRelativePos": 4.075304540420822,
       "endWaypointRelativePos": null,
       "command": null
     },
