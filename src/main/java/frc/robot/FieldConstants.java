@@ -17,8 +17,8 @@ public class FieldConstants {
     public static final double SHOOT_HUB_LINE_BLUE = Units.inchesToMeters(158); // distance from the wall to the line where we want to shoot from
 
     public static final Translation2d HUB_POSITION_BLUE = new Translation2d(Units.inchesToMeters(182.11),Units.inchesToMeters(158.84));
-    public static final Translation2d PASSING_TARGET_UPPER = new Translation2d(Units.inchesToMeters(91.6), Units.inchesToMeters(238));
-    public static final Translation2d PASSING_TARGET_LOWER = new Translation2d(Units.inchesToMeters(91.6), Units.inchesToMeters(79.5));
+    public static final Translation2d PASSING_TARGET_UPPER_BLUE = new Translation2d(Units.inchesToMeters(91.6), Units.inchesToMeters(238));
+    public static final Translation2d PASSING_TARGET_LOWER_BLUE = new Translation2d(Units.inchesToMeters(91.6), Units.inchesToMeters(79.5));
  
     public static boolean isRedAlliance() {
         Optional<Alliance> alliance = DriverStation.getAlliance();
@@ -44,7 +44,7 @@ public class FieldConstants {
         return position;
     }
 
-    public static Translation2d mirrorTranslation(Translation2d translation) {
+    public static Translation2d mirrorTranslationY(Translation2d translation) {
         return new Translation2d(translation.getX(), FlippingUtil.fieldSizeY - translation.getY());
     }
 
@@ -53,6 +53,6 @@ public class FieldConstants {
     }
 
     public static Pose2d mirrorPose(Pose2d pose) {
-        return new Pose2d(mirrorTranslation(pose.getTranslation()), pose.getRotation().unaryMinus());
+        return new Pose2d(mirrorTranslationY(pose.getTranslation()), pose.getRotation().unaryMinus());
     }
 }

@@ -53,16 +53,17 @@ public class Shoot extends Command {
         switch (m_shotType) {
             case AUTO:
             case TEST:
-                m_target = shotTarget(m_poseSupplier.get());
+                m_target = shotAutoTarget(m_poseSupplier.get());
                 break;
             case HUB:
                 m_target = FieldConstants.flipTranslation(FieldConstants.HUB_POSITION_BLUE);
                 break;
             case PASS:
-                if (m_poseSupplier.get().getY() < FieldConstants.FIELD_WIDTH / 2.0)
-                    m_target = FieldConstants.flipTranslation(FieldConstants.PASSING_TARGET_LOWER);
+                double yBlue = FieldConstants.flipTranslation(m_poseSupplier.get().getTranslation()).getY();
+                if (yBlue < FieldConstants.FIELD_WIDTH / 2.0)
+                    m_target = FieldConstants.flipTranslation(FieldConstants.PASSING_TARGET_LOWER_BLUE);
                 else
-                    m_target = FieldConstants.flipTranslation(FieldConstants.PASSING_TARGET_UPPER);
+                    m_target = FieldConstants.flipTranslation(FieldConstants.PASSING_TARGET_UPPER_BLUE);
                 break;
                 
             default:
@@ -108,15 +109,15 @@ public class Shoot extends Command {
     }
 
     // Determines whether we should start shooting at the hub because we are in our zone.
-    private Translation2d shotTarget(Pose2d robotPose) {
+    public static Translation2d shotAutoTarget(Pose2d robotPose) {
         Translation2d blueLocation = FieldConstants.flipTranslation(robotPose.getTranslation());
         Translation2d target;
         if (blueLocation.getX() < FieldConstants.HUB_POSITION_BLUE.getX()) {
             target = FieldConstants.HUB_POSITION_BLUE;
         } else if (blueLocation.getY() < FieldConstants.FIELD_WIDTH / 2.0) {
-            target = FieldConstants.PASSING_TARGET_LOWER;
+            target = FieldConstants.PASSING_TARGET_LOWER_BLUE;
         } else {
-            target = FieldConstants.PASSING_TARGET_UPPER;
+            target = FieldConstants.PASSING_TARGET_UPPER_BLUE;
         }
 
         return FieldConstants.flipTranslation(target);

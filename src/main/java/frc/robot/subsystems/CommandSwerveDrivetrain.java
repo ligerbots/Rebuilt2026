@@ -38,7 +38,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 
 import frc.robot.FieldConstants;
 import frc.robot.generated.TunerConstantsTestBot.TunerSwerveDrivetrain;
-import frc.robot.subsystems.shooter.Turret;
+import frc.robot.commands.Shoot;
 
 /**
  * Class that extends the Phoenix 6 SwerveDrivetrain class and implements
@@ -258,12 +258,9 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
         m_aprilTagVision.addVisionMeasurements(this);
 
-        Translation2d translation = Turret.getTranslationToGoal(getPose(), 
-                FieldConstants.flipTranslation(FieldConstants.HUB_POSITION_BLUE));
-        SmartDashboard.putNumber("turret/distToHub", Units.metersToInches(translation.getNorm()));
-        translation = Turret.getTranslationToGoal(getPose(), 
-                FieldConstants.flipTranslation(FieldConstants.PASSING_TARGET_LOWER));
-        SmartDashboard.putNumber("turret/distToPass", Units.metersToInches(translation.getNorm()));
+        // This is here because it needs the odometry Pose. Leave it for now.
+        Translation2d translation = Shoot.shotAutoTarget(getPose());
+        SmartDashboard.putNumber("turret/distToShotTarget", Units.metersToInches(translation.getNorm()));
 
         /*
          * Periodically try to apply the operator perspective.
