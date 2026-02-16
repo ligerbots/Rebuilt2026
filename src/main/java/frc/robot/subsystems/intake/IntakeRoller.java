@@ -25,7 +25,8 @@ public class IntakeRoller extends SubsystemBase {
     private static final double OUTTAKE_VOLTAGE = 3.0;
 
     private final TalonFX m_motor;
-    
+    private final VoltageOut m_voltageControl = new VoltageOut(0);
+
     // Creates a new IntakeRoller
     public IntakeRoller() {
         TalonFXConfiguration talonFXConfigs = new TalonFXConfiguration();
@@ -41,26 +42,38 @@ public class IntakeRoller extends SubsystemBase {
         // enable brake mode (after main config)
         m_motor.getConfigurator().apply(talonFXConfigs);
         m_motor.setNeutralMode(NeutralModeValue.Brake);
+    
+        if (Constants.OPTIMIZE_CAN) {
+            optimizeCAN();
+        }
     }
     
+    private void optimizeCAN() {
+        m_motor.getVelocity().setUpdateFrequency(Constants.ROBOT_FREQUENCY_HZ);
+        m_motor.getMotorVoltage().setUpdateFrequency(Constants.ROBOT_FREQUENCY_HZ);
+        m_motor.optimizeBusUtilization();
+    }
+
     @Override
     public void periodic() {
         SmartDashboard.putNumber("intake/voltage", m_motor.getMotorVoltage().getValueAsDouble()); 
+        SmartDashboard.putNumber("intake/RPM", m_motor.getVelocity().getValueAsDouble() * 60.0); 
     }
          
     public void intake() {
-        m_motor.setControl(new VoltageOut(INTAKE_VOLTAGE));
+        setVoltage(INTAKE_VOLTAGE);
     }
 
     public void outtake() {
-        m_motor.setControl(new VoltageOut(OUTTAKE_VOLTAGE));
+        setVoltage(OUTTAKE_VOLTAGE);
     }
 
     public void stop(){
-        m_motor.setControl(new VoltageOut(0));
+        setVoltage(0);
     }
 
     public void setVoltage(double volts) {
-        m_motor.setControl(new VoltageOut(volts));
+        m_voltageControl.Output = volts;
+        m_motor.setControl(m_voltageControl);
     }
 }
