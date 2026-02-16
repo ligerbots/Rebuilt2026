@@ -6,6 +6,13 @@
   "configurations": [
     {
       "type": "java",
+      "name": "Turret",
+      "request": "launch",
+      "mainClass": "frc.robot.subsystems.shooter.Turret",
+      "projectName": "Rebuilt2026"
+    },
+    {
+      "type": "java",
       "name": "ChineseRemainder",
       "request": "launch",
       "mainClass": "frc.robot.utilities.ChineseRemainder",
