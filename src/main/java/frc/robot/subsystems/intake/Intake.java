@@ -50,7 +50,7 @@ public class Intake extends SubsystemBase {
   }
 
   public Command stopRollers() {
-    return new InstantCommand(m_intakeRoller::intake, m_intakeRoller);
+    return new InstantCommand(m_intakeRoller::stop, m_intakeRoller);
   }
   
   public IntakeRoller getRoller() {
