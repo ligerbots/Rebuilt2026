@@ -65,7 +65,18 @@ public class Flywheel extends SubsystemBase {
         m_follower.setControl(new Follower(m_motor.getDeviceID(), MotorAlignmentValue.Opposed));
 
         m_velocityControl = new VelocityVoltage(0).withEnableFOC(true);
+
+        // DO NOT mess with the update frequency on the motors. This can affect
+        //  the leader/follower behavior. If we really need it, we will investigate.
+        // https://www.chiefdelphi.com/t/setting-up-ctre-followers/512315/12
     }
+
+    // private void optimizeCAN() {
+    //     // For the motor, we want the RPM every loop
+    //     m_motor.getVelocity().setUpdateFrequency(Constants.ROBOT_FREQUENCY_HZ);
+    //     m_motor.getStatorCurrent().setUpdateFrequency(Constants.ROBOT_FREQUENCY_HZ);
+    //     m_motor.optimizeBusUtilization();
+    // }
 
     @Override
     public void periodic() {

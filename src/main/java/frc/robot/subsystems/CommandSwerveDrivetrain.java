@@ -5,8 +5,13 @@ import static edu.wpi.first.units.Units.*;
 import java.util.Optional;
 import java.util.function.Supplier;
 
+import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.Utils;
+import com.ctre.phoenix6.hardware.CANcoder;
+import com.ctre.phoenix6.hardware.ParentDevice;
+import com.ctre.phoenix6.hardware.Pigeon2;
+import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveRequest;
@@ -35,7 +40,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-
+import frc.robot.Constants;
 import frc.robot.FieldConstants;
 import frc.robot.generated.TunerConstantsTestBot.TunerSwerveDrivetrain;
 import frc.robot.commands.Shoot;
@@ -153,6 +158,10 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         }
 
         m_aprilTagVision = aprilTagVision;
+
+        if (Constants.OPTIMIZE_CAN) {
+            optimizeCAN();
+        }
     }
 
     // /**
@@ -218,6 +227,22 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     //     m_aprilTagVision = aprilTagVision;
     // }
 
+    private void optimizeCAN() {
+        // According to CTRE Support, the variables needed for odometry have
+        // already been set with the appropriate update frequence/
+        // So only need to do the optimizeCAN call
+
+        // Optimize all the motors and CANcoders
+        for (var module : this.getModules()) {
+            module.getDriveMotor().optimizeBusUtilization();
+            module.getSteerMotor().optimizeBusUtilization();
+            module.getEncoder().optimizeBusUtilization();
+        }
+
+        // Also, do the Pigeon
+        getPigeon2().optimizeBusUtilization();
+    }
+    
     /**
      * Returns a command that applies the specified control request to this swerve drivetrain.
      *
