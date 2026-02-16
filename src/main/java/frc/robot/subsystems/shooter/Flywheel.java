@@ -33,6 +33,7 @@ public class Flywheel extends SubsystemBase {
     private static final double SUPPLY_CURRENT_LIMIT = 40;
     private static final double STATOR_CURRENT_LIMIT = 60;
         
+    // VelocityControl instance which we reuse - saves some memory thrashing
     private VelocityVoltage m_velocityControl;
 
     private double m_goalRPM;

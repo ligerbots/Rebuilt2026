@@ -12,7 +12,6 @@ import java.util.Objects;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
-import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.events.EventTrigger;
 
 import edu.wpi.first.math.MathUtil;
@@ -22,7 +21,6 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -60,7 +58,6 @@ public class RobotContainerCompBot extends RobotContainer {
     private final Telemetry m_logger = new Telemetry(MAX_SPEED);
 
     private AutoCommandInterface m_autoCommand;
-    // private Command m_autoCommand;
 
     private final CommandXboxController m_driverController = new CommandXboxController(0);
     // private final CommandJoystick m_farm = new CommandJoystick(1);
@@ -257,18 +254,6 @@ public class RobotContainerCompBot extends RobotContainer {
         SmartDashboard.putBoolean("TurretAngleTest", false);
         Trigger turretAngleTestTrigger = new Trigger(() -> SmartDashboard.getBoolean("TurretAngleTest", false));
         turretAngleTestTrigger.whileTrue(turretAngleTest);
-    }
-
-    private Command getTestingStartShootCommand() {
-            return new InstantCommand(() -> m_shooter.getFlywheel().setRPM(SmartDashboard.getNumber("flywheel/testRPM", 0.0)))
-            .alongWith(
-                new InstantCommand(() -> m_shooterFeeder.setRPM(SmartDashboard.getNumber("shooterFeeder/testRPM", 0.0))),
-                new InstantCommand(() -> m_shooter.getHood().setAngle(Rotation2d.fromDegrees(SmartDashboard.getNumber("hood/testAngle", 0.0))))
-            );
-    }
-
-    private Command getTestingStopShootCommand() {
-            return new InstantCommand(m_shooter::stop).alongWith(new InstantCommand(m_shooterFeeder::stop));
     }
 
     public CommandSwerveDrivetrain getDriveTrain() {
