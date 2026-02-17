@@ -111,15 +111,22 @@ public class Shoot extends Command {
     // Determines whether we should start shooting at the hub because we are in our zone.
     public static Translation2d shotAutoTarget(Pose2d robotPose) {
         Translation2d blueLocation = FieldConstants.flipTranslation(robotPose.getTranslation());
+        SmartDashboard.putNumber("shotAuto/blueLocationX", blueLocation.getX());
+        SmartDashboard.putNumber("shotAuto/blueLocationY", blueLocation.getY());
         Translation2d target;
         if (blueLocation.getX() < FieldConstants.HUB_POSITION_BLUE.getX()) {
             target = FieldConstants.HUB_POSITION_BLUE;
+            SmartDashboard.putString("shotAuto/target", "HUB");
         } else if (blueLocation.getY() < FieldConstants.FIELD_WIDTH / 2.0) {
             target = FieldConstants.PASSING_TARGET_LOWER_BLUE;
+            SmartDashboard.putString("shotAuto/target", "LOWER_BLUE");
         } else {
             target = FieldConstants.PASSING_TARGET_UPPER_BLUE;
+            SmartDashboard.putString("shotAuto/target", "UPPER_BLUE");
         }
-
+        SmartDashboard.putNumber("shotAuto/targetX", target.getX());
+        SmartDashboard.putNumber("shotAuto/targetY", target.getY());
+        
         return FieldConstants.flipTranslation(target);
     }
 

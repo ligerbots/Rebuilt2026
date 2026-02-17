@@ -77,7 +77,12 @@ public class Robot extends TimedRobot {
     @Override
     public void robotPeriodic() {
         m_timeAndJoystickReplay.update();
-        CommandScheduler.getInstance().run(); 
+        CommandScheduler.getInstance().run();
+
+        // Remove in production
+        CommandSwerveDrivetrain driveTrain = m_robotContainer.getDriveTrain();
+        SmartDashboard.putNumber("robotX", driveTrain.getPose().getX());
+        SmartDashboard.putNumber("robotY", driveTrain.getPose().getY());
     }
 
     @Override
