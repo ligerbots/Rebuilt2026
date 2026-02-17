@@ -37,16 +37,17 @@ public class IntakePivot extends SubsystemBase {
 
     private static final double GEAR_RATIO = 1.0 / 24.0;
     
+    // STOW is public so Intake can handle the command
     public static final Rotation2d STOW_POSITION = Rotation2d.fromDegrees(-5.0);
-    public static final Rotation2d DEPLOY_POSITION = Rotation2d.fromDegrees(75.0);
+    private static final Rotation2d DEPLOY_POSITION = Rotation2d.fromDegrees(75.0);
 
-    public static final Rotation2d PULSE_POSITION = Rotation2d.fromDegrees(10.0);
+    private static final Rotation2d PULSE_POSITION = Rotation2d.fromDegrees(10.0);
 
     private Rotation2d m_goal = Rotation2d.kZero;
 
     private final TalonFX m_motor;
     private final MotionMagicVoltage m_positionControl = new MotionMagicVoltage(0);
-    private final VoltageOut m_voltageControl = new VoltageOut(0);
+    private final VoltageOut m_stopControl = new VoltageOut(0);
 
     public static enum SlotNumber {
         MOVE(0),
@@ -115,7 +116,11 @@ public class IntakePivot extends SubsystemBase {
         setAngle(angle, SlotNumber.MOVE);
     }
 
-    public void setAngle(Rotation2d angle, SlotNumber slot) {
+    public void holdAngle(Rotation2d angle) {
+        setAngle(angle, SlotNumber.HOLD);
+    }
+
+    private void setAngle(Rotation2d angle, SlotNumber slot) {
         m_goal = angle;
 
         m_positionControl.Position = m_goal.getRotations() / GEAR_RATIO;
@@ -128,7 +133,7 @@ public class IntakePivot extends SubsystemBase {
     }
 
     public void stop() {
-        m_motor.setControl(m_voltageControl);
+        m_motor.setControl(m_stopControl);
     }
     
     public boolean onTarget() {
@@ -136,7 +141,10 @@ public class IntakePivot extends SubsystemBase {
         return Math.abs(angle.getDegrees() - m_goal.getDegrees()) < ANGLE_TOLERANCE_DEG;
     }
 
+    // Note: stowCommand is in Intake, since it also involves the Rollers
+    
     public Command runPulseCommand() {
+        // This can be killed, since WaitCommand always finishes.
         return new InstantCommand(() -> setAngle(PULSE_POSITION), this)
             .andThen(new WaitCommand(0.5))
             .andThen(new InstantCommand(() -> setAngle(STOW_POSITION), this))
@@ -148,6 +156,8 @@ public class IntakePivot extends SubsystemBase {
         Command cmd = new InstantCommand(() -> setAngle(DEPLOY_POSITION))
                 .andThen(new WaitUntilCommand(this::onTarget))
                 .andThen(new InstantCommand(this::stop));
+        // Add a requirement on the entire command (including WaitUntilCommand, we hope).
+        // Then, if it gets stuck in WaitUntilCommand, another Pivot command will still kill it.
         cmd.addRequirements(this);
         return cmd;
     }
