@@ -4,8 +4,6 @@
 
 package frc.robot.commands;
 
-import static edu.wpi.first.units.Units.Rotation;
-
 import java.util.function.Supplier;
 
 import edu.wpi.first.math.geometry.Pose2d;
