@@ -224,8 +224,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     private void optimizeCAN() {
         // According to CTRE Support, the variables needed for odometry have
-        // already been set with the appropriate update frequence/
-        // So only need to do the optimizeCAN call
+        // already been set with the appropriate update frequency,
+        // so only need to do the optimizeBus call
 
         // Optimize all the motors and CANcoders
         for (var module : this.getModules()) {
