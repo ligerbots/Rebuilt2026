@@ -121,6 +121,7 @@ public class IntakePivot extends SubsystemBase {
     }
 
     public Command runPulseCommand() {
+        // This can be killed, since WaitCommand always finishes.
         return new InstantCommand(() -> setAngle(PULSE_POSITION), this)
             .andThen(new WaitCommand(0.5))
             .andThen(new InstantCommand(() -> setAngle(STOW_POSITION), this))
@@ -132,6 +133,8 @@ public class IntakePivot extends SubsystemBase {
         Command cmd = new InstantCommand(() -> setAngle(DEPLOY_POSITION))
                 .andThen(new WaitUntilCommand(this::onTarget))
                 .andThen(new InstantCommand(this::stop));
+        // Add a requirement on the entire command (including WaitUntilCommand, we hope).
+        // Then, if it gets stuck in WaitUntilCommand, another Pivot command will still kill it.
         cmd.addRequirements(this);
         return cmd;
     }
