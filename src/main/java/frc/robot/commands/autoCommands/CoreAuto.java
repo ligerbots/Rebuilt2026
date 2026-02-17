@@ -1,21 +1,12 @@
 
-package frc.robot.commands;
+package frc.robot.commands.autoCommands;
 
-import java.io.IOException;
-
-import org.json.simple.parser.ParseException;
-
+import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
-import com.pathplanner.lib.util.FileVersionException;
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import edu.wpi.first.wpilibj2.command.PrintCommand;
 import frc.robot.FieldConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 
@@ -23,13 +14,18 @@ public class CoreAuto extends AutoCommandInterface {
 
     protected Pose2d m_initPose;
     private CommandSwerveDrivetrain m_driveTrain;
+    // private PathPlannerAuto m_pathPlannerAuto;
 
     PathConstraints constraints = new PathConstraints(
             4.0, 2.0,
             Math.toRadians(540), Math.toRadians(720));
 
+    public static CoreAuto getInstance(String[] pathFiles, CommandSwerveDrivetrain driveTrain, boolean isDepotSide) {
+        return new CoreAuto(pathFiles, driveTrain, isDepotSide);
+    }
+    
     /** Creates a new CoreAuto. */
-    public CoreAuto(String[] pathFiles, CommandSwerveDrivetrain driveTrain, boolean isDepotSide) {
+    private CoreAuto(String[] pathFiles, CommandSwerveDrivetrain driveTrain, boolean isDepotSide) {
 
         m_driveTrain = driveTrain;
 

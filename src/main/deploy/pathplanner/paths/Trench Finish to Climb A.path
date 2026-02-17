@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.4876363636363634,
-        "y": 2.829102272727273
+        "x": 2.980987951807229,
+        "y": 7.204036144578313
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.487636363636364,
-        "y": 2.829102272727273
+        "x": 2.08910897795871,
+        "y": 6.433417651470763
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 7.4557613636363635,
-        "y": 1.2109318181818185
+        "x": 1.6117954545454545,
+        "y": 4.199909090909091
       },
       "prevControl": {
-        "x": 6.476613636363636,
-        "y": 1.7984204545454543
+        "x": 2.214852620135079,
+        "y": 4.725425000769288
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Climb A"
     }
   ],
   "rotationTargets": [],
@@ -33,9 +33,9 @@
   "pointTowardsZones": [],
   "eventMarkers": [
     {
-      "name": "test Event",
-      "waypointRelativePos": 0.21066846725185676,
-      "endWaypointRelativePos": 0.7616475354490206,
+      "name": "Hub Shot Running",
+      "waypointRelativePos": 0.04466501240695191,
+      "endWaypointRelativePos": 0.9558312655086826,
       "command": null
     }
   ],
@@ -49,13 +49,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 81.93664998012345
+    "rotation": 180.0
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 60.725090287166125
+    "rotation": 121.1543054303004
   },
   "useDefaultConstraints": true
 }

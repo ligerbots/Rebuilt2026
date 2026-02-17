@@ -2,7 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.subsystems;
+package frc.robot.subsystems.climber;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -12,16 +12,17 @@ import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.Slot1Configs;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
+import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import frc.robot.Constants;
 
-public class ClimberArms extends SubsystemBase {
+public class ChainClimber extends SubsystemBase {
 
-    private final TalonFX m_leftMotor;
-    private final TalonFX m_rightMotor;
+    private final TalonFX m_motor;
+    private final TalonFX m_follower;
 
     // TODO need to calibrate the P value for the velocity loop, start small and increase until you get good response
     private static final double K_P = 3.0;
@@ -38,23 +39,8 @@ public class ClimberArms extends SubsystemBase {
 
     private static final double TOLERANCE = 1;//TODO change to a better tolerance number
 
-    private double m_goalDistanceLeft;
-    private double m_goalDistanceRight;
 
-    public enum ClimbState {
-        Stowed,
-        Extended,
-        LevelOne,
-        LevelTwo,
-        LevelThree
-    }
-
-    private ClimbState m_climbState = ClimbState.Stowed;
-    
-    public static enum MotorSelection {
-        LEFT,
-        RIGHT
-    }
+    private double m_goalDistance;
 
     private static enum SlotNumber {
         UNLOADED(0),
@@ -67,21 +53,18 @@ public class ClimberArms extends SubsystemBase {
         }
 
         public int getValue() { return value; }
+
     }
 
+    // private Follower
 
-    // Creates a new ClimberArms
-    public ClimberArms() {
-
-        //TODO comment out when no longer testing
-
-        SmartDashboard.putNumber("ClimberArms/setLeft", 0);
-        SmartDashboard.putNumber("ClimberArms/setRight", 0);
+    // Creates a new ChainClimber
+    public ChainClimber() {
 
         TalonFXConfiguration talonFXConfigs = new TalonFXConfiguration();
 
-        m_leftMotor = new TalonFX(Constants.CLIMBER_LEFT_MOTOR_CAN_ID);
-        m_rightMotor = new TalonFX(Constants.CLIMBER_RIGHT_MOTOR_CAN_ID);
+        m_motor = new TalonFX(Constants.CHAIN_CLIMBER_MOTOR_CAN_ID);
+        m_follower = new TalonFX(Constants.CHAIN_CLIMBER_FOLLOWER_MOTOR_CAN_ID);
 
         //TODO find out good K values for each term
         //set slot0 for unloaded state
@@ -114,84 +97,43 @@ public class ClimberArms extends SubsystemBase {
         talonFXConfigs.Feedback.withSensorToMechanismRatio(ROTATIONS_PER_INCHES); //pass down the conversion factor to motor
 
         // enable brake mode (after main config)
-        m_leftMotor.getConfigurator().apply(talonFXConfigs);
-        m_leftMotor.setNeutralMode(NeutralModeValue.Brake);
+        m_motor.getConfigurator().apply(talonFXConfigs);
+        m_motor.setNeutralMode(NeutralModeValue.Brake);
 
-        m_rightMotor.getConfigurator().apply(talonFXConfigs);
-        m_rightMotor.setNeutralMode(NeutralModeValue.Brake);
+        m_follower.getConfigurator().apply(talonFXConfigs);
+        m_follower.setNeutralMode(NeutralModeValue.Brake);
+        m_follower.setControl(new Follower(m_motor.getDeviceID(), null));
 
-        m_leftMotor.setPosition(0);
-        m_rightMotor.setPosition(0);
+        m_motor.setPosition(0);
     }
 
     @Override
     public void periodic() {
-        SmartDashboard.putBoolean("ClimberArms/onTargetLeft", onTarget(MotorSelection.LEFT));
-        SmartDashboard.putNumber("ClimberArms/goalDistanceLeft", m_goalDistanceLeft);
-        SmartDashboard.putNumber("ClimberArms/currentDistanceLeft", getCurrentDistance(MotorSelection.LEFT));
-        
-        SmartDashboard.putBoolean("ClimberArms/onTargetRight", onTarget(MotorSelection.RIGHT));
-        SmartDashboard.putNumber("ClimberArms/goalDistanceRight", m_goalDistanceRight);
-        SmartDashboard.putNumber("ClimberArms/currentDistanceRight", getCurrentDistance(MotorSelection.RIGHT));
+        SmartDashboard.putBoolean("ClimberArms/onTarget", onTarget());
+        SmartDashboard.putNumber("ClimberArms/goalDistance", m_goalDistance);
+        SmartDashboard.putNumber("ClimberArms/currentDistance", getCurrentDistance());
     }
 
 
-    public void setDistance(double distance, MotorSelection selectedMotor, boolean loaded){
+    public void setDistance(double distance, boolean loaded){
         int slotNumber;
 
         if (loaded) {
             slotNumber = SlotNumber.LOADED.getValue();
         }else {
-            slotNumber = SlotNumber.UNLOADED.getValue();
+            slotNumber = SlotNumber.UNLOADED.getValue();;
         }
 
-        if (selectedMotor == MotorSelection.LEFT) {
-            m_goalDistanceLeft = distance;
-            m_leftMotor.setControl(new MotionMagicVoltage(distance).withSlot(slotNumber));
-        }else {
-            m_goalDistanceRight = distance;
-            m_rightMotor.setControl(new MotionMagicVoltage(distance).withSlot(slotNumber));
-        }
-        
+        m_goalDistance = distance;
+        m_motor.setControl(new MotionMagicVoltage(distance).withSlot(slotNumber));
     }
     
-
-    public double getCurrentDistance(MotorSelection selectedMotor) {
-        if (selectedMotor == MotorSelection.LEFT) {
-            return m_leftMotor.getPosition().getValueAsDouble();
-        }else {
-            return m_rightMotor.getPosition().getValueAsDouble();
-        }
-
+    public double getCurrentDistance() {
+      return m_motor.getPosition().getValueAsDouble();
     }
 
-    /**
-     * Gets the current rotation of the selected climber motor.
-     *
-     * @param selectedMotor which climber motor to read (LEFT or RIGHT)
-     * @return the current motor position in rotations as reported by the TalonFX
-     */
-
-    public boolean onTarget(MotorSelection selectedMotor){
-        if (selectedMotor == MotorSelection.LEFT) {
-            return Math.abs(getCurrentDistance(MotorSelection.LEFT) - m_goalDistanceLeft) < TOLERANCE;
-        }else {
-            return Math.abs(getCurrentDistance(MotorSelection.RIGHT) - m_goalDistanceRight) < TOLERANCE;
-        }
+    public boolean onTarget(){
+        return Math.abs(getCurrentDistance() - m_goalDistance) < TOLERANCE;
         
-    }
-
-    public ClimbState getClimbState() {
-        return m_climbState;
-    }
-
-    public ClimbState setClimbState(ClimbState newState) {
-        m_climbState = newState;
-        return m_climbState;
-    }
-
-    public void stop() {
-        m_leftMotor.setControl(new MotionMagicVoltage(getCurrentDistance(MotorSelection.LEFT)).withSlot(0));
-        m_rightMotor.setControl(new MotionMagicVoltage(getCurrentDistance(MotorSelection.RIGHT)).withSlot(0));
     }
 }

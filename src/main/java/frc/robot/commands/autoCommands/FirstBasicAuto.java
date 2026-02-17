@@ -1,5 +1,5 @@
 
-package frc.robot.commands;
+package frc.robot.commands.autoCommands;
 
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;

@@ -4,7 +4,7 @@
 
 /**integrate motors and tell them to run, when button is pressed, then brake!! */
 
-package frc.robot.subsystems;
+package frc.robot.subsystems.shooter;
 
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
@@ -33,6 +33,9 @@ public class Flywheel extends SubsystemBase {
     private static final double SUPPLY_CURRENT_LIMIT = 40;
     private static final double STATOR_CURRENT_LIMIT = 60;
         
+    // VelocityControl instance which we reuse - saves some memory thrashing
+    private VelocityVoltage m_velocityControl;
+
     private double m_goalRPM;
     
     // Creates a new FlyWheel
@@ -60,6 +63,8 @@ public class Flywheel extends SubsystemBase {
         m_follower.getConfigurator().apply(talonFXConfigs);
         m_follower.setNeutralMode(NeutralModeValue.Coast);
         m_follower.setControl(new Follower(m_motor.getDeviceID(), MotorAlignmentValue.Opposed));
+
+        m_velocityControl = new VelocityVoltage(0).withEnableFOC(true);
     }
 
     @Override
@@ -80,9 +85,10 @@ public class Flywheel extends SubsystemBase {
     
     public void setRPM(double rpm) {
         m_goalRPM = rpm;
-        double rps = m_goalRPM / 60; //convert rpm to rps
-        
-        m_motor.setControl(new VelocityVoltage(rps).withFeedForward(K_FF * rpm));
+
+        m_velocityControl.Velocity = m_goalRPM / 60;
+        m_velocityControl.FeedForward = K_FF * rpm;
+        m_motor.setControl(m_velocityControl);
     }
     
     /**

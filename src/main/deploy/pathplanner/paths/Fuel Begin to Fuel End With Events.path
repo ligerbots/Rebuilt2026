@@ -50,13 +50,19 @@
   "eventMarkers": [
     {
       "name": "Run Intake",
-      "waypointRelativePos": 0.4228287841191069,
+      "waypointRelativePos": 0.0,
       "endWaypointRelativePos": null,
       "command": null
     },
     {
+      "name": "Passing Shot Running",
+      "waypointRelativePos": 0.22431761786599722,
+      "endWaypointRelativePos": 1.963275434243154,
+      "command": null
+    },
+    {
       "name": "Stop Intake",
-      "waypointRelativePos": 1.5821339950372222,
+      "waypointRelativePos": 1.875930521091801,
       "endWaypointRelativePos": null,
       "command": null
     }

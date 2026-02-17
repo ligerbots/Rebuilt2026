@@ -4,7 +4,7 @@
 
 /**integrate motors and tell them to run, when button is pressed, then brake!! */
 
-package frc.robot.subsystems;
+package frc.robot.subsystems.shooter;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -73,7 +73,7 @@ public class ShooterFeeder extends SubsystemBase {
     public void setRPM(double rpm){
         m_goalRPM = rpm;
         double rps = m_goalRPM / 60; //convert rpm to rps
-        m_motor.setControl(new VelocityVoltage(rps).withFeedForward(K_FF * rpm));
+        m_motor.setControl(new VelocityVoltage(rps).withFeedForward(K_FF * rpm).withEnableFOC(true));
     }
     
     public void stop(){

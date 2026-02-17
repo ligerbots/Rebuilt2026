@@ -6,7 +6,11 @@
 
 package frc.robot.subsystems;
 
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
+
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
@@ -29,7 +33,8 @@ public class Hopper extends SubsystemBase {
     
     private static final double K_FF = 0.0015; //TODO find new constant
     
-    private static final double RUN_VOLTAGE = 4.0;
+    private static final double PULSE_VOLTAGE = 4.0;
+    private static final double INTAKE_VOLTAGE = 2.0;
 
     private double m_goalRPM;
     
@@ -59,8 +64,8 @@ public class Hopper extends SubsystemBase {
         SmartDashboard.putNumber("hopper/goalRPM", m_goalRPM);
     }
     
-    public void run(){
-        m_motor.setControl(new VoltageOut(RUN_VOLTAGE));
+    public void intake(){
+        m_motor.setControl(new VoltageOut(INTAKE_VOLTAGE));
     }
     
     public void stop(){
@@ -82,5 +87,12 @@ public class Hopper extends SubsystemBase {
         final VelocityVoltage m_request = new VelocityVoltage(rps).withFeedForward(K_FF * rpm);
         
         m_motor.setControl(m_request);
+    }
+
+    public Command pulseCommand() {
+        return new InstantCommand(() -> setVoltage(PULSE_VOLTAGE))
+            .andThen(new WaitCommand(0.5))
+            .andThen(new InstantCommand(() -> setVoltage(0)))
+            .andThen(new WaitCommand(0.05)).repeatedly().finallyDo(this::stop);
     }
 }

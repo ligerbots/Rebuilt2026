@@ -2,7 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 //look for motor ratios
-package frc.robot.subsystems;
+package frc.robot.subsystems.shooter;
 
 import frc.robot.Constants;
 import frc.robot.utilities.ChineseRemainder;
@@ -25,7 +25,7 @@ import com.ctre.phoenix6.configs.CANcoderConfiguration;
 
 public class Turret extends SubsystemBase {
     
-    private static final Translation2d TURRET_OFFSET = new Translation2d(Units.inchesToMeters(-8.33),  Units.inchesToMeters(-4.36));
+    private static final Translation2d TURRET_OFFSET = new Translation2d(Units.inchesToMeters(-2.5626),  Units.inchesToMeters(-4.875));
     private static final double TURRET_HEADING_OFFSET_DEG = 180.0;
     private static final double ANGLE_TOLERANCE_DEG = 2.0; 
     
@@ -40,17 +40,21 @@ public class Turret extends SubsystemBase {
 
     private static final int ENCODER_SMALL_TOOTH_COUNT = 11;
     private static final int ENCODER_LARGE_TOOTH_COUNT = 13;
-    private static final double ENCODER_SMALL_OFFSET_ROTATIONS = -0.503;
-    private static final double ENCODER_LARGE_OFFSET_ROTATIONS = -0.283;
+    private static final double ENCODER_SMALL_OFFSET_ROTATIONS = 0.437;
+    private static final double ENCODER_LARGE_OFFSET_ROTATIONS = 0.050;
     private static final int TURRET_TOOTH_COUNT = 100;
     private static final double TURRET_GEAR_RATIO =  54.0 / 12.0 * TURRET_TOOTH_COUNT / 10.0;
     
     private static final double K_P = 2.0;
-    private static final double MAX_VEL_ROT_PER_SEC = 4.0 * TURRET_GEAR_RATIO;
-    private static final double MAX_ACC_ROT_PER_SEC_SQ = 40.0 * TURRET_GEAR_RATIO;
+    // private static final double MAX_VEL_ROT_PER_SEC = 4.0 * TURRET_GEAR_RATIO;
+    // private static final double MAX_ACC_ROT_PER_SEC_SQ = 40.0 * TURRET_GEAR_RATIO;
+    //
+    // 2/14 - Slowed down for testing, until chain working properly
+    private static final double MAX_VEL_ROT_PER_SEC = 2.0 * TURRET_GEAR_RATIO;
+    private static final double MAX_ACC_ROT_PER_SEC_SQ = 10.0 * TURRET_GEAR_RATIO;
 
-    private static final double MAX_ROTATION_DEG = 170.0;
-    private static final double MIN_ROTATION_DEG = -170.0;
+    private static final double MAX_ROTATION_DEG = 180.0;
+    private static final double MIN_ROTATION_DEG = -140.0;
     
     // this is just the middle point of the full CRT range
     // include "1.0 *" to make sure it does floating point arithmetic

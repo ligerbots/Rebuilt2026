@@ -28,14 +28,19 @@
       "linkedName": null
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.4273858921161848,
+      "rotationDegrees": 47.58028098609746
+    }
+  ],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [
     {
-      "name": "Run Intake",
-      "waypointRelativePos": 0.21339950372208294,
-      "endWaypointRelativePos": 0.8129032258064486,
+      "name": "Hub Shot Running",
+      "waypointRelativePos": 0.8645161290322493,
+      "endWaypointRelativePos": 1.0,
       "command": null
     }
   ],
