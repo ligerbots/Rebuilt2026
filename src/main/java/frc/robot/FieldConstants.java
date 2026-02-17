@@ -25,6 +25,11 @@ public class FieldConstants {
         return alliance.isPresent() && alliance.get() == Alliance.Red;
     }
 
+    // The "flip" routines will transpose a Pose/Translation from Field to Blue, or vice versa.
+    // For 2026, this is *actually* a rotation around the center.
+    // When "flipping" a Pose, the heading angle is rotated so that 
+    //   it looks correct on the new side (looks the same from the driver's station).
+
     public static Pose2d flipPose(Pose2d pose) {
         // flip pose when red
         if (isRedAlliance()) {
@@ -39,20 +44,25 @@ public class FieldConstants {
         if (isRedAlliance()) {
             return FlippingUtil.flipFieldPosition(position);
         }
-
         // Blue or we don't know; return the original position
         return position;
     }
 
-    public static Translation2d mirrorTranslationY(Translation2d translation) {
-        return new Translation2d(translation.getX(), FlippingUtil.fieldSizeY - translation.getY());
-    }
+    // NOTE: the "mirror" routines will mirror a Pose/Translation along the specified axis
+    // They do NOT check Red vs Blue. They always do the mirror operation.
+    // Careful: you probably do NOT want this. The "flip" routines are almost always what is needed.
 
-    public static Translation2d mirrorTranslationX(Translation2d translation) {
-        return new Translation2d(FlippingUtil.fieldSizeX - translation.getX(), translation.getY());
-    }
+    // Feb 2026: Commented out for now. Not used and dangerous if you are not aware of the differences.
+    
+    // public static Translation2d mirrorTranslationY(Translation2d translation) {
+    //     return new Translation2d(translation.getX(), FlippingUtil.fieldSizeY - translation.getY());
+    // }
 
-    public static Pose2d mirrorPose(Pose2d pose) {
-        return new Pose2d(mirrorTranslationY(pose.getTranslation()), pose.getRotation().unaryMinus());
-    }
+    // public static Translation2d mirrorTranslationX(Translation2d translation) {
+    //     return new Translation2d(FlippingUtil.fieldSizeX - translation.getX(), translation.getY());
+    // }
+
+    // public static Pose2d mirrorPoseY(Pose2d pose) {
+    //     return new Pose2d(mirrorTranslationY(pose.getTranslation()), pose.getRotation().unaryMinus());
+    // }
 }
