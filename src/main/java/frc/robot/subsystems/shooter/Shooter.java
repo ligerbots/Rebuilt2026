@@ -18,10 +18,10 @@ public class Shooter extends SubsystemBase {
     }
     
     private static final String HUB_LOOKUP_TABLE_FILE = "hub_shot_lookup_table.csv"; 
-    private static final String SHUTTLE_LOOKUP_TABLE_FILE = "pass_shot_lookup_table.csv";
+    private static final String PASS_LOOKUP_TABLE_FILE = "pass_shot_lookup_table.csv";
     
-    private final ShooterLookupTable m_hubShooterLookupTable;
-    private final ShooterLookupTable m_shuttleShooterLookupTable;
+    private final ShooterLookupTable m_hubShotLookupTable;
+    private final ShooterLookupTable m_passShotLookupTable;
     
     private Hood m_hood;
     private Flywheel m_flywheel;
@@ -33,8 +33,8 @@ public class Shooter extends SubsystemBase {
     * @param shuttleLookupTableFileName the file name for the lookup table for shuttle shooting calculations
     */
     public Shooter() {
-        m_hubShooterLookupTable = new ShooterLookupTable(HUB_LOOKUP_TABLE_FILE);
-        m_shuttleShooterLookupTable = new ShooterLookupTable(SHUTTLE_LOOKUP_TABLE_FILE);
+        m_hubShotLookupTable = new ShooterLookupTable(HUB_LOOKUP_TABLE_FILE);
+        m_passShotLookupTable = new ShooterLookupTable(PASS_LOOKUP_TABLE_FILE);
         
         m_hood = new Hood();
         m_flywheel = new Flywheel();
@@ -78,7 +78,7 @@ public class Shooter extends SubsystemBase {
     public ShootValue getShootValue(double distanceMeters, ShotType shotType) {
         // Calculate distance to target and retrieve shooter hood angle and speed from shot type.
         if (shotType == ShotType.PASS)
-            return m_shuttleShooterLookupTable.getShootValues(distanceMeters);
-        return m_hubShooterLookupTable.getShootValues(distanceMeters);
+            return m_passShotLookupTable.getShootValues(distanceMeters);
+        return m_hubShotLookupTable.getShootValues(distanceMeters);
     }
 }
