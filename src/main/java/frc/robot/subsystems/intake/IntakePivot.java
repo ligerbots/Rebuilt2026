@@ -48,7 +48,7 @@ public class IntakePivot extends SubsystemBase {
     private final MotionMagicVoltage m_positionControl = new MotionMagicVoltage(0);
     private final VoltageOut m_stopControl = new VoltageOut(0);
 
-    public static enum SlotNumber {
+    private static enum SlotNumber {
         MOVE(0),
         HOLD(1);
 
