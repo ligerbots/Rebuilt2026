@@ -36,16 +36,19 @@ public class IntakePivot extends SubsystemBase {
 
     private static final double GEAR_RATIO = 1.0 / 24.0;
     
+    // STOW is public so Intake can handle the command
     public static final Rotation2d STOW_POSITION = Rotation2d.fromDegrees(-5.0);
-    public static final Rotation2d DEPLOY_POSITION = Rotation2d.fromDegrees(75.0);
+    private static final Rotation2d DEPLOY_POSITION = Rotation2d.fromDegrees(75.0);
 
-    public static final Rotation2d PULSE_POSITION = Rotation2d.fromDegrees(10.0);
+    private static final Rotation2d PULSE_POSITION = Rotation2d.fromDegrees(10.0);
 
     private Rotation2d m_goal = Rotation2d.kZero;
 
     private final TalonFX m_pivotMotor;
-    
-    public static enum SlotNumber {
+    private final MotionMagicVoltage m_positionControl = new MotionMagicVoltage(0);
+    private final VoltageOut m_stopControl = new VoltageOut(0);
+
+    private static enum SlotNumber {
         MOVE(0),
         HOLD(1);
 
@@ -102,9 +105,15 @@ public class IntakePivot extends SubsystemBase {
         setAngle(angle, SlotNumber.MOVE);
     }
 
-    public void setAngle(Rotation2d angle, SlotNumber slot) {
+    public void holdAngle(Rotation2d angle) {
+        setAngle(angle, SlotNumber.HOLD);
+    }
+
+    private void setAngle(Rotation2d angle, SlotNumber slot) {
         m_goal = angle;
-        m_pivotMotor.setControl(new MotionMagicVoltage(m_goal.getRotations() / GEAR_RATIO).withSlot(slot.getValue()));
+        m_positionControl.Position = m_goal.getRotations() / GEAR_RATIO;
+        m_positionControl.Slot = slot.getValue();
+        m_pivotMotor.setControl(m_positionControl);
     }
     
     public Rotation2d getAngle(){
@@ -112,7 +121,7 @@ public class IntakePivot extends SubsystemBase {
     }
 
     public void stop() {
-        m_pivotMotor.setControl(new VoltageOut(0));
+        m_pivotMotor.setControl(m_stopControl);
     }
     
     public boolean onTarget() {
@@ -120,6 +129,8 @@ public class IntakePivot extends SubsystemBase {
         return Math.abs(angle.getDegrees() - m_goal.getDegrees()) < ANGLE_TOLERANCE_DEG;
     }
 
+    // Note: stowCommand is in Intake, since it also involves the Rollers
+    
     public Command runPulseCommand() {
         // This can be killed, since WaitCommand always finishes.
         return new InstantCommand(() -> setAngle(PULSE_POSITION), this)
