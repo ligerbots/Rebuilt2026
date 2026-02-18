@@ -9,9 +9,11 @@ import java.util.function.Supplier;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.FieldConstants;
+import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.ShooterFeeder;
 import frc.robot.subsystems.shooter.Turret;
@@ -27,16 +29,18 @@ public class Shoot extends Command {
     private final Shooter m_shooter;
     private final Turret m_turret;
     private final ShooterFeeder m_feeder;
+    private final Supplier<ChassisSpeeds> m_speedsSupplier;
     private final Supplier<Pose2d> m_poseSupplier;
 
     private final Shooter.ShotType m_shotType;
     private Translation2d m_target;
 
-    public Shoot(Shooter shooter, Turret turret, ShooterFeeder feeder, Supplier<Pose2d> poseSupplier, Shooter.ShotType shotType) {
+    public Shoot(Shooter shooter, Turret turret, ShooterFeeder feeder, Supplier<Pose2d> poseSupplier, Supplier<ChassisSpeeds> speeds, Shooter.ShotType shotType) {
         m_turret = turret;
         m_shooter = shooter;
         m_feeder = feeder;
         m_poseSupplier = poseSupplier;
+        m_speedsSupplier = speeds;
 
         m_shotType = shotType;
         addRequirements(shooter, turret, feeder);
@@ -74,6 +78,11 @@ public class Shoot extends Command {
     @Override
     public void execute() {
         Translation2d translationToHub = Turret.getTranslationToGoal(m_poseSupplier.get(), m_target);
+
+        ChassisSpeeds speedInformation = m_speedsSupplier.get();
+        double xVelocity = speedInformation.vxMetersPerSecond;
+        double yVelocity = speedInformation.vyMetersPerSecond;
+
 
         ShootValue shootValue;
         if (m_shotType == ShotType.TEST) {

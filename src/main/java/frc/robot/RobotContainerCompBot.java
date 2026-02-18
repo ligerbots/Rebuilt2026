@@ -149,13 +149,13 @@ public class RobotContainerCompBot extends RobotContainer {
 
         // TODO: should need only 1 AUTO shot trigger
         new EventTrigger("Hub Shot Running").whileTrue(
-            new Shoot(m_shooter, m_turret, m_shooterFeeder, m_drivetrain::getPose, ShotType.HUB)
+            new Shoot(m_shooter, m_turret, m_shooterFeeder, m_drivetrain::getPose, m_drivetrain::getSpeeds, ShotType.HUB)
                         .alongWith(
                             m_hopper.pulseCommand(),
                             new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningShooter", true))));
         new EventTrigger("Hub Shot Running").onFalse(new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningShooter", false)));
 
-        new EventTrigger("Passing Shot Running").whileTrue(new Shoot(m_shooter, m_turret, m_shooterFeeder, m_drivetrain::getPose, ShotType.PASS)
+        new EventTrigger("Passing Shot Running").whileTrue(new Shoot(m_shooter, m_turret, m_shooterFeeder, m_drivetrain::getPose, m_drivetrain::getSpeeds, ShotType.PASS)
                         .alongWith(
                             m_hopper.pulseCommand(),
                             new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningShooter", true))));
@@ -190,10 +190,10 @@ public class RobotContainerCompBot extends RobotContainer {
         //             m_hopper.pulseCommand())
         // );
         // TEST Shot - allow shot calibratin
-        m_driverController.rightTrigger().whileTrue(new Shoot(m_shooter, m_turret, m_shooterFeeder, m_drivetrain::getPose, ShotType.AUTO)
+        m_driverController.rightTrigger().whileTrue(new Shoot(m_shooter, m_turret, m_shooterFeeder, m_drivetrain::getPose, m_drivetrain::getSpeeds, ShotType.AUTO)
                         .alongWith(m_hopper.pulseCommand()));
 
-        m_driverController.rightBumper().whileTrue(new Shoot(m_shooter, m_turret, m_shooterFeeder, m_drivetrain::getPose, ShotType.AUTO)
+        m_driverController.rightBumper().whileTrue(new Shoot(m_shooter, m_turret, m_shooterFeeder, m_drivetrain::getPose, m_drivetrain::getSpeeds, ShotType.AUTO)
                         .alongWith(m_hopper.pulseCommand()));
         m_driverController.rightBumper().onTrue(m_intake.getPivot().deployCommand());
         m_driverController.rightBumper().whileTrue(
@@ -206,7 +206,7 @@ public class RobotContainerCompBot extends RobotContainer {
 
         m_driverController.leftBumper().onTrue(m_intake.stowCommand());
 
-        m_driverController.a().whileTrue(new Shoot(m_shooter, m_turret, m_shooterFeeder, m_drivetrain::getPose, ShotType.TEST)
+        m_driverController.a().whileTrue(new Shoot(m_shooter, m_turret, m_shooterFeeder, m_drivetrain::getPose, m_drivetrain::getSpeeds, ShotType.TEST)
                         .alongWith(m_hopper.pulseCommand()));
 
         // SmartDashboard.putNumber("hood/testAngle", 0.0);
