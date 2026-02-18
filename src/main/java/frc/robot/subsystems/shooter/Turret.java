@@ -5,6 +5,7 @@
 package frc.robot.subsystems.shooter;
 
 import frc.robot.Constants;
+import frc.robot.FieldConstants;
 import frc.robot.utilities.ChineseRemainder;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -208,15 +209,6 @@ public class Turret extends SubsystemBase {
         return Turret.TURRET_OFFSET.rotateBy(robotPose.getRotation()).plus(robotPose.getTranslation());
     }
     
-    // public static Rotation2d getAngleToHub(Pose2d robotPose) {
-    //     Rotation2d overallAngle = getTurretPositionForRobotPose(robotPose).minus(FieldConstants.flipTranslation(FieldConstants.HUB_POSITION_BLUE)).getAngle();
-    //     return overallAngle.plus(robotPose.getRotation());
-    // }
-    
-    // public static double getDistanceToHub(Pose2d robotPose) {
-    //     return getTurretPositionForRobotPose(robotPose).getDistance(FieldConstants.flipTranslation(FieldConstants.HUB_POSITION_BLUE));
-    // }
-
     /**
      * Get the robot-centric vector to a goal position.
      * 
@@ -225,7 +217,7 @@ public class Turret extends SubsystemBase {
      * @return A Translation2d representing the vector from the turret to the goal in robot coordinates.
      *         Use .getAngle() to get the robot-centric angle, and .getNorm() to get the distance.
      */
-    public static Translation2d getTranslationToGoal(Pose2d robotPose, Translation2d goalTranslation) {
+    private static Translation2d getTranslationToGoalOld(Pose2d robotPose, Translation2d goalTranslation) {
         // Translation2d overallAngle = getTurretPositionForRobotPose(robotPose).minus(goalTranslation).rotateBy(robotPose.getRotation());
 
         Translation2d turretPose = getTurretPositionForRobotPose(robotPose);
@@ -238,5 +230,41 @@ public class Turret extends SubsystemBase {
         // SmartDashboard.putNumber("turretTesting/rotationRelativeToRobot", translationRelativeToRobot.getAngle().getDegrees());
         
         return translationRelativeToRobot;
+    }
+
+    public static Translation2d getTranslationToGoal(Pose2d robotPose, Translation2d target) {
+        // compute robot to target, in field coordinates
+        Translation2d robotToTargetField = target.minus(robotPose.getTranslation());
+        // System.out.println("r2t_f " + robotPose.getTranslation() + " --> " + target + " = " + robotToTargetField);
+
+        // rotate that into robot coordinates
+        Translation2d robotToTargetRobot = robotToTargetField.rotateBy(robotPose.getRotation().unaryMinus());
+        // System.out.println("r2t_r " + robotPose.getRotation().getDegrees() + " = " + robotToTargetRobot);
+
+        // subtract off the turret offset
+        Translation2d turretToTarget = robotToTargetRobot.minus(TURRET_OFFSET);
+        // System.out.println("tur2t " + TURRET_OFFSET + " = " + turretToTarget);
+
+        // done
+        return turretToTarget;
+    }
+
+    private static void runTests() {
+        Translation2d position = FieldConstants.HUB_POSITION_BLUE.minus(new Translation2d(1.0, 0.5));
+
+        for (double angle = 0; angle < 360; angle += 45.0) {
+            System.out.println("Angle = " + angle);
+
+            Pose2d robot = new Pose2d(position, Rotation2d.fromDegrees(angle));
+
+            Translation2d t1 = getTranslationToGoalOld(robot, FieldConstants.HUB_POSITION_BLUE);
+            System.out.println("getT2G: " + t1);
+            Translation2d t2 = getTranslationToGoal(robot, FieldConstants.HUB_POSITION_BLUE);
+            System.out.println("getT2TPaul: " + t2);
+        }
+    }
+
+    public static void main(String[] args) {
+        runTests();
     }
 }
