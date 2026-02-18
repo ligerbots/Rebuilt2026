@@ -297,4 +297,9 @@ public class RobotContainerCompBot extends RobotContainer {
         // Square the axis, retaining the sign
         return Math.abs(value) * value;
     }
+
+    public Turret getTurret()
+    {
+        return m_turret;
+    }
 }

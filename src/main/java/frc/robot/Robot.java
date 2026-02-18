@@ -7,6 +7,7 @@ package frc.robot;
 import com.ctre.phoenix6.HootAutoReplay;
 
 import edu.wpi.first.hal.HALUtil;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -15,11 +16,26 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
+// Mechanism classes for annotating the visuals during simulation
+import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
+import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
+import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
+import edu.wpi.first.wpilibj.util.Color;
+import edu.wpi.first.wpilibj.util.Color8Bit;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.shooter.Turret;
+import frc.robot.RobotContainerCompBot;
 
 public class Robot extends TimedRobot {
     private Command m_autonomousCommand = null;
     private boolean m_prevIsRedAlliance = true;
+
+    Turret m_turret;
+    Mechanism2d m_mech = null;
+    MechanismRoot2d m_root = null;
+    MechanismLigament2d m_turret2d = null;
+    MechanismLigament2d m_flywheel2d = null;
+    MechanismLigament2d m_hood2d = null;
 
     public static final String TESTBOT_SERIAL_NUMBER = "0313baff";  // TODO: real value?
     public static final String COMPBOT_SERIAL_NUMBER = "030fc268";
@@ -144,5 +160,21 @@ public class Robot extends TimedRobot {
     public void testExit() {}
 
     @Override
-    public void simulationPeriodic() {}
+    public void simulationInit() {
+        m_mech = new Mechanism2d(Units.inchesToMeters(16), Units.inchesToMeters(40));
+        m_root = m_mech.getRoot("shooter", Turret.TURRET_OFFSET.getX(), Turret.TURRET_OFFSET.getY());
+        m_turret = ((RobotContainerCompBot)m_robotContainer).getTurret();
+        m_turret2d = m_root.append(
+            new MechanismLigament2d("turret", Units.inchesToMeters(20), 0.0, 6.0,
+                new Color8Bit(Color.kHotPink)));
+        m_flywheel2d = null;
+        m_hood2d = null;
+        SmartDashboard.putData("Turret2d", m_mech);    
+        }
+
+    @Override
+    public void simulationPeriodic() {
+        m_turret2d.setAngle(m_turret.getGoalDeg());
+        // SmartDashboard.putData("Turret2d", m_mech); 
+    }
 }
