@@ -81,7 +81,8 @@ public class Shoot extends Command {
 
         ChassisSpeeds speedInformation = m_speedsSupplier.get();
 
-        final double fillSpeed = 10; // m/s
+        //TODO: use actual velocity value for shot
+        final double fillSpeed = 10; // meters/second
         
         MathVector currentSpeeds = new MathVector(speedInformation.vxMetersPerSecond, speedInformation.vyMetersPerSecond);
         MathVector goal = new MathVector(Math.toRadians(translationToHub.getAngle().getDegrees()));
@@ -97,7 +98,7 @@ public class Shoot extends Command {
             shootValue = m_shooter.getShootValue(translationToHub.getNorm(), m_shotType);
         }
         
-        m_turret.setAngle(translationToHub.getAngle());
+        m_turret.setAngle(Rotation2d.fromRadians(finalVector.angle()));
         m_shooter.setShootValues(shootValue);
         
         // Run feeder only when shooter and turret are ready
