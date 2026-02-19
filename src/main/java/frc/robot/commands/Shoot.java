@@ -3,8 +3,6 @@
 // the WPILib BSD license file in the root directory of this project.
 
 package frc.robot.commands;
-
-import java.util.MathVector;
 import java.util.function.Supplier;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -19,6 +17,7 @@ import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.ShooterFeeder;
 import frc.robot.subsystems.shooter.Turret;
 import frc.robot.subsystems.shooter.Shooter.ShotType;
+import frc.robot.utilities.MathVector;
 import frc.robot.utilities.ShooterLookupTable.ShootValue;
 
 /**
@@ -84,8 +83,7 @@ public class Shoot extends Command {
         
         MathVector currentSpeeds = new MathVector(speedInformation.vxMetersPerSecond, speedInformation.vyMetersPerSecond);
         MathVector goal = new MathVector(1.0, 1.0);
-
-        MathVector finalVelocity = goal.subtract(currentSpeeds);
+        MathVector finalVector = goal.subtract(currentSpeeds);
 
         ShootValue shootValue;
         if (m_shotType == ShotType.TEST) {
