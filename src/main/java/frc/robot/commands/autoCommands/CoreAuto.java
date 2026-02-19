@@ -8,7 +8,15 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.FieldConstants;
+import frc.robot.commands.Shoot;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.Hopper;
+import frc.robot.subsystems.shooter.Shooter;
+import frc.robot.subsystems.shooter.Shooter.ShotType;
+import frc.robot.subsystems.shooter.ShooterFeeder;
+import frc.robot.subsystems.shooter.Shooter.ShotType;
+import frc.robot.subsystems.shooter.ShooterFeeder;
+import frc.robot.subsystems.shooter.Turret;
 
 public class CoreAuto extends AutoCommandInterface {
 
@@ -20,12 +28,16 @@ public class CoreAuto extends AutoCommandInterface {
             4.0, 2.0,
             Math.toRadians(540), Math.toRadians(720));
 
-    public static CoreAuto getInstance(String[] pathFiles, CommandSwerveDrivetrain driveTrain, boolean isDepotSide) {
-        return new CoreAuto(pathFiles, driveTrain, isDepotSide);
+    public static CoreAuto getInstance(String[] pathFiles, CommandSwerveDrivetrain driveTrain, boolean isDepotSide, double preloadShootTime, 
+    Shooter m_shooter, Turret m_turret, ShooterFeeder m_shooterFeeder, Hopper m_hopper) {
+        return new CoreAuto(pathFiles, driveTrain, isDepotSide, preloadShootTime, m_shooter, m_turret, m_shooterFeeder, m_hopper);
     }
     
-    /** Creates a new CoreAuto. */
-    private CoreAuto(String[] pathFiles, CommandSwerveDrivetrain driveTrain, boolean isDepotSide) {
+    /** Creates a new CoreAuto. 
+     * @param m_shooter 
+     * @param m_turret */
+    private CoreAuto(String[] pathFiles, CommandSwerveDrivetrain driveTrain, boolean isDepotSide, double preloadShootTime, 
+    Shooter m_shooter, Turret m_turret, ShooterFeeder m_shooterFeeder, Hopper m_hopper) {
 
         m_driveTrain = driveTrain;
 
@@ -40,6 +52,12 @@ public class CoreAuto extends AutoCommandInterface {
             }
             m_initPose = startPath.getStartingHolonomicPose().get();
 
+            // Shoot preloaded balls for N seconds before driving
+            addCommands(    
+                new Shoot(m_shooter, m_turret, m_shooterFeeder, driveTrain::getPose, ShotType.HUB).alongWith(m_hopper.pulseCommand())
+                .withTimeout(preloadShootTime)
+                );
+
             for (String pathName : pathFiles) {
                 PathPlannerPath path = PathPlannerPath.fromPathFile(pathName);
                 if (isDepotSide) {
@@ -47,6 +65,7 @@ public class CoreAuto extends AutoCommandInterface {
                 }
                 addCommands(m_driveTrain.followPath(path));
             }
+            // Clmber code goes here, but we don't have a climber yet so we'll leave it out for now
         } catch (Exception e) {
             DriverStation.reportError("Unable to load PP path Test", true);
             m_initPose = new Pose2d();
