@@ -4,6 +4,7 @@
 
 package frc.robot.commands;
 
+import java.util.MathVector;
 import java.util.function.Supplier;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -80,9 +81,11 @@ public class Shoot extends Command {
         Translation2d translationToHub = Turret.getTranslationToGoal(m_poseSupplier.get(), m_target);
 
         ChassisSpeeds speedInformation = m_speedsSupplier.get();
-        double xVelocity = speedInformation.vxMetersPerSecond;
-        double yVelocity = speedInformation.vyMetersPerSecond;
+        
+        MathVector currentSpeeds = new MathVector(speedInformation.vxMetersPerSecond, speedInformation.vyMetersPerSecond);
+        MathVector goal = new MathVector(1.0, 1.0);
 
+        MathVector finalVelocity = goal.subtract(currentSpeeds);
 
         ShootValue shootValue;
         if (m_shotType == ShotType.TEST) {
