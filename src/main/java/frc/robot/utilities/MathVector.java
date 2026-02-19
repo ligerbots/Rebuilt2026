@@ -10,10 +10,10 @@ public class MathVector {
         this.y = y;
     }
 
-    // public Vector(double angle) {
-    //     this.x = Math.cos(angle);
-    //     this.y = Math.sin(angle);
-    // }
+    public MathVector(double angle) {
+        this.x = Math.cos(angle);
+        this.y = Math.sin(angle);
+    }
 
     public double getMagnitude() {
         return Math.sqrt(x * x + y * y);

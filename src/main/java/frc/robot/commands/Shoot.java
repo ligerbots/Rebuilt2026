@@ -80,9 +80,13 @@ public class Shoot extends Command {
         Translation2d translationToHub = Turret.getTranslationToGoal(m_poseSupplier.get(), m_target);
 
         ChassisSpeeds speedInformation = m_speedsSupplier.get();
+
+        final double fillSpeed = 10; // m/s
         
         MathVector currentSpeeds = new MathVector(speedInformation.vxMetersPerSecond, speedInformation.vyMetersPerSecond);
-        MathVector goal = new MathVector(1.0, 1.0);
+        MathVector goal = new MathVector(Math.toRadians(translationToHub.getAngle().getDegrees()));
+        goal.x *= fillSpeed;
+        goal.y *= fillSpeed;
         MathVector finalVector = goal.subtract(currentSpeeds);
 
         ShootValue shootValue;
