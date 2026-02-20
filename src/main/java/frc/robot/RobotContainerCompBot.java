@@ -98,38 +98,16 @@ public class RobotContainerCompBot extends RobotContainer {
 
     private void configureAutos() {
 
-        m_chosenAutoPaths.setDefaultOption("Depot Simple", new String[] {
-                "Depot Simple"
+        m_chosenAutoPaths.setDefaultOption("Out-Back Out-Back aka Depot Double Blitz", new String[] {
+            "Depot Double Blitz"
         });
 
-        m_chosenAutoPaths.addOption("Depot Full Pass", new String[] {
+        m_chosenAutoPaths.addOption("SnowBlow aka Depot Full Pass", new String[] {
                 "Depot Full Pass"
         });
 
-        m_chosenAutoPaths.addOption("Basic Center Auto - Trench", new String[] {
-            "Start Trench to Fuel Begin",
-            "Fuel Begin to Fuel End With Events",
-            "Fuel End to Trench Finish With Events",
-            "Trench Finish to Climb A"
-        });
-
-        m_chosenAutoPaths.addOption("Basic Center Auto - Bump", new String[] {
-            "Start Bump to Fuel Begin",
-            "Fuel Begin to Fuel End With Events",
-            "Fuel End to Bump Finish With Events",
-            "Bump Finish to Climb A"
-        });
-
-        m_chosenAutoPaths.addOption("Depot Single Pass Blitz", new String[] {
+        m_chosenAutoPaths.addOption("Out-Back Depot aka Depot Single Pass Blitz", new String[] {
             "Depot Single Pass Blitz"
-        });
-
-        m_chosenAutoPaths.addOption("Depot Double Blitz", new String[] {
-            "Depot Double Blitz"
-        });
-        
-        m_chosenAutoPaths.addOption("Drive Straight to Climb", new String[] {
-            "Start Bump to Climb A"
         });
         
         SmartDashboard.putData("Auto Choice", m_chosenAutoPaths);
@@ -278,7 +256,7 @@ public class RobotContainerCompBot extends RobotContainer {
         if (m_autoSelectionCode != currentAutoSelectionCode) {
             m_autoSelectionCode = currentAutoSelectionCode;
             m_autoCommand = CoreAuto.getInstance(m_chosenAutoPaths.getSelected(), m_drivetrain,
-                    m_chosenFieldSide.getSelected().equals("Depot Side"), preloadShootTime, m_shooter, m_turret, m_shooterFeeder, m_hopper);
+                    m_chosenFieldSide.getSelected().equals("Outpost Side"), preloadShootTime, m_shooter, m_turret, m_shooterFeeder, m_hopper);
             // m_autoCommand = new PathPlannerAuto(coreCommand);
         }
         return m_autoCommand;

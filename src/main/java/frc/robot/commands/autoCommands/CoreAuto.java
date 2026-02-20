@@ -14,8 +14,6 @@ import frc.robot.subsystems.Hopper;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.Shooter.ShotType;
 import frc.robot.subsystems.shooter.ShooterFeeder;
-import frc.robot.subsystems.shooter.Shooter.ShotType;
-import frc.robot.subsystems.shooter.ShooterFeeder;
 import frc.robot.subsystems.shooter.Turret;
 
 public class CoreAuto extends AutoCommandInterface {
@@ -28,15 +26,15 @@ public class CoreAuto extends AutoCommandInterface {
             4.0, 2.0,
             Math.toRadians(540), Math.toRadians(720));
 
-    public static CoreAuto getInstance(String[] pathFiles, CommandSwerveDrivetrain driveTrain, boolean isDepotSide, double preloadShootTime, 
+    public static CoreAuto getInstance(String[] pathFiles, CommandSwerveDrivetrain driveTrain, boolean isOutpostSide, double preloadShootTime, 
     Shooter m_shooter, Turret m_turret, ShooterFeeder m_shooterFeeder, Hopper m_hopper) {
-        return new CoreAuto(pathFiles, driveTrain, isDepotSide, preloadShootTime, m_shooter, m_turret, m_shooterFeeder, m_hopper);
+        return new CoreAuto(pathFiles, driveTrain, isOutpostSide, preloadShootTime, m_shooter, m_turret, m_shooterFeeder, m_hopper);
     }
     
     /** Creates a new CoreAuto. 
      * @param m_shooter 
      * @param m_turret */
-    private CoreAuto(String[] pathFiles, CommandSwerveDrivetrain driveTrain, boolean isDepotSide, double preloadShootTime, 
+    private CoreAuto(String[] pathFiles, CommandSwerveDrivetrain driveTrain, boolean isOutpostSide, double preloadShootTime, 
     Shooter m_shooter, Turret m_turret, ShooterFeeder m_shooterFeeder, Hopper m_hopper) {
 
         m_driveTrain = driveTrain;
@@ -47,20 +45,22 @@ public class CoreAuto extends AutoCommandInterface {
         try {
 
             PathPlannerPath startPath = PathPlannerPath.fromPathFile(pathFiles[0]);
-            if (isDepotSide) {
+            if (isOutpostSide) {
                 startPath = startPath.mirrorPath();
             }
             m_initPose = startPath.getStartingHolonomicPose().get();
 
             // Shoot preloaded balls for N seconds before driving
-            addCommands(    
-                new Shoot(m_shooter, m_turret, m_shooterFeeder, driveTrain::getPose, ShotType.HUB).alongWith(m_hopper.pulseCommand())
-                .withTimeout(preloadShootTime)
-                );
+            if(preloadShootTime > 0) {
+                addCommands(
+                    new Shoot(m_shooter, m_turret, m_shooterFeeder, driveTrain::getPose, ShotType.HUB).alongWith(m_hopper.pulseCommand())
+                    .withTimeout(preloadShootTime)
+                    );
+            }
 
             for (String pathName : pathFiles) {
                 PathPlannerPath path = PathPlannerPath.fromPathFile(pathName);
-                if (isDepotSide) {
+                if (isOutpostSide) {
                     path = path.mirrorPath();
                 }
                 addCommands(m_driveTrain.followPath(path));
