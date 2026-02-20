@@ -6,7 +6,14 @@ import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
+import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
+import edu.wpi.first.wpilibj2.command.StartEndCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.FieldConstants;
 import frc.robot.commands.Shoot;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
@@ -52,10 +59,21 @@ public class CoreAuto extends AutoCommandInterface {
 
             // Shoot preloaded balls for N seconds before driving
             if(preloadShootTime > 0) {
-                addCommands(
-                    new Shoot(m_shooter, m_turret, m_shooterFeeder, driveTrain::getPose, ShotType.HUB).alongWith(m_hopper.pulseCommand())
-                    .withTimeout(preloadShootTime)
-                    );
+                // new InstantCommand().andThen(
+                Shoot shootCommand = new Shoot(m_shooter, m_turret, m_shooterFeeder, driveTrain::getPose, ShotType.HUB);
+
+                addCommands(shootCommand.alongWith(m_hopper.pulseCommand()).withTimeout(preloadShootTime));
+
+                // addCommands(new WaitCommand(preloadShootTime).deadlineFor(
+                
+                // TODO: convert the above command to a StartEndCommand that starts the shooter and hopper, and then stops them when the timer runs out. 
+                // The current timeout above applies to the entire Auto command, which is incorrect.
+                // Example from last year below:
+                // new StartEndCommand(coralEffector::runOuttake, coralEffector::stop, coralEffector).withTimeout(CORAL_SCORE_WAIT_TIME)
+                
+                // addCommands(
+                //     new StartEndCommand(new InstantCommand()::run, new InstantCommand()::end, m_shooter).withTimeout(preloadShootTime));
+                    
             }
 
             for (String pathName : pathFiles) {

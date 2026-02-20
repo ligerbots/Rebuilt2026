@@ -98,15 +98,15 @@ public class RobotContainerCompBot extends RobotContainer {
 
     private void configureAutos() {
 
-        m_chosenAutoPaths.setDefaultOption("Out-Back Out-Back aka Depot Double Blitz", new String[] {
+        m_chosenAutoPaths.setDefaultOption("Out-Back Out-Back // Depot Double Blitz", new String[] {
             "Depot Double Blitz"
         });
 
-        m_chosenAutoPaths.addOption("SnowBlow aka Depot Full Pass", new String[] {
+        m_chosenAutoPaths.addOption("SnowBlow // Depot Full Pass", new String[] {
                 "Depot Full Pass"
         });
 
-        m_chosenAutoPaths.addOption("Out-Back Depot aka Depot Single Pass Blitz", new String[] {
+        m_chosenAutoPaths.addOption("Out-Back Depot // Depot Single Pass Blitz", new String[] {
             "Depot Single Pass Blitz"
         });
         
