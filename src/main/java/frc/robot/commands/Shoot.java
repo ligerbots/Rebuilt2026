@@ -83,7 +83,7 @@ public class Shoot extends Command {
             shootValue = m_shooter.getShootValue(translationToHub.getNorm(), m_shotType);
         }
         
-        m_turret.setAngle(translationToHub.getAngle());
+        // m_turret.setAngle(translationToHub.getAngle());
         m_shooter.setShootValues(shootValue);
         
         // Run feeder only when shooter and turret are ready
