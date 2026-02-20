@@ -17,7 +17,6 @@ import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.ShooterFeeder;
 import frc.robot.subsystems.shooter.Turret;
 import frc.robot.subsystems.shooter.Shooter.ShotType;
-import frc.robot.utilities.MathVector;
 import frc.robot.utilities.ShooterLookupTable.ShootValue;
 
 /**
@@ -87,26 +86,26 @@ public class Shoot extends Command {
             currentPose.getRotation()
         );
 
-        Translation2d goalVector = Turret.getTranslationToGoal(futurePose, m_target);
+        Translation2d robotVelVector = new Translation2d(speedInformation.vxMetersPerSecond, speedInformation.vyMetersPerSecond);
+
+        Translation2d targetVector = Turret.getTranslationToGoal(futurePose, m_target);
+        double targetDist = targetVector.getNorm();
+        double idealHorizontalSpeed = 10; // TODO: create horizontal velocity table and replace with real value
+
+        Translation2d shotVector = targetVector.div(targetDist).times(idealHorizontalSpeed).minus(robotVelVector);
 
         //TODO: use actual velocity value for shot
-        final double fillSpeed = 10; // meters/second
-
-        MathVector currentSpeeds = new MathVector(speedInformation.vxMetersPerSecond, speedInformation.vyMetersPerSecond);
-        MathVector goal = new MathVector(Math.toRadians(goalVector.getAngle().getDegrees()));
-        goal.x *= fillSpeed; 
-        goal.y *= fillSpeed;
-        MathVector finalVector = goal.subtract(currentSpeeds);
+        // final double fillSpeed = 10; // meters/second
 
         ShootValue shootValue;
         if (m_shotType == ShotType.TEST) {
             shootValue = testShootValue();
         } else {
             // Calculate distance and angle to target, send to shooter and turret subsystems
-            shootValue = m_shooter.getShootValue(goalVector.getNorm(), m_shotType);
+            shootValue = m_shooter.getShootValue(targetVector.getNorm(), m_shotType);
         }
         
-        m_turret.setAngle(Rotation2d.fromRadians(finalVector.angle()));
+        m_turret.setAngle(shotVector.getAngle());
         m_shooter.setShootValues(shootValue);
         
         // Run feeder only when shooter and turret are ready
