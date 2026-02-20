@@ -94,15 +94,12 @@ public class Shoot extends Command {
 
         Translation2d shotVector = targetVector.div(targetDist).times(idealHorizontalSpeed).minus(robotVelVector);
 
-        //TODO: use actual velocity value for shot
-        // final double fillSpeed = 10; // meters/second
-
         ShootValue shootValue;
         if (m_shotType == ShotType.TEST) {
             shootValue = testShootValue();
         } else {
             // Calculate distance and angle to target, send to shooter and turret subsystems
-            shootValue = m_shooter.getShootValue(targetVector.getNorm(), m_shotType);
+            shootValue = m_shooter.getShootValue(shotVector.getNorm(), m_shotType);
         }
         
         m_turret.setAngle(shotVector.getAngle());
