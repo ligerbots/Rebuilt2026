@@ -35,6 +35,8 @@ public class Shoot extends Command {
     private final Shooter.ShotType m_shotType;
     private Translation2d m_target;
 
+    private static final double LATENCY_SECONDS = 0.1; // TODO: tune to real value
+
     public Shoot(Shooter shooter, Turret turret, ShooterFeeder feeder, Supplier<Pose2d> poseSupplier, Supplier<ChassisSpeeds> speeds, Shooter.ShotType shotType) {
         m_turret = turret;
         m_shooter = shooter;
@@ -77,16 +79,22 @@ public class Shoot extends Command {
     
     @Override
     public void execute() {
-        Translation2d translationToHub = Turret.getTranslationToGoal(m_poseSupplier.get(), m_target);
 
         ChassisSpeeds speedInformation = m_speedsSupplier.get();
+        Pose2d currentPose = m_poseSupplier.get();
+        Pose2d futurePose = new Pose2d(
+            currentPose.getTranslation().plus(new Translation2d(speedInformation.vxMetersPerSecond, speedInformation.vyMetersPerSecond).times(LATENCY_SECONDS)),
+            currentPose.getRotation()
+        );
+
+        Translation2d goalVector = Turret.getTranslationToGoal(futurePose, m_target);
 
         //TODO: use actual velocity value for shot
         final double fillSpeed = 10; // meters/second
-        
+
         MathVector currentSpeeds = new MathVector(speedInformation.vxMetersPerSecond, speedInformation.vyMetersPerSecond);
-        MathVector goal = new MathVector(Math.toRadians(translationToHub.getAngle().getDegrees()));
-        goal.x *= fillSpeed;
+        MathVector goal = new MathVector(Math.toRadians(goalVector.getAngle().getDegrees()));
+        goal.x *= fillSpeed; 
         goal.y *= fillSpeed;
         MathVector finalVector = goal.subtract(currentSpeeds);
 
@@ -95,7 +103,7 @@ public class Shoot extends Command {
             shootValue = testShootValue();
         } else {
             // Calculate distance and angle to target, send to shooter and turret subsystems
-            shootValue = m_shooter.getShootValue(translationToHub.getNorm(), m_shotType);
+            shootValue = m_shooter.getShootValue(goalVector.getNorm(), m_shotType);
         }
         
         m_turret.setAngle(Rotation2d.fromRadians(finalVector.angle()));
