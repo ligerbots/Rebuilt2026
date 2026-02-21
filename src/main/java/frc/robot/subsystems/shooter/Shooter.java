@@ -24,6 +24,8 @@ public class Shooter extends SubsystemBase {
     private final ShooterLookupTable m_passShotLookupTable;
     private double m_flyFudge = 1.0;
     private static final double FUDGE_INCREMENT = 0.05;
+    private double m_hoodFudgeDegree = 0.0;
+    private static final double HOOD_FUDGE_INCREMENT_DEGREES = 0.5;
     
     private Hood m_hood;
     private Flywheel m_flywheel;
@@ -80,6 +82,14 @@ public class Shooter extends SubsystemBase {
         m_flyFudge -= FUDGE_INCREMENT;
     }
 
+    public void increaseHoodFudge() {
+        m_hoodFudgeDegree += HOOD_FUDGE_INCREMENT_DEGREES;
+    }
+
+     public void decreaseHoodFudge() {
+        m_hoodFudgeDegree -= HOOD_FUDGE_INCREMENT_DEGREES;
+    }
+
 
     /**
     * Sets the target distance for the shooter to use when calculating ballistic parameters.
@@ -93,6 +103,7 @@ public class Shooter extends SubsystemBase {
 
         ShootValue shootValue = m_hubShotLookupTable.getShootValues(distanceMeters);
         shootValue.flyRPM *= m_flyFudge;
+        shootValue.hoodAngle = shootValue.hoodAngle.plus(Rotation2d.fromDegrees(m_hoodFudgeDegree));
 
         return shootValue;
     }
