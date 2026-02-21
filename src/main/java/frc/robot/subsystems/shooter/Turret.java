@@ -54,8 +54,8 @@ public class Turret extends SubsystemBase {
     private static final double MAX_VEL_ROT_PER_SEC = 2.0 * TURRET_GEAR_RATIO;
     private static final double MAX_ACC_ROT_PER_SEC_SQ = 10.0 * TURRET_GEAR_RATIO;
 
-    private static final double MAX_ROTATION_DEG = 180.0;
-    private static final double MIN_ROTATION_DEG = -140.0;
+    private static final double MAX_ROTATION_DEG = 145.0;
+    private static final double MIN_ROTATION_DEG = -195.0;
     
     // this is just the middle point of the full CRT range
     // include "1.0 *" to make sure it does floating point arithmetic
