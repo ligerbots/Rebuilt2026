@@ -5,6 +5,7 @@
 package frc.robot.subsystems.shooter;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.utilities.ShooterLookupTable;
 import frc.robot.utilities.ShooterLookupTable.ShootValue;
@@ -44,9 +45,11 @@ public class Shooter extends SubsystemBase {
         m_flywheel = new Flywheel();
     }
     
-    // @Override
-    // public void periodic() {
-    // }
+    @Override
+    public void periodic() {
+        SmartDashboard.putNumber("shooter/flywheelFudge", m_flyFudge);
+        SmartDashboard.putNumber("shooter/hoodFudge", m_hoodFudgeDegree);
+    }
 
     public Flywheel getFlywheel() {
         return m_flywheel;
