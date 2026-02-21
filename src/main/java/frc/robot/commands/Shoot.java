@@ -30,7 +30,6 @@ public class Shoot extends Command {
     private final Supplier<Pose2d> m_poseSupplier;
 
     private final Shooter.ShotType m_shotType;
-    private Translation2d m_target;
 
     public Shoot(Shooter shooter, Turret turret, ShooterFeeder feeder, Supplier<Pose2d> poseSupplier, Shooter.ShotType shotType) {
         m_turret = turret;
@@ -48,32 +47,33 @@ public class Shoot extends Command {
     }
     
     // Called when the command is initially scheduled.
-    @Override
-    public void initialize() {
-        switch (m_shotType) {
-            case AUTO:
-            case TEST:
-                m_target = shotAutoTarget(m_poseSupplier.get());
-                break;
-            case HUB:
-                m_target = FieldConstants.flipTranslation(FieldConstants.HUB_POSITION_BLUE);
-                break;
-            case PASS:
-                double yBlue = FieldConstants.flipTranslation(m_poseSupplier.get().getTranslation()).getY();
-                if (yBlue < FieldConstants.FIELD_WIDTH / 2.0)
-                    m_target = FieldConstants.flipTranslation(FieldConstants.PASSING_TARGET_LOWER_BLUE);
-                else
-                    m_target = FieldConstants.flipTranslation(FieldConstants.PASSING_TARGET_UPPER_BLUE);
-                break;
+    // @Override
+    // public void initialize() {
+    //     switch (m_shotType) {
+    //         case AUTO:
+    //         case TEST:
+    //             m_target = shotAutoTarget(m_poseSupplier.get());
+    //             break;
+    //         case HUB:
+    //             m_target = FieldConstants.flipTranslation(FieldConstants.HUB_POSITION_BLUE);
+    //             break;
+    //         case PASS:
+    //             double yBlue = FieldConstants.flipTranslation(m_poseSupplier.get().getTranslation()).getY();
+    //             if (yBlue < FieldConstants.FIELD_WIDTH / 2.0)
+    //                 m_target = FieldConstants.flipTranslation(FieldConstants.PASSING_TARGET_LOWER_BLUE);
+    //             else
+    //                 m_target = FieldConstants.flipTranslation(FieldConstants.PASSING_TARGET_UPPER_BLUE);
+    //             break;
                 
-            default:
-                break;
-        }
-    }
+    //         default:
+    //             break;
+    //     }
+    // }
     
     @Override
     public void execute() {
-        Translation2d translationToHub = Turret.getTranslationToGoal(m_poseSupplier.get(), m_target);
+        Translation2d target = targetForShotType();
+        Translation2d translationToHub = Turret.getTranslationToGoal(m_poseSupplier.get(), target);
 
         ShootValue shootValue;
         if (m_shotType == ShotType.TEST) {
@@ -84,6 +84,7 @@ public class Shoot extends Command {
         }
         
         // m_turret.setAngle(translationToHub.getAngle());
+        m_turret.setAngle(Rotation2d.fromDegrees(334));
         m_shooter.setShootValues(shootValue);
         
         // Run feeder only when shooter and turret are ready
@@ -106,6 +107,19 @@ public class Shoot extends Command {
     @Override
     public boolean isFinished() {
         return false;
+    }
+
+    private Translation2d targetForShotType() {
+        switch (m_shotType) {
+            case HUB:
+                return FieldConstants.flipTranslation(FieldConstants.HUB_POSITION_BLUE);
+            case PASS:
+                double yBlue = FieldConstants.flipTranslation(m_poseSupplier.get().getTranslation()).getY();
+                if (yBlue < FieldConstants.FIELD_WIDTH / 2.0)
+                    return FieldConstants.flipTranslation(FieldConstants.PASSING_TARGET_LOWER_BLUE);
+                return FieldConstants.flipTranslation(FieldConstants.PASSING_TARGET_UPPER_BLUE);
+        }
+        return shotAutoTarget(m_poseSupplier.get());
     }
 
     // Determines whether we should start shooting at the hub because we are in our zone.

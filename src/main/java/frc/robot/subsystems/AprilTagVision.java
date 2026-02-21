@@ -148,15 +148,20 @@ public class AprilTagVision {
         {
             m_cameras = new Camera[] {
                     new Camera("ArducamBackRight", new Transform3d(
-                            new Translation3d(Units.inchesToMeters(-9.32), Units.inchesToMeters(-9.5),
-                                    Units.inchesToMeters(10.53)),
+                            new Translation3d(Units.inchesToMeters(-8.89), Units.inchesToMeters(-12.07),
+                                    Units.inchesToMeters(15.08)),
                             new Rotation3d(0.0, Math.toRadians(-10), 0)
-                                    .rotateBy(new Rotation3d(0, 0, Math.toRadians(180.0-12.5))))),
+                                    .rotateBy(new Rotation3d(0, 0, Math.toRadians(180.0-20.0))))),
                     new Camera("ArducamBackLeft", new Transform3d(
-                            new Translation3d(Units.inchesToMeters(-9.32), Units.inchesToMeters(9.5),
-                                    Units.inchesToMeters(10.53)),
+                            new Translation3d(Units.inchesToMeters(-6.56), Units.inchesToMeters(12.87),
+                                    Units.inchesToMeters(17.27)),
                             new Rotation3d(0.0, Math.toRadians(-10), 0)
-                                    .rotateBy(new Rotation3d(0, 0, Math.toRadians(90.0-12.5)))))
+                                    .rotateBy(new Rotation3d(0, 0, Math.toRadians(90.0))))),
+                    new Camera("ArducamRight", new Transform3d(
+                            new Translation3d(Units.inchesToMeters(-0.187), Units.inchesToMeters(-13.35),
+                                    Units.inchesToMeters(14.84)),
+                            new Rotation3d(0.0, Math.toRadians(-10), 0)
+                                    .rotateBy(new Rotation3d(0, 0, Math.toRadians(-90.0)))))
             };
         }
 
