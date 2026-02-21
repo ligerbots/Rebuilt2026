@@ -17,8 +17,8 @@ public class FieldConstants {
     public static final double SHOOT_HUB_LINE_BLUE = Units.inchesToMeters(158); // distance from the wall to the line where we want to shoot from
 
     public static final Translation2d HUB_POSITION_BLUE = new Translation2d(Units.inchesToMeters(182.11),Units.inchesToMeters(158.84));
-    public static final Translation2d PASSING_TARGET_UPPER_BLUE = new Translation2d(Units.inchesToMeters(91.6), Units.inchesToMeters(238));
-    public static final Translation2d PASSING_TARGET_LOWER_BLUE = new Translation2d(Units.inchesToMeters(91.6), Units.inchesToMeters(79.5));
+    public static final Translation2d PASSING_TARGET_UPPER_BLUE = new Translation2d(Units.inchesToMeters(91.6), Units.inchesToMeters(220));
+    public static final Translation2d PASSING_TARGET_LOWER_BLUE = new Translation2d(Units.inchesToMeters(91.6), Units.inchesToMeters(98));
  
     public static boolean isRedAlliance() {
         Optional<Alliance> alliance = DriverStation.getAlliance();
