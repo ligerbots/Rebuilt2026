@@ -57,6 +57,8 @@ public class Turret extends SubsystemBase {
     private static final double MAX_ROTATION_DEG = 145.0;
     private static final double MIN_ROTATION_DEG = -195.0;
     
+    private static final double TURRET_FLIP_REGION_DEG = 20.0;
+
     // this is just the middle point of the full CRT range
     // include "1.0 *" to make sure it does floating point arithmetic
     private static final Rotation2d CRT_POSITION_OFFSET = 
@@ -133,6 +135,11 @@ public class Turret extends SubsystemBase {
 
     public boolean isOnTarget() {
         return Math.abs(getAngle().getDegrees() - getGoalDeg()) < ANGLE_TOLERANCE_DEG; 
+    }
+    
+    public boolean nearTurretFlip() {
+        double angleDeg = getAngle().getDegrees();
+        return (MAX_ROTATION_DEG - angleDeg) < TURRET_FLIP_REGION_DEG || (angleDeg - MIN_ROTATION_DEG) < TURRET_FLIP_REGION_DEG; 
     }
     
     private Rotation2d getCRTAngleRaw(){
