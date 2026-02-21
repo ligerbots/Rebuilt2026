@@ -140,7 +140,7 @@
         "y": 5.9075998810500625
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Auto Depot Depth"
     },
     {
       "anchor": {
@@ -273,12 +273,18 @@
     {
       "name": "Passing Shot Running",
       "waypointRelativePos": 2.204872646733179,
-      "endWaypointRelativePos": 4.4651162790697985,
+      "endWaypointRelativePos": 2.7066997518610902,
+      "command": null
+    },
+    {
+      "name": "Passing Shot Running",
+      "waypointRelativePos": 4.2,
+      "endWaypointRelativePos": 4.546898263027294,
       "command": null
     },
     {
       "name": "Hub Shot Running",
-      "waypointRelativePos": 7.268062120189048,
+      "waypointRelativePos": 7.2,
       "endWaypointRelativePos": 9.0,
       "command": null
     },

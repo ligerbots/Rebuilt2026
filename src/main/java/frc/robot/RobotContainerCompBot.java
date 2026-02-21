@@ -103,8 +103,8 @@ public class RobotContainerCompBot extends RobotContainer {
             "Depot Double Blitz"
         });
 
-        m_chosenAutoPaths.addOption("SnowBlow // Depot Full Pass", new String[] {
-                "Depot Full Pass"
+        m_chosenAutoPaths.addOption("SnowBlow // Depot Full Pass Blitz", new String[] {
+                "Depot Full Pass Blitz"
         });
 
         m_chosenAutoPaths.addOption("Out-Back Depot // Depot Single Pass Blitz", new String[] {
