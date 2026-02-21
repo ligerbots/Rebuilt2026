@@ -115,6 +115,10 @@ public class RobotContainerCompBot extends RobotContainer {
             "Depot Single Pass"
         });
 
+        m_chosenAutoPaths.addOption("Depot Simple", new String[] {
+            "Depot Simple"
+        });
+
         
         SmartDashboard.putData("Auto Choice", m_chosenAutoPaths);
 
