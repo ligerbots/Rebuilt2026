@@ -39,6 +39,9 @@ public class Turret extends SubsystemBase {
     private static final double SUPPLY_CURRENT_LIMIT = 60;
     private static final double STATOR_CURRENT_LIMIT = 40;
 
+    private double m_turretFudgeDegrees = 0;
+    private static final double TURRET_FUDGE_INCREMENT_DEGREES = 1;
+
     private static final int ENCODER_SMALL_TOOTH_COUNT = 11;
     private static final int ENCODER_LARGE_TOOTH_COUNT = 13;
     private static final double ENCODER_SMALL_OFFSET_ROTATIONS = -0.501;
@@ -110,11 +113,19 @@ public class Turret extends SubsystemBase {
         // SmartDashboard.putNumber("turret/absEncoder2", m_thruboreLarge.getAbsolutePosition().getValueAsDouble()*360);
         // SmartDashboard.putNumber("turret/absEncoder1", m_thruboreSmall.getAbsolutePosition().getValueAsDouble()*360);
     }
+
+    public void increaseTurretFudge() {
+        m_turretFudgeDegrees += TURRET_FUDGE_INCREMENT_DEGREES;
+    }
+
+    public void decreaseTurretFudge() {
+        m_turretFudgeDegrees -= TURRET_FUDGE_INCREMENT_DEGREES;
+    }
     
     public void setAngle(Rotation2d angle) {
         // for now, just limit angle. 
         // when we allow overlap, use optimizeGoal()
-        m_goalDeg = limitRotationDeg(angle.getDegrees() - TURRET_HEADING_OFFSET_DEG);
+        m_goalDeg = limitRotationDeg(angle.getDegrees() + m_turretFudgeDegrees - TURRET_HEADING_OFFSET_DEG);
         // m_goalDeg = optimizeGoal(angle.getDegrees() - TURRET_HEADING_OFFSET_DEG);
 
         m_turretMotor.setControl(new MotionMagicVoltage(m_goalDeg/360.0 * TURRET_GEAR_RATIO));
