@@ -3,16 +3,16 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 4.431501156115619,
-        "y": 7.42026997854528
+        "x": 3.560156626506024,
+        "y": 7.411662650602409
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.184195299350152,
-        "y": 7.45687343752798
+        "x": 3.3128507697405567,
+        "y": 7.448266109585109
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Auto Start Line Straight"
     },
     {
       "anchor": {
@@ -159,7 +159,7 @@
   "rotationTargets": [
     {
       "waypointRelativePos": 0.5684210526315792,
-      "rotationDegrees": 18.34212727611789
+      "rotationDegrees": 18.342127276117893
     },
     {
       "waypointRelativePos": 1.6105263157894985,
@@ -205,8 +205,8 @@
   "constraintZones": [
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 0.71760797342192,
-      "maxWaypointRelativePos": 0.9767441860465209,
+      "minWaypointRelativePos": 0.0,
+      "maxWaypointRelativePos": 0.2947890818858622,
       "constraints": {
         "maxVelocity": 0.2,
         "maxAcceleration": 3.0,
@@ -247,8 +247,8 @@
   "eventMarkers": [
     {
       "name": "Hub Shot Running",
-      "waypointRelativePos": 0.6378737541528008,
-      "endWaypointRelativePos": 1.13,
+      "waypointRelativePos": 0.0,
+      "endWaypointRelativePos": 0.9379652605459109,
       "command": null
     },
     {
@@ -292,7 +292,7 @@
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -0.8025421592139946
+    "rotation": -0.5920158690342645
   },
   "useDefaultConstraints": true
 }

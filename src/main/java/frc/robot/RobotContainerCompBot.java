@@ -109,6 +109,11 @@ public class RobotContainerCompBot extends RobotContainer {
         m_chosenAutoPaths.addOption("Out-Back Depot // Depot Single Pass Blitz", new String[] {
             "Depot Single Pass Blitz"
         });
+
+        m_chosenAutoPaths.addOption("Depot Single Pass", new String[] {
+            "Depot Single Pass"
+        });
+
         
         SmartDashboard.putData("Auto Choice", m_chosenAutoPaths);
 

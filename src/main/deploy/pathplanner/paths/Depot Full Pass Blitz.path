@@ -3,16 +3,16 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 4.490833333333335,
-        "y": 7.442064102564103
+        "x": 3.560156626506024,
+        "y": 7.411662650602409
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.626437386159782,
-        "y": 7.41176877543149
+        "x": 4.695760679332471,
+        "y": 7.381367323469796
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Auto Start Line Straight"
     },
     {
       "anchor": {
