@@ -200,8 +200,8 @@ public class RobotContainerCompBot extends RobotContainer {
         m_farm.button(1).onTrue(new InstantCommand(m_shooter::increaseFlyFudge));
         m_farm.button(2).onTrue(new InstantCommand(m_shooter::decreaseFlyFudge));
 
-        m_farm.button(7).onTrue(new InstantCommand(m_shooter::increaseHoodFudge));
-        m_farm.button(8).onTrue(new InstantCommand(m_shooter::decreaseHoodFudge));
+        m_farm.button(6).onTrue(new InstantCommand(m_shooter::increaseHoodFudge));
+        m_farm.button(7).onTrue(new InstantCommand(m_shooter::decreaseHoodFudge));
 
         // SmartDashboard.putNumber("hood/testAngle", 0.0);
         // SmartDashboard.putNumber("flywheel/testRPM", 0.0); 
