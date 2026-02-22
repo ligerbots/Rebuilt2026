@@ -201,8 +201,6 @@ public class RobotContainerCompBot extends RobotContainer {
 
         m_driverController.leftBumper().onTrue(m_intake.stowCommand());
 
-        m_driverController.y().whileTrue(new StartEndCommand(()->m_shooter.getFlywheel().setRPM(3000.0), ()->m_shooter.getFlywheel().stop()));
-
         m_driverController.a().whileTrue(new Shoot(m_shooter, m_turret, m_shooterFeeder, m_drivetrain::getPose, ShotType.TEST)
                         .alongWith(m_hopper.pulseCommand()));
 
@@ -241,7 +239,9 @@ public class RobotContainerCompBot extends RobotContainer {
 
 
         // *** Test Commands *** 
-        
+
+        // m_driverController.y().whileTrue(new StartEndCommand(()->m_shooter.getFlywheel().setRPM(3000.0), ()->m_shooter.getFlywheel().stop()));
+
         // m_driverController.x().onTrue(new InstantCommand(() -> m_shooter.getHood().setAngle(Rotation2d.fromDegrees(SmartDashboard.getNumber("hood/testAngle", 0.0)))));
         
         // SmartDashboard.putNumber("flywheel/testVoltage", 0.0); 
