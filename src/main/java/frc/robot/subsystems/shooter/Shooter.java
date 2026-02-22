@@ -23,8 +23,13 @@ public class Shooter extends SubsystemBase {
     
     private final ShooterLookupTable m_hubShotLookupTable;
     private final ShooterLookupTable m_passShotLookupTable;
+
+    // Manual adjust on the flywheel RPM
+    // NOTE: this is a multiplicative change: +5%, +10%, etc
     private double m_flyFudge = 1.0;
     private static final double FUDGE_INCREMENT = 0.05;
+
+    // Manual adjust on the hood angle (additive)
     private double m_hoodFudgeDegree = 0.0;
     private static final double HOOD_FUDGE_INCREMENT_DEGREES = 0.5;
     
