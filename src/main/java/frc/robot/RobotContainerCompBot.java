@@ -21,9 +21,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.InternalButton;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.*;
@@ -135,7 +137,7 @@ public class RobotContainerCompBot extends RobotContainer {
 
     public Command getShootCommand() {
         return new Shoot(m_shooter, m_turret, m_shooterFeeder, m_drivetrain::getPose, ShotType.AUTO)
-                        .alongWith(m_hopper.pulseCommand());
+                        .alongWith(m_hopper.pulseCommand(), new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningShooter", true)));
     }
     
     private void configureAutoEventTriggers() {
@@ -143,11 +145,13 @@ public class RobotContainerCompBot extends RobotContainer {
         new EventTrigger("Stop Intake").onTrue(m_intake.stowCommand().alongWith(new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningIntake", false))));
 
         // TODO: should need only 1 AUTO shot trigger
-        new EventTrigger("Hub Shot Running").whileTrue(
-            new Shoot(m_shooter, m_turret, m_shooterFeeder, m_drivetrain::getPose, ShotType.HUB)
+        // new EventTrigger("Hub Shot Running").whileTrue(
+        ParallelCommandGroup autoShootCommand = new Shoot(m_shooter, m_turret, m_shooterFeeder, m_drivetrain::getPose, ShotType.HUB)
                         .alongWith(
                             m_hopper.pulseCommand(),
-                            new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningShooter", true))));
+                            new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningShooter", true)));
+        // autoShootCommand.addRequirements(m_hopper);
+        new EventTrigger("Hub Shot Running").whileTrue(autoShootCommand);
         new EventTrigger("Hub Shot Running").onFalse(new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningShooter", false)));
 
         new EventTrigger("Passing Shot Running").whileTrue(new Shoot(m_shooter, m_turret, m_shooterFeeder, m_drivetrain::getPose, ShotType.PASS)
@@ -273,11 +277,15 @@ public class RobotContainerCompBot extends RobotContainer {
             preloadShootTime,
             DriverStation.getAlliance());
     
+            InternalButton virtualShootButton = new InternalButton();
+            virtualShootButton.whileTrue(getShootCommand());
+            virtualShootButton.onFalse(new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningShooter", false)));
+
         // Only call constructor if the auto selection inputs have changed
         if (m_autoSelectionCode != currentAutoSelectionCode) {
             m_autoSelectionCode = currentAutoSelectionCode;
             m_autoCommand = CoreAuto.getInstance(m_chosenAutoPaths.getSelected(), m_drivetrain,
-                    m_chosenFieldSide.getSelected().equals("Outpost Side"), preloadShootTime, m_shooter, m_turret, m_shooterFeeder, m_hopper);
+                    m_chosenFieldSide.getSelected().equals("Outpost Side"), preloadShootTime, virtualShootButton); //, m_shooter, m_turret, m_shooterFeeder, m_hopper);
             // m_autoCommand = new PathPlannerAuto(coreCommand);
         }
         return m_autoCommand;

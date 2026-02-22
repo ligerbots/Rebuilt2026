@@ -2,6 +2,7 @@
 package frc.robot.commands.autoCommands;
 
 import com.pathplanner.lib.commands.PathPlannerAuto;
+import com.pathplanner.lib.events.EventTrigger;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -14,6 +15,8 @@ import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
+import edu.wpi.first.wpilibj2.command.button.InternalButton;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.FieldConstants;
 import frc.robot.commands.Shoot;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
@@ -33,21 +36,29 @@ public class CoreAuto extends AutoCommandInterface {
             4.0, 2.0,
             Math.toRadians(540), Math.toRadians(720));
 
-    public static CoreAuto getInstance(String[] pathFiles, CommandSwerveDrivetrain driveTrain, boolean isOutpostSide, double preloadShootTime, 
-    Shooter m_shooter, Turret m_turret, ShooterFeeder m_shooterFeeder, Hopper m_hopper) {
-        return new CoreAuto(pathFiles, driveTrain, isOutpostSide, preloadShootTime, m_shooter, m_turret, m_shooterFeeder, m_hopper);
+    public static CoreAuto getInstance(String[] pathFiles, CommandSwerveDrivetrain driveTrain, boolean isOutpostSide, double preloadShootTime,
+    InternalButton virtualShootButton) { 
+    // Shooter m_shooter, Turret m_turret, ShooterFeeder m_shooterFeeder, Hopper m_hopper) {
+        return new CoreAuto(pathFiles, driveTrain, isOutpostSide, preloadShootTime, virtualShootButton); //, m_shooter, m_turret, m_shooterFeeder, m_hopper);
     }
     
     /** Creates a new CoreAuto. 
      * @param m_shooter 
      * @param m_turret */
-    private CoreAuto(String[] pathFiles, CommandSwerveDrivetrain driveTrain, boolean isOutpostSide, double preloadShootTime, 
-    Shooter m_shooter, Turret m_turret, ShooterFeeder m_shooterFeeder, Hopper m_hopper) {
+    private CoreAuto(String[] pathFiles, CommandSwerveDrivetrain driveTrain, boolean isOutpostSide, double preloadShootTime,
+    InternalButton virtualShootButton
+    //Shooter m_shooter, Turret m_turret, ShooterFeeder m_shooterFeeder, Hopper m_hopper
+    ) {
 
         m_driveTrain = driveTrain;
 
         SmartDashboard.putBoolean("autoStatus/runningIntake", false);
         SmartDashboard.putBoolean("autoStatus/runningShooter", false);
+
+        // // addRequirements(m_shooter); //, m_turret); //, m_shooterFeeder); //, m_hopper);
+        // // addRequirements(m_turret); //, m_turret); //, m_shooterFeeder); //, m_hopper);
+        // // addRequirements(m_shooterFeeder); //, m_turret); //, m_shooterFeeder); //, m_hopper);
+        // addRequirements(m_hopper); //, m_turret); //, m_shooterFeeder); //, m_hopper);
 
         try {
 
@@ -59,10 +70,14 @@ public class CoreAuto extends AutoCommandInterface {
 
             // Shoot preloaded balls for N seconds before driving
             if(preloadShootTime > 0) {
-                // new InstantCommand().andThen(
-                Shoot shootCommand = new Shoot(m_shooter, m_turret, m_shooterFeeder, driveTrain::getPose, ShotType.HUB);
 
-                addCommands(shootCommand.alongWith(m_hopper.pulseCommand()).withTimeout(preloadShootTime));
+                addCommands(new InstantCommand(()->virtualShootButton.setPressed(true)).alongWith(new WaitCommand(preloadShootTime)));
+                
+                // addCommands(new StartEndCommand(shootEventTrigger., null, null));
+                // // new InstantCommand().andThen(
+                // Shoot shootCommand = new Shoot(m_shooter, m_turret, m_shooterFeeder, driveTrain::getPose, ShotType.HUB);
+
+                // addCommands(shootCommand.alongWith(m_hopper.pulseCommand()).withTimeout(preloadShootTime));
 
                 // addCommands(new WaitCommand(preloadShootTime).deadlineFor(
                 
