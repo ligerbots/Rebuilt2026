@@ -25,7 +25,7 @@ public class IntakeRoller extends SubsystemBase {
     private static final double OUTTAKE_VOLTAGE = 3.0;
 
     private final TalonFX m_motor;
-    private final VoltageOut m_voltageControl = new VoltageOut(0);
+    private final VoltageOut m_voltageControl = new VoltageOut(0).withEnableFOC(true);
 
     // Creates a new IntakeRoller
     public IntakeRoller() {
