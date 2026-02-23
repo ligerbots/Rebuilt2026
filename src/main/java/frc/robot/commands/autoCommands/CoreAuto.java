@@ -1,35 +1,21 @@
 
 package frc.robot.commands.autoCommands;
 
-import com.pathplanner.lib.commands.PathPlannerAuto;
-import com.pathplanner.lib.events.EventTrigger;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
-import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
-import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.InternalButton;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.FieldConstants;
-import frc.robot.commands.Shoot;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.subsystems.Hopper;
-import frc.robot.subsystems.shooter.Shooter;
-import frc.robot.subsystems.shooter.Shooter.ShotType;
-import frc.robot.subsystems.shooter.ShooterFeeder;
-import frc.robot.subsystems.shooter.Turret;
 
 public class CoreAuto extends AutoCommandInterface {
 
     protected Pose2d m_initPose;
-    private CommandSwerveDrivetrain m_driveTrain;
+    private CommandSwerveDrivetrain drivetrain;
     // private PathPlannerAuto m_pathPlannerAuto;
 
     PathConstraints constraints = new PathConstraints(
@@ -38,27 +24,19 @@ public class CoreAuto extends AutoCommandInterface {
 
     public static CoreAuto getInstance(String[] pathFiles, CommandSwerveDrivetrain driveTrain, boolean isOutpostSide, double preloadShootTime,
     InternalButton virtualShootButton) { 
-    // Shooter m_shooter, Turret m_turret, ShooterFeeder m_shooterFeeder, Hopper m_hopper) {
-        return new CoreAuto(pathFiles, driveTrain, isOutpostSide, preloadShootTime, virtualShootButton); //, m_shooter, m_turret, m_shooterFeeder, m_hopper);
+        return new CoreAuto(pathFiles, driveTrain, isOutpostSide, preloadShootTime, virtualShootButton);
     }
     
     /** Creates a new CoreAuto. 
      * @param m_shooter 
      * @param m_turret */
-    private CoreAuto(String[] pathFiles, CommandSwerveDrivetrain driveTrain, boolean isOutpostSide, double preloadShootTime,
-    InternalButton virtualShootButton
-    //Shooter m_shooter, Turret m_turret, ShooterFeeder m_shooterFeeder, Hopper m_hopper
-    ) {
+    private CoreAuto(String[] pathFiles, CommandSwerveDrivetrain driveTrain, boolean isOutpostSide,
+            double preloadShootTime, InternalButton virtualShootButton    ) {
 
-        m_driveTrain = driveTrain;
+        drivetrain = driveTrain;
 
         SmartDashboard.putBoolean("autoStatus/runningIntake", false);
         SmartDashboard.putBoolean("autoStatus/runningShooter", false);
-
-        // // addRequirements(m_shooter); //, m_turret); //, m_shooterFeeder); //, m_hopper);
-        // // addRequirements(m_turret); //, m_turret); //, m_shooterFeeder); //, m_hopper);
-        // // addRequirements(m_shooterFeeder); //, m_turret); //, m_shooterFeeder); //, m_hopper);
-        // addRequirements(m_hopper); //, m_turret); //, m_shooterFeeder); //, m_hopper);
 
         try {
 
@@ -75,31 +53,11 @@ public class CoreAuto extends AutoCommandInterface {
                         .alongWith(new WaitCommand(preloadShootTime),
                                 new InstantCommand(
                                         () -> SmartDashboard.putBoolean("autoStatus/runningShooter", true))));
-                                        
-                addCommands(new InstantCommand(()->virtualShootButton.setPressed(false)),
+
+                addCommands(new InstantCommand(() -> virtualShootButton.setPressed(false)),
                         new InstantCommand(
-                                () -> SmartDashboard.putBoolean("autoStatus/runningShooter", false)));;
+                                () -> SmartDashboard.putBoolean("autoStatus/runningShooter", false)));
 
-                // addCommands(new StartEndCommand(
-                //     ()->virtualShootButton.setPressed(true), 
-                //     ()->virtualShootButton.setPressed(false), driveTrain));
-
-                // addCommands(new StartEndCommand(shootEventTrigger., null, null));
-                // // new InstantCommand().andThen(
-                // Shoot shootCommand = new Shoot(m_shooter, m_turret, m_shooterFeeder, driveTrain::getPose, ShotType.HUB);
-
-                // addCommands(shootCommand.alongWith(m_hopper.pulseCommand()).withTimeout(preloadShootTime));
-
-                // addCommands(new WaitCommand(preloadShootTime).deadlineFor(
-                
-                // TODO: convert the above command to a StartEndCommand that starts the shooter and hopper, and then stops them when the timer runs out. 
-                // The current timeout above applies to the entire Auto command, which is incorrect.
-                // Example from last year below:
-                // new StartEndCommand(coralEffector::runOuttake, coralEffector::stop, coralEffector).withTimeout(CORAL_SCORE_WAIT_TIME)
-                
-                // addCommands(
-                //     new StartEndCommand(new InstantCommand()::run, new InstantCommand()::end, m_shooter).withTimeout(preloadShootTime));
-                    
             }
 
             for (String pathName : pathFiles) {
@@ -107,7 +65,7 @@ public class CoreAuto extends AutoCommandInterface {
                 if (isOutpostSide) {
                     path = path.mirrorPath();
                 }
-                addCommands(m_driveTrain.followPath(path));
+                addCommands(drivetrain.followPath(path));
             }
             // Clmber code goes here, but we don't have a climber yet so we'll leave it out for now
         } catch (Exception e) {

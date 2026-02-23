@@ -120,7 +120,6 @@ public class RobotContainerCompBot extends RobotContainer {
         m_chosenAutoPaths.addOption("Depot Simple", new String[] {
             "Depot Simple"
         });
-
         
         SmartDashboard.putData("Auto Choice", m_chosenAutoPaths);
 
@@ -145,12 +144,10 @@ public class RobotContainerCompBot extends RobotContainer {
         new EventTrigger("Stop Intake").onTrue(m_intake.stowCommand().alongWith(new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningIntake", false))));
 
         // TODO: should need only 1 AUTO shot trigger
-        // new EventTrigger("Hub Shot Running").whileTrue(
         ParallelCommandGroup autoShootCommand = new Shoot(m_shooter, m_turret, m_shooterFeeder, m_drivetrain::getPose, ShotType.HUB)
                         .alongWith(
                             m_hopper.pulseCommand(),
                             new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningShooter", true)));
-        // autoShootCommand.addRequirements(m_hopper);
         new EventTrigger("Hub Shot Running").whileTrue(autoShootCommand);
         new EventTrigger("Hub Shot Running").onFalse(new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningShooter", false)));
 
@@ -159,10 +156,7 @@ public class RobotContainerCompBot extends RobotContainer {
                             m_hopper.pulseCommand(),
                             new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningShooter", true))));
         new EventTrigger("Passing Shot Running").onFalse(new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningShooter", false)));
- 
-        // new EventTrigger("Run Shooter").onTrue(getTestingStartShootCommand().alongWith(new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningShooter", true))));
-        // new EventTrigger("Stop Shooter").onTrue(getTestingStopShootCommand().alongWith(new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningShooter", false))));
-    }
+     }
 
     private void configureBindings() {
         m_drivetrain.setDefaultCommand(getDriveCommand());
@@ -279,7 +273,6 @@ public class RobotContainerCompBot extends RobotContainer {
     
             InternalButton virtualShootButton = new InternalButton();
             virtualShootButton.whileTrue(getShootCommand());
-            // virtualShootButton.onFalse(new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningShooter", false)));
 
         // Only call constructor if the auto selection inputs have changed
         if (m_autoSelectionCode != currentAutoSelectionCode) {
