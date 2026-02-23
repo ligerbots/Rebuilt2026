@@ -128,7 +128,8 @@ public class RobotContainerTestBot extends RobotContainer {
         // Only call constructor if the auto selection inputs have changed
         if (m_autoSelectionCode != currentAutoSelectionCode) {
             m_autoCommand = CoreAuto.getInstance(pathFiles, m_drivetrain,
-                    m_chosenFieldSide.getSelected().equals("Depot Side"));
+                    m_chosenFieldSide.getSelected().equals("Depot Side"), 0.0, null);
+            m_autoSelectionCode = currentAutoSelectionCode;
         }
         return m_autoCommand;
     }

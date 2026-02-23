@@ -5,6 +5,7 @@
 package frc.robot.subsystems.shooter;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.utilities.ShooterLookupTable;
 import frc.robot.utilities.ShooterLookupTable.ShootValue;
@@ -22,6 +23,15 @@ public class Shooter extends SubsystemBase {
     
     private final ShooterLookupTable m_hubShotLookupTable;
     private final ShooterLookupTable m_passShotLookupTable;
+
+    // Manual adjust on the flywheel RPM
+    // NOTE: this is a multiplicative change: +5%, +10%, etc
+    private double m_flyFudge = 1.0;
+    private static final double FUDGE_INCREMENT = 0.05;
+
+    // Manual adjust on the hood angle (additive)
+    private double m_hoodFudgeDegree = 0.0;
+    private static final double HOOD_FUDGE_INCREMENT_DEGREES = 0.5;
     
     private Hood m_hood;
     private Flywheel m_flywheel;
@@ -40,9 +50,11 @@ public class Shooter extends SubsystemBase {
         m_flywheel = new Flywheel();
     }
     
-    // @Override
-    // public void periodic() {
-    // }
+    @Override
+    public void periodic() {
+        SmartDashboard.putNumber("shooter/flywheelFudge", m_flyFudge);
+        SmartDashboard.putNumber("shooter/hoodFudge", m_hoodFudgeDegree);
+    }
 
     public Flywheel getFlywheel() {
         return m_flywheel;
@@ -70,6 +82,22 @@ public class Shooter extends SubsystemBase {
         m_hood.setAngle(shootValues.hoodAngle);
     }
 
+    public void increaseFlyFudge() {
+        m_flyFudge += FUDGE_INCREMENT;
+    }
+
+    public void decreaseFlyFudge() {
+        m_flyFudge -= FUDGE_INCREMENT;
+    }
+
+    public void increaseHoodFudge() {
+        m_hoodFudgeDegree += HOOD_FUDGE_INCREMENT_DEGREES;
+    }
+
+    public void decreaseHoodFudge() {
+        m_hoodFudgeDegree -= HOOD_FUDGE_INCREMENT_DEGREES;
+    }
+
     /**
     * Sets the target distance for the shooter to use when calculating ballistic parameters.
     * 
@@ -79,6 +107,11 @@ public class Shooter extends SubsystemBase {
         // Calculate distance to target and retrieve shooter hood angle and speed from shot type.
         if (shotType == ShotType.PASS)
             return m_passShotLookupTable.getShootValues(distanceMeters);
-        return m_hubShotLookupTable.getShootValues(distanceMeters);
+
+        ShootValue shootValue = m_hubShotLookupTable.getShootValues(distanceMeters);
+        shootValue.flyRPM *= m_flyFudge;
+        shootValue.hoodAngle = shootValue.hoodAngle.plus(Rotation2d.fromDegrees(m_hoodFudgeDegree));
+
+        return shootValue;
     }
 }

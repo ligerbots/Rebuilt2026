@@ -29,8 +29,8 @@ public class IntakePivot extends SubsystemBase {
     private static final double K_P = 15.0;
     private static final double K_P_HOLD = 3.0;
     
-    private static final double MAX_VEL_ROT_PER_SEC = 20.0;
-    private static final double MAX_ACC_ROT_PER_SEC2 = 50.0;
+    private static final double MAX_VEL_ROT_PER_SEC = 40.0;
+    private static final double MAX_ACC_ROT_PER_SEC2 = 75.0;
     
     private static final double ANGLE_TOLERANCE_DEG = 3.0;
 
