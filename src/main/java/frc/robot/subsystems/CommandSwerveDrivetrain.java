@@ -38,6 +38,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 
 import frc.robot.FieldConstants;
 import frc.robot.generated.TunerConstantsTestBot.TunerSwerveDrivetrain;
+import frc.robot.subsystems.shooter.Turret;
 import frc.robot.commands.Shoot;
 
 /**
@@ -86,6 +87,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     );
 
     /* SysId routine for characterizing steer. This is used to find PID gains for the steer motors. */
+    @SuppressWarnings("unused")
     private final SysIdRoutine m_sysIdRoutineSteer = new SysIdRoutine(
         new SysIdRoutine.Config(
             null,        // Use default ramp rate (1 V/s)
@@ -106,6 +108,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      * This is used to find PID gains for the FieldCentricFacingAngle HeadingController.
      * See the documentation of SwerveRequest.SysIdSwerveRotation for info on importing the log to SysId.
      */
+    @SuppressWarnings("unused")
     private final SysIdRoutine m_sysIdRoutineRotation = new SysIdRoutine(
         new SysIdRoutine.Config(
             /* This is in radians per second², but SysId only supports "volts per second" */
@@ -259,8 +262,10 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         m_aprilTagVision.addVisionMeasurements(this);
 
         // This is here because it needs the odometry Pose. Leave it for now.
-        Translation2d translation = Shoot.shotAutoTarget(getPose());
-        SmartDashboard.putNumber("turret/distToShotTarget", Units.metersToInches(translation.getNorm()));
+        Pose2d pose = getPose();
+        Translation2d target = Shoot.shotAutoTarget(pose);
+        Translation2d turretToTarget = Turret.getTranslationToGoal(pose, target);
+        SmartDashboard.putNumber("turret/distToShotTarget", Units.metersToInches(turretToTarget.getNorm()));
 
         /*
          * Periodically try to apply the operator perspective.
