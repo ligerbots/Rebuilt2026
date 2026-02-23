@@ -278,7 +278,7 @@ public class RobotContainerCompBot extends RobotContainer {
         if (m_autoSelectionCode != currentAutoSelectionCode) {
             m_autoSelectionCode = currentAutoSelectionCode;
             m_autoCommand = CoreAuto.getInstance(m_chosenAutoPaths.getSelected(), m_drivetrain,
-                    m_chosenFieldSide.getSelected().equals("Outpost Side"), preloadShootTime, virtualShootButton); //, m_shooter, m_turret, m_shooterFeeder, m_hopper);
+                    m_chosenFieldSide.getSelected().equals("Outpost Side"), preloadShootTime, virtualShootButton);
             // m_autoCommand = new PathPlannerAuto(coreCommand);
         }
         return m_autoCommand;
