@@ -54,22 +54,22 @@ public class Shoot extends Command {
     @Override
     public void execute() {
         Translation2d target = targetForShotType();
-        Translation2d translationToHub = Turret.getTranslationToGoal(m_poseSupplier.get(), target);
+        Translation2d translationToTarget = Turret.getTranslationToGoal(m_poseSupplier.get(), target);
 
-        ShootValue shootValue;
+        ShootValue shotValue;
         if (m_shotType == ShotType.TEST) {
-            shootValue = testShootValue();
+            shotValue = testShotValue();
         } else {
             // Calculate distance and angle to target, send to shooter and turret subsystems
-            shootValue = m_shooter.getShootValue(translationToHub.getNorm(), m_shotType);
+            shotValue = m_shooter.getShootValue(translationToTarget.getNorm(), m_shotType);
         }
         
-        m_turret.setAngle(translationToHub.getAngle());
-        m_shooter.setShootValues(shootValue);
+        m_turret.setAngle(translationToTarget.getAngle());
+        m_shooter.setShootValues(shotValue);
         
         // Run feeder only when shooter and turret are ready
         if (m_shooter.onTarget()) {
-            m_feeder.setRPM(shootValue.feedRPM);
+            m_feeder.setRPM(shotValue.feedRPM);
         }
     }
     
@@ -120,7 +120,7 @@ public class Shoot extends Command {
         return FieldConstants.flipTranslation(target);
     }
 
-    private ShootValue testShootValue() {
+    private ShootValue testShotValue() {
         return new ShootValue(
                 SmartDashboard.getNumber("flywheel/testRPM", 0.0),
                 SmartDashboard.getNumber("shooterFeeder/testRPM", 0.0),
