@@ -34,7 +34,8 @@ public class Flywheel extends SubsystemBase {
     private static final double STATOR_CURRENT_LIMIT = 60;
         
     // VelocityControl instance which we reuse - saves some memory thrashing
-    private VelocityVoltage m_velocityControl;
+    private final VelocityVoltage m_velocityControl = new VelocityVoltage(0).withEnableFOC(true);
+    private final VoltageOut m_voltageControl = new VoltageOut(0);
 
     private double m_goalRPM;
     
@@ -64,8 +65,6 @@ public class Flywheel extends SubsystemBase {
         m_follower.setNeutralMode(NeutralModeValue.Coast);
         m_follower.setControl(new Follower(m_motor.getDeviceID(), MotorAlignmentValue.Opposed));
 
-        m_velocityControl = new VelocityVoltage(0).withEnableFOC(true);
-
         // DO NOT mess with the update frequency on the motors. This can affect
         //  the leader/follower behavior. If we really need it, we will investigate.
         // https://www.chiefdelphi.com/t/setting-up-ctre-followers/512315/12
@@ -87,7 +86,8 @@ public class Flywheel extends SubsystemBase {
     }
     
     public void setVoltage(double voltage) {
-        m_motor.setControl(new VoltageOut(voltage));
+        m_voltageControl.Output = voltage;
+        m_motor.setControl(m_voltageControl);
     }
     
     public double getRPM(){
