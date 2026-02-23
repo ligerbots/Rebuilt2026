@@ -49,25 +49,6 @@ public class Shoot extends Command {
     // Called when the command is initially scheduled.
     // @Override
     // public void initialize() {
-    //     switch (m_shotType) {
-    //         case AUTO:
-    //         case TEST:
-    //             m_target = shotAutoTarget(m_poseSupplier.get());
-    //             break;
-    //         case HUB:
-    //             m_target = FieldConstants.flipTranslation(FieldConstants.HUB_POSITION_BLUE);
-    //             break;
-    //         case PASS:
-    //             double yBlue = FieldConstants.flipTranslation(m_poseSupplier.get().getTranslation()).getY();
-    //             if (yBlue < FieldConstants.FIELD_WIDTH / 2.0)
-    //                 m_target = FieldConstants.flipTranslation(FieldConstants.PASSING_TARGET_LOWER_BLUE);
-    //             else
-    //                 m_target = FieldConstants.flipTranslation(FieldConstants.PASSING_TARGET_UPPER_BLUE);
-    //             break;
-                
-    //         default:
-    //             break;
-    //     }
     // }
     
     @Override
@@ -117,6 +98,9 @@ public class Shoot extends Command {
                 if (yBlue < FieldConstants.FIELD_WIDTH / 2.0)
                     return FieldConstants.flipTranslation(FieldConstants.PASSING_TARGET_LOWER_BLUE);
                 return FieldConstants.flipTranslation(FieldConstants.PASSING_TARGET_UPPER_BLUE);
+            // needed to suppress the warning
+            default:
+                break;
         }
         return shotAutoTarget(m_poseSupplier.get());
     }

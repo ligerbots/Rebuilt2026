@@ -73,7 +73,9 @@ public class RobotContainerCompBot extends RobotContainer {
     private final Intake m_intake = new Intake();
     private final Hopper m_hopper = new Hopper();
 
-    private final DataLogger m_powerSystem = new DataLogger();
+    // not used directly, but the periodic() method logs data
+    @SuppressWarnings("unused")
+    private final DataLogger m_dataLogger = new DataLogger();
 
     private final SendableChooser<String> m_chosenFieldSide = new SendableChooser<>();
     private final SendableChooser<String[]> m_chosenAutoPaths = new SendableChooser<>();
@@ -102,7 +104,7 @@ public class RobotContainerCompBot extends RobotContainer {
     private void configureAutos() {
 
         m_chosenAutoPaths.setDefaultOption("Out-Back Out-Back // Depot Double Blitz", new String[] {
-            "Depot Double Blitz"
+                "Depot Double Blitz"
         });
 
         m_chosenAutoPaths.addOption("SnowBlow // Depot Full Pass Blitz", new String[] {
@@ -110,17 +112,17 @@ public class RobotContainerCompBot extends RobotContainer {
         });
 
         m_chosenAutoPaths.addOption("Out-Back Depot // Depot Single Pass Blitz", new String[] {
-            "Depot Single Pass Blitz"
+                "Depot Single Pass Blitz"
         });
 
         m_chosenAutoPaths.addOption("Depot Single Pass", new String[] {
-            "Depot Single Pass"
+                "Depot Single Pass"
         });
 
         m_chosenAutoPaths.addOption("Depot Simple", new String[] {
-            "Depot Simple"
+                "Depot Simple"
         });
-        
+
         SmartDashboard.putData("Auto Choice", m_chosenAutoPaths);
 
         m_chosenFieldSide.setDefaultOption("Depot Side", "Depot Side");
@@ -168,37 +170,27 @@ public class RobotContainerCompBot extends RobotContainer {
             m_drivetrain.applyRequest(() -> idle).ignoringDisable(true)
         );
 
-        // // shoot command - test version
-        // m_driverController.rightTrigger().whileTrue(
-        //     new StartEndCommand(
-        //         () -> m_shooter.getFlywheel().setRPM(SmartDashboard.getNumber("flywheel/testRPM", 0.0)),
-        //         m_shooter::stop)
-        //     .alongWith(
-        //             new StartEndCommand(
-        //                 () -> m_shooterFeeder.setRPM(SmartDashboard.getNumber("shooterFeeder/testRPM", 0.0)), 
-        //                 m_shooterFeeder::stop),
-        //             new StartEndCommand(
-        //                 () -> m_shooter.getHood().setAngle(Rotation2d.fromDegrees(SmartDashboard.getNumber("hood/testAngle", 0.0))),
-        //                 () -> m_shooter.getHood().setAngle(Rotation2d.kZero)),
-        //             m_hopper.pulseCommand())
-        // );
-        // TEST Shot - allow shot calibratin
+        // Just shoot
         m_driverController.rightTrigger().whileTrue(new Shoot(m_shooter, m_turret, m_shooterFeeder, m_drivetrain::getPose, ShotType.AUTO)
                         .alongWith(m_hopper.pulseCommand()));
 
+        // Shoot while intaking
         m_driverController.rightBumper().whileTrue(new Shoot(m_shooter, m_turret, m_shooterFeeder, m_drivetrain::getPose, ShotType.AUTO)
                         .alongWith(m_hopper.pulseCommand()));
         m_driverController.rightBumper().onTrue(m_intake.getPivot().deployCommand());
         m_driverController.rightBumper().whileTrue(
                 new StartEndCommand(m_intake.getRoller()::intake, m_intake.getRoller()::stop, m_intake.getRoller()));
                              
+        // Deploy and run the intake (intake will stay out)
         m_driverController.leftTrigger().onTrue(m_intake.getPivot().deployCommand());
         m_driverController.leftTrigger().whileTrue(
                 new StartEndCommand(m_intake.getRoller()::intake, m_intake.getRoller()::stop, m_intake.getRoller())
                         .alongWith(new StartEndCommand(m_hopper::intake, m_hopper::stop, m_hopper)));
 
+        // Stow the intake
         m_driverController.leftBumper().onTrue(m_intake.stowCommand());
 
+        // Test shot for tuning
         m_driverController.a().whileTrue(new Shoot(m_shooter, m_turret, m_shooterFeeder, m_drivetrain::getPose, ShotType.TEST)
                         .alongWith(m_hopper.pulseCommand()));
 

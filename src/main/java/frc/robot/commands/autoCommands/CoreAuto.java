@@ -15,7 +15,7 @@ import frc.robot.subsystems.CommandSwerveDrivetrain;
 public class CoreAuto extends AutoCommandInterface {
 
     protected Pose2d m_initPose;
-    private CommandSwerveDrivetrain drivetrain;
+    private CommandSwerveDrivetrain m_drivetrain;
     // private PathPlannerAuto m_pathPlannerAuto;
 
     PathConstraints constraints = new PathConstraints(
@@ -23,17 +23,18 @@ public class CoreAuto extends AutoCommandInterface {
             Math.toRadians(540), Math.toRadians(720));
 
     public static CoreAuto getInstance(String[] pathFiles, CommandSwerveDrivetrain driveTrain, boolean isOutpostSide, double preloadShootTime,
-    InternalButton virtualShootButton) { 
+            InternalButton virtualShootButton) {
         return new CoreAuto(pathFiles, driveTrain, isOutpostSide, preloadShootTime, virtualShootButton);
     }
     
     /** Creates a new CoreAuto. 
      * @param m_shooter 
-     * @param m_turret */
+     * @param m_turret 
+     */
     private CoreAuto(String[] pathFiles, CommandSwerveDrivetrain driveTrain, boolean isOutpostSide,
-            double preloadShootTime, InternalButton virtualShootButton    ) {
+            double preloadShootTime, InternalButton virtualShootButton) {
 
-        drivetrain = driveTrain;
+        m_drivetrain = driveTrain;
 
         SmartDashboard.putBoolean("autoStatus/runningIntake", false);
         SmartDashboard.putBoolean("autoStatus/runningShooter", false);
@@ -47,7 +48,7 @@ public class CoreAuto extends AutoCommandInterface {
             m_initPose = startPath.getStartingHolonomicPose().get();
 
             // Shoot preloaded balls for N seconds before driving
-            if(preloadShootTime > 0) {
+            if (preloadShootTime > 0) {
 
                 addCommands(new InstantCommand(() -> virtualShootButton.setPressed(true))
                         .alongWith(new WaitCommand(preloadShootTime),
@@ -65,7 +66,7 @@ public class CoreAuto extends AutoCommandInterface {
                 if (isOutpostSide) {
                     path = path.mirrorPath();
                 }
-                addCommands(drivetrain.followPath(path));
+                addCommands(m_drivetrain.followPath(path));
             }
             // Clmber code goes here, but we don't have a climber yet so we'll leave it out for now
         } catch (Exception e) {

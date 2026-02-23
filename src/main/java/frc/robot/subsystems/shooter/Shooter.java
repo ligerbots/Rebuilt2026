@@ -86,7 +86,7 @@ public class Shooter extends SubsystemBase {
         m_flyFudge += FUDGE_INCREMENT;
     }
 
-     public void decreaseFlyFudge() {
+    public void decreaseFlyFudge() {
         m_flyFudge -= FUDGE_INCREMENT;
     }
 
@@ -94,10 +94,9 @@ public class Shooter extends SubsystemBase {
         m_hoodFudgeDegree += HOOD_FUDGE_INCREMENT_DEGREES;
     }
 
-     public void decreaseHoodFudge() {
+    public void decreaseHoodFudge() {
         m_hoodFudgeDegree -= HOOD_FUDGE_INCREMENT_DEGREES;
     }
-
 
     /**
     * Sets the target distance for the shooter to use when calculating ballistic parameters.
