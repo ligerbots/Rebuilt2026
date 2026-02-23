@@ -66,6 +66,8 @@ public class Turret extends SubsystemBase {
     private static final Rotation2d CRT_POSITION_OFFSET = 
             Rotation2d.fromRotations(1.0 * ENCODER_SMALL_TOOTH_COUNT * ENCODER_LARGE_TOOTH_COUNT / TURRET_TOOTH_COUNT / 2.0);
     
+    private final MotionMagicVoltage m_positionControl = new MotionMagicVoltage(0);
+
     /** Creates a new Turret. */
     public Turret() {
         m_turretMotor = new TalonFX(Constants.TURRET_CAN_ID);
@@ -147,7 +149,8 @@ public class Turret extends SubsystemBase {
         m_goalDeg = limitRotationDeg(angle.getDegrees() + m_turretFudgeDegrees - TURRET_HEADING_OFFSET_DEG);
         // m_goalDeg = optimizeGoal(angle.getDegrees() - TURRET_HEADING_OFFSET_DEG);
 
-        m_turretMotor.setControl(new MotionMagicVoltage(m_goalDeg/360.0 * TURRET_GEAR_RATIO));
+        m_positionControl.Position = m_goalDeg/360.0 * TURRET_GEAR_RATIO;
+        m_turretMotor.setControl(m_positionControl);
     }
     
     // get angle of turret
