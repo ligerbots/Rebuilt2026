@@ -71,8 +71,19 @@ public class CoreAuto extends AutoCommandInterface {
             // Shoot preloaded balls for N seconds before driving
             if(preloadShootTime > 0) {
 
-                addCommands(new InstantCommand(()->virtualShootButton.setPressed(true)).alongWith(new WaitCommand(preloadShootTime)));
-                
+                addCommands(new InstantCommand(() -> virtualShootButton.setPressed(true))
+                        .alongWith(new WaitCommand(preloadShootTime),
+                                new InstantCommand(
+                                        () -> SmartDashboard.putBoolean("autoStatus/runningShooter", true))));
+                                        
+                addCommands(new InstantCommand(()->virtualShootButton.setPressed(false)),
+                        new InstantCommand(
+                                () -> SmartDashboard.putBoolean("autoStatus/runningShooter", false)));;
+
+                // addCommands(new StartEndCommand(
+                //     ()->virtualShootButton.setPressed(true), 
+                //     ()->virtualShootButton.setPressed(false), driveTrain));
+
                 // addCommands(new StartEndCommand(shootEventTrigger., null, null));
                 // // new InstantCommand().andThen(
                 // Shoot shootCommand = new Shoot(m_shooter, m_turret, m_shooterFeeder, driveTrain::getPose, ShotType.HUB);

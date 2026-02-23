@@ -137,7 +137,7 @@ public class RobotContainerCompBot extends RobotContainer {
 
     public Command getShootCommand() {
         return new Shoot(m_shooter, m_turret, m_shooterFeeder, m_drivetrain::getPose, ShotType.AUTO)
-                        .alongWith(m_hopper.pulseCommand(), new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningShooter", true)));
+                        .alongWith(m_hopper.pulseCommand());
     }
     
     private void configureAutoEventTriggers() {
@@ -279,7 +279,7 @@ public class RobotContainerCompBot extends RobotContainer {
     
             InternalButton virtualShootButton = new InternalButton();
             virtualShootButton.whileTrue(getShootCommand());
-            virtualShootButton.onFalse(new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningShooter", false)));
+            // virtualShootButton.onFalse(new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningShooter", false)));
 
         // Only call constructor if the auto selection inputs have changed
         if (m_autoSelectionCode != currentAutoSelectionCode) {
