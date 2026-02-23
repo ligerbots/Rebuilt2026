@@ -24,13 +24,9 @@ public class Hood extends SubsystemBase {
     private static final double MAX_ANGLE_DEG = 25.0;
 
     private static final double GEAR_RATIO = 12.0/36.0 * 15.0/24.0 * 10.0/174.0;
-
-    private Rotation2d m_goal = Rotation2d.kZero;
     
-    private final TalonFX m_hoodMotor;
-    
-    private static final double SUPPLY_CURRENT_LIMIT = 40;
-    private static final double STATOR_CURRENT_LIMIT = 60;
+    private static final double SUPPLY_CURRENT_LIMIT = 20;
+    private static final double STATOR_CURRENT_LIMIT = 30;
     
     private static final double K_P = 5.0;
     
@@ -40,11 +36,15 @@ public class Hood extends SubsystemBase {
     // 2/14 testing at WPI - slowed down; jumping off end. Still needed??
     private static final double MAX_VEL_ROT_PER_SEC = 8.0 / GEAR_RATIO;
     private static final double MAX_ACC_ROT_PER_SEC = 15.0 / GEAR_RATIO;
-    
+
+    private final TalonFX m_motor;
+    private double m_goalDeg = 0.0;
+
+    private final MotionMagicVoltage m_positionControl = new MotionMagicVoltage(0);    
     
     /** Creates a new Hood. */
     public Hood() {
-        m_hoodMotor = new TalonFX(Constants.HOOD_CAN_ID);
+        m_motor = new TalonFX(Constants.HOOD_CAN_ID);
         
         TalonFXConfiguration talonFXConfigs = new TalonFXConfiguration();
         
@@ -62,29 +62,37 @@ public class Hood extends SubsystemBase {
         
         magicConfigs.MotionMagicCruiseVelocity = MAX_VEL_ROT_PER_SEC;
         magicConfigs.MotionMagicAcceleration = MAX_ACC_ROT_PER_SEC;
-        
-        // TODO set gear ratio
-        
-        m_hoodMotor.getConfigurator().apply(talonFXConfigs);
-        m_hoodMotor.setPosition(0);
+                
+        m_motor.getConfigurator().apply(talonFXConfigs);
+        m_motor.setPosition(0);
+
+        if (Constants.OPTIMIZE_CAN) {
+            optimizeCAN();
+        }
     }
-    
+
+    private void optimizeCAN() {
+        m_motor.getPosition().setUpdateFrequency(Constants.ROBOT_FREQUENCY_HZ);
+        m_motor.optimizeBusUtilization();
+    }
+
     @Override
     public void periodic() {
         // This method will be called once per scheduler run
-        SmartDashboard.putNumber("hood/goalAngle", m_goal.getDegrees());
+        SmartDashboard.putNumber("hood/goalAngle", m_goalDeg);
         SmartDashboard.putNumber("hood/currentAngle", getAngle().getDegrees());
-        SmartDashboard.putNumber("hood/rawMotorAngle",  m_hoodMotor.getPosition().getValueAsDouble());
+        // SmartDashboard.putNumber("hood/rawMotorAngle",  m_motor.getPosition().getValueAsDouble());
     }
     
     public void setAngle(Rotation2d angle) {
-        double limitAngle = MathUtil.clamp(angle.getDegrees(), MIN_ANGLE_DEG, MAX_ANGLE_DEG);
-        m_goal = Rotation2d.fromDegrees(limitAngle);
-        m_hoodMotor.setControl(new MotionMagicVoltage(limitAngle / 360.0 / GEAR_RATIO));
+        m_goalDeg = MathUtil.clamp(angle.getDegrees(), MIN_ANGLE_DEG, MAX_ANGLE_DEG);
+
+        m_positionControl.Position = m_goalDeg / 360.0 / GEAR_RATIO;
+        m_motor.setControl(m_positionControl);
     }
     
     public Rotation2d getAngle() {
-        double rot = m_hoodMotor.getPosition().getValueAsDouble();
+        double rot = m_motor.getPosition().getValueAsDouble();
         return Rotation2d.fromRotations(rot * GEAR_RATIO);
     }
     
@@ -95,7 +103,7 @@ public class Hood extends SubsystemBase {
     * @return true if hood is within tolerance, false otherwise
     */
     public boolean onTarget() {
-        Rotation2d angle = getAngle();
-        return Math.abs(angle.minus(m_goal).getDegrees()) < ANGLE_TOLERANCE_DEG;
+        double angleDeg = getAngle().getDegrees();
+        return Math.abs(angleDeg - m_goalDeg) < ANGLE_TOLERANCE_DEG;
     }
 }
