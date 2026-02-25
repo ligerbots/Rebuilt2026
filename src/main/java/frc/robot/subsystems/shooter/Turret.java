@@ -130,8 +130,8 @@ public class Turret extends SubsystemBase {
     public void setAngle(Rotation2d angle) {
         // for now, just limit angle. 
         // when we allow overlap, use optimizeGoal()
-        m_shootAngle = angle.getDegrees();
-        m_goalDeg = limitRotationDeg(angle.getDegrees() + m_turretFudgeDegrees - TURRET_HEADING_OFFSET_DEG);
+        m_shootAngle = angle.getDegrees() + m_turretFudgeDegrees;
+        m_goalDeg = limitRotationDeg(m_shootAngle - TURRET_HEADING_OFFSET_DEG);
         // m_goalDeg = limitRotationDeg(angle.getDegrees() + m_turretFudgeDegrees - TURRET_HEADING_OFFSET_DEG);
         // m_goalDeg = optimizeGoal(angle.getDegrees() - TURRET_HEADING_OFFSET_DEG);
 
@@ -149,8 +149,12 @@ public class Turret extends SubsystemBase {
         return m_goalDeg + TURRET_HEADING_OFFSET_DEG;
     }
 
+    private double getShootAngleDeg() {
+        return m_shootAngle + TURRET_HEADING_OFFSET_DEG;
+    }
+
     public boolean isOnTarget() {
-        return Math.abs(getAngle().getDegrees() - getGoalDeg()) < ANGLE_TOLERANCE_DEG; 
+        return Math.abs(getAngle().getDegrees() - getShootAngleDeg()) < ANGLE_TOLERANCE_DEG; 
     }
     
     private Rotation2d getCRTAngleRaw(){
@@ -180,51 +184,39 @@ public class Turret extends SubsystemBase {
     
     // compute the optimum goal angle
     // this assumes the Turret can turn >360 degrees
-    private double optimizeGoal(double setAngleDeg) {
-        // Normalize target angle to -180 -> 180
-        setAngleDeg = degreesModulus(setAngleDeg);
+    // private double optimizeGoal(double setAngleDeg) {
+    //     // Normalize target angle to -180 -> 180
+    //     setAngleDeg = degreesModulus(setAngleDeg);
         
-        // Find all possible target angles that correspond to the desired position
-        // These are: normalizedSetAngle, normalizedSetAngle ± 360, normalizedSetAngle ± 720, etc.
-        // But we only need to check nearby rotations since our range is limited
-        double[] candidates = {
-            setAngleDeg - 360.0,
-            setAngleDeg,
-            setAngleDeg + 360.0
-        };
+    //     // Find all possible target angles that correspond to the desired position
+    //     // These are: normalizedSetAngle, normalizedSetAngle ± 360, normalizedSetAngle ± 720, etc.
+    //     // But we only need to check nearby rotations since our range is limited
+    //     double[] candidates = {
+    //         setAngleDeg - 360.0,
+    //         setAngleDeg,
+    //         setAngleDeg + 360.0
+    //     };
         
-        double currentAngle = getAngle().getDegrees();
+    //     double currentAngle = getAngle().getDegrees();
 
-        double bestAngle = currentAngle;
-        double shortestDistance = Double.MAX_VALUE;
-        for (double candidate : candidates) {
-            // Check if this candidate is within physical limits
-            if (candidate >= MIN_ROTATION_DEG && candidate <= MAX_ROTATION_DEG) {
-                double distance = Math.abs(candidate - currentAngle);
+    //     double bestAngle = currentAngle;
+    //     double shortestDistance = Double.MAX_VALUE;
+    //     for (double candidate : candidates) {
+    //         // Check if this candidate is within physical limits
+    //         if (candidate >= MIN_ROTATION_DEG && candidate <= MAX_ROTATION_DEG) {
+    //             double distance = Math.abs(candidate - currentAngle);
                 
-                if (distance < shortestDistance) {
-                    shortestDistance = distance;
-                    bestAngle = candidate;
-                }
-            }
-        }
+    //             if (distance < shortestDistance) {
+    //                 shortestDistance = distance;
+    //                 bestAngle = candidate;
+    //             }
+    //         }
+    //     }
         
-        // System.out.println("Best Angle: " + bestAngle);
+    //     // System.out.println("Best Angle: " + bestAngle);
 
-        return bestAngle;
-    }
-       
-    /**
-     * Map angle in degrees to -180 ==> 180
-     * Analogous to MathUtils.angleModulus()
-     * @param angleDeg  angle in degrees
-     * @return angle    same angle but mapped to -180 ==> 180
-     */
-    private double degreesModulus(double angleDeg) {
-        while (angleDeg >= 180.0) angleDeg -= 360.0;
-        while (angleDeg < -180.0) angleDeg += 360.0;
-        return angleDeg;
-    }
+    //     return bestAngle;
+    // }
 
     private static Translation2d getTurretPositionForRobotPose(Pose2d robotPose) {
         return Turret.TURRET_OFFSET.rotateBy(robotPose.getRotation()).plus(robotPose.getTranslation());
