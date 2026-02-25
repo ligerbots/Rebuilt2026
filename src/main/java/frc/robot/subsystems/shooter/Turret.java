@@ -30,7 +30,8 @@ public class Turret extends SubsystemBase {
     private static final double TURRET_HEADING_OFFSET_DEG = 180.0;
     private static final double ANGLE_TOLERANCE_DEG = 2.0; 
     
-    private double m_goalDeg = 0.0;
+    private double m_goalDeg = 0.0; // angle limited to our constraints
+    private double m_shootAngle = 0.0; // raw shoot angle (actual angle we want to shoot)
     
     private final TalonFX m_turretMotor;
     private final CANcoder m_thruboreSmall; 
@@ -60,6 +61,7 @@ public class Turret extends SubsystemBase {
 
     private static final double MAX_ROTATION_DEG = 145.0;
     private static final double MIN_ROTATION_DEG = -195.0;
+    private static final double MID_LINE_DEGREES = (MAX_ROTATION_DEG + MIN_ROTATION_DEG) / 2.0;
     
     // this is just the middle point of the full CRT range
     // include "1.0 *" to make sure it does floating point arithmetic
@@ -128,7 +130,9 @@ public class Turret extends SubsystemBase {
     public void setAngle(Rotation2d angle) {
         // for now, just limit angle. 
         // when we allow overlap, use optimizeGoal()
+        m_shootAngle = angle.getDegrees();
         m_goalDeg = limitRotationDeg(angle.getDegrees() + m_turretFudgeDegrees - TURRET_HEADING_OFFSET_DEG);
+        // m_goalDeg = limitRotationDeg(angle.getDegrees() + m_turretFudgeDegrees - TURRET_HEADING_OFFSET_DEG);
         // m_goalDeg = optimizeGoal(angle.getDegrees() - TURRET_HEADING_OFFSET_DEG);
 
         m_turretMotor.setControl(new MotionMagicVoltage(m_goalDeg/360.0 * TURRET_GEAR_RATIO));
@@ -163,8 +167,15 @@ public class Turret extends SubsystemBase {
     }
 
     private double limitRotationDeg(double angleDeg) {
-        angleDeg = degreesModulus(angleDeg);
-        return MathUtil.clamp(angleDeg, MIN_ROTATION_DEG, MAX_ROTATION_DEG);
+
+        if (angleDeg < (MID_LINE_DEGREES-180)) {
+            angleDeg += 360.0;
+        }
+        else if (angleDeg > (MID_LINE_DEGREES+180)) {
+            angleDeg -= 360.0;
+        }
+
+        return angleDeg;
     }
     
     // compute the optimum goal angle
