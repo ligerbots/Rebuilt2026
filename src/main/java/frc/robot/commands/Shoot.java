@@ -53,15 +53,18 @@ public class Shoot extends Command {
     
     @Override
     public void execute() {
+        Pose2d robotPose = m_poseSupplier.get();
         Translation2d target = targetForShotType();
-        Translation2d translationToTarget = Turret.getTranslationToGoal(m_poseSupplier.get(), target);
+        Translation2d translationToTarget = Turret.getTranslationToGoal(robotPose, target);
 
         ShootValue shotValue;
+        double shotDistance = 0;
         if (m_shotType == ShotType.TEST) {
             shotValue = testShotValue();
         } else {
             // Calculate distance and angle to target, send to shooter and turret subsystems
-            shotValue = m_shooter.getShootValue(translationToTarget.getNorm(), m_shotType);
+            shotDistance = translationToTarget.getNorm();
+            shotValue = m_shooter.getShootValue(shotDistance, m_shotType);
         }
         
         m_turret.setAngle(translationToTarget.getAngle());
@@ -71,12 +74,16 @@ public class Shoot extends Command {
         if (m_shooter.onTarget()) {
             m_feeder.setRPM(shotValue.feedRPM);
         }
-    }
+        m_turret.plotTurretHeading(robotPose, shotDistance);
+}
     
     @Override
     public void end(boolean interrupted) {
         m_shooter.stop();
         m_feeder.stop();
+
+        // plot with 0 distance to turn it off
+        m_turret.plotTurretHeading(null, 0);
     }
     
     /**

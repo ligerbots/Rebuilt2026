@@ -5,13 +5,13 @@
 package frc.robot.subsystems.shooter;
 
 import frc.robot.Constants;
-import frc.robot.FieldConstants;
 import frc.robot.utilities.ChineseRemainder;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -66,8 +66,13 @@ public class Turret extends SubsystemBase {
     private static final Rotation2d CRT_POSITION_OFFSET = 
             Rotation2d.fromRotations(1.0 * ENCODER_SMALL_TOOTH_COUNT * ENCODER_LARGE_TOOTH_COUNT / TURRET_TOOTH_COUNT / 2.0);
     
+    private Field2d m_field;
+
     /** Creates a new Turret. */
-    public Turret() {
+    public Turret(Field2d field) {
+        // Field is used for plotting the heading
+        m_field = field;
+
         m_turretMotor = new TalonFX(Constants.TURRET_CAN_ID);
         m_thruboreSmall =  new CANcoder(Constants.TURRET_SMALL_CANCODER_ID);
         m_thruboreLarge = new CANcoder(Constants.TURRET_LARGE_CANCODER_ID);
@@ -215,33 +220,6 @@ public class Turret extends SubsystemBase {
         return angleDeg;
     }
 
-    private static Translation2d getTurretPositionForRobotPose(Pose2d robotPose) {
-        return Turret.TURRET_OFFSET.rotateBy(robotPose.getRotation()).plus(robotPose.getTranslation());
-    }
-    
-    /**
-     * Get the robot-centric vector to a goal position.
-     * 
-     * @param robotPose The current pose of the robot in field coordinates
-     * @param goalTranslation The position of the goal in field coordinates
-     * @return A Translation2d representing the vector from the turret to the goal in robot coordinates.
-     *         Use .getAngle() to get the robot-centric angle, and .getNorm() to get the distance.
-     */
-    private static Translation2d getTranslationToGoalOld(Pose2d robotPose, Translation2d goalTranslation) {
-        // Translation2d overallAngle = getTurretPositionForRobotPose(robotPose).minus(goalTranslation).rotateBy(robotPose.getRotation());
-
-        Translation2d turretPose = getTurretPositionForRobotPose(robotPose);
-        // SmartDashboard.putNumber("turretTesting/turretPoseX", turretPose.getX());
-        // SmartDashboard.putNumber("turretTesting/turretPoseY", turretPose.getY());
-        Translation2d goalRelativeToTurret = goalTranslation.minus(turretPose);
-        // SmartDashboard.putNumber("turretTesting/goalRelativeToTurretX", goalRelativeToTurret.getX());
-        // SmartDashboard.putNumber("turretTesting/goalRelativeToTurretY", goalRelativeToTurret.getY());
-        Translation2d translationRelativeToRobot = goalRelativeToTurret.rotateBy(robotPose.getRotation().unaryMinus());
-        // SmartDashboard.putNumber("turretTesting/rotationRelativeToRobot", translationRelativeToRobot.getAngle().getDegrees());
-        
-        return translationRelativeToRobot;
-    }
-
     public static Translation2d getTranslationToGoal(Pose2d robotPose, Translation2d target) {
         // compute robot to target, in field coordinates
         Translation2d robotToTargetField = target.minus(robotPose.getTranslation());
@@ -259,22 +237,53 @@ public class Turret extends SubsystemBase {
         return turretToTarget;
     }
 
-    private static void runTests() {
-        Translation2d position = FieldConstants.HUB_POSITION_BLUE.minus(new Translation2d(1.0, 0.5));
-
-        for (double angle = 0; angle < 360; angle += 45.0) {
-            System.out.println("Angle = " + angle);
-
-            Pose2d robot = new Pose2d(position, Rotation2d.fromDegrees(angle));
-
-            Translation2d t1 = getTranslationToGoalOld(robot, FieldConstants.HUB_POSITION_BLUE);
-            System.out.println("getT2G: " + t1);
-            Translation2d t2 = getTranslationToGoal(robot, FieldConstants.HUB_POSITION_BLUE);
-            System.out.println("getT2TPaul: " + t2);
+    public void plotTurretHeading(Pose2d robotPose, double distance) {
+        if (robotPose == null || distance < 1.0) {
+            m_field.getObject("turretHeading").setPoses();
+            return;
         }
+
+        Translation2d turretLoc = getTurretFieldPosition(robotPose);
+        // Rotation2d turretHeadingField = getAngle().rotateBy(robotPose.getRotation());
+        // use Goal because simulation does not work
+        Rotation2d turretHeadingField = Rotation2d.fromDegrees(getGoalDeg()).rotateBy(robotPose.getRotation());
+        Translation2d endLoc = turretLoc.plus(new Translation2d(distance, turretHeadingField));
+        m_field.getObject("turretHeading").setPoses(
+                new Pose2d(turretLoc, turretHeadingField),
+                new Pose2d(endLoc, turretHeadingField)
+        );
+
+        // System.out.println("Turret: " + turretLoc + " --> " + endLoc);
+
+        // Trajectory traj = TrajectoryGenerator.generateTrajectory(
+        //         new Pose2d(turretLoc, turretHeadingField),
+        //         null,
+        //         new Pose2d(endLoc, turretHeadingField),
+        //         null);
+        // field.getObject("turretHeading").setTrajectory(traj);
+
     }
 
-    public static void main(String[] args) {
-        runTests();
+    private static Translation2d getTurretFieldPosition(Pose2d robotPose) {
+        return Turret.TURRET_OFFSET.rotateBy(robotPose.getRotation()).plus(robotPose.getTranslation());
     }
+    
+    // private static void runTests() {
+    //     Translation2d position = FieldConstants.HUB_POSITION_BLUE.minus(new Translation2d(1.0, 0.5));
+
+    //     for (double angle = 0; angle < 360; angle += 45.0) {
+    //         System.out.println("Angle = " + angle);
+
+    //         Pose2d robot = new Pose2d(position, Rotation2d.fromDegrees(angle));
+
+    //         Translation2d t1 = getTranslationToGoalOld(robot, FieldConstants.HUB_POSITION_BLUE);
+    //         System.out.println("getT2G: " + t1);
+    //         Translation2d t2 = getTranslationToGoal(robot, FieldConstants.HUB_POSITION_BLUE);
+    //         System.out.println("getT2TPaul: " + t2);
+    //     }
+    // }
+
+    // public static void main(String[] args) {
+    //     runTests();
+    // }
 }
