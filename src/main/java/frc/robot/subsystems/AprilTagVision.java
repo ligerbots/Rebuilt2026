@@ -46,6 +46,7 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import frc.robot.Constants;
+import frc.robot.FieldConstants;
 import frc.robot.Robot.RobotType;
 
 public class AprilTagVision {
@@ -60,6 +61,9 @@ public class AprilTagVision {
     static final boolean PLOT_VISIBLE_TAGS = true;
     static final boolean PLOT_POSE_SOLUTIONS = true;
     // static final boolean PLOT_ALTERNATE_POSES = false;
+
+    // throw away single tags with high ambiguity
+    static final double SINGLE_TAG_AMBIGUITY_THRESHOLD = 0.4;
 
     // Base standard deviations for vision results
     static final Matrix<N3, N1> SINGLE_TAG_BASE_STDDEV = VecBuilder.fill(0.9, 0.9, 0.9);
@@ -164,18 +168,6 @@ public class AprilTagVision {
                                     .rotateBy(new Rotation3d(0, 0, Math.toRadians(-90.0)))))
             };
         }
-
-        // m_cameras[Cam.FRONT_LEFT.idx] = new Camera("ArducamFrontLeft", new Transform3d(
-        //     new Translation3d(Units.inchesToMeters(9.82), Units.inchesToMeters(10.0), Units.inchesToMeters(10.53)),
-        //     new Rotation3d(0.0, Math.toRadians(-10), 0)
-        //         .rotateBy(new Rotation3d(0, 0, Math.toRadians(-12.5)))
-        //     ));
-
-        // m_cameras[Cam.BACK.idx] = new Camera("ArducamBack", new Transform3d(
-        //         new Translation3d(Units.inchesToMeters(-9.85), Units.inchesToMeters(11.05), Units.inchesToMeters(9.3)),
-        //         new Rotation3d(0.0, Math.toRadians(-20), 0)
-        //             .rotateBy(new Rotation3d(0, 0, Math.toRadians(180)))
-        //         ));
     
         m_isSimulation = RobotBase.isSimulation();
         if (Constants.SIMULATION_SUPPORT && m_isSimulation) {
@@ -297,6 +289,12 @@ public class AprilTagVision {
         // Should not happen, but protect against divide by zero
         if (numTags == 0)
             return Optional.empty();
+        
+        // discard if not on the field
+        double x = poseEst.estimatedPose.getX();
+        double y = poseEst.estimatedPose.getY();
+        if (x < 0.0 || x > FieldConstants.FIELD_LENGTH || y < 0.0 || y > FieldConstants.FIELD_WIDTH)
+            return Optional.empty();
 
         boolean usedMultitag = poseEst.strategy == PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR
                 || poseEst.strategy == PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR;
@@ -305,7 +303,7 @@ public class AprilTagVision {
         if (numTags > 1 && !usedMultitag)
             return Optional.empty();
 
-        // Pose present. Start running Heuristic
+        // Pose present. Start running Heuristics
 
         // Find the average distance for the tags used
         double avgDist = 0;
@@ -319,14 +317,21 @@ public class AprilTagVision {
             return Optional.empty();
 
         // Starting estimate = multitag or not
-        Matrix<N3, N1> estStdDev = poseEst.strategy == PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR
-                ? SINGLE_TAG_BASE_STDDEV
-                : MULTI_TAG_BASE_STDDEV;
+        // Matrix<N3, N1> estStdDev = poseEst.strategy == PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR
+        //         ? SINGLE_TAG_BASE_STDDEV
+        //         : MULTI_TAG_BASE_STDDEV;
+        Matrix<N3, N1> estStdDev = SINGLE_TAG_BASE_STDDEV;
 
         // Increase std devs based on (average) distance
         // This is taken from YAGSL vision example.
         // TODO figure out why
-        estStdDev = estStdDev.times(1.0 + avgDist * avgDist / 30.0);
+        // double scaleFactorOld = 1.0 + avgDist * avgDist / 30.0;
+
+        // Mechanical Advantage version
+        // Includes a downscale for more tags, so start from a single Matrix
+        double scaleFactor = Math.pow(avgDist, 1.2) / Math.pow(numTags, 2.0);
+
+        estStdDev = estStdDev.times(scaleFactor);
 
         return Optional.of(estStdDev);
     }
@@ -346,31 +351,41 @@ public class AprilTagVision {
             if (targetPosition.isEmpty())
                 continue;
 
+            // check ambiguity ratio
+            double ambiguity = target.getPoseAmbiguity();
+            if (ambiguity > SINGLE_TAG_AMBIGUITY_THRESHOLD)
+                continue;
+
             // Check the 2 possible vision poses
-            Pose3d pose = targetPosition.get()
+            Pose3d pose1 = targetPosition.get()
                     .transformBy(target.getBestCameraToTarget().inverse())
                     .transformBy(cam.robotToCam.inverse());
 
             // Use MathUtil.angleModulus() to map the difference to -PI --> PI
-            double diff = Math.abs(MathUtil.angleModulus(pose.toPose2d().getRotation().getRadians() - refHeadingRad));
+            double diff1 = Math.abs(MathUtil.angleModulus(pose1.toPose2d().getRotation().getRadians() - refHeadingRad));
 
-            if (diff < bestDiff) {
-                bestDiff = diff;
+            if (diff1 < bestDiff) {
+                bestDiff = diff1;
                 bestTarget = target;
-                bestPose = pose;
+                bestPose = pose1;
             }
 
             // also need to check the altPose
-            pose = targetPosition.get()
+            Pose3d pose2 = targetPosition.get()
                     .transformBy(target.getAlternateCameraToTarget().inverse())
                     .transformBy(cam.robotToCam.inverse());
-            diff = Math.abs(MathUtil.angleModulus(pose.toPose2d().getRotation().getRadians() - refHeadingRad));
+            double diff2 = Math.abs(MathUtil.angleModulus(pose2.toPose2d().getRotation().getRadians() - refHeadingRad));
 
-            if (diff < bestDiff) {
-                bestDiff = diff;
+            if (diff2 < bestDiff) {
+                bestDiff = diff2;
                 bestTarget = target;
-                bestPose = pose;
+                bestPose = pose2;
             }
+
+            // System.out.println("refHeading " + Math.toDegrees(MathUtil.angleModulus(refHeadingRad)));
+            // System.out.println("pose1 " + pose1.toPose2d());
+            // System.out.println("pose2 " + pose2.toPose2d());
+            // System.out.println("single tag: " + ambiguity + " d1 =" + Math.toDegrees(diff1) + " d2=" + Math.toDegrees(diff2));
         }
 
         // return the closest pose, if there is one
