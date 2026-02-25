@@ -71,8 +71,10 @@ public class Shoot extends Command {
         m_shooter.setShootValues(shotValue);
         
         // Run feeder only when shooter and turret are ready
-        if (m_shooter.onTarget()) {
+        if (m_shooter.onTarget() && m_turret.isOnTarget()) {
             m_feeder.setRPM(shotValue.feedRPM);
+        } else {
+            m_feeder.stop();
         }
         m_turret.plotTurretHeading(robotPose, shotDistance);
 }
