@@ -36,6 +36,7 @@ import frc.robot.subsystems.AprilTagVision;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Hopper;
 import frc.robot.subsystems.DataLogger;
+import frc.robot.subsystems.DriverRumble;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.Shooter.ShotType;
@@ -68,14 +69,13 @@ public class RobotContainerCompBot extends RobotContainer {
     private final AprilTagVision m_aprilTagVision = new AprilTagVision(Robot.RobotType.COMPBOT, m_logger.getField2d());
     private final ShooterFeeder m_shooterFeeder = new ShooterFeeder();
     private final Shooter m_shooter = new Shooter();
-    private final Turret m_turret = new Turret();
+    private final Turret m_turret = new Turret(m_driverController.getHID());
 
     private final Intake m_intake = new Intake();
     private final Hopper m_hopper = new Hopper();
 
-    // not used directly, but the periodic() method logs data
-    @SuppressWarnings("unused")
-    private final DataLogger m_dataLogger = new DataLogger();
+    private final DriverRumble m_rumble;
+    private final DataLogger m_powerSystem = new DataLogger();
 
     private final SendableChooser<String> m_chosenFieldSide = new SendableChooser<>();
     private final SendableChooser<String[]> m_chosenAutoPaths = new SendableChooser<>();
@@ -95,6 +95,8 @@ public class RobotContainerCompBot extends RobotContainer {
         );
 
         m_drivetrain.setupPathPlanner();
+
+        m_rumble = new DriverRumble(m_driverController.getHID(), m_turret::nearTurretFlip);
 
         configureBindings();
 

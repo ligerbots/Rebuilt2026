@@ -12,6 +12,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -63,13 +64,15 @@ public class Turret extends SubsystemBase {
     private static final double MIN_ROTATION_DEG = -195.0;
     private static final double MID_LINE_DEGREES = (MAX_ROTATION_DEG + MIN_ROTATION_DEG) / 2.0;
     
+    private static final double TURRET_FLIP_REGION_DEG = 20.0;
+
     // this is just the middle point of the full CRT range
     // include "1.0 *" to make sure it does floating point arithmetic
     private static final Rotation2d CRT_POSITION_OFFSET = 
             Rotation2d.fromRotations(1.0 * ENCODER_SMALL_TOOTH_COUNT * ENCODER_LARGE_TOOTH_COUNT / TURRET_TOOTH_COUNT / 2.0);
     
     /** Creates a new Turret. */
-    public Turret() {
+    public Turret(XboxController controller) {
         m_turretMotor = new TalonFX(Constants.TURRET_CAN_ID);
         m_thruboreSmall =  new CANcoder(Constants.TURRET_SMALL_CANCODER_ID);
         m_thruboreLarge = new CANcoder(Constants.TURRET_LARGE_CANCODER_ID);
@@ -155,6 +158,11 @@ public class Turret extends SubsystemBase {
 
     public boolean isOnTarget() {
         return Math.abs(getAngle().getDegrees() - getShootAngleDeg()) < ANGLE_TOLERANCE_DEG; 
+    }
+    
+    public boolean nearTurretFlip() {
+        double angleDeg = getAngle().getDegrees();
+        return (MAX_ROTATION_DEG - angleDeg) < TURRET_FLIP_REGION_DEG || (angleDeg - MIN_ROTATION_DEG) < TURRET_FLIP_REGION_DEG; 
     }
     
     private Rotation2d getCRTAngleRaw(){
