@@ -317,9 +317,11 @@ public class AprilTagVision {
             return Optional.empty();
 
         // Starting estimate = multitag or not
-        // Matrix<N3, N1> estStdDev = poseEst.strategy == PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR
-        //         ? MULTI_TAG_BASE_STDDEV
-        //         : SINGLE_TAG_BASE_STDDEV;
+        // Matrix<N3, N1> estStdDev;
+        // if (usedMultitag)
+        //     estStdDev = MULTI_TAG_BASE_STDDEV;
+        // else
+        //     estStdDev = SINGLE_TAG_BASE_STDDEV;
         Matrix<N3, N1> estStdDev = SINGLE_TAG_BASE_STDDEV;
 
         // Increase std devs based on (average) distance
