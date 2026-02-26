@@ -13,6 +13,9 @@ import java.util.Objects;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.events.EventTrigger;
+import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.commands.PathPlannerAuto;
+
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -108,7 +111,9 @@ public class RobotContainerCompBot extends RobotContainer {
         });
 
         m_chosenAutoPaths.addOption("SnowBlow // Depot Full Pass Blitz", new String[] {
-                "Depot Full Pass Blitz"
+                // "Depot Full Pass Blitz"
+                "Trench Start to Center Middle",
+                "Center Middle to Far Trench"
         });
 
         m_chosenAutoPaths.addOption("Out-Back Depot // Depot Single Pass Blitz", new String[] {
@@ -121,6 +126,12 @@ public class RobotContainerCompBot extends RobotContainer {
 
         m_chosenAutoPaths.addOption("Depot Simple", new String[] {
                 "Depot Simple"
+        });
+
+        m_chosenAutoPaths.addOption("Depot Single Pass Multipart", new String[] {
+                "Trench Start to Center Middle",
+                "Center Middle to Depot",
+                "Depot to Finish"
         });
 
         SmartDashboard.putData("Auto Choice", m_chosenAutoPaths);
