@@ -79,20 +79,7 @@ public class Shoot extends Command {
     @Override
     public void execute() {
 
-        ChassisSpeeds speedInformation = m_speedsSupplier.get();
-        Pose2d currentPose = m_poseSupplier.get();
-        Pose2d futurePose = new Pose2d(
-            currentPose.getTranslation().plus(new Translation2d(speedInformation.vxMetersPerSecond, speedInformation.vyMetersPerSecond).times(LATENCY_SECONDS)),
-            currentPose.getRotation()
-        );
-
-        Translation2d robotVelVector = new Translation2d(speedInformation.vxMetersPerSecond, speedInformation.vyMetersPerSecond);
-
-        Translation2d targetVector = Turret.getTranslationToGoal(futurePose, m_target);
-        double targetDist = targetVector.getNorm();
-        double idealHorizontalSpeed = 10; // TODO: create horizontal velocity table and replace with real value
-
-        Translation2d shotVector = targetVector.div(targetDist).times(idealHorizontalSpeed).minus(robotVelVector);
+        Translation2d shotVector = findMovingShotVector();
 
         ShootValue shootValue;
         if (m_shotType == ShotType.TEST) {
@@ -140,6 +127,24 @@ public class Shoot extends Command {
         }
 
         return FieldConstants.flipTranslation(target);
+    }
+
+    public Translation2d findMovingShotVector() {
+        ChassisSpeeds speedInformation = m_speedsSupplier.get();
+        Pose2d currentPose = m_poseSupplier.get();
+        Pose2d futurePose = new Pose2d(
+            currentPose.getTranslation().plus(new Translation2d(speedInformation.vxMetersPerSecond, speedInformation.vyMetersPerSecond).times(LATENCY_SECONDS)),
+            currentPose.getRotation()
+        );
+
+        Translation2d robotVelVector = new Translation2d(speedInformation.vxMetersPerSecond, speedInformation.vyMetersPerSecond);
+
+        Translation2d targetVector = Turret.getTranslationToGoal(futurePose, m_target);
+        double targetDist = targetVector.getNorm();
+        double idealHorizontalSpeed = targetDist; // TODO: create horizontal velocity table and replace with real value
+
+        Translation2d shotVector = targetVector.div(targetDist).times(idealHorizontalSpeed).minus(robotVelVector);
+        return shotVector;
     }
 
     private ShootValue testShootValue() {
