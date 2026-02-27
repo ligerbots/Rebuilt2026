@@ -36,6 +36,8 @@ public class Shoot extends Command {
 
     private static final double LATENCY_SECONDS = 0.1; // TODO: tune to real value
 
+    private static final double HORIZONTAL_VELOCITY_MULTIPLIER = 1.0; // TODO: tune to real value
+
     public Shoot(Shooter shooter, Turret turret, ShooterFeeder feeder, Supplier<Pose2d> poseSupplier, Supplier<ChassisSpeeds> speeds, Shooter.ShotType shotType) {
         m_turret = turret;
         m_shooter = shooter;
@@ -141,7 +143,7 @@ public class Shoot extends Command {
 
         Translation2d targetVector = Turret.getTranslationToGoal(futurePose, m_target);
         double targetDist = targetVector.getNorm();
-        double idealHorizontalSpeed = targetDist; // TODO: create horizontal velocity table and replace with real value
+        double idealHorizontalSpeed = targetDist * HORIZONTAL_VELOCITY_MULTIPLIER;
 
         Translation2d shotVector = targetVector.div(targetDist).times(idealHorizontalSpeed).minus(robotVelVector);
         return shotVector;
