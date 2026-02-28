@@ -128,6 +128,10 @@ public class RobotContainerCompBot extends RobotContainer {
                 "Depot Simple"
         });
 
+        m_chosenAutoPaths.addOption("Test Shooting While Rotating", new String[] {
+                "Test Shooting While Rotating"
+        });
+
         m_chosenAutoPaths.addOption("Depot Single Pass Multipart", new String[] {
                 "Trench Start to Center Middle",
                 "Center Middle to Depot",
@@ -149,12 +153,16 @@ public class RobotContainerCompBot extends RobotContainer {
 
     public Command getShootCommand() {
         return new Shoot(m_shooter, m_turret, m_shooterFeeder, m_drivetrain::getPose, ShotType.AUTO)
-                        .alongWith(m_hopper.pulseCommand());
+                        .alongWith(m_hopper.pulseCommand(), new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningShooter", true)));
     }
     
     private void configureAutoEventTriggers() {
         new EventTrigger("Run Intake").onTrue(m_intake.deployAndRollCommand().alongWith(new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningIntake", true))));
         new EventTrigger("Stop Intake").onTrue(m_intake.stowCommand().alongWith(new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningIntake", false))));
+
+        new EventTrigger("Shooter Running").whileTrue(getShootCommand());
+        new EventTrigger("Shooter Running").onFalse(new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningShooter", false)));
+
 
         // TODO: should need only 1 AUTO shot trigger
         ParallelCommandGroup autoShootCommand = new Shoot(m_shooter, m_turret, m_shooterFeeder, m_drivetrain::getPose, ShotType.HUB)
