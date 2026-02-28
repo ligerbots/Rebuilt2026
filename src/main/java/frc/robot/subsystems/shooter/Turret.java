@@ -5,13 +5,14 @@
 package frc.robot.subsystems.shooter;
 
 import frc.robot.Constants;
-import frc.robot.FieldConstants;
+import frc.robot.Robot;
 import frc.robot.utilities.ChineseRemainder;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -30,7 +31,8 @@ public class Turret extends SubsystemBase {
     private static final double TURRET_HEADING_OFFSET_DEG = 180.0;
     private static final double ANGLE_TOLERANCE_DEG = 2.0; 
     
-    private double m_goalDeg = 0.0;
+    private double m_goalDeg = 0.0; // angle limited to our constraints
+    private double m_shootAngle = 0.0; // raw shoot angle (actual angle we want to shoot)
     
     private final TalonFX m_turretMotor;
     private final CANcoder m_thruboreSmall; 
@@ -60,14 +62,20 @@ public class Turret extends SubsystemBase {
 
     private static final double MAX_ROTATION_DEG = 145.0;
     private static final double MIN_ROTATION_DEG = -195.0;
+    private static final double MID_LINE_DEGREES = (MAX_ROTATION_DEG + MIN_ROTATION_DEG) / 2.0;
     
     // this is just the middle point of the full CRT range
     // include "1.0 *" to make sure it does floating point arithmetic
     private static final Rotation2d CRT_POSITION_OFFSET = 
             Rotation2d.fromRotations(1.0 * ENCODER_SMALL_TOOTH_COUNT * ENCODER_LARGE_TOOTH_COUNT / TURRET_TOOTH_COUNT / 2.0);
     
+    private Field2d m_field;
+
     /** Creates a new Turret. */
-    public Turret() {
+    public Turret(Field2d field) {
+        // Field is used for plotting the heading
+        m_field = field;
+
         m_turretMotor = new TalonFX(Constants.TURRET_CAN_ID);
         m_thruboreSmall =  new CANcoder(Constants.TURRET_SMALL_CANCODER_ID);
         m_thruboreLarge = new CANcoder(Constants.TURRET_LARGE_CANCODER_ID);
@@ -126,10 +134,15 @@ public class Turret extends SubsystemBase {
     }
     
     public void setAngle(Rotation2d angle) {
-        // for now, just limit angle. 
-        // when we allow overlap, use optimizeGoal()
-        m_goalDeg = limitRotationDeg(angle.getDegrees() + m_turretFudgeDegrees - TURRET_HEADING_OFFSET_DEG);
-        // m_goalDeg = optimizeGoal(angle.getDegrees() - TURRET_HEADING_OFFSET_DEG);
+        // WARNING: this code is intended for a travel range with a dead zone
+        // If we manage to get >360 travel, this need to be reworked
+
+        // remember the requested angle, but in turret coordinates
+        //   and mapped onto the range of travel
+        m_shootAngle = degreesModulus(angle.getDegrees() + m_turretFudgeDegrees - TURRET_HEADING_OFFSET_DEG);
+    
+        // for now, just limit angle to not go into the dead zone
+        m_goalDeg = limitRotationDeg(m_shootAngle);
 
         m_turretMotor.setControl(new MotionMagicVoltage(m_goalDeg/360.0 * TURRET_GEAR_RATIO));
     }
@@ -145,8 +158,12 @@ public class Turret extends SubsystemBase {
         return m_goalDeg + TURRET_HEADING_OFFSET_DEG;
     }
 
+    private double getShootAngleDeg() {
+        return m_shootAngle + TURRET_HEADING_OFFSET_DEG;
+    }
+
     public boolean isOnTarget() {
-        return Math.abs(getAngle().getDegrees() - getGoalDeg()) < ANGLE_TOLERANCE_DEG; 
+        return Math.abs(getAngle().getDegrees() - getShootAngleDeg()) < ANGLE_TOLERANCE_DEG; 
     }
     
     private Rotation2d getCRTAngleRaw(){
@@ -163,84 +180,56 @@ public class Turret extends SubsystemBase {
     }
 
     private double limitRotationDeg(double angleDeg) {
-        angleDeg = degreesModulus(angleDeg);
         return MathUtil.clamp(angleDeg, MIN_ROTATION_DEG, MAX_ROTATION_DEG);
     }
     
-    // compute the optimum goal angle
-    // this assumes the Turret can turn >360 degrees
-    private double optimizeGoal(double setAngleDeg) {
-        // Normalize target angle to -180 -> 180
-        setAngleDeg = degreesModulus(setAngleDeg);
-        
-        // Find all possible target angles that correspond to the desired position
-        // These are: normalizedSetAngle, normalizedSetAngle ± 360, normalizedSetAngle ± 720, etc.
-        // But we only need to check nearby rotations since our range is limited
-        double[] candidates = {
-            setAngleDeg - 360.0,
-            setAngleDeg,
-            setAngleDeg + 360.0
-        };
-        
-        double currentAngle = getAngle().getDegrees();
-
-        double bestAngle = currentAngle;
-        double shortestDistance = Double.MAX_VALUE;
-        for (double candidate : candidates) {
-            // Check if this candidate is within physical limits
-            if (candidate >= MIN_ROTATION_DEG && candidate <= MAX_ROTATION_DEG) {
-                double distance = Math.abs(candidate - currentAngle);
-                
-                if (distance < shortestDistance) {
-                    shortestDistance = distance;
-                    bestAngle = candidate;
-                }
-            }
-        }
-        
-        // System.out.println("Best Angle: " + bestAngle);
-
-        return bestAngle;
-    }
-       
     /**
-     * Map angle in degrees to -180 ==> 180
+     * Map angle (in degrees) to -180 ==> 180 but centered on the midpoint of travel
      * Analogous to MathUtils.angleModulus()
      * @param angleDeg  angle in degrees
      * @return angle    same angle but mapped to -180 ==> 180
      */
     private double degreesModulus(double angleDeg) {
-        while (angleDeg >= 180.0) angleDeg -= 360.0;
-        while (angleDeg < -180.0) angleDeg += 360.0;
+        while (angleDeg >= (MID_LINE_DEGREES + 180.0)) angleDeg -= 360.0;
+        while (angleDeg < (MID_LINE_DEGREES - 180.0)) angleDeg += 360.0;
         return angleDeg;
     }
 
-    private static Translation2d getTurretPositionForRobotPose(Pose2d robotPose) {
-        return Turret.TURRET_OFFSET.rotateBy(robotPose.getRotation()).plus(robotPose.getTranslation());
-    }
-    
-    /**
-     * Get the robot-centric vector to a goal position.
-     * 
-     * @param robotPose The current pose of the robot in field coordinates
-     * @param goalTranslation The position of the goal in field coordinates
-     * @return A Translation2d representing the vector from the turret to the goal in robot coordinates.
-     *         Use .getAngle() to get the robot-centric angle, and .getNorm() to get the distance.
-     */
-    private static Translation2d getTranslationToGoalOld(Pose2d robotPose, Translation2d goalTranslation) {
-        // Translation2d overallAngle = getTurretPositionForRobotPose(robotPose).minus(goalTranslation).rotateBy(robotPose.getRotation());
-
-        Translation2d turretPose = getTurretPositionForRobotPose(robotPose);
-        // SmartDashboard.putNumber("turretTesting/turretPoseX", turretPose.getX());
-        // SmartDashboard.putNumber("turretTesting/turretPoseY", turretPose.getY());
-        Translation2d goalRelativeToTurret = goalTranslation.minus(turretPose);
-        // SmartDashboard.putNumber("turretTesting/goalRelativeToTurretX", goalRelativeToTurret.getX());
-        // SmartDashboard.putNumber("turretTesting/goalRelativeToTurretY", goalRelativeToTurret.getY());
-        Translation2d translationRelativeToRobot = goalRelativeToTurret.rotateBy(robotPose.getRotation().unaryMinus());
-        // SmartDashboard.putNumber("turretTesting/rotationRelativeToRobot", translationRelativeToRobot.getAngle().getDegrees());
+    // compute the optimum goal angle
+    // this assumes the Turret can turn >360 degrees
+    // private double optimizeGoal(double setAngleDeg) {
+    //     // Normalize target angle to -180 -> 180
+    //     setAngleDeg = degreesModulus(setAngleDeg);
         
-        return translationRelativeToRobot;
-    }
+    //     // Find all possible target angles that correspond to the desired position
+    //     // These are: normalizedSetAngle, normalizedSetAngle ± 360, normalizedSetAngle ± 720, etc.
+    //     // But we only need to check nearby rotations since our range is limited
+    //     double[] candidates = {
+    //         setAngleDeg - 360.0,
+    //         setAngleDeg,
+    //         setAngleDeg + 360.0
+    //     };
+        
+    //     double currentAngle = getAngle().getDegrees();
+
+    //     double bestAngle = currentAngle;
+    //     double shortestDistance = Double.MAX_VALUE;
+    //     for (double candidate : candidates) {
+    //         // Check if this candidate is within physical limits
+    //         if (candidate >= MIN_ROTATION_DEG && candidate <= MAX_ROTATION_DEG) {
+    //             double distance = Math.abs(candidate - currentAngle);
+                
+    //             if (distance < shortestDistance) {
+    //                 shortestDistance = distance;
+    //                 bestAngle = candidate;
+    //             }
+    //         }
+    //     }
+        
+    //     // System.out.println("Best Angle: " + bestAngle);
+
+    //     return bestAngle;
+    // }
 
     public static Translation2d getTranslationToGoal(Pose2d robotPose, Translation2d target) {
         // compute robot to target, in field coordinates
@@ -259,22 +248,47 @@ public class Turret extends SubsystemBase {
         return turretToTarget;
     }
 
-    private static void runTests() {
-        Translation2d position = FieldConstants.HUB_POSITION_BLUE.minus(new Translation2d(1.0, 0.5));
-
-        for (double angle = 0; angle < 360; angle += 45.0) {
-            System.out.println("Angle = " + angle);
-
-            Pose2d robot = new Pose2d(position, Rotation2d.fromDegrees(angle));
-
-            Translation2d t1 = getTranslationToGoalOld(robot, FieldConstants.HUB_POSITION_BLUE);
-            System.out.println("getT2G: " + t1);
-            Translation2d t2 = getTranslationToGoal(robot, FieldConstants.HUB_POSITION_BLUE);
-            System.out.println("getT2TPaul: " + t2);
+    public void plotTurretHeading(Pose2d robotPose, double distance) {
+        // simulation does not work, so fake when it should be turned off
+        if (robotPose == null || distance < 1.0 || 
+                (Robot.isSimulation() && Math.abs(getGoalDeg() - getShootAngleDeg()) > 2.0)) {
+            m_field.getObject("turretHeading").setPoses();
+            return;
         }
+
+        Translation2d turretLoc = getTurretFieldPosition(robotPose);
+
+        // We don't simulate the turret, so use the goal instead during simulation
+        Rotation2d turretHeadingRobot = Robot.isSimulation() ? Rotation2d.fromDegrees(getGoalDeg()) : getAngle();
+        Rotation2d turretHeadingField = turretHeadingRobot.rotateBy(robotPose.getRotation());
+
+        Translation2d endLoc = turretLoc.plus(new Translation2d(distance, turretHeadingField));
+        m_field.getObject("turretHeading").setPoses(
+                new Pose2d(turretLoc, turretHeadingField),
+                new Pose2d(endLoc, turretHeadingField)
+        );
     }
 
-    public static void main(String[] args) {
-        runTests();
+    private static Translation2d getTurretFieldPosition(Pose2d robotPose) {
+        return TURRET_OFFSET.rotateBy(robotPose.getRotation()).plus(robotPose.getTranslation());
     }
+    
+    // private static void runTests() {
+    //     Translation2d position = FieldConstants.HUB_POSITION_BLUE.minus(new Translation2d(1.0, 0.5));
+
+    //     for (double angle = 0; angle < 360; angle += 45.0) {
+    //         System.out.println("Angle = " + angle);
+
+    //         Pose2d robot = new Pose2d(position, Rotation2d.fromDegrees(angle));
+
+    //         Translation2d t1 = getTranslationToGoalOld(robot, FieldConstants.HUB_POSITION_BLUE);
+    //         System.out.println("getT2G: " + t1);
+    //         Translation2d t2 = getTranslationToGoal(robot, FieldConstants.HUB_POSITION_BLUE);
+    //         System.out.println("getT2TPaul: " + t2);
+    //     }
+    // }
+
+    // public static void main(String[] args) {
+    //     runTests();
+    // }
 }

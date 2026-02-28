@@ -12,6 +12,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.FieldConstants;
+import frc.robot.Robot;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.ShooterFeeder;
 import frc.robot.subsystems.shooter.Turret;
@@ -23,6 +24,8 @@ import frc.robot.utilities.ShooterLookupTable.ShootValue;
 * Manages turret aiming, shooter spin-up, and feeder activation.
 */
 public class Shoot extends Command {
+    static final boolean PLOT_SHOT_LOCATION = true;
+
     // Tolerance values for comparing actual vs target values
     private final Shooter m_shooter;
     private final Turret m_turret;
@@ -53,30 +56,43 @@ public class Shoot extends Command {
     
     @Override
     public void execute() {
+        Pose2d robotPose = m_poseSupplier.get();
         Translation2d target = targetForShotType();
-        Translation2d translationToTarget = Turret.getTranslationToGoal(m_poseSupplier.get(), target);
+        Translation2d translationToTarget = Turret.getTranslationToGoal(robotPose, target);
 
         ShootValue shotValue;
+        double shotDistance = 0;
         if (m_shotType == ShotType.TEST) {
             shotValue = testShotValue();
         } else {
             // Calculate distance and angle to target, send to shooter and turret subsystems
-            shotValue = m_shooter.getShootValue(translationToTarget.getNorm(), m_shotType);
+            shotDistance = translationToTarget.getNorm();
+            shotValue = m_shooter.getShootValue(shotDistance, m_shotType);
         }
         
         m_turret.setAngle(translationToTarget.getAngle());
         m_shooter.setShootValues(shotValue);
         
         // Run feeder only when shooter and turret are ready
-        if (m_shooter.onTarget()) {
+        if (m_shooter.onTarget() && m_turret.isOnTarget()) {
             m_feeder.setRPM(shotValue.feedRPM);
+            if (PLOT_SHOT_LOCATION) m_turret.plotTurretHeading(robotPose, shotDistance);
+        } else {
+            m_feeder.stop();
+            if (PLOT_SHOT_LOCATION) m_turret.plotTurretHeading(robotPose, 0);
         }
-    }
+        
+        // the turret is not simulated, so just update always
+        if (PLOT_SHOT_LOCATION && Robot.isSimulation()) m_turret.plotTurretHeading(robotPose, shotDistance);
+}
     
     @Override
     public void end(boolean interrupted) {
         m_shooter.stop();
         m_feeder.stop();
+
+        // plot with 0 distance to turn it off
+        if (PLOT_SHOT_LOCATION) m_turret.plotTurretHeading(null, 0);
     }
     
     /**
