@@ -55,37 +55,18 @@ public class Shoot extends Command {
     }
     
     // Called when the command is initially scheduled.
-    @Override
-    public void initialize() {
-        switch (m_shotType) {
-            case AUTO:
-            case TEST:
-                m_target = shotAutoTarget(m_poseSupplier.get());
-                break;
-            case HUB:
-                m_target = FieldConstants.flipTranslation(FieldConstants.HUB_POSITION_BLUE);
-                break;
-            case PASS:
-                double yBlue = FieldConstants.flipTranslation(m_poseSupplier.get().getTranslation()).getY();
-                if (yBlue < FieldConstants.FIELD_WIDTH / 2.0)
-                    m_target = FieldConstants.flipTranslation(FieldConstants.PASSING_TARGET_LOWER_BLUE);
-                else
-                    m_target = FieldConstants.flipTranslation(FieldConstants.PASSING_TARGET_UPPER_BLUE);
-                break;
-                
-            default:
-                break;
-        }
-    }
+    // @Override
+    // public void initialize() {
+    // }
     
     @Override
     public void execute() {
 
         Translation2d shotVector = findMovingShotVector();
 
-        ShootValue shootValue;
+        ShootValue shotValue;
         if (m_shotType == ShotType.TEST) {
-            shootValue = testShootValue();
+            shotValue = testShotValue();
         } else {
             // Calculate distance and angle to target, send to shooter and turret subsystems
             shootValue = m_shooter.getShootValue(shotVector.getNorm(), m_shotType);
@@ -96,7 +77,7 @@ public class Shoot extends Command {
         
         // Run feeder only when shooter and turret are ready
         if (m_shooter.onTarget()) {
-            m_feeder.setRPM(shootValue.feedRPM);
+            m_feeder.setRPM(shotValue.feedRPM);
         }
     }
     
@@ -114,6 +95,22 @@ public class Shoot extends Command {
     @Override
     public boolean isFinished() {
         return false;
+    }
+
+    private Translation2d targetForShotType() {
+        switch (m_shotType) {
+            case HUB:
+                return FieldConstants.flipTranslation(FieldConstants.HUB_POSITION_BLUE);
+            case PASS:
+                double yBlue = FieldConstants.flipTranslation(m_poseSupplier.get().getTranslation()).getY();
+                if (yBlue < FieldConstants.FIELD_WIDTH / 2.0)
+                    return FieldConstants.flipTranslation(FieldConstants.PASSING_TARGET_LOWER_BLUE);
+                return FieldConstants.flipTranslation(FieldConstants.PASSING_TARGET_UPPER_BLUE);
+            // needed to suppress the warning
+            default:
+                break;
+        }
+        return shotAutoTarget(m_poseSupplier.get());
     }
 
     // Determines whether we should start shooting at the hub because we are in our zone.

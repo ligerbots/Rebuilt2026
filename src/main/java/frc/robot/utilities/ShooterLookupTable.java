@@ -34,9 +34,9 @@ public class ShooterLookupTable {
    * Represents RPM and hood angle for a given distance.
    */
   public static class ShootValue {
-    public final double flyRPM;
-    public final double feedRPM;
-    public final Rotation2d hoodAngle;
+    public double flyRPM;
+    public double feedRPM;
+    public Rotation2d hoodAngle;
 
     /**
      * Creates a new ShootValue.

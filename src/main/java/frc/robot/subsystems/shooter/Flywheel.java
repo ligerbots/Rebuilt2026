@@ -28,7 +28,7 @@ public class Flywheel extends SubsystemBase {
     private final TalonFX m_follower;
     
     private static final double K_P = 0.75;  // tuned 2/7
-    private static final double K_FF = 0.0021;
+    private static final double K_FF = 0.0019;
 
     private static final double SUPPLY_CURRENT_LIMIT = 40;
     private static final double STATOR_CURRENT_LIMIT = 60;
