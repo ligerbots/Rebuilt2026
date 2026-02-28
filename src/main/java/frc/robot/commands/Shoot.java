@@ -69,11 +69,11 @@ public class Shoot extends Command {
             shotValue = testShotValue();
         } else {
             // Calculate distance and angle to target, send to shooter and turret subsystems
-            shootValue = m_shooter.getShootValue(shotVector.getNorm(), m_shotType);
+            shotValue = m_shooter.getShootValue(shotVector.getNorm(), m_shotType);
         }
         
         m_turret.setAngle(shotVector.getAngle());
-        m_shooter.setShootValues(shootValue);
+        m_shooter.setShootValues(shotValue);
         
         // Run feeder only when shooter and turret are ready
         if (m_shooter.onTarget()) {
@@ -146,7 +146,7 @@ public class Shoot extends Command {
         return shotVector;
     }
 
-    private ShootValue testShootValue() {
+    private ShootValue testShotValue() {
         return new ShootValue(
                 SmartDashboard.getNumber("flywheel/testRPM", 0.0),
                 SmartDashboard.getNumber("shooterFeeder/testRPM", 0.0),
