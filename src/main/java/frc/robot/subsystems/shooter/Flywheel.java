@@ -71,8 +71,10 @@ public class Flywheel extends SubsystemBase {
     public void periodic() {
         SmartDashboard.putNumber("flywheel/currentRPM", getRPM()); 
         SmartDashboard.putNumber("flywheel/goalRPM", m_goalRPM);
-        SmartDashboard.putNumber("flywheel/leaderCurrent", m_motor.getStatorCurrent().getValueAsDouble());
-        SmartDashboard.putNumber("flywheel/followerCurrent", m_follower.getStatorCurrent().getValueAsDouble());
+        SmartDashboard.putNumber("flywheel/leaderStator", m_motor.getStatorCurrent().getValueAsDouble());
+        SmartDashboard.putNumber("flywheel/followerStator", m_follower.getStatorCurrent().getValueAsDouble());
+        SmartDashboard.putNumber("flywheel/leaderSupply", m_motor.getSupplyCurrent().getValueAsDouble());
+        SmartDashboard.putNumber("flywheel/followerSupply", m_follower.getSupplyCurrent().getValueAsDouble());
     }
     
     public void setVoltage(double voltage) {
