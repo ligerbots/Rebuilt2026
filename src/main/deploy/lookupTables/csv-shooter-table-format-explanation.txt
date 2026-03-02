@@ -1,0 +1,3 @@
+distance(Inches),TurretFlywheelRPM,FeederFlywheelRPM,TurretAngle,Note
+
+    - An angle of 0 would be going straight up, higher values means more shallow shots
