@@ -36,7 +36,7 @@ public class Shoot extends Command {
 
     private static final double LATENCY_SECONDS = 0.1; // TODO: tune to real value
 
-    private static final double HORIZONTAL_VELOCITY_MULTIPLIER = 1.0; // TODO: tune to real value
+    private static final double TRAVEL_TIME_SECONDS = 1.0; // TODO: tune to real value
 
     public Shoot(Shooter shooter, Turret turret, ShooterFeeder feeder, Supplier<Pose2d> poseSupplier, Supplier<ChassisSpeeds> speeds, Shooter.ShotType shotType) {
         m_turret = turret;
@@ -130,19 +130,21 @@ public class Shoot extends Command {
 
     public Translation2d findMovingShotVector() {
         ChassisSpeeds speedInformation = m_speedsSupplier.get();
+        Translation2d robotVelVector = new Translation2d(speedInformation.vxMetersPerSecond, speedInformation.vyMetersPerSecond);
+
         Pose2d currentPose = m_poseSupplier.get();
         Pose2d futurePose = new Pose2d(
-            currentPose.getTranslation().plus(new Translation2d(speedInformation.vxMetersPerSecond, speedInformation.vyMetersPerSecond).times(LATENCY_SECONDS)),
+            currentPose.getTranslation().plus(robotVelVector.times(LATENCY_SECONDS)),
             currentPose.getRotation()
         );
 
-        Translation2d robotVelVector = new Translation2d(speedInformation.vxMetersPerSecond, speedInformation.vyMetersPerSecond);
+        
 
         Translation2d targetVector = Turret.getTranslationToGoal(futurePose, m_target);
         double targetDist = targetVector.getNorm();
-        double idealHorizontalSpeed = targetDist * HORIZONTAL_VELOCITY_MULTIPLIER;
+        double idealHorizontalSpeed = targetDist / TRAVEL_TIME_SECONDS;
 
-        Translation2d shotVector = targetVector.div(targetDist).times(idealHorizontalSpeed).minus(robotVelVector);
+        Translation2d shotVector = targetVector.div(targetDist).times(idealHorizontalSpeed).minus(robotVelVector).times(TRAVEL_TIME_SECONDS);
         return shotVector;
     }
 
