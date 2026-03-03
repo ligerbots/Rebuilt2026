@@ -150,7 +150,7 @@ public class Shoot extends Command {
         Translation2d robotVelVector = new Translation2d(speedInformation.vxMetersPerSecond, speedInformation.vyMetersPerSecond);
 
         Pose2d futurePose = new Pose2d(
-            currentPose.getTranslation().plus(robotVelVector).times(LATENCY_SECONDS),
+            currentPose.getTranslation().plus(robotVelVector.times(LATENCY_SECONDS)),
             currentPose.getRotation().plus(Rotation2d.fromRadians(speedInformation.omegaRadiansPerSecond*LATENCY_SECONDS))
         );
 
