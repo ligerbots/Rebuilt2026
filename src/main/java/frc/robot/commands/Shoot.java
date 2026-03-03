@@ -133,18 +133,25 @@ public class Shoot extends Command {
         Translation2d robotVelVector = new Translation2d(speedInformation.vxMetersPerSecond, speedInformation.vyMetersPerSecond);
 
         Pose2d currentPose = m_poseSupplier.get();
+
         Pose2d futurePose = new Pose2d(
-            currentPose.getTranslation().plus(robotVelVector.times(LATENCY_SECONDS)),
-            currentPose.getRotation()
+            currentPose.getTranslation().plus(robotVelVector).times(LATENCY_SECONDS),
+            currentPose.getRotation().plus(Rotation2d.fromRadians(speedInformation.omegaRadiansPerSecond*LATENCY_SECONDS))
         );
 
-        
+        // Rotational Velocity Calculator
+        double angularVelocity = speedInformation.omegaRadiansPerSecond*(Turret.TURRET_OFFSET.getDistance(new Translation2d(0,0)));
+        Rotation2d tangentVector = (futurePose.getRotation().plus(Turret.TURRET_OFFSET.getAngle()));
+        double angularVxMetersPerSecond = angularVelocity*tangentVector.getCos();
+        double angularVyMetersPerSecond = angularVelocity*tangentVector.getSin();
 
+        Translation2d turretVelVector = new Translation2d((speedInformation.vxMetersPerSecond+angularVxMetersPerSecond), (speedInformation.vyMetersPerSecond+angularVyMetersPerSecond));
+        
         Translation2d targetVector = Turret.getTranslationToGoal(futurePose, m_target);
         double targetDist = targetVector.getNorm();
         double idealHorizontalSpeed = targetDist / TRAVEL_TIME_SECONDS;
 
-        Translation2d shotVector = targetVector.div(targetDist).times(idealHorizontalSpeed).minus(robotVelVector).times(TRAVEL_TIME_SECONDS);
+        Translation2d shotVector = targetVector.div(targetDist).times(idealHorizontalSpeed).minus(turretVelVector.times(LATENCY_SECONDS)).times(TRAVEL_TIME_SECONDS);
         return shotVector;
     }
 
