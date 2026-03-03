@@ -9,14 +9,11 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+
 import frc.robot.FieldConstants;
-<<<<<<< HEAD
-import frc.robot.subsystems.CommandSwerveDrivetrain;
-=======
-import frc.robot.Robot;
->>>>>>> main
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.ShooterFeeder;
 import frc.robot.subsystems.shooter.Turret;
@@ -38,7 +35,6 @@ public class Shoot extends Command {
     private final Supplier<Pose2d> m_poseSupplier;
 
     private final Shooter.ShotType m_shotType;
-    private Translation2d m_target;
 
     private static final double LATENCY_SECONDS = 0.1; // TODO: tune to real value
 
@@ -67,11 +63,12 @@ public class Shoot extends Command {
     
     @Override
     public void execute() {
-
-        Translation2d shotVector = findMovingShotVector();
+        // Pose is needed for plotting, so fetch it once here
         Pose2d robotPose = m_poseSupplier.get();
+
         Translation2d target = targetForShotType();
-        Translation2d translationToTarget = Turret.getTranslationToGoal(robotPose, target);
+        Translation2d shotVector = findMovingShotVector(robotPose, target);
+        // Translation2d translationToTarget = Turret.getTranslationToGoal(robotPose, target);
 
         ShootValue shotValue;
         double shotDistance = 0;
@@ -80,8 +77,6 @@ public class Shoot extends Command {
         } else {
             // Calculate distance and angle to target, send to shooter and turret subsystems
             shotValue = m_shooter.getShootValue(shotVector.getNorm(), m_shotType);
-            shotDistance = translationToTarget.getNorm();
-            shotValue = m_shooter.getShootValue(shotDistance, m_shotType);
         }
         
         m_turret.setAngle(shotVector.getAngle());
@@ -97,7 +92,7 @@ public class Shoot extends Command {
         }
         
         // the turret is not simulated, so just update always
-        if (PLOT_SHOT_LOCATION && Robot.isSimulation()) m_turret.plotTurretHeading(robotPose, shotDistance);
+        if (PLOT_SHOT_LOCATION && RobotBase.isSimulation()) m_turret.plotTurretHeading(robotPose, shotDistance);
 }
     
     @Override
@@ -135,7 +130,7 @@ public class Shoot extends Command {
         return shotAutoTarget(m_poseSupplier.get());
     }
 
-    // Determines whether we should start shooting at the hub because we are in our zone.
+    // Determine where we should shoot based on the robot location
     public static Translation2d shotAutoTarget(Pose2d robotPose) {
         Translation2d blueLocation = FieldConstants.flipTranslation(robotPose.getTranslation());
         Translation2d target;
@@ -150,11 +145,9 @@ public class Shoot extends Command {
         return FieldConstants.flipTranslation(target);
     }
 
-    public Translation2d findMovingShotVector() {
+    public Translation2d findMovingShotVector(Pose2d currentPose, Translation2d target) {
         ChassisSpeeds speedInformation = m_speedsSupplier.get();
         Translation2d robotVelVector = new Translation2d(speedInformation.vxMetersPerSecond, speedInformation.vyMetersPerSecond);
-
-        Pose2d currentPose = m_poseSupplier.get();
 
         Pose2d futurePose = new Pose2d(
             currentPose.getTranslation().plus(robotVelVector).times(LATENCY_SECONDS),
@@ -163,13 +156,13 @@ public class Shoot extends Command {
 
         // Rotational Velocity Calculator
         double angularVelocity = speedInformation.omegaRadiansPerSecond*(Turret.TURRET_OFFSET.getDistance(new Translation2d(0,0)));
-        Rotation2d tangentVector = (futurePose.getRotation().plus(Turret.TURRET_OFFSET.getAngle()));
+        Rotation2d tangentVector = futurePose.getRotation().plus(Turret.TURRET_OFFSET.getAngle());
         double angularVxMetersPerSecond = angularVelocity*tangentVector.getCos();
         double angularVyMetersPerSecond = angularVelocity*tangentVector.getSin();
 
         Translation2d turretVelVector = new Translation2d((speedInformation.vxMetersPerSecond+angularVxMetersPerSecond), (speedInformation.vyMetersPerSecond+angularVyMetersPerSecond));
         
-        Translation2d targetVector = Turret.getTranslationToGoal(futurePose, m_target);
+        Translation2d targetVector = Turret.getTranslationToGoal(futurePose, target);
         double targetDist = targetVector.getNorm();
         double idealHorizontalSpeed = targetDist / TRAVEL_TIME_SECONDS;
 
