@@ -155,12 +155,12 @@ public class Shoot extends Command {
         );
 
         // Rotational Velocity Calculator
-        double angularVelocity = speedInformation.omegaRadiansPerSecond*(Turret.TURRET_OFFSET.getDistance(new Translation2d(0,0)));
-        Rotation2d tangentVector = futurePose.getRotation().plus(Turret.TURRET_OFFSET.getAngle());
-        double angularVxMetersPerSecond = angularVelocity*tangentVector.getCos();
-        double angularVyMetersPerSecond = angularVelocity*tangentVector.getSin();
+        double turretVel = speedInformation.omegaRadiansPerSecond*(Turret.TURRET_OFFSET.getNorm());
+        Rotation2d tangentVector = futurePose.getRotation().plus(new Rotation2d(Math.PI/2)).plus(Turret.TURRET_OFFSET.getAngle());
+        double turretVxMetersPerSecond = turretVel*tangentVector.getCos();
+        double turretVyMetersPerSecond = turretVel*tangentVector.getSin();
 
-        Translation2d turretVelVector = new Translation2d((speedInformation.vxMetersPerSecond+angularVxMetersPerSecond), (speedInformation.vyMetersPerSecond+angularVyMetersPerSecond));
+        Translation2d turretVelVector = new Translation2d((speedInformation.vxMetersPerSecond+turretVxMetersPerSecond), (speedInformation.vyMetersPerSecond+turretVyMetersPerSecond));
         
         Translation2d targetVector = Turret.getTranslationToGoal(futurePose, target);
         double targetDist = targetVector.getNorm();
