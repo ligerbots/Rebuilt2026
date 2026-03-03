@@ -151,12 +151,12 @@ public class AprilTagVision {
         else
         {
             m_cameras = new Camera[] {
-                    new Camera("ArducamBackRight", new Transform3d(
+                    new Camera("ArducamBack", new Transform3d(
                             new Translation3d(Units.inchesToMeters(-8.89), Units.inchesToMeters(-12.07),
                                     Units.inchesToMeters(15.08)),
                             new Rotation3d(0.0, Math.toRadians(-10), 0)
-                                    .rotateBy(new Rotation3d(0, 0, Math.toRadians(180.0-20.0))))),
-                    new Camera("ArducamBackLeft", new Transform3d(
+                                    .rotateBy(new Rotation3d(0, 0, Math.toRadians(180.0))))),
+                    new Camera("ArducamLeft", new Transform3d(
                             new Translation3d(Units.inchesToMeters(-6.56), Units.inchesToMeters(12.87),
                                     Units.inchesToMeters(17.27)),
                             new Rotation3d(0.0, Math.toRadians(-10), 0)
