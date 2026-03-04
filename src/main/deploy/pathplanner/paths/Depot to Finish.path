@@ -52,7 +52,7 @@
   "pointTowardsZones": [],
   "eventMarkers": [
     {
-      "name": "Hub Shot Running",
+      "name": "Shooter Running",
       "waypointRelativePos": 0.0,
       "endWaypointRelativePos": 9.0,
       "command": null

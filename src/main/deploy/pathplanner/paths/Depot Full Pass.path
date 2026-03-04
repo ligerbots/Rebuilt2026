@@ -202,7 +202,7 @@
   "pointTowardsZones": [],
   "eventMarkers": [
     {
-      "name": "Hub Shot Running",
+      "name": "Shooter Running",
       "waypointRelativePos": 0.0,
       "endWaypointRelativePos": 0.6,
       "command": null
@@ -214,13 +214,13 @@
       "command": null
     },
     {
-      "name": "Passing Shot Running",
+      "name": "Shooter Running",
       "waypointRelativePos": 1.7856079404466416,
       "endWaypointRelativePos": 2.397022332506207,
       "command": null
     },
     {
-      "name": "Passing Shot Running",
+      "name": "Shooter Running",
       "waypointRelativePos": 2.5776674937965174,
       "endWaypointRelativePos": 3.3558312655086855,
       "command": null
@@ -232,7 +232,7 @@
       "command": null
     },
     {
-      "name": "Hub Shot Running",
+      "name": "Shooter Running",
       "waypointRelativePos": 6.273945409429237,
       "endWaypointRelativePos": 7.0,
       "command": null

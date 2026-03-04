@@ -195,7 +195,7 @@
       "command": null
     },
     {
-      "name": "Hub Shot Running",
+      "name": "Shooter Running",
       "waypointRelativePos": 1.1738648947951413,
       "endWaypointRelativePos": 1.9490586932447387,
       "command": null
@@ -207,7 +207,7 @@
       "command": null
     },
     {
-      "name": "Hub Shot Running",
+      "name": "Shooter Running",
       "waypointRelativePos": 4.14,
       "endWaypointRelativePos": 5.395348837209303,
       "command": null
