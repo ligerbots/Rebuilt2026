@@ -109,6 +109,14 @@ public class RobotContainerCompBot extends RobotContainer {
                 "Depot Double Blitz"
         ));
 
+        m_chosenAutoPaths.addOption("Orbit Auto First Cut", List.of(
+            // "Depot Full Pass Blitz"
+            2.0,
+            "Orbit Auto Step 1",
+            "Orbit Auto Step 2",
+            2.0,
+            "Orbit Auto Step 3"));
+
         m_chosenAutoPaths.addOption("SnowBlow // Depot Full Pass Blitz", List.of(
                 // "Depot Full Pass Blitz"
                 "Trench Start to Center Middle",
