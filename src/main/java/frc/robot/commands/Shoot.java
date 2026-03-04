@@ -166,7 +166,9 @@ public class Shoot extends Command {
         double targetDist = targetVector.getNorm();
         double idealHorizontalSpeed = targetDist / TRAVEL_TIME_SECONDS;
 
-        Translation2d shotVector = targetVector.div(targetDist).times(idealHorizontalSpeed).minus(turretVelVector).times(TRAVEL_TIME_SECONDS);
+        Translation2d TargetVelVector = targetVector.div(targetDist).times(idealHorizontalSpeed);
+        Translation2d shotVector = TargetVelVector.minus(turretVelVector).times(TRAVEL_TIME_SECONDS);
+        
         return shotVector;
     }
 
