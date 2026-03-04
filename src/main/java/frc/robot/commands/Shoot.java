@@ -71,7 +71,7 @@ public class Shoot extends Command {
         // Translation2d translationToTarget = Turret.getTranslationToGoal(robotPose, target);
 
         ShootValue shotValue;
-        double shotDistance = 0;
+        double shotDistance = shotVector.getNorm();
         if (m_shotType == ShotType.TEST) {
             shotValue = testShotValue();
         } else {
