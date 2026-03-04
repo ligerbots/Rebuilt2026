@@ -151,23 +151,26 @@ public class Shoot extends Command {
 
         Pose2d futurePose = new Pose2d(
             currentPose.getTranslation().plus(robotVelVector.times(LATENCY_SECONDS)),
-            currentPose.getRotation().plus(Rotation2d.fromRadians(speedInformation.omegaRadiansPerSecond*LATENCY_SECONDS))
+            currentPose.getRotation().plus(Rotation2d.fromRadians(speedInformation.omegaRadiansPerSecond * LATENCY_SECONDS))
         );
 
-        // Rotational Velocity Calculator
-        double turretVel = speedInformation.omegaRadiansPerSecond*(Turret.TURRET_OFFSET.getNorm());
-        Rotation2d tangentVector = futurePose.getRotation().plus(new Rotation2d(Math.PI/2)).plus(Turret.TURRET_OFFSET.getAngle());
-        double turretVxMetersPerSecond = turretVel*tangentVector.getCos();
-        double turretVyMetersPerSecond = turretVel*tangentVector.getSin();
+        // Centripetal Velocity Calculator
+        // This is the speed of the turret caused by the robot rotating
+        double turretCentripetalSpeed = speedInformation.omegaRadiansPerSecond * Turret.TURRET_OFFSET.getNorm();
+        // net field direction of the "centripetal" velocity
+        Rotation2d turretCentripetalDirection = futurePose.getRotation().plus(Rotation2d.kCCW_90deg).plus(Turret.TURRET_OFFSET.getAngle());
+        // centripetal velocity vector (velocity of turret around the center of the robot)
+        Translation2d centripetalVelocity = new Translation2d(turretCentripetalSpeed, turretCentripetalDirection);
 
-        Translation2d turretVelVector = new Translation2d((speedInformation.vxMetersPerSecond+turretVxMetersPerSecond), (speedInformation.vyMetersPerSecond+turretVyMetersPerSecond));
+        // net velocity of the turret: velocity of the robot's center, plus centripetal velocity around the center
+        Translation2d turretVelTotal = robotVelVector.plus(centripetalVelocity);
         
         Translation2d targetVector = Turret.getTranslationToGoal(futurePose, target);
         double targetDist = targetVector.getNorm();
         double idealHorizontalSpeed = targetDist / TRAVEL_TIME_SECONDS;
 
-        Translation2d TargetVelVector = targetVector.div(targetDist).times(idealHorizontalSpeed);
-        Translation2d shotVector = TargetVelVector.minus(turretVelVector).times(TRAVEL_TIME_SECONDS);
+        Translation2d targetVelVector = targetVector.div(targetDist).times(idealHorizontalSpeed);
+        Translation2d shotVector = targetVelVector.minus(turretVelTotal).times(TRAVEL_TIME_SECONDS);
         
         return shotVector;
     }
