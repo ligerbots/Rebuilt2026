@@ -107,6 +107,11 @@ public class RobotContainerCompBot extends RobotContainer {
                 "Depot Double Blitz"
         });
 
+
+        m_chosenAutoPaths.addOption("Test Shooting While Rotating" , new String[] {
+                "Test Shooting While Rotating"
+        });
+
         m_chosenAutoPaths.addOption("SnowBlow // Depot Full Pass Blitz", new String[] {
                 "Depot Full Pass Blitz"
         });
