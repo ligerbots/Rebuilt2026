@@ -115,7 +115,10 @@ public class RobotContainerCompBot extends RobotContainer {
             "Orbit Auto Step 1",
             "Orbit Auto Step 2",
             2.0,
-            "Orbit Auto Step 3"));
+            "Orbit Auto Step 3",
+            "Orbit Auto Step 4",
+            2.0
+            ));
 
         m_chosenAutoPaths.addOption("SnowBlow // Depot Full Pass Blitz", List.of(
                 // "Depot Full Pass Blitz"

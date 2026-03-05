@@ -17,9 +17,27 @@
           }
         },
         {
+          "type": "wait",
+          "data": {
+            "waitTime": 2.0
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "Orbit Auto Step 3"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Orbit Auto Step 4"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 2.0
           }
         }
       ]
