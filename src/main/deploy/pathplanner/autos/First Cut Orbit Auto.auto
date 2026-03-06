@@ -39,6 +39,12 @@
           "data": {
             "waitTime": 2.0
           }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Orbit Auto Step 5 trench to outpost"
+          }
         }
       ]
     }
