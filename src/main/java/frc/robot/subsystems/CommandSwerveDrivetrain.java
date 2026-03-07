@@ -338,8 +338,13 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         return getState().Pose;
     }
 
-    public ChassisSpeeds getSpeeds() {
+    public ChassisSpeeds getRobotCentricSpeeds() {
         return getState().Speeds;
+    }
+
+    public ChassisSpeeds getFieldCentricSpeeds() {
+        SwerveDriveState state = getState();
+        return ChassisSpeeds.fromRobotRelativeSpeeds(state.Speeds, state.Pose.getRotation());
     }
 
     /**
