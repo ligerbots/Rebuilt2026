@@ -107,6 +107,8 @@ public class RobotContainerCompBot extends RobotContainer {
     private void configureAutos() {
 
         // assign the Shoot button that is used during Autos
+        // used only when shooting directly in the command
+        // not used by PathPlanner triggers
         m_virtualShootButton.whileTrue(getShootCommand());
 
         m_chosenAutoPaths.setDefaultOption("Out-Back Out-Back // Depot Double Blitz", List.of(
