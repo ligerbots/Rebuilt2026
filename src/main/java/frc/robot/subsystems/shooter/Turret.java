@@ -71,6 +71,8 @@ public class Turret extends SubsystemBase {
     
     private Field2d m_field;
 
+    private final MotionMagicVoltage m_positionControl = new MotionMagicVoltage(0);
+
     /** Creates a new Turret. */
     public Turret(Field2d field) {
         // Field is used for plotting the heading
@@ -106,8 +108,24 @@ public class Turret extends SubsystemBase {
         // double zeroPos = 0.0;
         double zeroPos = getCRTAngle().getRotations() * TURRET_GEAR_RATIO;
         m_turretMotor.setPosition(zeroPos);
+
+        // NOTE: this must be done after zeroing the turret
+        // We set the updates from the ThroughBores to be pretty slow
+        if (Constants.OPTIMIZE_CAN) {
+            optimizeCAN();
+        }
     }
     
+    private void optimizeCAN() {
+        // For the turret, we want the position every loop
+        m_turretMotor.getPosition().setUpdateFrequency(Constants.ROBOT_FREQUENCY_HZ);
+        m_turretMotor.optimizeBusUtilization();
+
+        // for the throughbores, we don't need frequent values after init
+        m_thruboreSmall.optimizeBusUtilization();
+        m_thruboreLarge.optimizeBusUtilization();
+    }
+
     // This method will be called once per scheduler run
     @Override
     public void periodic() {    
@@ -144,7 +162,8 @@ public class Turret extends SubsystemBase {
         // for now, just limit angle to not go into the dead zone
         m_goalDeg = limitRotationDeg(m_shootAngle);
 
-        m_turretMotor.setControl(new MotionMagicVoltage(m_goalDeg/360.0 * TURRET_GEAR_RATIO));
+        m_positionControl.Position = m_goalDeg/360.0 * TURRET_GEAR_RATIO;
+        m_turretMotor.setControl(m_positionControl);
     }
     
     // get angle of turret
