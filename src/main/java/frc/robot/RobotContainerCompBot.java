@@ -80,7 +80,6 @@ public class RobotContainerCompBot extends RobotContainer {
     private final DataLogger m_dataLogger = new DataLogger();
 
     private final SendableChooser<String> m_chosenFieldSide = new SendableChooser<>();
-    // private final SendableChooser<String[]> m_chosenAutoPaths = new SendableChooser<>();
     private final SendableChooser<List<Object>> m_chosenAutoPaths = new SendableChooser<>();
 
     // private double m_preloadShootTime = 0.0; // seconds to shoot preloaded balls before starting auto paths
@@ -286,7 +285,6 @@ public class RobotContainerCompBot extends RobotContainer {
             m_autoSelectionCode = currentAutoSelectionCode;
             m_autoCommand = CoreAuto.getInstance(m_chosenAutoPaths.getSelected(), m_drivetrain,
                     m_chosenFieldSide.getSelected().equals("Outpost Side"), m_virtualShootButton);
-            // m_autoCommand = new PathPlannerAuto(coreCommand);
         }
         return m_autoCommand;
     }

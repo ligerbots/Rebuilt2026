@@ -19,7 +19,6 @@ public class CoreAuto extends AutoCommandInterface {
 
     protected Pose2d m_initPose;
     private CommandSwerveDrivetrain m_driveTrain;
-    // private PathPlannerAuto m_pathPlannerAuto;
 
     PathConstraints constraints = new PathConstraints(
             4.0, 2.0,
@@ -48,8 +47,7 @@ public class CoreAuto extends AutoCommandInterface {
             for (Object step : pathSteps) {
                 if (step instanceof Number) {
                     addCommands(shootForNSeconds(((Number) step).doubleValue(), virtualShootButton));
-                } else 
-                if (step instanceof String) {
+                } else if (step instanceof String) {
                     PathPlannerPath path = PathPlannerPath.fromPathFile((String) step);
                     if (isOutpostSide) {
                         path = path.mirrorPath();
