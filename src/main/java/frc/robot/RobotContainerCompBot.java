@@ -155,14 +155,14 @@ public class RobotContainerCompBot extends RobotContainer {
                         .alongWith(
                             m_hopper.pulseCommand(),
                             new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningShooter", true)));
-        new EventTrigger("Hub Shot Running").whileTrue(autoShootCommand);
-        new EventTrigger("Hub Shot Running").onFalse(new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningShooter", false)));
+        new EventTrigger("Shooter Running").whileTrue(autoShootCommand);
+        new EventTrigger("Shooter Running").onFalse(new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningShooter", false)));
 
-        new EventTrigger("Passing Shot Running").whileTrue(new Shoot(m_shooter, m_turret, m_shooterFeeder, m_drivetrain::getPose, m_drivetrain::getSpeeds, ShotType.PASS)
-                        .alongWith(
-                            m_hopper.pulseCommand(),
-                            new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningShooter", true))));
-        new EventTrigger("Passing Shot Running").onFalse(new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningShooter", false)));
+        // new EventTrigger("Passing Shot Running").whileTrue(new Shoot(m_shooter, m_turret, m_shooterFeeder, m_drivetrain::getPose, m_drivetrain::getSpeeds, ShotType.PASS)
+        //                 .alongWith(
+        //                     m_hopper.pulseCommand(),
+        //                     new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningShooter", true))));
+        // new EventTrigger("Passing Shot Running").onFalse(new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningShooter", false)));
      }
 
     private void configureBindings() {
@@ -265,13 +265,14 @@ public class RobotContainerCompBot extends RobotContainer {
             m_chosenFieldSide.getSelected(),
             preloadShootTime,
             DriverStation.getAlliance());
-    
-            InternalButton virtualShootButton = new InternalButton();
-            virtualShootButton.whileTrue(getShootCommand());
 
         // Only call constructor if the auto selection inputs have changed
         if (m_autoSelectionCode != currentAutoSelectionCode) {
             m_autoSelectionCode = currentAutoSelectionCode;
+
+            InternalButton virtualShootButton = new InternalButton();
+            virtualShootButton.whileTrue(getShootCommand());
+
             m_autoCommand = CoreAuto.getInstance(m_chosenAutoPaths.getSelected(), m_drivetrain,
                     m_chosenFieldSide.getSelected().equals("Outpost Side"), preloadShootTime, virtualShootButton);
             // m_autoCommand = new PathPlannerAuto(coreCommand);

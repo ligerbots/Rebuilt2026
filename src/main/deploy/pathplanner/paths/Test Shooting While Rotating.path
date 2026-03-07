@@ -192,7 +192,7 @@
       "minWaypointRelativePos": 1.1295681063122962,
       "maxWaypointRelativePos": 1.8161683277962544,
       "constraints": {
-        "maxVelocity": 3.0,
+        "maxVelocity": 0.25,
         "maxAcceleration": 3.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0,
@@ -205,7 +205,7 @@
       "minWaypointRelativePos": 3.782945736434118,
       "maxWaypointRelativePos": 6.2790697674418965,
       "constraints": {
-        "maxVelocity": 3.0,
+        "maxVelocity": 0.5,
         "maxAcceleration": 3.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0,
@@ -218,7 +218,7 @@
       "minWaypointRelativePos": 6.820843672456593,
       "maxWaypointRelativePos": 7.884863523573185,
       "constraints": {
-        "maxVelocity": 0.5,
+        "maxVelocity": 0.25,
         "maxAcceleration": 3.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0,
@@ -236,13 +236,13 @@
       "command": null
     },
     {
-      "name": "Passing Shot Running",
+      "name": "Shooter Running",
       "waypointRelativePos": 1.1738648947951413,
       "endWaypointRelativePos": 1.9490586932447387,
       "command": null
     },
     {
-      "name": "Hub Shot Running",
+      "name": "Shooter Running",
       "waypointRelativePos": 2.6193548387096848,
       "endWaypointRelativePos": 7.0,
       "command": null
@@ -282,7 +282,7 @@
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -0.5920158690342645
+    "rotation": -4.110025002718011
   },
   "useDefaultConstraints": false
 }
