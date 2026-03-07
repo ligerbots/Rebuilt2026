@@ -44,7 +44,7 @@ public class IntakePivot extends SubsystemBase {
 
     private Rotation2d m_goal = Rotation2d.kZero;
 
-    private final TalonFX m_pivotMotor;
+    private final TalonFX m_motor;
     private final MotionMagicVoltage m_positionControl = new MotionMagicVoltage(0);
     private final VoltageOut m_stopControl = new VoltageOut(0);
 
@@ -63,7 +63,7 @@ public class IntakePivot extends SubsystemBase {
 
     /** Creates a new IntakePivot. */
     public IntakePivot() {
-        m_pivotMotor = new TalonFX(Constants.INTAKE_DEPLOY_ID);
+        m_motor = new TalonFX(Constants.INTAKE_DEPLOY_ID);
         
         TalonFXConfiguration talonFXConfigs = new TalonFXConfiguration();
         
@@ -85,18 +85,28 @@ public class IntakePivot extends SubsystemBase {
         magicConfigs.MotionMagicCruiseVelocity = MAX_VEL_ROT_PER_SEC;
         magicConfigs.MotionMagicAcceleration = MAX_ACC_ROT_PER_SEC2;
         
-        m_pivotMotor.getConfigurator().apply(talonFXConfigs);
-        m_pivotMotor.setPosition(0);
-        m_pivotMotor.setNeutralMode(NeutralModeValue.Coast);
+        m_motor.getConfigurator().apply(talonFXConfigs);
+        m_motor.setPosition(0);
+        m_motor.setNeutralMode(NeutralModeValue.Coast);
+
+        if (Constants.OPTIMIZE_CAN) {
+            optimizeCAN();
+        }
     }
-    
+
+    private void optimizeCAN() {
+        m_motor.getPosition().setUpdateFrequency(Constants.ROBOT_FREQUENCY_HZ);
+        m_motor.getMotorVoltage().setUpdateFrequency(Constants.ROBOT_FREQUENCY_HZ);
+        m_motor.optimizeBusUtilization();
+    }
+
     @Override
     public void periodic() {
         // This method will be called once per scheduler run
         SmartDashboard.putNumber("intake/deployGoal", m_goal.getDegrees());
         SmartDashboard.putNumber("intake/deployAngle", getAngle().getDegrees());
-        SmartDashboard.putNumber("intake/supplyCurrent", m_pivotMotor.getSupplyCurrent().getValueAsDouble());
-        SmartDashboard.putNumber("intake/statorCurrent", m_pivotMotor.getStatorCurrent().getValueAsDouble());
+        SmartDashboard.putNumber("intake/supplyCurrent", m_motor.getSupplyCurrent().getValueAsDouble());
+        SmartDashboard.putNumber("intake/statorCurrent", m_motor.getStatorCurrent().getValueAsDouble());
         SmartDashboard.putBoolean("intake/onTarget", onTarget());
         // SmartDashboard.putNumber("intake/rawMotorAngle",  m_pivotMotor.getPosition().getValueAsDouble());
     }
@@ -111,17 +121,18 @@ public class IntakePivot extends SubsystemBase {
 
     private void setAngle(Rotation2d angle, SlotNumber slot) {
         m_goal = angle;
+
         m_positionControl.Position = m_goal.getRotations() / GEAR_RATIO;
         m_positionControl.Slot = slot.getValue();
-        m_pivotMotor.setControl(m_positionControl);
+        m_motor.setControl(m_positionControl);
     }
     
     public Rotation2d getAngle(){
-        return Rotation2d.fromRotations(m_pivotMotor.getPosition().getValueAsDouble() * GEAR_RATIO);
+        return Rotation2d.fromRotations(m_motor.getPosition().getValueAsDouble() * GEAR_RATIO);
     }
 
     public void stop() {
-        m_pivotMotor.setControl(m_stopControl);
+        m_motor.setControl(m_stopControl);
     }
     
     public boolean onTarget() {
