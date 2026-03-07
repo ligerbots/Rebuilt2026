@@ -73,6 +73,8 @@ public class RobotContainerCompBot extends RobotContainer {
     private final Intake m_intake = new Intake();
     private final Hopper m_hopper = new Hopper();
 
+    private final InternalButton m_virtualShootButton = new InternalButton();
+
     // not used directly, but the periodic() method logs data
     @SuppressWarnings("unused")
     private final DataLogger m_dataLogger = new DataLogger();
@@ -104,6 +106,8 @@ public class RobotContainerCompBot extends RobotContainer {
     }
 
     private void configureAutos() {
+
+        m_virtualShootButton.whileTrue(getShootCommand());
 
         m_chosenAutoPaths.setDefaultOption("Out-Back Out-Back // Depot Double Blitz", List.of(
                 "Depot Double Blitz"
@@ -276,15 +280,12 @@ public class RobotContainerCompBot extends RobotContainer {
             m_chosenFieldSide.getSelected(),
             // preloadShootTime,
             DriverStation.getAlliance());
-    
-            InternalButton virtualShootButton = new InternalButton();
-            virtualShootButton.whileTrue(getShootCommand());
 
         // Only call constructor if the auto selection inputs have changed
         if (m_autoSelectionCode != currentAutoSelectionCode) {
             m_autoSelectionCode = currentAutoSelectionCode;
             m_autoCommand = CoreAuto.getInstance(m_chosenAutoPaths.getSelected(), m_drivetrain,
-                    m_chosenFieldSide.getSelected().equals("Outpost Side"), virtualShootButton);
+                    m_chosenFieldSide.getSelected().equals("Outpost Side"), m_virtualShootButton);
             // m_autoCommand = new PathPlannerAuto(coreCommand);
         }
         return m_autoCommand;
