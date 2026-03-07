@@ -149,7 +149,7 @@ public class Shoot extends Command {
         ChassisSpeeds speedInformation = m_speedsSupplier.get();
         Translation2d robotVelVector = new Translation2d(speedInformation.vxMetersPerSecond, speedInformation.vyMetersPerSecond);
 
-        Pose2d futurePose = new Pose2d(
+        Pose2d futureRobotPose = new Pose2d(
             currentPose.getTranslation().plus(robotVelVector.times(LATENCY_SECONDS)),
             currentPose.getRotation().plus(Rotation2d.fromRadians(speedInformation.omegaRadiansPerSecond * LATENCY_SECONDS))
         );
@@ -158,21 +158,30 @@ public class Shoot extends Command {
         // This is the speed of the turret caused by the robot rotating
         double turretCentripetalSpeed = speedInformation.omegaRadiansPerSecond * Turret.TURRET_OFFSET.getNorm();
         // net field direction of the "centripetal" velocity
-        Rotation2d turretCentripetalDirection = futurePose.getRotation().plus(Rotation2d.kCCW_90deg).plus(Turret.TURRET_OFFSET.getAngle());
+        Rotation2d turretCentripetalDirection = futureRobotPose.getRotation().plus(Rotation2d.kCCW_90deg).plus(Turret.TURRET_OFFSET.getAngle());
         // centripetal velocity vector (velocity of turret around the center of the robot)
         Translation2d centripetalVelocity = new Translation2d(turretCentripetalSpeed, turretCentripetalDirection);
 
         // net velocity of the turret: velocity of the robot's center, plus centripetal velocity around the center
         Translation2d turretVelTotal = robotVelVector.plus(centripetalVelocity);
-        
-        Translation2d targetVector = Turret.getTranslationToGoal(futurePose, target);
-        double targetDist = targetVector.getNorm();
-        double idealHorizontalSpeed = targetDist / TRAVEL_TIME_SECONDS;
 
-        Translation2d targetVelVector = targetVector.div(targetDist).times(idealHorizontalSpeed);
-        Translation2d shotVector = targetVelVector.minus(turretVelTotal).times(TRAVEL_TIME_SECONDS);
+        double timeOfFlight;
+        Pose2d lookaheadPose = futureRobotPose;
+        // double lookaheadLauncherToTargetDistance = Turret.getTranslationToGoal(lookaheadPose, target).getNorm();
+
+        for (int i = 0; i < 5; i++) {
+            Translation2d turretToTarget = Turret.getTranslationToGoal(lookaheadPose, target);
+            timeOfFlight = m_shooter.getShootValue(turretToTarget.getNorm(), m_shotType).timeOfFlight;
+
+            Translation2d offset = turretVelTotal.times(timeOfFlight);
+            lookaheadPose = new Pose2d(
+                futureRobotPose.getTranslation().plus(offset),
+                futureRobotPose.getRotation()
+            );
+        }
         
-        return shotVector;
+        Translation2d targetVector = Turret.getTranslationToGoal(lookaheadPose, target);
+        return targetVector;
     }
 
     private ShootValue testShotValue() {
@@ -181,7 +190,7 @@ public class Shoot extends Command {
                 SmartDashboard.getNumber("shooterFeeder/testRPM", 0.0),
                 Rotation2d.fromDegrees(SmartDashboard.getNumber("hood/testAngle", 0.0)),
                 SmartDashboard.getNumber("shooter/testTimeOfFlight", 0.0));
-                
+
                 
     }
 }
