@@ -205,7 +205,7 @@
       "minWaypointRelativePos": 3.782945736434118,
       "maxWaypointRelativePos": 6.2790697674418965,
       "constraints": {
-        "maxVelocity": 0.5,
+        "maxVelocity": 0.85,
         "maxAcceleration": 3.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0,
@@ -282,7 +282,7 @@
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -4.110025002718011
+    "rotation": -0.5920158690342645
   },
   "useDefaultConstraints": false
 }

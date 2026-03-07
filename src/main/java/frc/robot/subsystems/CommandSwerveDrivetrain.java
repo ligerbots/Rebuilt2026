@@ -36,7 +36,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-
+import frc.robot.Constants;
 import frc.robot.FieldConstants;
 import frc.robot.generated.TunerConstantsTestBot.TunerSwerveDrivetrain;
 import frc.robot.subsystems.shooter.Turret;
@@ -157,6 +157,10 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         }
 
         m_aprilTagVision = aprilTagVision;
+
+        if (Constants.OPTIMIZE_CAN) {
+            optimizeCAN();
+        }
     }
 
     // /**
@@ -222,6 +226,22 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     //     m_aprilTagVision = aprilTagVision;
     // }
 
+    private void optimizeCAN() {
+        // According to CTRE Support, the variables needed for odometry have
+        // already been set with the appropriate update frequency,
+        // so only need to do the optimizeBus call
+
+        // Optimize all the motors and CANcoders
+        for (var module : this.getModules()) {
+            module.getDriveMotor().optimizeBusUtilization();
+            module.getSteerMotor().optimizeBusUtilization();
+            module.getEncoder().optimizeBusUtilization();
+        }
+
+        // Also, do the Pigeon
+        getPigeon2().optimizeBusUtilization();
+    }
+    
     /**
      * Returns a command that applies the specified control request to this swerve drivetrain.
      *

@@ -8,6 +8,7 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
+import java.util.List;
 import java.util.Objects;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
@@ -21,7 +22,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -80,7 +80,8 @@ public class RobotContainerCompBot extends RobotContainer {
     private final DataLogger m_dataLogger = new DataLogger();
 
     private final SendableChooser<String> m_chosenFieldSide = new SendableChooser<>();
-    private final SendableChooser<String[]> m_chosenAutoPaths = new SendableChooser<>();
+    private final SendableChooser<List<Object>> m_chosenAutoPaths = new SendableChooser<>();
+
     // private double m_preloadShootTime = 0.0; // seconds to shoot preloaded balls before starting auto paths
 
     private int m_autoSelectionCode; 
@@ -105,39 +106,59 @@ public class RobotContainerCompBot extends RobotContainer {
 
     private void configureAutos() {
 
+        // assign the Shoot button that is used during Autos
+        // used only when shooting directly in the command
+        // not used by PathPlanner triggers
         m_virtualShootButton.whileTrue(getShootCommand());
 
-        m_chosenAutoPaths.setDefaultOption("Out-Back Out-Back // Depot Double Blitz", new String[] {
+        m_chosenAutoPaths.setDefaultOption("Out-Back Out-Back // Depot Double Blitz", List.of(
                 "Depot Double Blitz"
-        });
+        ));
 
+        m_chosenAutoPaths.addOption("Orbit Auto First Cut", List.of(
+            1.7, // shoot preloaded balls for 1.7 seconds, then start auto paths
+            "Orbit Auto Step 1",
+            "Orbit Auto Step 2",
+            2.0, // shoot for 2 seconds
+            "Orbit Auto Step 3",
+            "Orbit Auto Step 4",
+            2.0, // shoot for 2 seconds
+            "Orbit Auto Step 5 trench to outpost",
+            5.0 // wait for 5 seconds at outpost to intake and shoot balls
+            ));
 
-        m_chosenAutoPaths.addOption("Test Shooting While Rotating" , new String[] {
-                "Test Shooting While Rotating"
-        });
+        m_chosenAutoPaths.addOption("SnowBlow // Depot Full Pass Blitz", List.of(
+                // "Depot Full Pass Blitz"
+                "Trench Start to Center Middle",
+                "Center Middle to Far Trench"));
 
-        m_chosenAutoPaths.addOption("SnowBlow // Depot Full Pass Blitz", new String[] {
-                "Depot Full Pass Blitz"
-        });
-
-        m_chosenAutoPaths.addOption("Out-Back Depot // Depot Single Pass Blitz", new String[] {
+        m_chosenAutoPaths.addOption("Out-Back Depot // Depot Single Pass Blitz", List.of(   
                 "Depot Single Pass Blitz"
-        });
+        ));
 
-        m_chosenAutoPaths.addOption("Depot Single Pass", new String[] {
+        m_chosenAutoPaths.addOption("Depot Single Pass", List.of(
                 "Depot Single Pass"
-        });
+        ));
 
-        m_chosenAutoPaths.addOption("Depot Simple", new String[] {
+        m_chosenAutoPaths.addOption("Depot Simple", List.of(
                 "Depot Simple"
-        });
+        ));
+        m_chosenAutoPaths.addOption("Test Shooting While Rotating", List.of(
+                "Test Shooting While Rotating"
+        ));
+
+        m_chosenAutoPaths.addOption("Depot Single Pass Multipart", List.of(
+                "Trench Start to Center Middle",
+                "Center Middle to Depot",
+                "Depot to Finish"
+        ));
 
         SmartDashboard.putData("Auto Choice", m_chosenAutoPaths);
 
         m_chosenFieldSide.setDefaultOption("Depot Side", "Depot Side");
         m_chosenFieldSide.addOption("Outpost Side", "Outpost Side");
         SmartDashboard.putData("Field Side", m_chosenFieldSide);
-        SmartDashboard.putNumber("Preload Shoot Time", 0.0);
+        // SmartDashboard.putNumber("Preload Shoot Time", 0.0);
 
         SmartDashboard.putBoolean("autoStatus/runningIntake", false);
         SmartDashboard.putBoolean("autoStatus/runningShooter", false);
@@ -146,20 +167,15 @@ public class RobotContainerCompBot extends RobotContainer {
     }
 
     public Command getShootCommand() {
-        return new Shoot(m_shooter, m_turret, m_shooterFeeder, m_drivetrain::getPose, m_drivetrain::getSpeeds, ShotType.AUTO)
-                        .alongWith(m_hopper.pulseCommand());
+        return new Shoot(m_shooter, m_turret, m_shooterFeeder, m_drivetrain::getPose, ShotType.AUTO)
+                        .alongWith(m_hopper.pulseCommand(), new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningShooter", true)));
     }
     
     private void configureAutoEventTriggers() {
         new EventTrigger("Run Intake").onTrue(m_intake.deployAndRollCommand().alongWith(new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningIntake", true))));
         new EventTrigger("Stop Intake").onTrue(m_intake.stowCommand().alongWith(new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningIntake", false))));
 
-        // TODO: should need only 1 AUTO shot trigger
-        ParallelCommandGroup autoShootCommand = new Shoot(m_shooter, m_turret, m_shooterFeeder, m_drivetrain::getPose, m_drivetrain::getSpeeds, ShotType.HUB)
-                        .alongWith(
-                            m_hopper.pulseCommand(),
-                            new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningShooter", true)));
-        new EventTrigger("Shooter Running").whileTrue(autoShootCommand);
+        new EventTrigger("Shooter Running").whileTrue(getShootCommand());
         new EventTrigger("Shooter Running").onFalse(new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningShooter", false)));
 
      }
@@ -258,11 +274,11 @@ public class RobotContainerCompBot extends RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        double preloadShootTime = SmartDashboard.getNumber("Preload Shoot Time", 0.0);
+        // double preloadShootTime = SmartDashboard.getNumber("Preload Shoot Time", 0.0);
         int currentAutoSelectionCode = Objects.hash(
             m_chosenAutoPaths.getSelected(),
             m_chosenFieldSide.getSelected(),
-            preloadShootTime,
+            // preloadShootTime,
             DriverStation.getAlliance());
 
         // Only call constructor if the auto selection inputs have changed
@@ -270,8 +286,7 @@ public class RobotContainerCompBot extends RobotContainer {
             m_autoSelectionCode = currentAutoSelectionCode;
 
             m_autoCommand = CoreAuto.getInstance(m_chosenAutoPaths.getSelected(), m_drivetrain,
-                    m_chosenFieldSide.getSelected().equals("Outpost Side"), preloadShootTime, m_virtualShootButton);
-            // m_autoCommand = new PathPlannerAuto(coreCommand);
+                    m_chosenFieldSide.getSelected().equals("Outpost Side"), m_virtualShootButton);
         }
         return m_autoCommand;
     }
