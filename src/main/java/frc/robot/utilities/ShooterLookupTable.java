@@ -37,17 +37,20 @@ public class ShooterLookupTable {
     public double flyRPM;
     public double feedRPM;
     public Rotation2d hoodAngle;
+    public double timeOfFlight;
 
     /**
      * Creates a new ShootValue.
      * 
      * @param flyRPM       The shooter RPM
      * @param hoodAngle The hood angle as a Rotation2d object
+     * @param timeOfFlight The time of flight for the shot
      */
-    public ShootValue(double flyRPM, double feedRPM, Rotation2d hoodAngle) {
+    public ShootValue(double flyRPM, double feedRPM, Rotation2d hoodAngle, double timeOfFlight) {
       this.flyRPM = flyRPM;
       this.feedRPM = feedRPM;
       this.hoodAngle = hoodAngle;
+      this.timeOfFlight = timeOfFlight;
     }
   }
 
@@ -65,7 +68,8 @@ public class ShooterLookupTable {
 
     // Interpolate hood angle using Rotation2d arithmetic: start + (end - start) * ratio
     Rotation2d interpolatedHoodAngle = start.hoodAngle.plus(end.hoodAngle.minus(start.hoodAngle).times(ratio));
-    return new ShootValue(interpolatedFlyRpm, feedRPM, interpolatedHoodAngle);
+    double interpolatedTimeOfFlight = start.timeOfFlight + (end.timeOfFlight - start.timeOfFlight) * ratio;
+    return new ShootValue(interpolatedFlyRpm, feedRPM, interpolatedHoodAngle, interpolatedTimeOfFlight);
   }
 
   /**
@@ -109,6 +113,7 @@ public class ShooterLookupTable {
             new File(
                 Filesystem.getDeployDirectory(), LOOKUP_TABLE_DIRECTORY + fileName)))) {
       TreeMap<Double, ShootValue> parsedTable = new TreeMap<>();
+
       String line;
       
       while ((line = br.readLine()) != null) {
@@ -134,7 +139,7 @@ public class ShooterLookupTable {
           double distanceMeters = Units.inchesToMeters(distanceInches);
           Rotation2d hoodAngle = Rotation2d.fromDegrees(hoodAngleDegrees);
           
-          parsedTable.put(distanceMeters, new ShootValue(flyRPM, feedRPM, hoodAngle));
+          parsedTable.put(distanceMeters, new ShootValue(flyRPM, feedRPM, hoodAngle, timeOfFlight));
         } catch (NumberFormatException e) {
           // Skip entries with invalid number formats
           continue;

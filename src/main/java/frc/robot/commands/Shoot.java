@@ -179,6 +179,9 @@ public class Shoot extends Command {
         return new ShootValue(
                 SmartDashboard.getNumber("flywheel/testRPM", 0.0),
                 SmartDashboard.getNumber("shooterFeeder/testRPM", 0.0),
-                Rotation2d.fromDegrees(SmartDashboard.getNumber("hood/testAngle", 0.0)));
+                Rotation2d.fromDegrees(SmartDashboard.getNumber("hood/testAngle", 0.0)),
+                SmartDashboard.getNumber("shooter/testTimeOfFlight", 0.0));
+                
+                
     }
 }
