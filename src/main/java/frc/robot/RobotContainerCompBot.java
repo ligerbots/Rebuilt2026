@@ -73,6 +73,8 @@ public class RobotContainerCompBot extends RobotContainer {
     private final Intake m_intake = new Intake();
     private final Hopper m_hopper = new Hopper();
 
+    private final InternalButton m_virtualShootButton = new InternalButton();
+
     // not used directly, but the periodic() method logs data
     @SuppressWarnings("unused")
     private final DataLogger m_dataLogger = new DataLogger();
@@ -102,6 +104,8 @@ public class RobotContainerCompBot extends RobotContainer {
     }
 
     private void configureAutos() {
+
+        m_virtualShootButton.whileTrue(getShootCommand());
 
         m_chosenAutoPaths.setDefaultOption("Out-Back Out-Back // Depot Double Blitz", new String[] {
                 "Depot Double Blitz"
@@ -158,11 +162,6 @@ public class RobotContainerCompBot extends RobotContainer {
         new EventTrigger("Shooter Running").whileTrue(autoShootCommand);
         new EventTrigger("Shooter Running").onFalse(new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningShooter", false)));
 
-        // new EventTrigger("Passing Shot Running").whileTrue(new Shoot(m_shooter, m_turret, m_shooterFeeder, m_drivetrain::getPose, m_drivetrain::getSpeeds, ShotType.PASS)
-        //                 .alongWith(
-        //                     m_hopper.pulseCommand(),
-        //                     new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningShooter", true))));
-        // new EventTrigger("Passing Shot Running").onFalse(new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningShooter", false)));
      }
 
     private void configureBindings() {
