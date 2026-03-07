@@ -162,8 +162,8 @@ public class AprilTagVision {
                             new Rotation3d(0.0, Math.toRadians(-10), 0)
                                     .rotateBy(new Rotation3d(0, 0, Math.toRadians(90.0))))),
                     new Camera("ArducamRight", new Transform3d(
-                            new Translation3d(Units.inchesToMeters(-0.187), Units.inchesToMeters(-13.35),
-                                    Units.inchesToMeters(14.84)),
+                            new Translation3d(Units.inchesToMeters(-4.94), Units.inchesToMeters(-12.75),
+                                    Units.inchesToMeters(14.74)),
                             new Rotation3d(0.0, Math.toRadians(-10), 0)
                                     .rotateBy(new Rotation3d(0, 0, Math.toRadians(-90.0)))))
             };
