@@ -166,10 +166,9 @@ public class Shoot extends Command {
         Translation2d turretVelTotal = robotVelVector.plus(centripetalVelocity);
 
         Pose2d lookaheadPose = futureRobotPose;
-        // double lookaheadLauncherToTargetDistance = Turret.getTranslationToGoal(lookaheadPose, target).getNorm();
 
-         Translation2d targetVector = Turret.getTranslationToGoal(lookaheadPose, target);
-         double previousTargetDistance = 0;
+        Translation2d targetVector = Turret.getTranslationToGoal(lookaheadPose, target);
+        double previousTargetDistance = 0;
 
         for (int i = 0; i < 20; i++) {
             double targetDistance = targetVector.getNorm();
