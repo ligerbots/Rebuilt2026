@@ -165,22 +165,32 @@ public class Shoot extends Command {
         // net velocity of the turret: velocity of the robot's center, plus centripetal velocity around the center
         Translation2d turretVelTotal = robotVelVector.plus(centripetalVelocity);
 
-        double timeOfFlight;
         Pose2d lookaheadPose = futureRobotPose;
         // double lookaheadLauncherToTargetDistance = Turret.getTranslationToGoal(lookaheadPose, target).getNorm();
 
-        for (int i = 0; i < 5; i++) {
-            Translation2d turretToTarget = Turret.getTranslationToGoal(lookaheadPose, target);
-            timeOfFlight = m_shooter.getShootValue(turretToTarget.getNorm(), m_shotType).timeOfFlight;
+         Translation2d targetVector = Turret.getTranslationToGoal(lookaheadPose, target);
+         double previousTargetDistance = 0;
+
+        for (int i = 0; i < 20; i++) {
+            double targetDistance = targetVector.getNorm();
+            double timeOfFlight = m_shooter.getShootValue(targetDistance, m_shotType).timeOfFlight;
 
             Translation2d offset = turretVelTotal.times(timeOfFlight);
             lookaheadPose = new Pose2d(
                 futureRobotPose.getTranslation().plus(offset),
                 futureRobotPose.getRotation()
             );
+
+            targetVector = Turret.getTranslationToGoal(lookaheadPose, target);
+
+            if (Math.abs(targetDistance - previousTargetDistance) < 0.03) {
+                // if the target distance isn't changing much, we've converged enough
+                break;
+            }
+
+            previousTargetDistance = targetDistance;
         }
-        
-        Translation2d targetVector = Turret.getTranslationToGoal(lookaheadPose, target);
+       
         return targetVector;
     }
 
