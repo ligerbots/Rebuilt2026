@@ -168,19 +168,20 @@ public class Shoot extends Command {
         Pose2d lookaheadPose = futureRobotPose;
 
         Translation2d targetVector = Turret.getTranslationToGoal(lookaheadPose, target);
+        double targetDistance = targetVector.getNorm();
         double previousTargetDistance = 0;
 
         for (int i = 0; i < 20; i++) {
-            double targetDistance = targetVector.getNorm();
             double timeOfFlight = m_shooter.getShootValue(targetDistance, m_shotType).timeOfFlight;
-
             Translation2d offset = turretVelTotal.times(timeOfFlight);
+
             lookaheadPose = new Pose2d(
                 futureRobotPose.getTranslation().plus(offset),
                 futureRobotPose.getRotation()
             );
 
             targetVector = Turret.getTranslationToGoal(lookaheadPose, target);
+            targetDistance = targetVector.getNorm();
 
             if (Math.abs(targetDistance - previousTargetDistance) < 0.03) {
                 // if the target distance isn't changing much, we've converged enough
