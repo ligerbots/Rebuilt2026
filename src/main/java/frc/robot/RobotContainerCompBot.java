@@ -127,6 +127,10 @@ public class RobotContainerCompBot extends RobotContainer {
             5.0 // wait for 5 seconds at outpost to intake and shoot balls
             ));
 
+        m_chosenAutoPaths.addOption("Shoot While Moving", List.of(   
+                "Shoot While Moving"
+        ));
+
         m_chosenAutoPaths.addOption("SnowBlow // Depot Full Pass Blitz", List.of(
                 // "Depot Full Pass Blitz"
                 "Trench Start to Center Middle",
