@@ -113,15 +113,15 @@ public class RobotContainerCompBot extends RobotContainer {
         ));
 
         m_chosenAutoPaths.addOption("Orbit Auto First Cut", List.of(
-            // "Depot Full Pass Blitz"
-            2.0,
+            1.7, // shoot preloaded balls for 1.7 seconds, then start auto paths
             "Orbit Auto Step 1",
             "Orbit Auto Step 2",
             2.0,
             "Orbit Auto Step 3",
             "Orbit Auto Step 4",
             2.0,
-            "Orbit Auto Step 5 trench to outpost"
+            "Orbit Auto Step 5 trench to outpost",
+            5.0 // wait for 5 seconds at outpost to intake and shoot balls
             ));
 
         m_chosenAutoPaths.addOption("SnowBlow // Depot Full Pass Blitz", List.of(
