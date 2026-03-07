@@ -38,7 +38,7 @@ public class IntakePivot extends SubsystemBase {
     
     // STOW is public so Intake can handle the command
     public static final Rotation2d STOW_POSITION = Rotation2d.fromDegrees(-5.0);
-    private static final Rotation2d DEPLOY_POSITION = Rotation2d.fromDegrees(75.0);
+    private static final Rotation2d DEPLOY_POSITION = Rotation2d.fromDegrees(80.0);
 
     private static final Rotation2d PULSE_POSITION = Rotation2d.fromDegrees(10.0);
 
