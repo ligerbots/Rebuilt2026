@@ -8,6 +8,7 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
+import java.util.List;
 import java.util.Objects;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
@@ -118,17 +119,17 @@ public class RobotContainerTestBot extends RobotContainer {
     public Command getAutonomousCommand() {
         int currentAutoSelectionCode = Objects.hash(m_chosenFieldSide.getSelected(),
             DriverStation.getAlliance());
-            String[] pathFiles = {
+            List<Object> pathFiles = List.of(
                 "Start Bump to Fuel Begin",
                 "Fuel Begin to Fuel End With Events",
                 "Fuel End to Bump Finish With Events",
                 "Bump Finish to Climb A"
-            };
+            );
 
         // Only call constructor if the auto selection inputs have changed
         if (m_autoSelectionCode != currentAutoSelectionCode) {
             m_autoCommand = CoreAuto.getInstance(pathFiles, m_drivetrain,
-                    m_chosenFieldSide.getSelected().equals("Depot Side"), 0.0, null);
+                    m_chosenFieldSide.getSelected().equals("Depot Side"), null);
             m_autoSelectionCode = currentAutoSelectionCode;
         }
         return m_autoCommand;

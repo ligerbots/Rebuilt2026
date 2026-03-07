@@ -3,12 +3,12 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.560156626506024,
+        "x": 4.0,
         "y": 7.411662650602409
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.695760679332471,
+        "x": 5.135604052826444,
         "y": 7.381367323469796
       },
       "isLocked": false,
@@ -53,11 +53,11 @@
       },
       "prevControl": {
         "x": 7.79718195930075,
-        "y": 1.886687767774183
+        "y": 1.8866877677741831
       },
       "nextControl": {
         "x": 7.696279579160792,
-        "y": 1.396974882828227
+        "y": 1.3969748828282267
       },
       "isLocked": false,
       "linkedName": null
@@ -68,7 +68,7 @@
         "y": 0.691120481927711
       },
       "prevControl": {
-        "x": 7.976473862968677,
+        "x": 7.976473862968676,
         "y": 0.6815122014024103
       },
       "nextControl": {
@@ -153,7 +153,7 @@
       },
       "nextControl": {
         "x": 6.271446734949083,
-        "y": 0.5231617530204711
+        "y": 0.5231617530204709
       },
       "isLocked": false,
       "linkedName": null
@@ -207,7 +207,7 @@
     },
     {
       "waypointRelativePos": 6.020746887966836,
-      "rotationDegrees": 106.9351486632646
+      "rotationDegrees": 106.93514866326461
     },
     {
       "waypointRelativePos": 6.883817427385788,
@@ -259,7 +259,7 @@
       "command": null
     },
     {
-      "name": "Hub Shot Running",
+      "name": "Shooter Running",
       "waypointRelativePos": 2.173864894795141,
       "endWaypointRelativePos": 1.9490586932447387,
       "command": null
@@ -271,7 +271,7 @@
       "command": null
     },
     {
-      "name": "Hub Shot Running",
+      "name": "Shooter Running",
       "waypointRelativePos": 3.5,
       "endWaypointRelativePos": 5.395348837209303,
       "command": null
