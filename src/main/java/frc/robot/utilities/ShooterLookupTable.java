@@ -128,6 +128,7 @@ public class ShooterLookupTable {
           double flyRPM = Double.parseDouble(values[1]);
           double feedRPM = Double.parseDouble(values[2]);
           double hoodAngleDegrees = Double.parseDouble(values[3]);
+          double timeOfFlight = Double.parseDouble(values[4]);
           
           // Convert distance from inches to meters
           double distanceMeters = Units.inchesToMeters(distanceInches);
