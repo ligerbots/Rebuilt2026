@@ -263,15 +263,15 @@
       "command": null
     },
     {
-      "name": "Shooter Running",
-      "waypointRelativePos": 5.566509115462519,
-      "endWaypointRelativePos": 8.930232558139553,
+      "name": "Stop Intake",
+      "waypointRelativePos": 5.342192691029845,
+      "endWaypointRelativePos": null,
       "command": null
     },
     {
-      "name": "Stop Intake",
-      "waypointRelativePos": 5.847176079734261,
-      "endWaypointRelativePos": null,
+      "name": "Shooter Running",
+      "waypointRelativePos": 5.566509115462519,
+      "endWaypointRelativePos": 8.930232558139553,
       "command": null
     },
     {
@@ -282,7 +282,19 @@
     },
     {
       "name": "Stop Intake",
-      "waypointRelativePos": 8.411960132890346,
+      "waypointRelativePos": 7.734219269102993,
+      "endWaypointRelativePos": null,
+      "command": null
+    },
+    {
+      "name": "Run Intake",
+      "waypointRelativePos": 7.993355481727535,
+      "endWaypointRelativePos": null,
+      "command": null
+    },
+    {
+      "name": "Stop Intake",
+      "waypointRelativePos": 8.152823920265783,
       "endWaypointRelativePos": null,
       "command": null
     }

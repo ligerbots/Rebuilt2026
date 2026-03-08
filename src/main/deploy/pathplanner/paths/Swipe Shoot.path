@@ -87,7 +87,25 @@
     },
     {
       "name": "Stop Intake",
-      "waypointRelativePos": 0.509413067552601,
+      "waypointRelativePos": 0.29900332225913795,
+      "endWaypointRelativePos": null,
+      "command": null
+    },
+    {
+      "name": "Run Intake",
+      "waypointRelativePos": 0.5227021040974519,
+      "endWaypointRelativePos": null,
+      "command": null
+    },
+    {
+      "name": "Stop Intake",
+      "waypointRelativePos": 0.7220376522702125,
+      "endWaypointRelativePos": null,
+      "command": null
+    },
+    {
+      "name": "Run Intake",
+      "waypointRelativePos": 1.0,
       "endWaypointRelativePos": null,
       "command": null
     }
