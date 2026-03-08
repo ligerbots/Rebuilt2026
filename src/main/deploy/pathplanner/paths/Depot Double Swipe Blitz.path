@@ -112,16 +112,16 @@
     },
     {
       "anchor": {
-        "x": 0.7,
-        "y": 5.956390870185448
+        "x": 0.6408735138344028,
+        "y": 5.966988381320252
       },
       "prevControl": {
-        "x": 1.0007705952480188,
-        "y": 5.994570073971775
+        "x": 0.9416441090824217,
+        "y": 6.005167585106579
       },
       "nextControl": {
-        "x": 0.451990136866089,
-        "y": 5.924909005750527
+        "x": 0.3928636507004919,
+        "y": 5.935506516885331
       },
       "isLocked": false,
       "linkedName": "Auto Depot Depth"
@@ -236,10 +236,10 @@
     },
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 6.6,
-      "maxWaypointRelativePos": 7.6,
+      "minWaypointRelativePos": 6.4,
+      "maxWaypointRelativePos": 7.614617940199405,
       "constraints": {
-        "maxVelocity": 0.5,
+        "maxVelocity": 0.25,
         "maxAcceleration": 3.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0,
@@ -278,7 +278,7 @@
     {
       "name": "Shooter Running",
       "waypointRelativePos": 5.566509115462519,
-      "endWaypointRelativePos": 8.872383524645361,
+      "endWaypointRelativePos": 8.930232558139553,
       "command": null
     },
     {
