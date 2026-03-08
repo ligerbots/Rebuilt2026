@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 
 import frc.robot.FieldConstants;
+import frc.robot.subsystems.Hopper;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.ShooterFeeder;
 import frc.robot.subsystems.shooter.Turret;
@@ -31,6 +32,7 @@ public class Shoot extends Command {
     private final Shooter m_shooter;
     private final Turret m_turret;
     private final ShooterFeeder m_feeder;
+    private final Hopper m_hopper;
     private final Supplier<ChassisSpeeds> m_speedsSupplier;
     private final Supplier<Pose2d> m_poseSupplier;
 
@@ -42,15 +44,17 @@ public class Shoot extends Command {
 
     private boolean m_flywheelOnTarget = false;
 
-    public Shoot(Shooter shooter, Turret turret, ShooterFeeder feeder, Supplier<Pose2d> poseSupplier, Supplier<ChassisSpeeds> speeds, Shooter.ShotType shotType) {
+    public Shoot(Shooter shooter, Turret turret, ShooterFeeder feeder, Hopper hopper,
+                Supplier<Pose2d> poseSupplier, Supplier<ChassisSpeeds> speeds, Shooter.ShotType shotType) {
         m_turret = turret;
         m_shooter = shooter;
         m_feeder = feeder;
+        m_hopper = hopper;
         m_poseSupplier = poseSupplier;
         m_speedsSupplier = speeds;
 
         m_shotType = shotType;
-        addRequirements(shooter, turret, feeder);
+        addRequirements(shooter, turret, feeder, hopper);
 
         // SD values used in the Test command
         SmartDashboard.putNumber("hood/testAngle", 0.0);
@@ -91,9 +95,11 @@ public class Shoot extends Command {
 
         if (m_flywheelOnTarget && m_turret.isOnTarget()) {
             m_feeder.setRPM(shotValue.feedRPM);
+            m_hopper.feed();
             if (PLOT_SHOT_LOCATION) m_turret.plotTurretHeading(robotPose, shotDistance);
         } else {
             m_feeder.stop();
+            m_hopper.stop();
             if (PLOT_SHOT_LOCATION) m_turret.plotTurretHeading(robotPose, 0);
         }
         
@@ -105,6 +111,7 @@ public class Shoot extends Command {
     public void end(boolean interrupted) {
         m_shooter.stop();
         m_feeder.stop();
+        m_hopper.stop();
 
         // plot with 0 distance to turn it off
         if (PLOT_SHOT_LOCATION) m_turret.plotTurretHeading(null, 0);

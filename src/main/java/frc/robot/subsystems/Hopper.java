@@ -71,6 +71,10 @@ public class Hopper extends SubsystemBase {
         setVoltage(INTAKE_VOLTAGE);
     }
     
+    public void feed(){
+        setVoltage(FEED_VOLTAGE);
+    }
+    
     public void stop(){
         setVoltage(0);
     }
