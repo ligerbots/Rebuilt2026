@@ -70,6 +70,8 @@ public class ShooterFeeder extends SubsystemBase {
     public void periodic() {
         SmartDashboard.putNumber("shooterFeeder/currentRPM", getRPM()); 
         SmartDashboard.putNumber("shooterFeeder/goalRPM", m_goalRPM);
+        SmartDashboard.putNumber("shooterFeeder/statorCurrent", m_motor.getStatorCurrent().getValueAsDouble());
+        SmartDashboard.putNumber("shooterFeeder/supplyCurrent", m_motor.getSupplyCurrent().getValueAsDouble());
     }
     
     public double getRPM(){

@@ -87,8 +87,8 @@ public class IntakePivot extends SubsystemBase {
         
         m_motor.getConfigurator().apply(talonFXConfigs);
         m_motor.setPosition(0);
-        m_motor.setNeutralMode(NeutralModeValue.Coast);
-
+        setBrakeMode(true);
+        
         if (Constants.OPTIMIZE_CAN) {
             optimizeCAN();
         }
@@ -138,6 +138,13 @@ public class IntakePivot extends SubsystemBase {
     public boolean onTarget() {
         Rotation2d angle = getAngle();
         return Math.abs(angle.getDegrees() - m_goal.getDegrees()) < ANGLE_TOLERANCE_DEG;
+    }
+
+    public void setBrakeMode(boolean brakeMode) {
+        if (brakeMode)
+            m_motor.setNeutralMode(NeutralModeValue.Brake);
+        else
+            m_motor.setNeutralMode(NeutralModeValue.Coast);
     }
 
     // Note: stowCommand is in Intake, since it also involves the Rollers
