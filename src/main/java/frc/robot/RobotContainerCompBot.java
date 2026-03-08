@@ -172,7 +172,7 @@ public class RobotContainerCompBot extends RobotContainer {
 
     public Command getShootCommand() {
         return new Shoot(m_shooter, m_turret, m_shooterFeeder, m_drivetrain::getPose, m_drivetrain::getFieldCentricSpeeds, ShotType.AUTO)
-                        .alongWith(m_hopper.pulseCommand(), 
+                        .alongWith(m_hopper.feedCommand(), 
                                    new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningShooter", true)));
     }
     
@@ -197,10 +197,10 @@ public class RobotContainerCompBot extends RobotContainer {
 
         // Just shoot
         m_driverController.rightTrigger().whileTrue(new Shoot(m_shooter, m_turret, m_shooterFeeder, m_drivetrain::getPose, m_drivetrain::getFieldCentricSpeeds, ShotType.AUTO)
-                        .alongWith(m_hopper.pulseCommand()));
+                        .alongWith(m_hopper.feedCommand()));
 
         m_driverController.rightBumper().whileTrue(new Shoot(m_shooter, m_turret, m_shooterFeeder, m_drivetrain::getPose, m_drivetrain::getFieldCentricSpeeds, ShotType.AUTO)
-                        .alongWith(m_hopper.pulseCommand()));
+                        .alongWith(m_hopper.feedCommand()));
         m_driverController.rightBumper().onTrue(m_intake.getPivot().deployCommand());
         m_driverController.rightBumper().whileTrue(
                 new StartEndCommand(m_intake.getRoller()::intake, m_intake.getRoller()::stop, m_intake.getRoller()));
@@ -208,14 +208,14 @@ public class RobotContainerCompBot extends RobotContainer {
         // Deploy and run the intake (intake will stay out)
         m_driverController.leftTrigger().onTrue(m_intake.getPivot().deployCommand());
         m_driverController.leftTrigger().whileTrue(
-                new StartEndCommand(m_intake.getRoller()::intake, m_intake.getRoller()::stop, m_intake.getRoller())
-                        .alongWith(new StartEndCommand(m_hopper::intake, m_hopper::stop, m_hopper)));
+                new StartEndCommand(m_intake.getRoller()::intake, m_intake.getRoller()::stop, m_intake.getRoller()));
+                        // .alongWith(new StartEndCommand(m_hopper::intake, m_hopper::stop, m_hopper)));
 
         // Stow the intake
         m_driverController.leftBumper().onTrue(m_intake.stowCommand());
 
         m_driverController.a().whileTrue(new Shoot(m_shooter, m_turret, m_shooterFeeder, m_drivetrain::getPose, m_drivetrain::getFieldCentricSpeeds, ShotType.TEST)
-                        .alongWith(m_hopper.pulseCommand()));
+                        .alongWith(m_hopper.feedCommand()));
 
         m_farm.button(1).onTrue(new InstantCommand(m_shooter::increaseFlyFudge));
         m_farm.button(2).onTrue(new InstantCommand(m_shooter::decreaseFlyFudge));
@@ -225,6 +225,8 @@ public class RobotContainerCompBot extends RobotContainer {
 
         m_farm.button(4).onTrue(new InstantCommand(m_turret::increaseTurretFudge));
         m_farm.button(5).onTrue(new InstantCommand(m_turret::decreaseTurretFudge));
+
+        m_farm.button(21).whileTrue(m_hopper.reverseCommand());
 
         // SmartDashboard.putNumber("hood/testAngle", 0.0);
         // SmartDashboard.putNumber("flywheel/testRPM", 0.0); 

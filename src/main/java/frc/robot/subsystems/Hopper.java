@@ -30,7 +30,8 @@ public class Hopper extends SubsystemBase {
     private static final double PULSE_VOLTAGE = 4.0;
     private static final double INTAKE_VOLTAGE = 2.0;
     private static final double FEED_VOLTAGE = 2.0;
-
+    private static final double REVERSE_VOLTAGE = -2.0;
+    
     private final TalonFX m_motor;
 
     private final VoltageOut m_voltageControl = new VoltageOut(0);
@@ -93,4 +94,9 @@ public class Hopper extends SubsystemBase {
     public Command feedCommand() {
         return new StartEndCommand(() -> setVoltage(FEED_VOLTAGE), this::stop);
     }
+
+    public Command reverseCommand() {
+        return new StartEndCommand(() -> setVoltage(REVERSE_VOLTAGE), this::stop);
+    }
+
 }
