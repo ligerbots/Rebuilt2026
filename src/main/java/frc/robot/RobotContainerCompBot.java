@@ -111,7 +111,14 @@ public class RobotContainerCompBot extends RobotContainer {
         // not used by PathPlanner triggers
         m_virtualShootButton.whileTrue(getShootCommand());
 
-        m_chosenAutoPaths.setDefaultOption("Out-Back Out-Back // Depot Double Blitz", List.of(
+        m_chosenAutoPaths.setDefaultOption("Depot Double Swipe Blitz", List.of(
+                "First Swipe Blitz",
+                "Swipe Shoot",
+                "Depot Double Swipe Blitz",
+                "Depot Trench Run Out"
+        ));
+
+        m_chosenAutoPaths.addOption("Out-Back Out-Back // Depot Double Blitz", List.of(
                 "Depot Double Blitz"
         ));
 
