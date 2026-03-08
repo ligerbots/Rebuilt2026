@@ -4,12 +4,12 @@
     {
       "anchor": {
         "x": 4.0,
-        "y": 7.411662650602409
+        "y": 7.55
       },
       "prevControl": null,
       "nextControl": {
         "x": 4.246861685280422,
-        "y": 7.372174572141814
+        "y": 7.510511921539405
       },
       "isLocked": false,
       "linkedName": "Auto Start Line Straight"
