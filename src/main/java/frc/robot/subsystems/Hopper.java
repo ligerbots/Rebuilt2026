@@ -8,12 +8,14 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -27,6 +29,7 @@ public class Hopper extends SubsystemBase {
 
     private static final double PULSE_VOLTAGE = 4.0;
     private static final double INTAKE_VOLTAGE = 2.0;
+    private static final double FEED_VOLTAGE = 2.0;
 
     private final TalonFX m_motor;
 
@@ -42,7 +45,8 @@ public class Hopper extends SubsystemBase {
                 .withSupplyCurrentLimit(SUPPLY_CURRENT_LIMIT)
                 .withStatorCurrentLimit(STATOR_CURRENT_LIMIT);
         talonFXConfigs.withCurrentLimits(currentLimits);
-        
+        talonFXConfigs.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+
         // enable brake mode (after main config)
         m_motor.getConfigurator().apply(talonFXConfigs);
         m_motor.setNeutralMode(NeutralModeValue.Brake);
@@ -84,5 +88,9 @@ public class Hopper extends SubsystemBase {
             .andThen(new WaitCommand(0.5))
             .andThen(new InstantCommand(() -> setVoltage(0)))
             .andThen(new WaitCommand(0.05)).repeatedly().finallyDo(this::stop);
+    }
+
+    public Command feedCommand() {
+        return new StartEndCommand(() -> setVoltage(FEED_VOLTAGE), this::stop);
     }
 }
