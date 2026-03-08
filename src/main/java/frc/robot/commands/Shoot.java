@@ -40,6 +40,8 @@ public class Shoot extends Command {
 
     private static final double TRAVEL_TIME_SECONDS = 1.0; // TODO: tune to real value
 
+    private boolean m_flywheelOnTarget = false;
+
     public Shoot(Shooter shooter, Turret turret, ShooterFeeder feeder, Supplier<Pose2d> poseSupplier, Supplier<ChassisSpeeds> speeds, Shooter.ShotType shotType) {
         m_turret = turret;
         m_shooter = shooter;
@@ -57,9 +59,10 @@ public class Shoot extends Command {
     }
     
     // Called when the command is initially scheduled.
-    // @Override
-    // public void initialize() {
-    // }
+    @Override
+    public void initialize() {
+        m_flywheelOnTarget = false;
+    }
     
     @Override
     public void execute() {
@@ -83,7 +86,10 @@ public class Shoot extends Command {
         m_shooter.setShootValues(shotValue);
         
         // Run feeder only when shooter and turret are ready
-        if (m_shooter.onTarget() && m_turret.isOnTarget()) {
+        if (!m_flywheelOnTarget && m_shooter.onTarget())
+            m_flywheelOnTarget = true;
+
+        if (m_flywheelOnTarget && m_turret.isOnTarget()) {
             m_feeder.setRPM(shotValue.feedRPM);
             if (PLOT_SHOT_LOCATION) m_turret.plotTurretHeading(robotPose, shotDistance);
         } else {
