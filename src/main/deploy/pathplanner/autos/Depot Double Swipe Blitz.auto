@@ -7,31 +7,25 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Triple Swipe Blitz 1"
+            "pathName": "First Swipe Blitz"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Triple Swipe Shoot"
+            "pathName": "Swipe Shoot"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Triple Swipe Blitz 2"
+            "pathName": "Depot Double Swipe Blitz"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Triple Swipe Shoot"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Triple Swipe Blitz 3"
+            "pathName": "Depot Trench Run Out"
           }
         }
       ]
