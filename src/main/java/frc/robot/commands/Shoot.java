@@ -38,9 +38,7 @@ public class Shoot extends Command {
 
     private final Shooter.ShotType m_shotType;
 
-    private static final double LATENCY_SECONDS = 0.1; // TODO: tune to real value
-
-    private static final double TRAVEL_TIME_SECONDS = 1.0; // TODO: tune to real value
+    private static final double LATENCY_SECONDS = 0.05; 
 
     private boolean m_flywheelOnTarget = false;
 
@@ -98,8 +96,8 @@ public class Shoot extends Command {
             m_hopper.feed();
             if (PLOT_SHOT_LOCATION) m_turret.plotTurretHeading(robotPose, shotDistance);
         } else {
-            m_feeder.stop();
-            m_hopper.stop();
+            // m_feeder.stop();
+            // m_hopper.stop();
             if (PLOT_SHOT_LOCATION) m_turret.plotTurretHeading(robotPose, 0);
         }
         
@@ -137,6 +135,8 @@ public class Shoot extends Command {
                     return FieldConstants.flipTranslation(FieldConstants.PASSING_TARGET_LOWER_BLUE);
                 return FieldConstants.flipTranslation(FieldConstants.PASSING_TARGET_UPPER_BLUE);
             // needed to suppress the warning
+            // case TEST:
+            //     return FieldConstants.flipTranslation(FieldConstants.HUB_POSITION_BLUE);
             default:
                 break;
         }

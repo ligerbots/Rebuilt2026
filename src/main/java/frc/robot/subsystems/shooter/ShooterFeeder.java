@@ -25,6 +25,8 @@ public class ShooterFeeder extends SubsystemBase {
     private static final double K_P = 0.1; 
     private static final double K_FF = 0.0021;
     
+    private static final double REVERSE_RPM = -1000.0;
+    
     private static final double SUPPLY_CURRENT_LIMIT = 40;
     private static final double STATOR_CURRENT_LIMIT = 60;
     
@@ -91,6 +93,10 @@ public class ShooterFeeder extends SubsystemBase {
         m_motor.setControl(m_velocityControl);
     }
     
+    public void runReverse() {
+        setRPM(REVERSE_RPM);
+    }
+
     public void stop(){
         m_motor.setVoltage(0);
     }

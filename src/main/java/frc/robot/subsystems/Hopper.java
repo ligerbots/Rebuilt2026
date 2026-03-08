@@ -29,8 +29,8 @@ public class Hopper extends SubsystemBase {
 
     private static final double PULSE_VOLTAGE = 4.0;
     private static final double INTAKE_VOLTAGE = 2.0;
-    private static final double FEED_VOLTAGE = 2.0;
-    private static final double REVERSE_VOLTAGE = -2.0;
+    private static final double FEED_VOLTAGE = 4.0;
+    private static final double REVERSE_VOLTAGE = -6.0;
     
     private final TalonFX m_motor;
 
