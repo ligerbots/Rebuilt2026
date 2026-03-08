@@ -112,16 +112,16 @@
     },
     {
       "anchor": {
-        "x": 0.7,
-        "y": 5.956390870185448
+        "x": 0.6408735138344028,
+        "y": 5.966988381320252
       },
       "prevControl": {
-        "x": 1.0007705952480188,
-        "y": 5.994570073971775
+        "x": 0.9416441090824217,
+        "y": 6.005167585106579
       },
       "nextControl": {
-        "x": 0.451990136866089,
-        "y": 5.924909005750527
+        "x": 0.3928636507004919,
+        "y": 5.935506516885331
       },
       "isLocked": false,
       "linkedName": "Auto Depot Depth"
@@ -210,10 +210,10 @@
     },
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 5.404208194905896,
-      "maxWaypointRelativePos": 6.325581395348837,
+      "minWaypointRelativePos": 5.12292358803988,
+      "maxWaypointRelativePos": 6.4,
       "constraints": {
-        "maxVelocity": 1.0,
+        "maxVelocity": 1.5,
         "maxAcceleration": 10.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0,
@@ -223,11 +223,11 @@
     },
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 6.1838316722037545,
-      "maxWaypointRelativePos": 6.662236987818418,
+      "minWaypointRelativePos": 6.4983388704318905,
+      "maxWaypointRelativePos": 7.215946843853781,
       "constraints": {
-        "maxVelocity": 1.0,
-        "maxAcceleration": 3.0,
+        "maxVelocity": 0.25,
+        "maxAcceleration": 1.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0,
         "nominalVoltage": 12.0,
@@ -236,23 +236,10 @@
     },
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 6.6,
-      "maxWaypointRelativePos": 7.6,
-      "constraints": {
-        "maxVelocity": 0.5,
-        "maxAcceleration": 3.0,
-        "maxAngularVelocity": 540.0,
-        "maxAngularAcceleration": 720.0,
-        "nominalVoltage": 12.0,
-        "unlimited": false
-      }
-    },
-    {
-      "name": "Constraints Zone",
-      "minWaypointRelativePos": 7.6,
+      "minWaypointRelativePos": 6.358803986710965,
       "maxWaypointRelativePos": 9.0,
       "constraints": {
-        "maxVelocity": 1.0,
+        "maxVelocity": 1.5,
         "maxAcceleration": 1.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0,
@@ -278,7 +265,7 @@
     {
       "name": "Shooter Running",
       "waypointRelativePos": 5.566509115462519,
-      "endWaypointRelativePos": 8.872383524645361,
+      "endWaypointRelativePos": 8.930232558139553,
       "command": null
     },
     {
