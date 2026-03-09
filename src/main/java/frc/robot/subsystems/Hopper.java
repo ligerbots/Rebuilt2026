@@ -75,6 +75,11 @@ public class Hopper extends SubsystemBase {
         setVoltage(FEED_VOLTAGE);
     }
     
+
+    public void reverse() {
+        setVoltage(REVERSE_VOLTAGE);
+    }
+
     public void stop(){
         setVoltage(0);
     }
@@ -94,13 +99,4 @@ public class Hopper extends SubsystemBase {
             .andThen(new InstantCommand(() -> setVoltage(0)))
             .andThen(new WaitCommand(0.05)).repeatedly().finallyDo(this::stop);
     }
-
-    public Command feedCommand() {
-        return new StartEndCommand(() -> setVoltage(FEED_VOLTAGE), this::stop);
-    }
-
-    public Command reverseCommand() {
-        return new StartEndCommand(() -> setVoltage(REVERSE_VOLTAGE), this::stop);
-    }
-
 }

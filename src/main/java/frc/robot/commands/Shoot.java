@@ -40,6 +40,8 @@ public class Shoot extends Command {
 
     private static final double LATENCY_SECONDS = 0.05; 
 
+    // We want to "latch" the shooting on as soon as the flywheel is up
+    //   to speed once. Otherwise, we turn off the feeder when the RPM drops - bad
     private boolean m_flywheelOnTarget = false;
 
     public Shoot(Shooter shooter, Turret turret, ShooterFeeder feeder, Hopper hopper,
@@ -63,6 +65,7 @@ public class Shoot extends Command {
     // Called when the command is initially scheduled.
     @Override
     public void initialize() {
+        // at start, wait for flywheel to get to speed
         m_flywheelOnTarget = false;
     }
     
@@ -73,6 +76,7 @@ public class Shoot extends Command {
 
         Translation2d target = targetForShotType();
         Translation2d shotVector = findMovingShotVector(robotPose, target);
+        // old static shot
         // Translation2d translationToTarget = Turret.getTranslationToGoal(robotPose, target);
 
         ShootValue shotValue;
@@ -87,15 +91,18 @@ public class Shoot extends Command {
         m_turret.setAngle(shotVector.getAngle());
         m_shooter.setShootValues(shotValue);
         
-        // Run feeder only when shooter and turret are ready
+        // Once the flywheel is up to speed, latch it on.
         if (!m_flywheelOnTarget && m_shooter.onTarget())
             m_flywheelOnTarget = true;
 
+        // Run feeder only when shooter and turret are ready
         if (m_flywheelOnTarget && m_turret.isOnTarget()) {
             m_feeder.setRPM(shotValue.feedRPM);
             m_hopper.feed();
             if (PLOT_SHOT_LOCATION) m_turret.plotTurretHeading(robotPose, shotDistance);
         } else {
+            // TODO: turret seemed to be interrupting the shot too much
+            //  maybe widen the tolerance and re-enable this code?
             // m_feeder.stop();
             // m_hopper.stop();
             if (PLOT_SHOT_LOCATION) m_turret.plotTurretHeading(robotPose, 0);
@@ -197,7 +204,7 @@ public class Shoot extends Command {
             targetDistance = targetVector.getNorm();
 
             if (Math.abs(targetDistance - previousTargetDistance) < 0.03) {
-                // if the target distance isn't changing much, we've converged enough
+                // if the target distance did not change much, we've converged enough
                 break;
             }
 
@@ -213,7 +220,5 @@ public class Shoot extends Command {
                 SmartDashboard.getNumber("shooterFeeder/testRPM", 0.0),
                 Rotation2d.fromDegrees(SmartDashboard.getNumber("hood/testAngle", 0.0)),
                 SmartDashboard.getNumber("shooter/testTimeOfFlight", 0.0));
-
-                
     }
 }

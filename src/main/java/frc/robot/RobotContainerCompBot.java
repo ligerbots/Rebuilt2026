@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -235,11 +236,12 @@ public class RobotContainerCompBot extends RobotContainer {
         m_farm.button(4).onTrue(new InstantCommand(m_turret::increaseTurretFudge));
         m_farm.button(5).onTrue(new InstantCommand(m_turret::decreaseTurretFudge));
 
-        m_farm.button(21).whileTrue(m_hopper.reverseCommand()
-                .alongWith(
-                    new StartEndCommand(m_intake.getRoller()::outtake, m_intake.getRoller()::stop, m_intake),
-                    new StartEndCommand(m_shooterFeeder::runReverse, m_shooterFeeder::stop, m_shooterFeeder)
-                    ));
+        m_farm.button(21).whileTrue(
+                new ParallelCommandGroup(
+                        new StartEndCommand(m_hopper::reverse, m_hopper::stop, m_hopper),
+                        new StartEndCommand(m_intake.getRoller()::outtake, m_intake.getRoller()::stop, m_intake),
+                        new StartEndCommand(m_shooterFeeder::runReverse, m_shooterFeeder::stop, m_shooterFeeder)
+            ));
 
         // SmartDashboard.putNumber("hood/testAngle", 0.0);
         // SmartDashboard.putNumber("flywheel/testRPM", 0.0); 
