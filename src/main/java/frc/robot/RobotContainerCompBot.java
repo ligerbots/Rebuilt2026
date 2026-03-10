@@ -105,9 +105,12 @@ public class RobotContainerCompBot extends RobotContainer {
         configureAutos();
     }
 
-    // public void configureDisabled(boolean disabled) {
-    //    m_hopper.set
-    // }
+    @Override
+    public void setDisableEnableValues(boolean enabled) {
+        // Enabled = coast mode, Disabled = brake mode
+        m_intake.getPivot().setBrakeMode(!enabled);
+    }
+
     private void configureAutos() {
 
         // assign the Shoot button that is used during Autos

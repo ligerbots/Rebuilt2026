@@ -87,6 +87,7 @@ public class IntakePivot extends SubsystemBase {
         
         m_motor.getConfigurator().apply(talonFXConfigs);
         m_motor.setPosition(0);
+        // boot with Brake mode on
         setBrakeMode(true);
         
         if (Constants.OPTIMIZE_CAN) {
