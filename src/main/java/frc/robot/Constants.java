@@ -31,5 +31,5 @@ public class Constants {
 
     // Enable CAN optimization code
     // Allows quickly seeing the effect
-    public static final boolean OPTIMIZE_CAN = false;
+    public static final boolean OPTIMIZE_CAN = true;
 }

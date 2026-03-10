@@ -1,0 +1,1 @@
+distance(Inches),TurretFlywheelRPM,FeederFlywheelRPM,HoodAngle (degrees),Travel Time,Note

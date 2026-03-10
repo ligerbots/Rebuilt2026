@@ -156,11 +156,11 @@ public class AprilTagVision {
                                     Units.inchesToMeters(15.08)),
                             new Rotation3d(0.0, Math.toRadians(-10), 0)
                                     .rotateBy(new Rotation3d(0, 0, Math.toRadians(180.0))))),
-                    new Camera("ArducamLeft", new Transform3d(
-                            new Translation3d(Units.inchesToMeters(-6.56), Units.inchesToMeters(12.87),
-                                    Units.inchesToMeters(17.27)),
-                            new Rotation3d(0.0, Math.toRadians(-10), 0)
-                                    .rotateBy(new Rotation3d(0, 0, Math.toRadians(90.0))))),
+                    // new Camera("ArducamLeft", new Transform3d(
+                    //         new Translation3d(Units.inchesToMeters(-6.56), Units.inchesToMeters(12.87),
+                    //                 Units.inchesToMeters(17.27)),
+                    //         new Rotation3d(0.0, Math.toRadians(-10), 0)
+                    //                 .rotateBy(new Rotation3d(0, 0, Math.toRadians(90.0))))),
                     new Camera("ArducamRight", new Transform3d(
                             new Translation3d(Units.inchesToMeters(-4.94), Units.inchesToMeters(-12.75),
                                     Units.inchesToMeters(14.74)),
@@ -317,21 +317,21 @@ public class AprilTagVision {
             return Optional.empty();
 
         // Starting estimate = multitag or not
-        // Matrix<N3, N1> estStdDev;
-        // if (usedMultitag)
-        //     estStdDev = MULTI_TAG_BASE_STDDEV;
-        // else
-        //     estStdDev = SINGLE_TAG_BASE_STDDEV;
-        Matrix<N3, N1> estStdDev = SINGLE_TAG_BASE_STDDEV;
+        Matrix<N3, N1> estStdDev;
+        if (usedMultitag)
+            estStdDev = MULTI_TAG_BASE_STDDEV;
+        else
+            estStdDev = SINGLE_TAG_BASE_STDDEV;
+        // Matrix<N3, N1> estStdDev = SINGLE_TAG_BASE_STDDEV;
 
         // Increase std devs based on (average) distance
         // This is taken from YAGSL vision example.
         // TODO figure out why
-        // double scaleFactorOld = 1.0 + avgDist * avgDist / 30.0;
+        double scaleFactor = 1.0 + avgDist * avgDist / 30.0;
 
         // Mechanical Advantage version
         // Includes a downscale for more tags, so start from a single Matrix
-        double scaleFactor = Math.pow(avgDist, 1.2) / Math.pow(numTags, 2.0);
+        // double scaleFactor = Math.pow(avgDist, 1.2) / Math.pow(numTags, 2.0);
 
         estStdDev = estStdDev.times(scaleFactor);
 

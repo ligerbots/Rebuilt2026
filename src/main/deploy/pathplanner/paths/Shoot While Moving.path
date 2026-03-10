@@ -3,55 +3,39 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 6.6199156626506035,
-        "y": 5.88178313253012
+        "x": 1.9947503566333804,
+        "y": 7.41845934379458
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.257546054203844,
-        "y": 6.83564784549074
-      },
-      "isLocked": false,
-      "linkedName": "Fuel Start split"
-    },
-    {
-      "anchor": {
-        "x": 5.975180722891566,
-        "y": 7.25867469879518
-      },
-      "prevControl": {
-        "x": 6.243142221035848,
-        "y": 7.06635851275418
-      },
-      "nextControl": {
-        "x": 5.5225415218608,
-        "y": 7.583534223009406
+        "x": 1.9818116975748925,
+        "y": 6.1375320970042795
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 4.0,
-        "y": 7.55
+        "x": 2.0982596291012836,
+        "y": 0.9103138373751789
       },
       "prevControl": {
-        "x": 5.104053772588848,
-        "y": 7.515935650226336
+        "x": 2.0853209700427953,
+        "y": 2.5535235378031382
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Auto Start Line Straight"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],
   "constraintZones": [
     {
-      "name": "Pass & Intake",
-      "minWaypointRelativePos": 0.6,
+      "name": "Constraints Zone",
+      "minWaypointRelativePos": 0,
       "maxWaypointRelativePos": 1.0,
       "constraints": {
-        "maxVelocity": 1.75,
+        "maxVelocity": 1.0,
         "maxAcceleration": 3.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0,
@@ -63,15 +47,9 @@
   "pointTowardsZones": [],
   "eventMarkers": [
     {
-      "name": "Run Intake",
-      "waypointRelativePos": 0.35,
-      "endWaypointRelativePos": null,
-      "command": null
-    },
-    {
-      "name": "Stop Intake",
-      "waypointRelativePos": 1.0,
-      "endWaypointRelativePos": null,
+      "name": "Shooter Running",
+      "waypointRelativePos": 0.0,
+      "endWaypointRelativePos": 1.0,
       "command": null
     }
   ],
@@ -84,14 +62,14 @@
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 0.0,
-    "rotation": -0.5920158690342645
+    "velocity": 0,
+    "rotation": -86.53177074108291
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -88.49256424122521
+    "rotation": -95.71059313749961
   },
   "useDefaultConstraints": true
 }

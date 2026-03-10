@@ -37,8 +37,8 @@ public class IntakePivot extends SubsystemBase {
     private static final double GEAR_RATIO = 1.0 / 24.0;
     
     // STOW is public so Intake can handle the command
-    public static final Rotation2d STOW_POSITION = Rotation2d.fromDegrees(-5.0);
-    private static final Rotation2d DEPLOY_POSITION = Rotation2d.fromDegrees(75.0);
+    public static final Rotation2d STOW_POSITION = Rotation2d.fromDegrees(7.0);   // was -5
+    private static final Rotation2d DEPLOY_POSITION = Rotation2d.fromDegrees(80.0);
 
     private static final Rotation2d PULSE_POSITION = Rotation2d.fromDegrees(10.0);
 
@@ -87,8 +87,8 @@ public class IntakePivot extends SubsystemBase {
         
         m_motor.getConfigurator().apply(talonFXConfigs);
         m_motor.setPosition(0);
-        m_motor.setNeutralMode(NeutralModeValue.Coast);
-
+        setBrakeMode(true);
+        
         if (Constants.OPTIMIZE_CAN) {
             optimizeCAN();
         }
@@ -138,6 +138,13 @@ public class IntakePivot extends SubsystemBase {
     public boolean onTarget() {
         Rotation2d angle = getAngle();
         return Math.abs(angle.getDegrees() - m_goal.getDegrees()) < ANGLE_TOLERANCE_DEG;
+    }
+
+    public void setBrakeMode(boolean brakeMode) {
+        if (brakeMode)
+            m_motor.setNeutralMode(NeutralModeValue.Brake);
+        else
+            m_motor.setNeutralMode(NeutralModeValue.Coast);
     }
 
     // Note: stowCommand is in Intake, since it also involves the Rollers

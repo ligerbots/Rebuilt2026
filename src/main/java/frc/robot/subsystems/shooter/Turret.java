@@ -27,7 +27,8 @@ import com.ctre.phoenix6.configs.CANcoderConfiguration;
 
 public class Turret extends SubsystemBase {
     
-    private static final Translation2d TURRET_OFFSET = new Translation2d(Units.inchesToMeters(-2.5626),  Units.inchesToMeters(-4.875));
+    // public for the Shoot command - not the greatest, but a pain otherwise
+    public static final Translation2d TURRET_OFFSET = new Translation2d(Units.inchesToMeters(-2.5626),  Units.inchesToMeters(-4.875));
     private static final double TURRET_HEADING_OFFSET_DEG = 180.0;
     private static final double ANGLE_TOLERANCE_DEG = 2.0; 
     
@@ -60,8 +61,8 @@ public class Turret extends SubsystemBase {
     private static final double MAX_VEL_ROT_PER_SEC = 2.0 * TURRET_GEAR_RATIO;
     private static final double MAX_ACC_ROT_PER_SEC_SQ = 10.0 * TURRET_GEAR_RATIO;
 
-    private static final double MAX_ROTATION_DEG = 145.0;
-    private static final double MIN_ROTATION_DEG = -195.0;
+    private static final double MAX_ROTATION_DEG = 165.0;
+    private static final double MIN_ROTATION_DEG = -185.0; // -220 is max
     private static final double MID_LINE_DEGREES = (MAX_ROTATION_DEG + MIN_ROTATION_DEG) / 2.0;
     
     // this is just the middle point of the full CRT range

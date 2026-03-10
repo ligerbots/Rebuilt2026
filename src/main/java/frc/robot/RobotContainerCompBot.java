@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -104,6 +105,9 @@ public class RobotContainerCompBot extends RobotContainer {
         configureAutos();
     }
 
+    // public void configureDisabled(boolean disabled) {
+    //    m_hopper.set
+    // }
     private void configureAutos() {
 
         // assign the Shoot button that is used during Autos
@@ -111,7 +115,14 @@ public class RobotContainerCompBot extends RobotContainer {
         // not used by PathPlanner triggers
         m_virtualShootButton.whileTrue(getShootCommand());
 
-        m_chosenAutoPaths.setDefaultOption("Out-Back Out-Back // Depot Double Blitz", List.of(
+        m_chosenAutoPaths.setDefaultOption("Depot Double Swipe Blitz", List.of(
+                "First Swipe Blitz",
+                "Swipe Shoot",
+                "Depot Double Swipe Blitz",
+                "Depot Trench Run Out"
+        ));
+
+        m_chosenAutoPaths.addOption("Out-Back Out-Back // Depot Double Blitz", List.of(
                 "Depot Double Blitz"
         ));
 
@@ -126,6 +137,10 @@ public class RobotContainerCompBot extends RobotContainer {
             "Orbit Auto Step 5 trench to outpost",
             5.0 // wait for 5 seconds at outpost to intake and shoot balls
             ));
+
+        m_chosenAutoPaths.addOption("Shoot While Moving", List.of(   
+                "Shoot While Moving"
+        ));
 
         m_chosenAutoPaths.addOption("SnowBlow // Depot Full Pass Blitz", List.of(
                 // "Depot Full Pass Blitz"
@@ -167,8 +182,8 @@ public class RobotContainerCompBot extends RobotContainer {
     }
 
     public Command getShootCommand() {
-        return new Shoot(m_shooter, m_turret, m_shooterFeeder, m_drivetrain::getPose, ShotType.AUTO)
-                        .alongWith(m_hopper.pulseCommand(), new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningShooter", true)));
+        return new Shoot(m_shooter, m_turret, m_shooterFeeder, m_hopper, m_drivetrain::getPose, m_drivetrain::getFieldCentricSpeeds, ShotType.AUTO)
+                        .alongWith(new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningShooter", true)));
     }
     
     private void configureAutoEventTriggers() {
@@ -191,12 +206,11 @@ public class RobotContainerCompBot extends RobotContainer {
         );
 
         // Just shoot
-        m_driverController.rightTrigger().whileTrue(new Shoot(m_shooter, m_turret, m_shooterFeeder, m_drivetrain::getPose, ShotType.AUTO)
-                        .alongWith(m_hopper.pulseCommand()));
+        m_driverController.rightTrigger().whileTrue(new Shoot(m_shooter, m_turret, m_shooterFeeder, m_hopper,
+                    m_drivetrain::getPose, m_drivetrain::getFieldCentricSpeeds, ShotType.AUTO));
 
-        // Shoot while intaking
-        m_driverController.rightBumper().whileTrue(new Shoot(m_shooter, m_turret, m_shooterFeeder, m_drivetrain::getPose, ShotType.AUTO)
-                        .alongWith(m_hopper.pulseCommand()));
+        m_driverController.rightBumper().whileTrue(new Shoot(m_shooter, m_turret, m_shooterFeeder, m_hopper,
+                    m_drivetrain::getPose, m_drivetrain::getFieldCentricSpeeds, ShotType.AUTO));
         m_driverController.rightBumper().onTrue(m_intake.getPivot().deployCommand());
         m_driverController.rightBumper().whileTrue(
                 new StartEndCommand(m_intake.getRoller()::intake, m_intake.getRoller()::stop, m_intake.getRoller()));
@@ -204,15 +218,14 @@ public class RobotContainerCompBot extends RobotContainer {
         // Deploy and run the intake (intake will stay out)
         m_driverController.leftTrigger().onTrue(m_intake.getPivot().deployCommand());
         m_driverController.leftTrigger().whileTrue(
-                new StartEndCommand(m_intake.getRoller()::intake, m_intake.getRoller()::stop, m_intake.getRoller())
-                        .alongWith(new StartEndCommand(m_hopper::intake, m_hopper::stop, m_hopper)));
+                new StartEndCommand(m_intake.getRoller()::intake, m_intake.getRoller()::stop, m_intake.getRoller()));
+                        // .alongWith(new StartEndCommand(m_hopper::intake, m_hopper::stop, m_hopper)));
 
         // Stow the intake
         m_driverController.leftBumper().onTrue(m_intake.stowCommand());
 
-        // Test shot for tuning
-        m_driverController.a().whileTrue(new Shoot(m_shooter, m_turret, m_shooterFeeder, m_drivetrain::getPose, ShotType.TEST)
-                        .alongWith(m_hopper.pulseCommand()));
+        m_driverController.a().whileTrue(new Shoot(m_shooter, m_turret, m_shooterFeeder, m_hopper,
+                    m_drivetrain::getPose, m_drivetrain::getFieldCentricSpeeds, ShotType.TEST));
 
         m_farm.button(1).onTrue(new InstantCommand(m_shooter::increaseFlyFudge));
         m_farm.button(2).onTrue(new InstantCommand(m_shooter::decreaseFlyFudge));
@@ -222,6 +235,13 @@ public class RobotContainerCompBot extends RobotContainer {
 
         m_farm.button(4).onTrue(new InstantCommand(m_turret::increaseTurretFudge));
         m_farm.button(5).onTrue(new InstantCommand(m_turret::decreaseTurretFudge));
+
+        m_farm.button(21).whileTrue(
+                new ParallelCommandGroup(
+                        new StartEndCommand(m_hopper::reverse, m_hopper::stop, m_hopper),
+                        new StartEndCommand(m_intake.getRoller()::outtake, m_intake.getRoller()::stop, m_intake),
+                        new StartEndCommand(m_shooterFeeder::runReverse, m_shooterFeeder::stop, m_shooterFeeder)
+            ));
 
         // SmartDashboard.putNumber("hood/testAngle", 0.0);
         // SmartDashboard.putNumber("flywheel/testRPM", 0.0); 
@@ -286,6 +306,7 @@ public class RobotContainerCompBot extends RobotContainer {
         // Only call constructor if the auto selection inputs have changed
         if (m_autoSelectionCode != currentAutoSelectionCode) {
             m_autoSelectionCode = currentAutoSelectionCode;
+
             m_autoCommand = CoreAuto.getInstance(m_chosenAutoPaths.getSelected(), m_drivetrain,
                     m_chosenFieldSide.getSelected().equals("Outpost Side"), m_virtualShootButton);
         }
