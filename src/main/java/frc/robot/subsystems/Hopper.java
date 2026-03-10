@@ -8,7 +8,6 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 
@@ -25,7 +24,7 @@ import frc.robot.Constants;
 public class Hopper extends SubsystemBase {
     
     private static final double SUPPLY_CURRENT_LIMIT = 20;
-    private static final double STATOR_CURRENT_LIMIT = 30;
+    private static final double STATOR_CURRENT_LIMIT = 20;
 
     private static final double PULSE_VOLTAGE = 4.0;
     private static final double INTAKE_VOLTAGE = 2.0;

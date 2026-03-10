@@ -39,8 +39,8 @@ public class Turret extends SubsystemBase {
     private final CANcoder m_thruboreSmall; 
     private final CANcoder m_thruboreLarge; 
     
-    private static final double SUPPLY_CURRENT_LIMIT = 60;
-    private static final double STATOR_CURRENT_LIMIT = 40;
+    private static final double SUPPLY_CURRENT_LIMIT = 20;
+    private static final double STATOR_CURRENT_LIMIT = 20;
 
     // Manual turret angle adjustment (additive)
     private double m_turretFudgeDegrees = 0;

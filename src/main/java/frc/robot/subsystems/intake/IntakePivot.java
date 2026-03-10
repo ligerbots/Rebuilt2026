@@ -24,7 +24,7 @@ import frc.robot.Constants;
 
 public class IntakePivot extends SubsystemBase {
     private static final double SUPPLY_CURRENT_LIMIT = 40;
-    private static final double STATOR_CURRENT_LIMIT = 60;
+    private static final double STATOR_CURRENT_LIMIT = 40;
     
     private static final double K_P = 15.0;
     private static final double K_P_HOLD = 3.0;
