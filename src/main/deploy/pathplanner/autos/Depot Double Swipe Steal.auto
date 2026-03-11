@@ -7,7 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "First Swipe Blitz"
+            "pathName": "First Swipe Steal"
           }
         },
         {
@@ -19,25 +19,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Second Swipe"
+            "pathName": "Depot Double Swipe Blitz"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Swipe Shoot Alt"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Third Swipe"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Swipe Shoot Alt"
+            "pathName": "Depot Trench Run Out"
           }
         }
       ]
