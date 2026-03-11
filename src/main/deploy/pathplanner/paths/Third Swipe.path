@@ -1,0 +1,188 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 4.107102564102565,
+        "y": 7.55
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 4.357021980990921,
+        "y": 7.543652948544072
+      },
+      "isLocked": false,
+      "linkedName": "Trench In"
+    },
+    {
+      "anchor": {
+        "x": 5.794831291689409,
+        "y": 7.5
+      },
+      "prevControl": {
+        "x": 5.604672995090098,
+        "y": 7.674009884630752
+      },
+      "nextControl": {
+        "x": 7.114294232651885,
+        "y": 6.292587027558258
+      },
+      "isLocked": false,
+      "linkedName": "Trench Out"
+    },
+    {
+      "anchor": {
+        "x": 6.4676282051282055,
+        "y": 4.39547435897436
+      },
+      "prevControl": {
+        "x": 5.742716966763426,
+        "y": 5.01148254450593
+      },
+      "nextControl": {
+        "x": 7.194220469904982,
+        "y": 3.7780376867880356
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 8.525820512820513,
+        "y": 4.5466410256410255
+      },
+      "prevControl": {
+        "x": 8.463766855712445,
+        "y": 4.29607859627776
+      },
+      "nextControl": {
+        "x": 8.854261426662942,
+        "y": 5.872831247295968
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 5.794831291689409,
+        "y": 7.5
+      },
+      "prevControl": {
+        "x": 6.857420283973516,
+        "y": 7.344389618486598
+      },
+      "nextControl": {
+        "x": 5.388242272083561,
+        "y": 7.559542751637228
+      },
+      "isLocked": false,
+      "linkedName": "Trench Out"
+    },
+    {
+      "anchor": {
+        "x": 4.107102564102565,
+        "y": 7.55
+      },
+      "prevControl": {
+        "x": 4.395852301345502,
+        "y": 7.628242095931844
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": null
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.5614035087719549,
+      "rotationDegrees": 0.4109090176258215
+    },
+    {
+      "waypointRelativePos": 1.6578947368421022,
+      "rotationDegrees": -89.01058590536987
+    },
+    {
+      "waypointRelativePos": 2.429824561403512,
+      "rotationDegrees": 19.153311738908936
+    },
+    {
+      "waypointRelativePos": 2.666666666666671,
+      "rotationDegrees": 19.671021421215176
+    },
+    {
+      "waypointRelativePos": 3.1929824561403493,
+      "rotationDegrees": 106.48605337774738
+    },
+    {
+      "waypointRelativePos": 4.0087719298246,
+      "rotationDegrees": 0.0
+    }
+  ],
+  "constraintZones": [
+    {
+      "name": "Constraints Zone",
+      "minWaypointRelativePos": 1.3997785160575782,
+      "maxWaypointRelativePos": 3.331118493909193,
+      "constraints": {
+        "maxVelocity": 2.5,
+        "maxAcceleration": 10.0,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 720.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    }
+  ],
+  "pointTowardsZones": [],
+  "eventMarkers": [
+    {
+      "name": "Run Intake",
+      "waypointRelativePos": 1.2048726467330955,
+      "endWaypointRelativePos": null,
+      "command": null
+    },
+    {
+      "name": "Shooter Running",
+      "waypointRelativePos": 5,
+      "endWaypointRelativePos": 7.796234772979149,
+      "command": null
+    },
+    {
+      "name": "Stop Intake",
+      "waypointRelativePos": 5,
+      "endWaypointRelativePos": null,
+      "command": null
+    },
+    {
+      "name": "Run Intake",
+      "waypointRelativePos": 5.5,
+      "endWaypointRelativePos": null,
+      "command": null
+    },
+    {
+      "name": "Stop Intake",
+      "waypointRelativePos": 5.9,
+      "endWaypointRelativePos": null,
+      "command": null
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 5.0,
+    "maxAcceleration": 10.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0.5,
+    "rotation": 0.0
+  },
+  "reversed": false,
+  "folder": null,
+  "idealStartingState": {
+    "velocity": 2.0,
+    "rotation": 0.0
+  },
+  "useDefaultConstraints": false
+}}

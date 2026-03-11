@@ -19,7 +19,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Second Swipe Blitz"
+            "pathName": "Second Swipe"
           }
         },
         {
@@ -31,7 +31,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Depot Triple Swipe Blitz 3"
+            "pathName": "Third Swipe"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Swipe Shoot"
           }
         }
       ]

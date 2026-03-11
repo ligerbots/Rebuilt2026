@@ -16,16 +16,16 @@
     },
     {
       "anchor": {
-        "x": 5.8164487179487185,
-        "y": 7.55
+        "x": 5.794831291689409,
+        "y": 7.5
       },
       "prevControl": {
-        "x": 5.655417490914489,
-        "y": 7.741230081106113
+        "x": 5.63380006465518,
+        "y": 7.691230081106113
       },
       "nextControl": {
-        "x": 6.973569672101591,
-        "y": 6.175879352796577
+        "x": 6.951952245842281,
+        "y": 6.125879352796577
       },
       "isLocked": false,
       "linkedName": "Trench Out"
@@ -64,16 +64,16 @@
     },
     {
       "anchor": {
-        "x": 5.8164487179487185,
-        "y": 7.55
+        "x": 5.794831291689409,
+        "y": 7.5
       },
       "prevControl": {
-        "x": 6.442063137376521,
-        "y": 7.487370260085702
+        "x": 6.420445711117211,
+        "y": 7.437370260085702
       },
       "nextControl": {
-        "x": 5.500012834322618,
-        "y": 7.5816781334886425
+        "x": 5.478395408063308,
+        "y": 7.531678133488643
       },
       "isLocked": false,
       "linkedName": "Trench Out"
@@ -210,7 +210,7 @@
     },
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 5.12292358803988,
+      "minWaypointRelativePos": 5.1,
       "maxWaypointRelativePos": 6.4,
       "constraints": {
         "maxVelocity": 1.5,
@@ -263,15 +263,15 @@
       "command": null
     },
     {
-      "name": "Stop Intake",
-      "waypointRelativePos": 5.342192691029845,
-      "endWaypointRelativePos": null,
+      "name": "Shooter Running",
+      "waypointRelativePos": 5.15,
+      "endWaypointRelativePos": 8.930232558139553,
       "command": null
     },
     {
-      "name": "Shooter Running",
-      "waypointRelativePos": 5.566509115462519,
-      "endWaypointRelativePos": 8.930232558139553,
+      "name": "Stop Intake",
+      "waypointRelativePos": 5.342192691029845,
+      "endWaypointRelativePos": null,
       "command": null
     },
     {
