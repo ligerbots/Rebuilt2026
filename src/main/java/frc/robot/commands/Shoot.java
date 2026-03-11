@@ -118,6 +118,10 @@ public class Shoot extends Command {
         m_feeder.stop();
         m_hopper.stop();
 
+        // erase our velocity vector scribblings
+        m_turret.plotCentripitalVector(null, 0, null);
+        m_turret.plotRobotVector(null, 1, null);
+
         // plot with 0 distance to turn it off
         if (PLOT_SHOT_LOCATION) m_turret.plotTurretHeading(null, 0);
     }
@@ -184,7 +188,7 @@ public class Shoot extends Command {
 
         // net velocity of the turret: velocity of the robot's center, plus centripetal velocity around the center
         Translation2d turretVelTotal = robotVelVector.plus(centripetalVelocity);
-
+        
         Pose2d lookaheadPose = futureRobotPose;
 
         Translation2d targetVector = Turret.getTranslationToGoal(lookaheadPose, target);
@@ -205,6 +209,10 @@ public class Shoot extends Command {
 
             if (Math.abs(targetDistance - previousTargetDistance) < 0.03) {
                 // if the target distance did not change much, we've converged enough
+                m_turret.plotCentripitalVector(currentPose, centripetalVelocity.times(timeOfFlight).getNorm(),
+                                               turretCentripetalDirection);
+                m_turret.plotRobotVector(currentPose, robotVelVector.times(timeOfFlight).getNorm(),
+                                         robotVelVector.getAngle());                                               
                 break;
             }
 

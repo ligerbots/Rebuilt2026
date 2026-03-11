@@ -289,7 +289,45 @@ public class Turret extends SubsystemBase {
         );
     }
 
-    private static Translation2d getTurretFieldPosition(Pose2d robotPose) {
+    public void plotRobotVector(Pose2d robotPose, double distance, Rotation2d robotHeading) {
+        if (robotPose == null) {
+            m_field.getObject("robotHeading").setPoses();
+            return;
+        }
+
+        Translation2d turretLoc = getTurretFieldPosition(robotPose);
+
+        // We don't simulate the turret, so use the goal instead during simulation
+        Rotation2d turretHeadingRobot = Robot.isSimulation() ? Rotation2d.fromDegrees(getGoalDeg()) : getAngle();
+        Rotation2d turretHeadingField = turretHeadingRobot.rotateBy(robotPose.getRotation());
+
+        Translation2d endLoc = turretLoc.plus(new Translation2d(distance, robotHeading));
+        m_field.getObject("robotHeading").setPoses(
+                new Pose2d(turretLoc, turretHeadingField),
+                new Pose2d(endLoc, robotHeading)
+        );
+    }
+
+    public void plotCentripitalVector(Pose2d robotPose, double distance, Rotation2d centripitalHeading) {
+        if (robotPose == null) {
+            m_field.getObject("centripitalHeading").setPoses();
+            return;
+        }
+
+        Translation2d turretLoc = getTurretFieldPosition(robotPose);
+
+        // We don't simulate the turret, so use the goal instead during simulation
+        Rotation2d turretHeadingRobot = Robot.isSimulation() ? Rotation2d.fromDegrees(getGoalDeg()) : getAngle();
+        Rotation2d turretHeadingField = turretHeadingRobot.rotateBy(robotPose.getRotation());
+
+        Translation2d endLoc = turretLoc.plus(new Translation2d(distance, centripitalHeading));
+        m_field.getObject("centripitalHeading").setPoses(
+                new Pose2d(turretLoc, turretHeadingField),
+                new Pose2d(endLoc, centripitalHeading)
+        );
+    }
+
+    public static Translation2d getTurretFieldPosition(Pose2d robotPose) {
         return TURRET_OFFSET.rotateBy(robotPose.getRotation()).plus(robotPose.getTranslation());
     }
     
