@@ -80,7 +80,7 @@ public class Shoot extends Command {
         // Translation2d translationToTarget = Turret.getTranslationToGoal(robotPose, target);
 
         ShootValue shotValue;
-        double shotDistance = shotVector.getNorm();
+        // double shotDistance = shotVector.getNorm();
         if (m_shotType == ShotType.TEST) {
             shotValue = testShotValue();
         } else {
@@ -105,12 +105,8 @@ public class Shoot extends Command {
             //  maybe widen the tolerance and re-enable this code?
             // m_feeder.stop();
             // m_hopper.stop();
-            if (PLOT_SHOT_LOCATION) m_turret.plotTurretHeading(robotPose, 0);
         }
-        
-        // the turret is not simulated, so just update always
-        if (PLOT_SHOT_LOCATION && RobotBase.isSimulation()) m_turret.plotTurretHeading(robotPose, shotDistance);
-}
+    }
     
     @Override
     public void end(boolean interrupted) {
@@ -118,13 +114,10 @@ public class Shoot extends Command {
         m_feeder.stop();
         m_hopper.stop();
 
-        // erase our velocity vector scribblings
-        if (PLOT_SHOT_LOCATION) m_turret.plotShootVectors(null, 1, 1, null, 1, null);
-        // m_turret.plotCentripitalVector(null, 0, null);
-        // m_turret.plotRobotVector(null, 1, null);
-
-        // plot with 0 distance to turn it off
-        if (PLOT_SHOT_LOCATION) m_turret.plotTurretHeading(null, 0);
+        if (PLOT_SHOT_LOCATION) {
+            // erase our velocity vector scribblings
+            m_turret.plotShotVectors(null, null, null, null);
+        }
     }
     
     /**
@@ -181,19 +174,20 @@ public class Shoot extends Command {
 
         // Centripetal Velocity Calculator
         // This is the speed of the turret caused by the robot rotating
-        double turretCentripetalSpeed = speedInformation.omegaRadiansPerSecond * Turret.TURRET_OFFSET.getNorm();
+        double turretCentripetalSpeed = Math.abs(speedInformation.omegaRadiansPerSecond) * Turret.TURRET_OFFSET.getNorm();
+        
         // net field direction of the "centripetal" velocity
-        Rotation2d turretOffsetWorldAngle = futureRobotPose.getRotation()
-        .plus(Turret.TURRET_OFFSET.getAngle());
-
-        Rotation2d turretCentripetalDirection = turretOffsetWorldAngle
-        .plus(Rotation2d.kCCW_90deg);
+        // do the sum directly to save some object constructors
+        Rotation2d turretCentripetalDirection = Rotation2d.fromDegrees(
+                futureRobotPose.getRotation().getDegrees() + 
+                Turret.TURRET_OFFSET.getAngle().getDegrees() +
+                Math.copySign(90.0, speedInformation.omegaRadiansPerSecond));
         
         Translation2d centripetalVelocity = new Translation2d(turretCentripetalSpeed, turretCentripetalDirection);
 
         // net velocity of the turret: velocity of the robot's center, plus centripetal velocity around the center
         Translation2d turretVelTotal = robotVelVector.plus(centripetalVelocity);
-        
+
         Pose2d lookaheadPose = futureRobotPose;
 
         Translation2d targetVector = Turret.getTranslationToGoal(lookaheadPose, target);
@@ -213,16 +207,11 @@ public class Shoot extends Command {
             targetDistance = targetVector.getNorm();
 
             if (Math.abs(targetDistance - previousTargetDistance) < 0.03) {
-                if (PLOT_SHOT_LOCATION) {
                 // if the target distance did not change much, we've converged enough
-
-                    m_turret.plotShootVectors(currentPose, targetDistance, robotVelVector.times(timeOfFlight).getNorm(), robotVelVector.getAngle(),
-                                                                           centripetalVelocity.times(timeOfFlight).getNorm(), turretCentripetalDirection);
-                    
-                    // m_turret.plotCentripitalVector(currentPose, centripetalVelocity.times(timeOfFlight).getNorm(),
-                    //                                turretCentripetalDirection);
-                    // m_turret.plotRobotVector(currentPose, robotVelVector.times(timeOfFlight).getNorm(),
-                    //                          robotVelVector.getAngle());
+                if (PLOT_SHOT_LOCATION) {
+                    m_turret.plotShotVectors(currentPose, 
+                            targetVector, robotVelVector.times(timeOfFlight),
+                            centripetalVelocity.times(timeOfFlight));
                 }                                   
                 break;
             }
