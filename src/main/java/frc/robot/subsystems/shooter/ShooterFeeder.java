@@ -28,7 +28,7 @@ public class ShooterFeeder extends SubsystemBase {
     private static final double REVERSE_RPM = -1000.0;
     
     private static final double SUPPLY_CURRENT_LIMIT = 40;
-    private static final double STATOR_CURRENT_LIMIT = 60;
+    private static final double STATOR_CURRENT_LIMIT = 80;
     
     private double m_goalRPM;
     private final TalonFX m_motor;
