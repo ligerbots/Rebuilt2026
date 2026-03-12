@@ -80,7 +80,6 @@ public class Shoot extends Command {
         // Translation2d translationToTarget = Turret.getTranslationToGoal(robotPose, target);
 
         ShootValue shotValue;
-        // double shotDistance = shotVector.getNorm();
         if (m_shotType == ShotType.TEST) {
             shotValue = testShotValue();
         } else {
@@ -99,7 +98,6 @@ public class Shoot extends Command {
         if (m_flywheelOnTarget && m_turret.isOnTarget()) {
             m_feeder.setRPM(shotValue.feedRPM);
             m_hopper.feed();
-            // if (PLOT_SHOT_LOCATION) m_turret.plotTurretHeading(robotPose, shotDistance);
         } else {
             // TODO: turret seemed to be interrupting the shot too much
             //  maybe widen the tolerance and re-enable this code?
