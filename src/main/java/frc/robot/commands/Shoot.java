@@ -103,6 +103,8 @@ public class Shoot extends Command {
             //  maybe widen the tolerance and re-enable this code?
             // m_feeder.stop();
             // m_hopper.stop();
+
+            // if (PLOT_SHOT_LOCATION) m_turret.plotShotVectors(null, null, null, null);
         }
     }
     
@@ -112,10 +114,8 @@ public class Shoot extends Command {
         m_feeder.stop();
         m_hopper.stop();
 
-        if (PLOT_SHOT_LOCATION) {
-            // erase our velocity vector scribblings
-            m_turret.plotShotVectors(null, null, null, null);
-        }
+        // erase our velocity vector scribblings
+        if (PLOT_SHOT_LOCATION) m_turret.plotShotVectors(null, null, null, null);
     }
     
     /**
