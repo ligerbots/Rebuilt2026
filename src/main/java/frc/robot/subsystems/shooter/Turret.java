@@ -268,6 +268,32 @@ public class Turret extends SubsystemBase {
         return turretToTarget;
     }
 
+    public void plotShootVectors(Pose2d robotPose, double distance, double robotDistance, Rotation2d robotHeading, 
+                                                                    double centripitalDistance, Rotation2d centripitalHeading) {
+        if (robotHeading == null) return;
+        Translation2d turretLoc = getTurretFieldPosition(robotPose);
+
+        // We don't simulate the turret, so use the goal instead during simulation
+        Rotation2d turretHeadingRobot = Robot.isSimulation() ? Rotation2d.fromDegrees(getGoalDeg()) : getAngle();
+        Rotation2d turretHeadingField = turretHeadingRobot.rotateBy(robotPose.getRotation());
+
+        Translation2d robotEndLoc = turretLoc.plus(new Translation2d(distance, turretHeadingField));
+        Translation2d robotVecEndLoc = robotEndLoc.plus(new Translation2d(robotDistance, robotHeading));
+        Translation2d centripitalEndLoc = robotVecEndLoc.plus(new Translation2d(centripitalDistance, centripitalHeading));
+        m_field.getObject("turretHeading").setPoses(
+                new Pose2d(turretLoc, turretHeadingField),
+                new Pose2d(robotEndLoc, turretHeadingField)
+        );
+        m_field.getObject("robotHeading").setPoses(
+                new Pose2d(robotEndLoc, robotHeading),
+                new Pose2d(robotVecEndLoc, robotHeading) 
+        );
+        m_field.getObject("centripitalHeading").setPoses(
+                new Pose2d(robotVecEndLoc, centripitalHeading),
+                new Pose2d(centripitalEndLoc, centripitalHeading)  
+        );
+    }
+
     public void plotTurretHeading(Pose2d robotPose, double distance) {
         // simulation does not work, so fake when it should be turned off
         if (robotPose == null || distance < 1.0 || 

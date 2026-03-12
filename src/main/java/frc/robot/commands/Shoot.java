@@ -99,7 +99,7 @@ public class Shoot extends Command {
         if (m_flywheelOnTarget && m_turret.isOnTarget()) {
             m_feeder.setRPM(shotValue.feedRPM);
             m_hopper.feed();
-            if (PLOT_SHOT_LOCATION) m_turret.plotTurretHeading(robotPose, shotDistance);
+            // if (PLOT_SHOT_LOCATION) m_turret.plotTurretHeading(robotPose, shotDistance);
         } else {
             // TODO: turret seemed to be interrupting the shot too much
             //  maybe widen the tolerance and re-enable this code?
@@ -119,8 +119,9 @@ public class Shoot extends Command {
         m_hopper.stop();
 
         // erase our velocity vector scribblings
-        m_turret.plotCentripitalVector(null, 0, null);
-        m_turret.plotRobotVector(null, 1, null);
+        if (PLOT_SHOT_LOCATION) m_turret.plotShootVectors(null, 1, 1, null, 1, null);
+        // m_turret.plotCentripitalVector(null, 0, null);
+        // m_turret.plotRobotVector(null, 1, null);
 
         // plot with 0 distance to turn it off
         if (PLOT_SHOT_LOCATION) m_turret.plotTurretHeading(null, 0);
@@ -208,11 +209,17 @@ public class Shoot extends Command {
             targetDistance = targetVector.getNorm();
 
             if (Math.abs(targetDistance - previousTargetDistance) < 0.03) {
+                if (PLOT_SHOT_LOCATION) {
                 // if the target distance did not change much, we've converged enough
-                m_turret.plotCentripitalVector(currentPose, centripetalVelocity.times(timeOfFlight).getNorm(),
-                                               turretCentripetalDirection);
-                m_turret.plotRobotVector(currentPose, robotVelVector.times(timeOfFlight).getNorm(),
-                                         robotVelVector.getAngle());                                               
+
+                    m_turret.plotShootVectors(currentPose, targetDistance, robotVelVector.times(timeOfFlight).getNorm(), robotVelVector.getAngle(),
+                                                                           centripetalVelocity.times(timeOfFlight).getNorm(), turretCentripetalDirection);
+                    
+                    // m_turret.plotCentripitalVector(currentPose, centripetalVelocity.times(timeOfFlight).getNorm(),
+                    //                                turretCentripetalDirection);
+                    // m_turret.plotRobotVector(currentPose, robotVelVector.times(timeOfFlight).getNorm(),
+                    //                          robotVelVector.getAngle());
+                }                                   
                 break;
             }
 
