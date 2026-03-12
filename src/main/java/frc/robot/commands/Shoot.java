@@ -183,8 +183,12 @@ public class Shoot extends Command {
         // This is the speed of the turret caused by the robot rotating
         double turretCentripetalSpeed = speedInformation.omegaRadiansPerSecond * Turret.TURRET_OFFSET.getNorm();
         // net field direction of the "centripetal" velocity
-        Rotation2d turretCentripetalDirection = futureRobotPose.getRotation().plus(Rotation2d.kCCW_90deg).plus(Turret.TURRET_OFFSET.getAngle());
-        // centripetal velocity vector (velocity of turret around the center of the robot)
+        Rotation2d turretOffsetWorldAngle = futureRobotPose.getRotation()
+        .plus(Turret.TURRET_OFFSET.getAngle());
+
+        Rotation2d turretCentripetalDirection = turretOffsetWorldAngle
+        .plus(Rotation2d.kCCW_90deg);
+        
         Translation2d centripetalVelocity = new Translation2d(turretCentripetalSpeed, turretCentripetalDirection);
 
         // net velocity of the turret: velocity of the robot's center, plus centripetal velocity around the center
