@@ -207,7 +207,7 @@ public class Shoot extends Command {
             if (Math.abs(targetDistance - previousTargetDistance) < 0.03) {
                 // if the target distance did not change much, we've converged enough
                 if (PLOT_SHOT_LOCATION) {
-                    m_turret.plotShotVectors(currentPose, 
+                    m_turret.plotShotVectors(futureRobotPose, 
                             targetVector, robotVelVector.times(timeOfFlight),
                             centripetalVelocity.times(timeOfFlight));
                 }                                   
