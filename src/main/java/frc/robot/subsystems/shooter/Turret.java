@@ -268,28 +268,41 @@ public class Turret extends SubsystemBase {
         return turretToTarget;
     }
 
-    public void plotTurretHeading(Pose2d robotPose, double distance) {
-        // simulation does not work, so fake when it should be turned off
-        if (robotPose == null || distance < 1.0 || 
-                (Robot.isSimulation() && Math.abs(getGoalDeg() - getShootAngleDeg()) > 2.0)) {
+    public void plotShotVectors(Pose2d robotPose, Translation2d targetVector, Translation2d robotMotion, Translation2d centripetalMotion) {
+        if (robotPose == null || targetVector == null) {
+            // erase the lines
             m_field.getObject("turretHeading").setPoses();
+            m_field.getObject("robotHeading").setPoses();
+            m_field.getObject("centripetalHeading").setPoses();
             return;
         }
 
         Translation2d turretLoc = getTurretFieldPosition(robotPose);
 
-        // We don't simulate the turret, so use the goal instead during simulation
-        Rotation2d turretHeadingRobot = Robot.isSimulation() ? Rotation2d.fromDegrees(getGoalDeg()) : getAngle();
+        Rotation2d turretHeadingRobot = targetVector.getAngle();
         Rotation2d turretHeadingField = turretHeadingRobot.rotateBy(robotPose.getRotation());
 
-        Translation2d endLoc = turretLoc.plus(new Translation2d(distance, turretHeadingField));
+        Translation2d robotEndLoc = turretLoc.plus(new Translation2d(targetVector.getNorm(), turretHeadingField));
+
+        Translation2d robotVecEndLoc = robotEndLoc.plus(robotMotion);
+        Translation2d centripetalEndLoc = robotVecEndLoc.plus(centripetalMotion);
+
         m_field.getObject("turretHeading").setPoses(
                 new Pose2d(turretLoc, turretHeadingField),
-                new Pose2d(endLoc, turretHeadingField)
+                new Pose2d(robotEndLoc, turretHeadingField)
+        );
+
+        m_field.getObject("robotHeading").setPoses(
+                new Pose2d(robotEndLoc, robotMotion.getAngle()),
+                new Pose2d(robotVecEndLoc, robotMotion.getAngle()) 
+        );
+        m_field.getObject("centripetalHeading").setPoses(
+                new Pose2d(robotVecEndLoc, centripetalMotion.getAngle()),
+                new Pose2d(centripetalEndLoc, centripetalMotion.getAngle())  
         );
     }
 
-    private static Translation2d getTurretFieldPosition(Pose2d robotPose) {
+    public static Translation2d getTurretFieldPosition(Pose2d robotPose) {
         return TURRET_OFFSET.rotateBy(robotPose.getRotation()).plus(robotPose.getTranslation());
     }
     
