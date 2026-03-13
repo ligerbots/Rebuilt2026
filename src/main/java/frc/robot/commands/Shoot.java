@@ -37,7 +37,8 @@ public class Shoot extends Command {
 
     private final Shooter.ShotType m_shotType;
 
-    private static final double LATENCY_SECONDS = 0.075; 
+    private static final double LATENCY_SECONDS_TRANSLATION = 0.075;
+    private static final double LATENCY_SECONDS_ROTATION = 0.075;
 
     // We want to "latch" the shooting on as soon as the flywheel is up
     //   to speed once. Otherwise, we turn off the feeder when the RPM drops - bad
@@ -165,8 +166,8 @@ public class Shoot extends Command {
         Translation2d robotVelVector = new Translation2d(speedInformation.vxMetersPerSecond, speedInformation.vyMetersPerSecond);
 
         Pose2d futureRobotPose = new Pose2d(
-            currentPose.getTranslation().plus(robotVelVector.times(LATENCY_SECONDS)),
-            currentPose.getRotation().plus(Rotation2d.fromRadians(speedInformation.omegaRadiansPerSecond * LATENCY_SECONDS))
+            currentPose.getTranslation().plus(robotVelVector.times(LATENCY_SECONDS_TRANSLATION)),
+            currentPose.getRotation().plus(Rotation2d.fromRadians(speedInformation.omegaRadiansPerSecond * LATENCY_SECONDS_ROTATION))
         );
 
         // Centripetal Velocity Calculator
