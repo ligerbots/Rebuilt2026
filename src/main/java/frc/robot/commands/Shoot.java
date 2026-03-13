@@ -9,7 +9,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 
@@ -38,7 +37,7 @@ public class Shoot extends Command {
 
     private final Shooter.ShotType m_shotType;
 
-    private static final double LATENCY_SECONDS = 0.05; 
+    private static final double LATENCY_SECONDS = 0.075; 
 
     // We want to "latch" the shooting on as soon as the flywheel is up
     //   to speed once. Otherwise, we turn off the feeder when the RPM drops - bad

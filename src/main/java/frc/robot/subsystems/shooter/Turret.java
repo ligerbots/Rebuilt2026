@@ -54,12 +54,12 @@ public class Turret extends SubsystemBase {
     private static final double TURRET_GEAR_RATIO =  54.0 / 12.0 * TURRET_TOOTH_COUNT / 10.0;
     
     private static final double K_P = 2.0;
-    // private static final double MAX_VEL_ROT_PER_SEC = 4.0 * TURRET_GEAR_RATIO;
-    // private static final double MAX_ACC_ROT_PER_SEC_SQ = 40.0 * TURRET_GEAR_RATIO;
-    //
-    // 2/14 - Slowed down for testing, until chain working properly
     private static final double MAX_VEL_ROT_PER_SEC = 2.0 * TURRET_GEAR_RATIO;
     private static final double MAX_ACC_ROT_PER_SEC_SQ = 10.0 * TURRET_GEAR_RATIO;
+    //
+    // 2/14 - Slowed down for testing, until chain working properly
+    // private static final double MAX_VEL_ROT_PER_SEC = 2.0 * TURRET_GEAR_RATIO;
+    // private static final double MAX_ACC_ROT_PER_SEC_SQ = 10.0 * TURRET_GEAR_RATIO;
 
     private static final double MAX_ROTATION_DEG = 165.0;
     private static final double MIN_ROTATION_DEG = -185.0; // -220 is max
