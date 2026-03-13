@@ -17,6 +17,7 @@ import com.pathplanner.lib.events.EventTrigger;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -225,6 +226,7 @@ public class RobotContainerCompBot extends RobotContainer {
         m_driverController.rightTrigger().whileTrue(new Shoot(m_shooter, m_turret, m_shooterFeeder, m_hopper,
                     m_drivetrain::getPose, m_drivetrain::getFieldCentricSpeeds, ShotType.AUTO));
 
+        // shoot while intaking
         m_driverController.rightBumper().whileTrue(new Shoot(m_shooter, m_turret, m_shooterFeeder, m_hopper,
                     m_drivetrain::getPose, m_drivetrain::getFieldCentricSpeeds, ShotType.AUTO));
         m_driverController.rightBumper().onTrue(m_intake.getPivot().deployCommand());
@@ -243,7 +245,11 @@ public class RobotContainerCompBot extends RobotContainer {
         // lock wheels
         m_driverController.y().whileTrue(m_drivetrain.applyRequest(() -> m_brakeRequest));
 
-        m_driverController.a().whileTrue(new Shoot(m_shooter, m_turret, m_shooterFeeder, m_hopper,
+        // fix shot near the Ladder - distance in inches, plus ROBOT angle of turret 
+        m_driverController.b().whileTrue(new Shoot(m_shooter, m_turret, m_shooterFeeder, m_hopper,
+                    m_drivetrain::getPose, m_drivetrain::getFieldCentricSpeeds, 130.0, Rotation2d.kCCW_90deg));
+
+        m_farm.button(15).whileTrue(new Shoot(m_shooter, m_turret, m_shooterFeeder, m_hopper,
                     m_drivetrain::getPose, m_drivetrain::getFieldCentricSpeeds, ShotType.TEST));
 
         m_farm.button(1).onTrue(new InstantCommand(m_shooter::increaseFlyFudge));

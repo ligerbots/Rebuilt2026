@@ -14,8 +14,9 @@ public class Shooter extends SubsystemBase {
     public enum ShotType {
         HUB,
         PASS,
-        TEST,   // test shot using SmartDashboard values. See Shoot cmd
-        AUTO    // auto select hub vs pass
+        TEST,    // test shot using SmartDashboard values. See Shoot cmd
+        AUTO,    // auto select hub vs pass
+        FIXED    // fixed distance and turret heading
     }
     
     private static final String HUB_LOOKUP_TABLE_FILE = "hub_shot_lookup_table.csv"; 
