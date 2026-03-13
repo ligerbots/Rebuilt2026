@@ -28,7 +28,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.InternalButton;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
+
 import frc.robot.commands.*;
 import frc.robot.commands.autoCommands.AutoCommandInterface;
 import frc.robot.commands.autoCommands.CoreAuto;
@@ -240,6 +240,9 @@ public class RobotContainerCompBot extends RobotContainer {
         // Stow the intake
         m_driverController.leftBumper().onTrue(m_intake.stowCommand());
 
+        // lock wheels
+        m_driverController.y().whileTrue(m_drivetrain.applyRequest(() -> m_brakeRequest));
+
         m_driverController.a().whileTrue(new Shoot(m_shooter, m_turret, m_shooterFeeder, m_hopper,
                     m_drivetrain::getPose, m_drivetrain::getFieldCentricSpeeds, ShotType.TEST));
 
@@ -252,24 +255,12 @@ public class RobotContainerCompBot extends RobotContainer {
         m_farm.button(4).onTrue(new InstantCommand(m_turret::increaseTurretFudge));
         m_farm.button(5).onTrue(new InstantCommand(m_turret::decreaseTurretFudge));
 
-        m_farm.button(21).whileTrue(
-                new ParallelCommandGroup(
-                        new StartEndCommand(m_hopper::reverse, m_hopper::stop, m_hopper),
-                        new StartEndCommand(m_intake.getRoller()::outtake, m_intake.getRoller()::stop, m_intake),
-                        new StartEndCommand(m_shooterFeeder::runReverse, m_shooterFeeder::stop, m_shooterFeeder)
-            ));
+        // Unjam
+        m_farm.button(21).whileTrue(UnJamCommand());
+        m_driverController.x().whileTrue(UnJamCommand());
 
-        // SmartDashboard.putNumber("hood/testAngle", 0.0);
-        // SmartDashboard.putNumber("flywheel/testRPM", 0.0); 
-        // SmartDashboard.putNumber("shooterFeeder/testRPM", 0.0); 
-
-        m_driverController.x().onTrue(new InstantCommand(m_shooter::stop).alongWith(new InstantCommand(m_shooterFeeder::stop)));
-
-        // lock wheels
-        // m_driverController.a().whileTrue(m_drivetrain.applyRequest(() -> m_brakeRequest));
-        // m_driverController.b().whileTrue(drivetrain.applyRequest(() ->
-        //     point.withModuleDirection(new Rotation2d(-m_driverController.getLeftY(), -m_driverController.getLeftX()))
-        // ));
+        // Reset the field-centric heading on Start press.
+        m_driverController.start().onTrue(m_drivetrain.runOnce(m_drivetrain::seedFieldCentric));
 
         // Run SysId routines when holding back/start and X/Y.
         // Note that each routine should be run exactly once in a single log.
@@ -277,9 +268,6 @@ public class RobotContainerCompBot extends RobotContainer {
         // m_driverController.back().and(m_driverController.x()).whileTrue(m_drivetrain.sysIdDynamic(Direction.kReverse));
         // m_driverController.start().and(m_driverController.y()).whileTrue(m_drivetrain.sysIdQuasistatic(Direction.kForward));
         // m_driverController.start().and(m_driverController.x()).whileTrue(m_drivetrain.sysIdQuasistatic(Direction.kReverse));
-
-        // Reset the field-centric heading on left bumper press.
-        // m_driverController.leftBumper().onTrue(m_drivetrain.runOnce(m_drivetrain::seedFieldCentric));
 
         m_drivetrain.registerTelemetry(m_logger::telemeterize);
 
@@ -300,11 +288,11 @@ public class RobotContainerCompBot extends RobotContainer {
         // SmartDashboard.putNumber("turret/testAngle", 0.0);
         // m_driverController.a().onTrue(new InstantCommand(() -> m_turret.setAngle(Rotation2d.fromDegrees(SmartDashboard.getNumber("turret/testAngle", 0.0)))));
 
-        Command turretAngleTest = new TMP_turretAngleTest(m_drivetrain::getPose, m_turret);
-        m_driverController.start().whileTrue(turretAngleTest);
-        SmartDashboard.putBoolean("TurretAngleTest", false);
-        Trigger turretAngleTestTrigger = new Trigger(() -> SmartDashboard.getBoolean("TurretAngleTest", false));
-        turretAngleTestTrigger.whileTrue(turretAngleTest);
+        // Command turretAngleTest = new TMP_turretAngleTest(m_drivetrain::getPose, m_turret);
+        // m_driverController.start().whileTrue(turretAngleTest);
+        // SmartDashboard.putBoolean("TurretAngleTest", false);
+        // Trigger turretAngleTestTrigger = new Trigger(() -> SmartDashboard.getBoolean("TurretAngleTest", false));
+        // turretAngleTestTrigger.whileTrue(turretAngleTest);
     }
 
     public CommandSwerveDrivetrain getDriveTrain() {
@@ -343,12 +331,19 @@ public class RobotContainerCompBot extends RobotContainer {
                 m_driveRequest.withVelocityX(-conditionAxis(m_driverController.getLeftY()) * MAX_SPEED)
                     .withVelocityY(-conditionAxis(m_driverController.getLeftX()) * MAX_SPEED)
                     .withRotationalRate(-conditionAxis(m_driverController.getRightX()) * MAX_ANGULAR_RATE)
-            );
+);
     }
 
     private double conditionAxis(double value) {
         value = MathUtil.applyDeadband(value, JOYSTICK_DEADBAND);
         // Square the axis, retaining the sign
         return Math.abs(value) * value;
+    }
+
+    private Command UnJamCommand() {
+        return new ParallelCommandGroup(
+                new StartEndCommand(m_hopper::reverse, m_hopper::stop, m_hopper),
+                new StartEndCommand(m_intake.getRoller()::outtake, m_intake.getRoller()::stop, m_intake),
+                new StartEndCommand(m_shooterFeeder::runReverse, m_shooterFeeder::stop, m_shooterFeeder));
     }
 }
