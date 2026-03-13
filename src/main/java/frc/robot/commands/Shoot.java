@@ -26,7 +26,7 @@ import frc.robot.utilities.ShooterLookupTable.ShootValue;
 * Manages turret aiming, shooter spin-up, and feeder activation.
 */
 public class Shoot extends Command {
-    static final boolean PLOT_SHOT_LOCATION = true;
+    static final boolean PLOT_SHOT_LOCATION = false;
 
     // Tolerance values for comparing actual vs target values
     private final Shooter m_shooter;

@@ -324,8 +324,8 @@ public class AprilTagVision {
             return Optional.empty();
 
         // discard if not on the field
-        double x = poseEst.estimatedPose.getX();
-        double y = poseEst.estimatedPose.getY();
+        // double x = poseEst.estimatedPose.getX();
+        // double y = poseEst.estimatedPose.getY();
         // allow measurements slightly off the field. 
         // This prevents bias of the average result being further onto the field than the robot really is
         // if (x < -0.5 || x > (FieldConstants.FIELD_LENGTH + 0.5) || y < -0.5 || y > (FieldConstants.FIELD_WIDTH + 0.5))

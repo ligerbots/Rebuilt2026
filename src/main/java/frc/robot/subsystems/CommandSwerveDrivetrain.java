@@ -158,9 +158,9 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
         m_aprilTagVision = aprilTagVision;
 
-        if (RobotBase.isReal() && Constants.OPTIMIZE_CAN) {
-            optimizeCAN();
-        }
+        // if (RobotBase.isReal() && Constants.OPTIMIZE_CAN) {
+        //     optimizeCAN();
+        // }
     }
 
     // /**
