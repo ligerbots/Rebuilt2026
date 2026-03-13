@@ -245,9 +245,14 @@ public class RobotContainerCompBot extends RobotContainer {
         // lock wheels
         m_driverController.y().whileTrue(m_drivetrain.applyRequest(() -> m_brakeRequest));
 
-        // fix shot near the Ladder - distance in inches, plus ROBOT angle of turret 
+        // fixed shots - distance in inches, plus ROBOT angle of turret
+        // ladder - robot against the outside of the ladder, intake to the left for the dirver
         m_driverController.b().whileTrue(new Shoot(m_shooter, m_turret, m_shooterFeeder, m_hopper,
                     m_drivetrain::getPose, m_drivetrain::getFieldCentricSpeeds, 130.0, Rotation2d.kCCW_90deg));
+
+        // corner shot
+        m_driverController.a().whileTrue(new Shoot(m_shooter, m_turret, m_shooterFeeder, m_hopper,
+                    m_drivetrain::getPose, m_drivetrain::getFieldCentricSpeeds, 210.0, Rotation2d.kZero));
 
         m_farm.button(15).whileTrue(new Shoot(m_shooter, m_turret, m_shooterFeeder, m_hopper,
                     m_drivetrain::getPose, m_drivetrain::getFieldCentricSpeeds, ShotType.TEST));
@@ -337,7 +342,7 @@ public class RobotContainerCompBot extends RobotContainer {
                 m_driveRequest.withVelocityX(-conditionAxis(m_driverController.getLeftY()) * MAX_SPEED)
                     .withVelocityY(-conditionAxis(m_driverController.getLeftX()) * MAX_SPEED)
                     .withRotationalRate(-conditionAxis(m_driverController.getRightX()) * MAX_ANGULAR_RATE)
-);
+                );
     }
 
     private double conditionAxis(double value) {
