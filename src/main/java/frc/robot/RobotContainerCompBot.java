@@ -122,13 +122,6 @@ public class RobotContainerCompBot extends RobotContainer {
                 "Depot Trench Run Out"
                 ));
 
-        m_chosenAutoPaths.addOption("Depot Double Swipe Steal", List.of(
-                "First Swipe Steal",
-                "Swipe Shoot",
-                "Depot Double Swipe Blitz",
-                "Depot Trench Run Out"
-                ));
-
         m_chosenAutoPaths.addOption("Triple Swipe Blitz", List.of(
                 "First Swipe Blitz",
                 "Swipe Shoot",
@@ -138,51 +131,58 @@ public class RobotContainerCompBot extends RobotContainer {
                 "Swipe Shoot Alt"
                 ));
 
-        m_chosenAutoPaths.addOption("Out-Back Out-Back // Depot Double Blitz", List.of(
-                "Depot Double Blitz"
-        ));
+        // m_chosenAutoPaths.addOption("Depot Double Swipe Steal", List.of(
+        //         "First Swipe Steal",
+        //         "Swipe Shoot",
+        //         "Depot Double Swipe Blitz",
+        //         "Depot Trench Run Out"
+        //         ));
 
-        m_chosenAutoPaths.addOption("Orbit Auto First Cut", List.of(
-            1.7, // shoot preloaded balls for 1.7 seconds, then start auto paths
-            "Orbit Auto Step 1",
-            "Orbit Auto Step 2",
-            2.0, // shoot for 2 seconds
-            "Orbit Auto Step 3",
-            "Orbit Auto Step 4",
-            2.0, // shoot for 2 seconds
-            "Orbit Auto Step 5 trench to outpost",
-            5.0 // wait for 5 seconds at outpost to intake and shoot balls
-            ));
+        // m_chosenAutoPaths.addOption("Out-Back Out-Back // Depot Double Blitz", List.of(
+        //         "Depot Double Blitz"
+        // ));
 
-        m_chosenAutoPaths.addOption("Shoot While Moving", List.of(   
-                "Shoot While Moving"
-        ));
+        // m_chosenAutoPaths.addOption("Orbit Auto First Cut", List.of(
+        //     1.7, // shoot preloaded balls for 1.7 seconds, then start auto paths
+        //     "Orbit Auto Step 1",
+        //     "Orbit Auto Step 2",
+        //     2.0, // shoot for 2 seconds
+        //     "Orbit Auto Step 3",
+        //     "Orbit Auto Step 4",
+        //     2.0, // shoot for 2 seconds
+        //     "Orbit Auto Step 5 trench to outpost",
+        //     5.0 // wait for 5 seconds at outpost to intake and shoot balls
+        //     ));
 
-        m_chosenAutoPaths.addOption("SnowBlow // Depot Full Pass Blitz", List.of(
-                // "Depot Full Pass Blitz"
-                "Trench Start to Center Middle",
-                "Center Middle to Far Trench"));
+        // m_chosenAutoPaths.addOption("Shoot While Moving", List.of(   
+        //         "Shoot While Moving"
+        // ));
 
-        m_chosenAutoPaths.addOption("Out-Back Depot // Depot Single Pass Blitz", List.of(   
-                "Depot Single Pass Blitz"
-        ));
+        // m_chosenAutoPaths.addOption("SnowBlow // Depot Full Pass Blitz", List.of(
+        //         // "Depot Full Pass Blitz"
+        //         "Trench Start to Center Middle",
+        //         "Center Middle to Far Trench"));
 
-        m_chosenAutoPaths.addOption("Depot Single Pass", List.of(
-                "Depot Single Pass"
-        ));
+        // m_chosenAutoPaths.addOption("Out-Back Depot // Depot Single Pass Blitz", List.of(   
+        //         "Depot Single Pass Blitz"
+        // ));
 
-        m_chosenAutoPaths.addOption("Depot Simple", List.of(
-                "Depot Simple"
-        ));
-        m_chosenAutoPaths.addOption("Test Shooting While Rotating", List.of(
-                "Test Shooting While Rotating"
-        ));
+        // m_chosenAutoPaths.addOption("Depot Single Pass", List.of(
+        //         "Depot Single Pass"
+        // ));
 
-        m_chosenAutoPaths.addOption("Depot Single Pass Multipart", List.of(
-                "Trench Start to Center Middle",
-                "Center Middle to Depot",
-                "Depot to Finish"
-        ));
+        // m_chosenAutoPaths.addOption("Depot Simple", List.of(
+        //         "Depot Simple"
+        // ));
+        // m_chosenAutoPaths.addOption("Test Shooting While Rotating", List.of(
+        //         "Test Shooting While Rotating"
+        // ));
+
+        // m_chosenAutoPaths.addOption("Depot Single Pass Multipart", List.of(
+        //         "Trench Start to Center Middle",
+        //         "Center Middle to Depot",
+        //         "Depot to Finish"
+        // ));
 
         SmartDashboard.putData("Auto Choice", m_chosenAutoPaths);
 
