@@ -126,7 +126,7 @@ public class Shoot extends Command {
         // Run feeder only when shooter and turret are ready
         if (m_flywheelOnTarget && m_turret.isOnTarget()) {
             m_feeder.setRPM(shotValue.feedRPM);
-            m_hopper.feed();
+            // m_hopper.feed();
         } else {
             // TODO: turret seemed to be interrupting the shot too much
             //  maybe widen the tolerance and re-enable this code?

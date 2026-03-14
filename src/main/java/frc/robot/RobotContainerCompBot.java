@@ -200,7 +200,9 @@ public class RobotContainerCompBot extends RobotContainer {
 
     public Command getShootCommand() {
         return new Shoot(m_shooter, m_turret, m_shooterFeeder, m_hopper, m_drivetrain::getPose, m_drivetrain::getFieldCentricSpeeds, ShotType.AUTO)
-                        .alongWith(new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningShooter", true)));
+                        .alongWith(
+                            m_hopper.pulseCommand(),
+                            new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningShooter", true)));
     }
     
     private void configureAutoEventTriggers() {
@@ -243,15 +245,22 @@ public class RobotContainerCompBot extends RobotContainer {
         m_driverController.leftBumper().onTrue(m_intake.stowCommand());
 
         // lock wheels
-        m_driverController.y().whileTrue(m_drivetrain.applyRequest(() -> m_brakeRequest));
+        m_driverController.back().whileTrue(m_drivetrain.applyRequest(() -> m_brakeRequest));
+
+        // Unjam
+        m_farm.button(21).whileTrue(UnJamCommand());
+        m_driverController.a().whileTrue(UnJamHopperCommand());
+        m_driverController.b().whileTrue(UnJamHopperCommand());
+        m_driverController.y().whileTrue(UnJamHopperCommand());
+        m_driverController.x().whileTrue(UnJamHopperCommand());
 
         // fixed shots - distance in inches, plus ROBOT angle of turret
         // ladder - robot against the outside of the ladder, intake to the left for the dirver
-        m_driverController.b().whileTrue(new Shoot(m_shooter, m_turret, m_shooterFeeder, m_hopper,
+        m_farm.button(11).whileTrue(new Shoot(m_shooter, m_turret, m_shooterFeeder, m_hopper,
                     m_drivetrain::getPose, m_drivetrain::getFieldCentricSpeeds, 130.0, Rotation2d.kCCW_90deg));
 
         // corner shot
-        m_driverController.a().whileTrue(new Shoot(m_shooter, m_turret, m_shooterFeeder, m_hopper,
+        m_farm.button(13).whileTrue(new Shoot(m_shooter, m_turret, m_shooterFeeder, m_hopper,
                     m_drivetrain::getPose, m_drivetrain::getFieldCentricSpeeds, 210.0, Rotation2d.kZero));
 
         m_farm.button(15).whileTrue(new Shoot(m_shooter, m_turret, m_shooterFeeder, m_hopper,
@@ -269,9 +278,6 @@ public class RobotContainerCompBot extends RobotContainer {
         m_farm.button(4).onTrue(new InstantCommand(m_turret::increaseTurretFudge));
         m_farm.button(5).onTrue(new InstantCommand(m_turret::decreaseTurretFudge));
 
-        // Unjam
-        m_farm.button(21).whileTrue(UnJamCommand());
-        m_driverController.x().whileTrue(UnJamCommand());
 
         // Reset the field-centric heading on Start press.
         m_driverController.start().onTrue(m_drivetrain.runOnce(m_drivetrain::seedFieldCentric));
@@ -358,6 +364,12 @@ public class RobotContainerCompBot extends RobotContainer {
         return new ParallelCommandGroup(
                 new StartEndCommand(m_hopper::reverse, m_hopper::stop, m_hopper),
                 new StartEndCommand(m_shooterFeeder::runReverse, m_shooterFeeder::stop, m_shooterFeeder),
+                m_intake.outtakeCommand());
+    }
+
+    private Command UnJamHopperCommand() {
+        return new ParallelCommandGroup(
+                new StartEndCommand(m_hopper::reverse, m_hopper::stop, m_hopper),
                 m_intake.outtakeCommand());
     }
 }

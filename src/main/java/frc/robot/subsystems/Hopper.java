@@ -24,12 +24,12 @@ import frc.robot.Constants;
 public class Hopper extends SubsystemBase {
     
     private static final double SUPPLY_CURRENT_LIMIT = 20;
-    private static final double STATOR_CURRENT_LIMIT = 20;
+    private static final double STATOR_CURRENT_LIMIT = 100;
 
     private static final double PULSE_VOLTAGE = 4.0;
-    private static final double INTAKE_VOLTAGE = 2.0;
+    private static final double INTAKE_VOLTAGE = 0.5;
     private static final double FEED_VOLTAGE = 4.0;
-    private static final double REVERSE_VOLTAGE = -6.0;
+    private static final double REVERSE_VOLTAGE = -8.0;
     
     private final TalonFX m_motor;
 

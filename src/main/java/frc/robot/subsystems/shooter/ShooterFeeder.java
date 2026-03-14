@@ -28,8 +28,8 @@ public class ShooterFeeder extends SubsystemBase {
     
     private static final double REVERSE_RPM = -1000.0;
     
-    private static final double SUPPLY_CURRENT_LIMIT = 40;
-    private static final double STATOR_CURRENT_LIMIT = 80;
+    private static final double SUPPLY_CURRENT_LIMIT = 35;
+    private static final double STATOR_CURRENT_LIMIT = 90;
     
     private double m_goalRPM;
     private final TalonFX m_motor;
@@ -64,7 +64,6 @@ public class ShooterFeeder extends SubsystemBase {
         m_follower.getConfigurator().apply(talonFXConfigs);
         m_follower.setNeutralMode(NeutralModeValue.Brake);
         m_follower.setControl(new Follower(m_motor.getDeviceID(), MotorAlignmentValue.Opposed));
-
 
         // if (Constants.OPTIMIZE_CAN) {
         //     optimizeCAN();
