@@ -21,7 +21,7 @@ public class IntakeRoller extends SubsystemBase {
     private static final double SUPPLY_CURRENT_LIMIT = 40;
     private static final double STATOR_CURRENT_LIMIT = 60;
     
-    private static final double INTAKE_VOLTAGE = 10.0;  // was 9
+    private static final double INTAKE_VOLTAGE = 12.0;  // was 9
     private static final double OUTTAKE_VOLTAGE = 6.0;
 
     private final TalonFX m_motor;
