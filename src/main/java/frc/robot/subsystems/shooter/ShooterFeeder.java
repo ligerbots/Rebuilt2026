@@ -66,9 +66,9 @@ public class ShooterFeeder extends SubsystemBase {
         m_follower.setControl(new Follower(m_motor.getDeviceID(), MotorAlignmentValue.Opposed));
 
 
-        if (Constants.OPTIMIZE_CAN) {
-            optimizeCAN();
-        }        
+        // if (Constants.OPTIMIZE_CAN) {
+        //     optimizeCAN();
+        // }        
     }
 
     private void optimizeCAN() {
