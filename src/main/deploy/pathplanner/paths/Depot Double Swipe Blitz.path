@@ -210,7 +210,7 @@
     },
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 5.1,
+      "minWaypointRelativePos": 5.979743416610366,
       "maxWaypointRelativePos": 6.4,
       "constraints": {
         "maxVelocity": 1.5,
@@ -263,15 +263,15 @@
       "command": null
     },
     {
-      "name": "Shooter Running",
-      "waypointRelativePos": 5.15,
-      "endWaypointRelativePos": 8.930232558139553,
-      "command": null
-    },
-    {
       "name": "Stop Intake",
       "waypointRelativePos": 5.342192691029845,
       "endWaypointRelativePos": null,
+      "command": null
+    },
+    {
+      "name": "Shooter Running",
+      "waypointRelativePos": 6.052667116812973,
+      "endWaypointRelativePos": 8.930232558139553,
       "command": null
     },
     {
