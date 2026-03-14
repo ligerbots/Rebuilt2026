@@ -48,32 +48,8 @@
   "eventMarkers": [
     {
       "name": "Shooter Running",
-      "waypointRelativePos": 0.06423034330010743,
-      "endWaypointRelativePos": 0.8992248062015523,
-      "command": null
-    },
-    {
-      "name": "Run Intake",
-      "waypointRelativePos": 0.29900332225913795,
-      "endWaypointRelativePos": null,
-      "command": null
-    },
-    {
-      "name": "Run Intake",
-      "waypointRelativePos": 0.5227021040974519,
-      "endWaypointRelativePos": null,
-      "command": null
-    },
-    {
-      "name": "Run Intake",
-      "waypointRelativePos": 0.7220376522702125,
-      "endWaypointRelativePos": null,
-      "command": null
-    },
-    {
-      "name": "Run Intake",
-      "waypointRelativePos": 1.0,
-      "endWaypointRelativePos": null,
+      "waypointRelativePos": 0.0,
+      "endWaypointRelativePos": 0.9750168804861576,
       "command": null
     }
   ],
