@@ -68,7 +68,7 @@
       "minWaypointRelativePos": 0,
       "maxWaypointRelativePos": 0.8482834994462946,
       "constraints": {
-        "maxVelocity": 0.27,
+        "maxVelocity": 0.2,
         "maxAcceleration": 10.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0,
@@ -86,7 +86,7 @@
       "command": null
     },
     {
-      "name": "Stop Intake",
+      "name": "Run Intake",
       "waypointRelativePos": 0.29900332225913795,
       "endWaypointRelativePos": null,
       "command": null
@@ -98,7 +98,7 @@
       "command": null
     },
     {
-      "name": "Stop Intake",
+      "name": "Run Intake",
       "waypointRelativePos": 0.7220376522702125,
       "endWaypointRelativePos": null,
       "command": null
