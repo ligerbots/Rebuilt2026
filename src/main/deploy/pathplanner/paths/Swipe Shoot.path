@@ -35,7 +35,7 @@
       "minWaypointRelativePos": 0.0,
       "maxWaypointRelativePos": 1.0,
       "constraints": {
-        "maxVelocity": 0.2,
+        "maxVelocity": 0.15,
         "maxAcceleration": 5.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0,
@@ -49,7 +49,7 @@
     {
       "name": "Shooter Running",
       "waypointRelativePos": 0.0,
-      "endWaypointRelativePos": 0.9750168804861576,
+      "endWaypointRelativePos": 1.0,
       "command": null
     }
   ],
@@ -62,7 +62,7 @@
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 2.0,
+    "velocity": 1.0,
     "rotation": 0.0
   },
   "reversed": false,
