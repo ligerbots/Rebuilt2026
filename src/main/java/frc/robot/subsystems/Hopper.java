@@ -24,7 +24,7 @@ import frc.robot.Constants;
 public class Hopper extends SubsystemBase {
     
     private static final double SUPPLY_CURRENT_LIMIT = 20;
-    private static final double STATOR_CURRENT_LIMIT = 100;
+    private static final double STATOR_CURRENT_LIMIT =  70;
 
     private static final double PULSE_VOLTAGE = 4.0;
     private static final double INTAKE_VOLTAGE = 0.5;
@@ -94,10 +94,17 @@ public class Hopper extends SubsystemBase {
         m_motor.setControl(m_voltageControl);
     }
     
+    // public Command pulseCommand() {
+    //     return new InstantCommand(() -> setVoltage(PULSE_VOLTAGE))
+    //         .andThen(new WaitCommand(0.5))
+    //         .andThen(new InstantCommand(() -> setVoltage(0)))
+    //         .andThen(new WaitCommand(0.05)).repeatedly().finallyDo(this::stop);
+    // }
+
     public Command pulseCommand() {
-        return new InstantCommand(() -> setVoltage(PULSE_VOLTAGE))
+        return new InstantCommand(() -> setVoltage(8))
             .andThen(new WaitCommand(0.5))
-            .andThen(new InstantCommand(() -> setVoltage(0)))
-            .andThen(new WaitCommand(0.05)).repeatedly().finallyDo(this::stop);
+            .andThen(new InstantCommand(() -> setVoltage(-8)))
+            .andThen(new WaitCommand(0.075)).repeatedly().finallyDo(this::stop);
     }
 }
