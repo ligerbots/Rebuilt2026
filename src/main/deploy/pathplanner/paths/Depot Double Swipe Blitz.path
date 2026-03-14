@@ -210,36 +210,10 @@
     },
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 5.979743416610366,
-      "maxWaypointRelativePos": 6.4,
-      "constraints": {
-        "maxVelocity": 1.5,
-        "maxAcceleration": 10.0,
-        "maxAngularVelocity": 540.0,
-        "maxAngularAcceleration": 720.0,
-        "nominalVoltage": 12.0,
-        "unlimited": false
-      }
-    },
-    {
-      "name": "Constraints Zone",
-      "minWaypointRelativePos": 6.4983388704318905,
-      "maxWaypointRelativePos": 7.215946843853781,
-      "constraints": {
-        "maxVelocity": 0.25,
-        "maxAcceleration": 1.0,
-        "maxAngularVelocity": 540.0,
-        "maxAngularAcceleration": 720.0,
-        "nominalVoltage": 12.0,
-        "unlimited": false
-      }
-    },
-    {
-      "name": "Constraints Zone",
-      "minWaypointRelativePos": 6.358803986710965,
+      "minWaypointRelativePos": 6.052667116812973,
       "maxWaypointRelativePos": 9.0,
       "constraints": {
-        "maxVelocity": 1.5,
+        "maxVelocity": 0.25,
         "maxAcceleration": 1.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0,
@@ -259,12 +233,6 @@
     {
       "name": "Run Intake",
       "waypointRelativePos": 1.2048726467330955,
-      "endWaypointRelativePos": null,
-      "command": null
-    },
-    {
-      "name": "Stop Intake",
-      "waypointRelativePos": 5.342192691029845,
       "endWaypointRelativePos": null,
       "command": null
     },
