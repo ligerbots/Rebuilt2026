@@ -260,8 +260,11 @@ public class RobotContainerCompBot extends RobotContainer {
         m_farm.button(1).onTrue(new InstantCommand(m_shooter::increaseFlyFudge));
         m_farm.button(2).onTrue(new InstantCommand(m_shooter::decreaseFlyFudge));
 
-        m_farm.button(6).onTrue(new InstantCommand(m_shooter::increaseHoodFudge));
-        m_farm.button(7).onTrue(new InstantCommand(m_shooter::decreaseHoodFudge));
+        m_farm.button(6).onTrue(new InstantCommand(m_shooter::increaseFeedFudge));
+        m_farm.button(7).onTrue(new InstantCommand(m_shooter::decreaseFeedFudge));
+
+        m_farm.button(9).onTrue(new InstantCommand(m_shooter::increaseHoodFudge));
+        m_farm.button(10).onTrue(new InstantCommand(m_shooter::decreaseHoodFudge));
 
         m_farm.button(4).onTrue(new InstantCommand(m_turret::increaseTurretFudge));
         m_farm.button(5).onTrue(new InstantCommand(m_turret::decreaseTurretFudge));
