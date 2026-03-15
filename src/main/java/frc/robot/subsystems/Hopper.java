@@ -104,7 +104,7 @@ public class Hopper extends SubsystemBase {
     public Command pulseCommand() {
         return new InstantCommand(() -> setVoltage(8))
             .andThen(new WaitCommand(0.5))
-            .andThen(new InstantCommand(() -> setVoltage(-8)))
-            .andThen(new WaitCommand(0.075)).repeatedly().finallyDo(this::stop);
+            .andThen(new InstantCommand(() -> setVoltage(-2)))
+            .andThen(new WaitCommand(0.05)).repeatedly().finallyDo(this::stop);
     }
 }
