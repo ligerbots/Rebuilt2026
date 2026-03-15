@@ -106,6 +106,10 @@ public class RobotContainerCompBot extends RobotContainer {
         configureAutos();
     }
 
+    public void teleopInit() {
+        m_intake.stowCommand();
+    }
+    
     // public void configureDisabled(boolean disabled) {
     //    m_hopper.set
     // }
