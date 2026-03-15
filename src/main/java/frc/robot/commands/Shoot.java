@@ -203,15 +203,30 @@ public class Shoot extends Command {
         // This is the speed of the turret caused by the robot rotating
         double turretCentripetalSpeed = Math.abs(speedInformation.omegaRadiansPerSecond) * Turret.TURRET_OFFSET.getNorm();
         
-        // net field direction of the "centripetal" velocity
-        // do the sum directly to save some object constructors
-        Rotation2d turretCentripetalDirection = Rotation2d.fromDegrees(
-                futureRobotPose.getRotation().getDegrees() + 
-                Turret.TURRET_OFFSET.getAngle().getDegrees() +
-                Math.copySign(90.0, speedInformation.omegaRadiansPerSecond));
+        // Direction of centripetal velocity is perpendicular to the radial vector (turret offset)
+        // The radial vector is from robot center to turret
+        Rotation2d radialDirection = Turret.TURRET_OFFSET.getAngle();
+        Rotation2d centripetalDirection;
+        
+        // Centripetal velocity direction is perpendicular to radial direction
+        // The sign depends on the direction of rotation
+        if (speedInformation.omegaRadiansPerSecond >= 0) {
+            // Counter-clockwise rotation: centripetal velocity is perpendicular to radial in CCW direction
+            centripetalDirection = radialDirection.plus(Rotation2d.fromDegrees(90.0));
+        } else {
+            // Clockwise rotation: centripetal velocity is perpendicular to radial in CW direction
+            centripetalDirection = radialDirection.minus(Rotation2d.fromDegrees(90.0));
+        }
+        
+        // Convert to field coordinates
+        Rotation2d turretCentripetalDirection = centripetalDirection.rotateBy(futureRobotPose.getRotation());
         
         Translation2d centripetalVelocity = new Translation2d(turretCentripetalSpeed, turretCentripetalDirection);
 
+        // Additional consideration: If the turret is rotating independently, we need to account for that
+        // For now, we assume the turret is aligned with the robot's rotation (which is typical)
+        // In a more advanced implementation, we might need to consider turret-specific rotation
+        
         // net velocity of the turret: velocity of the robot's center, plus centripetal velocity around the center
         Translation2d turretVelTotal = robotVelVector.plus(centripetalVelocity);
 
@@ -220,21 +235,32 @@ public class Shoot extends Command {
         Translation2d targetVector = Turret.getTranslationToGoal(lookaheadPose, target);
         double targetDistance = targetVector.getNorm();
         double previousTargetDistance = 0;
+        double previousAngle = targetVector.getAngle().getDegrees();
 
         for (int i = 0; i < 20; i++) {
+            // Recalculate time of flight based on current target distance
             double timeOfFlight = m_shooter.getShootValue(targetDistance, m_shotType).timeOfFlight;
+            
+            // Calculate offset due to turret motion during time of flight
             Translation2d offset = turretVelTotal.times(timeOfFlight);
 
+            // Update lookahead pose with the motion offset
             lookaheadPose = new Pose2d(
                 futureRobotPose.getTranslation().plus(offset),
                 futureRobotPose.getRotation()
             );
 
+            // Recalculate target vector and distance
             targetVector = Turret.getTranslationToGoal(lookaheadPose, target);
             targetDistance = targetVector.getNorm();
 
-            if (Math.abs(targetDistance - previousTargetDistance) < 0.03) {
-                // if the target distance did not change much, we've converged enough
+            // Check convergence based on angular error rather than distance change
+            // Angular error is more meaningful for shooting accuracy
+            double currentAngle = targetVector.getAngle().getDegrees();
+            double angularError = Math.abs(currentAngle - previousAngle);
+            
+            if (angularError < 0.1) { // 0.1 degree tolerance
+                // if the target angle did not change much, we've converged enough
                 if (PLOT_SHOT_LOCATION) {
                     m_turret.plotShotVectors(futureRobotPose, 
                             targetVector, robotVelVector.times(timeOfFlight),
@@ -244,6 +270,7 @@ public class Shoot extends Command {
             }
 
             previousTargetDistance = targetDistance;
+            previousAngle = currentAngle;
         }
        
         return targetVector;
