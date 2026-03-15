@@ -199,21 +199,23 @@ public class Shoot extends Command {
             currentPose.getRotation().plus(Rotation2d.fromRadians(speedInformation.omegaRadiansPerSecond * LATENCY_SECONDS_ROTATION))
         );
 
-        // Centripetal Velocity Calculator
-        // This is the speed of the turret caused by the robot rotating
-        double turretCentripetalSpeed = Math.abs(speedInformation.omegaRadiansPerSecond) * Turret.TURRET_OFFSET.getNorm();
+        // // Centripetal Velocity Calculator
+        // // This is the speed of the turret caused by the robot rotating
+        // double turretCentripetalSpeed = Math.abs(speedInformation.omegaRadiansPerSecond) * Turret.TURRET_OFFSET.getNorm();
+
+        // // net field direction of the "centripetal" velocity
+        // // do the sum directly to save some object constructors
+        // Rotation2d turretCentripetalDirection = Rotation2d.fromDegrees(
+        //         futureRobotPose.getRotation().getDegrees() + 
+        //         Turret.TURRET_OFFSET.getAngle().getDegrees() +
+        //         Math.copySign(90.0, speedInformation.omegaRadiansPerSecond));
         
-        // net field direction of the "centripetal" velocity
-        // do the sum directly to save some object constructors
-        Rotation2d turretCentripetalDirection = Rotation2d.fromDegrees(
-                futureRobotPose.getRotation().getDegrees() + 
-                Turret.TURRET_OFFSET.getAngle().getDegrees() +
-                Math.copySign(90.0, speedInformation.omegaRadiansPerSecond));
-        
-        Translation2d centripetalVelocity = new Translation2d(turretCentripetalSpeed, turretCentripetalDirection);
+        // Translation2d centripetalVelocity = new Translation2d(turretCentripetalSpeed, turretCentripetalDirection);
+        Translation2d centripetalVelocity = Translation2d.kZero;
 
         // net velocity of the turret: velocity of the robot's center, plus centripetal velocity around the center
-        Translation2d turretVelTotal = robotVelVector.plus(centripetalVelocity);
+        // Translation2d turretVelTotal = robotVelVector.plus(centripetalVelocity);
+        Translation2d turretVelTotal = robotVelVector;
 
         Pose2d lookaheadPose = futureRobotPose;
 
