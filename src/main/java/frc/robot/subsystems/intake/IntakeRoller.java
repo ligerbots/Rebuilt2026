@@ -21,11 +21,14 @@ public class IntakeRoller extends SubsystemBase {
     private static final double SUPPLY_CURRENT_LIMIT = 40;
     private static final double STATOR_CURRENT_LIMIT = 120;
     
-    private static final double INTAKE_VOLTAGE = 9;  // was 9
+    private static final double INTAKE_VOLTAGE = 7.5;  // was 9
     private static final double OUTTAKE_VOLTAGE = 6.0;
 
     private final TalonFX m_motor;
     private final VoltageOut m_voltageControl = new VoltageOut(0).withEnableFOC(true);
+
+    private double m_intakeVoltageOffset = 0;
+    private static final double INTAKE_FUDGE = 0.5;
 
     // Creates a new IntakeRoller
     public IntakeRoller() {
@@ -58,10 +61,11 @@ public class IntakeRoller extends SubsystemBase {
     public void periodic() {
         SmartDashboard.putNumber("intake/voltage", m_motor.getMotorVoltage().getValueAsDouble()); 
         SmartDashboard.putNumber("intake/RPM", m_motor.getVelocity().getValueAsDouble() * 60.0); 
+        SmartDashboard.putNumber("intake/voltageFudge", m_intakeVoltageOffset);
     }
          
     public void intake() {
-        setVoltage(INTAKE_VOLTAGE);
+        setVoltage(INTAKE_VOLTAGE + m_intakeVoltageOffset);
     }
 
     public void outtake() {
@@ -75,5 +79,12 @@ public class IntakeRoller extends SubsystemBase {
     public void setVoltage(double volts) {
         m_voltageControl.Output = volts;
         m_motor.setControl(m_voltageControl);
+    }
+
+    public void increaseIntakeFudge() {
+        m_intakeVoltageOffset += INTAKE_FUDGE;
+    }
+    public void decreaseIntakeFudge() {
+        m_intakeVoltageOffset -= INTAKE_FUDGE;
     }
 }
