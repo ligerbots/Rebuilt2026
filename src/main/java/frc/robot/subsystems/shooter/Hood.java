@@ -6,10 +6,14 @@ package frc.robot.subsystems.shooter;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
+import static edu.wpi.first.units.Units.Amps;
+
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -25,8 +29,8 @@ public class Hood extends SubsystemBase {
 
     private static final double GEAR_RATIO = 12.0/36.0 * 15.0/24.0 * 10.0/174.0;
     
-    private static final double SUPPLY_CURRENT_LIMIT = 20;
-    private static final double STATOR_CURRENT_LIMIT = 80;
+    private static final Current SUPPLY_CURRENT_LIMIT = Amps.of(20);
+    private static final Current STATOR_CURRENT_LIMIT = Amps.of(80);
     
     private static final double K_P = 5.0;
     
@@ -46,11 +50,7 @@ public class Hood extends SubsystemBase {
     public Hood() {
         m_motor = new TalonFX(Constants.HOOD_CAN_ID);
         
-        TalonFXConfiguration talonFXConfigs = new TalonFXConfiguration();
-        
-        talonFXConfigs.CurrentLimits.SupplyCurrentLimit = SUPPLY_CURRENT_LIMIT;
-        talonFXConfigs.CurrentLimits.StatorCurrentLimit = STATOR_CURRENT_LIMIT;
-        
+        TalonFXConfiguration talonFXConfigs = new TalonFXConfiguration();        
         Slot0Configs slot0configs = talonFXConfigs.Slot0;
         slot0configs.kP = K_P;
         slot0configs.kI = 0.0;
@@ -62,6 +62,13 @@ public class Hood extends SubsystemBase {
         
         magicConfigs.MotionMagicCruiseVelocity = MAX_VEL_ROT_PER_SEC;
         magicConfigs.MotionMagicAcceleration = MAX_ACC_ROT_PER_SEC;
+
+         CurrentLimitsConfigs currentLimits = new CurrentLimitsConfigs()
+                .withSupplyCurrentLimit(SUPPLY_CURRENT_LIMIT)
+                .withStatorCurrentLimit(STATOR_CURRENT_LIMIT)
+                .withStatorCurrentLimitEnable(true)
+                .withSupplyCurrentLimitEnable(true);
+        talonFXConfigs.withCurrentLimits(currentLimits);
                 
         m_motor.getConfigurator().apply(talonFXConfigs);
         m_motor.setPosition(0);

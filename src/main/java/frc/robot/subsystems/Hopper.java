@@ -16,15 +16,20 @@ import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+
+import static edu.wpi.first.units.Units.Amps;
+
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+
+import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import frc.robot.Constants;
 
 public class Hopper extends SubsystemBase {
     
-    private static final double SUPPLY_CURRENT_LIMIT = 20;
-    private static final double STATOR_CURRENT_LIMIT =  70;
+    private static final Current SUPPLY_CURRENT_LIMIT = Amps.of(20);
+    private static final Current STATOR_CURRENT_LIMIT =  Amps.of(70);
 
     private static final double PULSE_VOLTAGE = 4.0;
     private static final double INTAKE_VOLTAGE = 0.5;
@@ -43,8 +48,11 @@ public class Hopper extends SubsystemBase {
 
         CurrentLimitsConfigs currentLimits = new CurrentLimitsConfigs()
                 .withSupplyCurrentLimit(SUPPLY_CURRENT_LIMIT)
-                .withStatorCurrentLimit(STATOR_CURRENT_LIMIT);
+                .withStatorCurrentLimit(STATOR_CURRENT_LIMIT)
+                .withStatorCurrentLimitEnable(true)
+                .withSupplyCurrentLimitEnable(true);
         talonFXConfigs.withCurrentLimits(currentLimits);
+        
         talonFXConfigs.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
         // enable brake mode (after main config)

@@ -11,6 +11,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -23,7 +24,11 @@ import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.ctre.phoenix6.hardware.CANcoder;
+
+import static edu.wpi.first.units.Units.Amps;
+
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 
 public class Turret extends SubsystemBase {
     
@@ -39,8 +44,8 @@ public class Turret extends SubsystemBase {
     private final CANcoder m_thruboreSmall; 
     private final CANcoder m_thruboreLarge; 
     
-    private static final double SUPPLY_CURRENT_LIMIT = 20;
-    private static final double STATOR_CURRENT_LIMIT = 100;
+    private static final Current SUPPLY_CURRENT_LIMIT = Amps.of(20);
+    private static final Current STATOR_CURRENT_LIMIT = Amps.of(100);
 
     // Manual turret angle adjustment (additive)
     private double m_turretFudgeDegrees = 0;
@@ -90,10 +95,7 @@ public class Turret extends SubsystemBase {
         m_thruboreLarge.getConfigurator().apply(cancoderConfig);
         
         TalonFXConfiguration talonFXConfigs = new TalonFXConfiguration();
-                
-        talonFXConfigs.CurrentLimits.SupplyCurrentLimit = SUPPLY_CURRENT_LIMIT;
-        talonFXConfigs.CurrentLimits.StatorCurrentLimit = STATOR_CURRENT_LIMIT;
-        
+                   
         Slot0Configs slot0configs = talonFXConfigs.Slot0;
         slot0configs.kP = K_P;
         slot0configs.kI = 0.0;
@@ -103,6 +105,13 @@ public class Turret extends SubsystemBase {
         MotionMagicConfigs magicConfigs = talonFXConfigs.MotionMagic;
         magicConfigs.MotionMagicCruiseVelocity = MAX_VEL_ROT_PER_SEC; 
         magicConfigs.MotionMagicAcceleration = MAX_ACC_ROT_PER_SEC_SQ; 
+
+         CurrentLimitsConfigs currentLimits = new CurrentLimitsConfigs()
+                .withSupplyCurrentLimit(SUPPLY_CURRENT_LIMIT)
+                .withStatorCurrentLimit(STATOR_CURRENT_LIMIT)
+                .withStatorCurrentLimitEnable(true)
+                .withSupplyCurrentLimitEnable(true);
+        talonFXConfigs.withCurrentLimits(currentLimits);
         
         m_turretMotor.getConfigurator().apply(talonFXConfigs);
         
