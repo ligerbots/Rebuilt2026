@@ -316,7 +316,7 @@ public class AprilTagVision {
     // on number of tags, estimation strategy, and distance from the tags.
     private Optional<Matrix<N3, N1>> estimateStdDev(EstimatedRobotPose poseEst, int numTags, double avgDist) {
         boolean usedMultitag = poseEst.strategy == PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR
-                || poseEst.strategy == PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR;
+                || poseEst.strategy == PoseStrategy.MULTI_TAG_PNP_ON_RIO;
         
         // if there are >1 tag and we did not use MultiTag, BAD
         if (numTags > 1 && !usedMultitag)
