@@ -7,7 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "First Swipe Blitz"
+            "pathName": "First Swipe Steal"
           }
         },
         {
@@ -20,6 +20,12 @@
           "type": "path",
           "data": {
             "pathName": "Depot Double Swipe Blitz"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Depot Trench Run Out"
           }
         }
       ]

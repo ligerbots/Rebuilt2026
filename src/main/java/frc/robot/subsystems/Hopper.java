@@ -8,7 +8,6 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 
@@ -25,12 +24,12 @@ import frc.robot.Constants;
 public class Hopper extends SubsystemBase {
     
     private static final double SUPPLY_CURRENT_LIMIT = 20;
-    private static final double STATOR_CURRENT_LIMIT = 30;
+    private static final double STATOR_CURRENT_LIMIT =  70;
 
     private static final double PULSE_VOLTAGE = 4.0;
-    private static final double INTAKE_VOLTAGE = 2.0;
-    private static final double FEED_VOLTAGE = 4.0;
-    private static final double REVERSE_VOLTAGE = -6.0;
+    private static final double INTAKE_VOLTAGE = 0.5;
+    private static final double FEED_VOLTAGE = 3.0;
+    private static final double REVERSE_VOLTAGE = -8.0;
     
     private final TalonFX m_motor;
 
@@ -65,6 +64,8 @@ public class Hopper extends SubsystemBase {
     @Override
     public void periodic() {
         SmartDashboard.putNumber("hopper/voltage", m_motor.getMotorVoltage().getValueAsDouble()); 
+        SmartDashboard.putNumber("hopper/stator", m_motor.getStatorCurrent().getValueAsDouble()); 
+        SmartDashboard.putNumber("hopper/supply", m_motor.getSupplyCurrent().getValueAsDouble()); 
     }
     
     public void intake(){
@@ -93,10 +94,17 @@ public class Hopper extends SubsystemBase {
         m_motor.setControl(m_voltageControl);
     }
     
+    // public Command pulseCommand() {
+    //     return new InstantCommand(() -> setVoltage(PULSE_VOLTAGE))
+    //         .andThen(new WaitCommand(0.5))
+    //         .andThen(new InstantCommand(() -> setVoltage(0)))
+    //         .andThen(new WaitCommand(0.05)).repeatedly().finallyDo(this::stop);
+    // }
+
     public Command pulseCommand() {
-        return new InstantCommand(() -> setVoltage(PULSE_VOLTAGE))
+        return new InstantCommand(() -> setVoltage(8))
             .andThen(new WaitCommand(0.5))
-            .andThen(new InstantCommand(() -> setVoltage(0)))
+            .andThen(new InstantCommand(() -> setVoltage(-2)))
             .andThen(new WaitCommand(0.05)).repeatedly().finallyDo(this::stop);
     }
 }

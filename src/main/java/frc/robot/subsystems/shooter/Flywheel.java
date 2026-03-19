@@ -31,7 +31,7 @@ public class Flywheel extends SubsystemBase {
     private static final double K_FF = 0.0019;
 
     private static final double SUPPLY_CURRENT_LIMIT = 40;
-    private static final double STATOR_CURRENT_LIMIT = 60;
+    private static final double STATOR_CURRENT_LIMIT = 120;
         
     // VelocityControl instance which we reuse - saves some memory thrashing
     private final VelocityVoltage m_velocityControl = new VelocityVoltage(0).withEnableFOC(true);

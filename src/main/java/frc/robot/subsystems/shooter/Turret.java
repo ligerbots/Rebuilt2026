@@ -5,13 +5,13 @@
 package frc.robot.subsystems.shooter;
 
 import frc.robot.Constants;
-import frc.robot.Robot;
 import frc.robot.utilities.ChineseRemainder;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -39,8 +39,8 @@ public class Turret extends SubsystemBase {
     private final CANcoder m_thruboreSmall; 
     private final CANcoder m_thruboreLarge; 
     
-    private static final double SUPPLY_CURRENT_LIMIT = 60;
-    private static final double STATOR_CURRENT_LIMIT = 40;
+    private static final double SUPPLY_CURRENT_LIMIT = 20;
+    private static final double STATOR_CURRENT_LIMIT = 100;
 
     // Manual turret angle adjustment (additive)
     private double m_turretFudgeDegrees = 0;
@@ -54,12 +54,12 @@ public class Turret extends SubsystemBase {
     private static final double TURRET_GEAR_RATIO =  54.0 / 12.0 * TURRET_TOOTH_COUNT / 10.0;
     
     private static final double K_P = 2.0;
-    // private static final double MAX_VEL_ROT_PER_SEC = 4.0 * TURRET_GEAR_RATIO;
-    // private static final double MAX_ACC_ROT_PER_SEC_SQ = 40.0 * TURRET_GEAR_RATIO;
-    //
-    // 2/14 - Slowed down for testing, until chain working properly
     private static final double MAX_VEL_ROT_PER_SEC = 2.0 * TURRET_GEAR_RATIO;
     private static final double MAX_ACC_ROT_PER_SEC_SQ = 10.0 * TURRET_GEAR_RATIO;
+    //
+    // 2/14 - Slowed down for testing, until chain working properly
+    // private static final double MAX_VEL_ROT_PER_SEC = 2.0 * TURRET_GEAR_RATIO;
+    // private static final double MAX_ACC_ROT_PER_SEC_SQ = 10.0 * TURRET_GEAR_RATIO;
 
     private static final double MAX_ROTATION_DEG = 165.0;
     private static final double MIN_ROTATION_DEG = -185.0; // -220 is max
@@ -269,37 +269,42 @@ public class Turret extends SubsystemBase {
     }
 
     public void plotShotVectors(Pose2d robotPose, Translation2d targetVector, Translation2d robotMotion, Translation2d centripetalMotion) {
-        if (robotPose == null || targetVector == null) {
-            // erase the lines
-            m_field.getObject("turretHeading").setPoses();
-            m_field.getObject("robotHeading").setPoses();
-            m_field.getObject("centripetalHeading").setPoses();
-            return;
+        try {
+            if (robotPose == null || targetVector == null) {
+                // erase the lines
+                m_field.getObject("turretHeading").setPoses();
+                m_field.getObject("robotHeading").setPoses();
+                m_field.getObject("centripetalHeading").setPoses();
+                return;
+            }
+
+            Translation2d turretLoc = getTurretFieldPosition(robotPose);
+
+            Rotation2d turretHeadingRobot = targetVector.getAngle();
+            Rotation2d turretHeadingField = turretHeadingRobot.rotateBy(robotPose.getRotation());
+
+            Translation2d robotEndLoc = turretLoc.plus(new Translation2d(targetVector.getNorm(), turretHeadingField));
+
+            Translation2d robotVecEndLoc = robotEndLoc.plus(robotMotion);
+            Translation2d centripetalEndLoc = robotVecEndLoc.plus(centripetalMotion);
+
+            m_field.getObject("turretHeading").setPoses(
+                    new Pose2d(turretLoc, turretHeadingField),
+                    new Pose2d(robotEndLoc, turretHeadingField)
+            );
+
+            m_field.getObject("robotHeading").setPoses(
+                    new Pose2d(robotEndLoc, robotMotion.getAngle()),
+                    new Pose2d(robotVecEndLoc, robotMotion.getAngle()) 
+            );
+            m_field.getObject("centripetalHeading").setPoses(
+                    new Pose2d(robotVecEndLoc, centripetalMotion.getAngle()),
+                    new Pose2d(centripetalEndLoc, centripetalMotion.getAngle())  
+            );
+        } catch (Exception e) {
+            // bad! log this and keep going
+            DriverStation.reportError("Exception plotting shot vectors", e.getStackTrace());
         }
-
-        Translation2d turretLoc = getTurretFieldPosition(robotPose);
-
-        Rotation2d turretHeadingRobot = targetVector.getAngle();
-        Rotation2d turretHeadingField = turretHeadingRobot.rotateBy(robotPose.getRotation());
-
-        Translation2d robotEndLoc = turretLoc.plus(new Translation2d(targetVector.getNorm(), turretHeadingField));
-
-        Translation2d robotVecEndLoc = robotEndLoc.plus(robotMotion);
-        Translation2d centripetalEndLoc = robotVecEndLoc.plus(centripetalMotion);
-
-        m_field.getObject("turretHeading").setPoses(
-                new Pose2d(turretLoc, turretHeadingField),
-                new Pose2d(robotEndLoc, turretHeadingField)
-        );
-
-        m_field.getObject("robotHeading").setPoses(
-                new Pose2d(robotEndLoc, robotMotion.getAngle()),
-                new Pose2d(robotVecEndLoc, robotMotion.getAngle()) 
-        );
-        m_field.getObject("centripetalHeading").setPoses(
-                new Pose2d(robotVecEndLoc, centripetalMotion.getAngle()),
-                new Pose2d(centripetalEndLoc, centripetalMotion.getAngle())  
-        );
     }
 
     public static Translation2d getTurretFieldPosition(Pose2d robotPose) {

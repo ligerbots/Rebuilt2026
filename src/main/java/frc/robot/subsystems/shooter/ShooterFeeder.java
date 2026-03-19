@@ -6,18 +6,19 @@
 
 package frc.robot.subsystems.shooter;
 
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.ctre.phoenix6.configs.Slot0Configs;
-import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
 public class ShooterFeeder extends SubsystemBase {
@@ -27,11 +28,13 @@ public class ShooterFeeder extends SubsystemBase {
     
     private static final double REVERSE_RPM = -1000.0;
     
-    private static final double SUPPLY_CURRENT_LIMIT = 40;
-    private static final double STATOR_CURRENT_LIMIT = 60;
+    private static final double SUPPLY_CURRENT_LIMIT = 35;
+    private static final double STATOR_CURRENT_LIMIT = 90;
     
     private double m_goalRPM;
     private final TalonFX m_motor;
+    private final TalonFX m_follower;
+
 
     private final VelocityVoltage m_velocityControl = new VelocityVoltage(0).withEnableFOC(true);
     private final VoltageOut m_voltageControl = new VoltageOut(0);
@@ -41,6 +44,7 @@ public class ShooterFeeder extends SubsystemBase {
         TalonFXConfiguration talonFXConfigs = new TalonFXConfiguration();  
         
         m_motor = new TalonFX(Constants.SHOOTER_FEEDER_CAN_ID);
+        m_follower = new TalonFX(Constants.SHOOTER_FEEDER_FOLLOWER_CAN_ID);
         Slot0Configs slot0configs = talonFXConfigs.Slot0;
         slot0configs.kP = K_P;
         slot0configs.kI = 0.0;
@@ -57,9 +61,13 @@ public class ShooterFeeder extends SubsystemBase {
         m_motor.getConfigurator().apply(talonFXConfigs);
         m_motor.setNeutralMode(NeutralModeValue.Brake);
 
-        if (Constants.OPTIMIZE_CAN) {
-            optimizeCAN();
-        }        
+        m_follower.getConfigurator().apply(talonFXConfigs);
+        m_follower.setNeutralMode(NeutralModeValue.Brake);
+        m_follower.setControl(new Follower(m_motor.getDeviceID(), MotorAlignmentValue.Opposed));
+
+        // if (Constants.OPTIMIZE_CAN) {
+        //     optimizeCAN();
+        // }        
     }
 
     private void optimizeCAN() {
