@@ -31,8 +31,11 @@ public class Hopper extends SubsystemBase {
     private static final Current SUPPLY_CURRENT_LIMIT = Amps.of(20);
     private static final Current STATOR_CURRENT_LIMIT =  Amps.of(70);
 
-    private static final double PULSE_VOLTAGE = 7.0;
+    private static final double PULSE_FORWARD_VOLTAGE = 7.0;
     private static final double PULSE_REVERSE_VOLTAGE = -4.0;
+    private static final double PULSE_FORWARD_SEC = 0.4;
+    private static final double PULSE_REVERSE_SEC = 0.1;
+
     private static final double INTAKE_VOLTAGE = 0.5;
     private static final double FEED_VOLTAGE = 3.0;
     private static final double REVERSE_VOLTAGE = -8.0;
@@ -73,8 +76,8 @@ public class Hopper extends SubsystemBase {
     @Override
     public void periodic() {
         SmartDashboard.putNumber("hopper/voltage", m_motor.getMotorVoltage().getValueAsDouble()); 
-        SmartDashboard.putNumber("hopper/stator", m_motor.getStatorCurrent().getValueAsDouble()); 
-        SmartDashboard.putNumber("hopper/supply", m_motor.getSupplyCurrent().getValueAsDouble()); 
+        SmartDashboard.putNumber("hopper/statorCurrent", m_motor.getStatorCurrent().getValueAsDouble()); 
+        SmartDashboard.putNumber("hopper/supplyCurrent", m_motor.getSupplyCurrent().getValueAsDouble()); 
     }
     
     public void intake(){
@@ -111,9 +114,11 @@ public class Hopper extends SubsystemBase {
     // }
 
     public Command pulseCommand() {
-        return new InstantCommand(() -> setVoltage(PULSE_VOLTAGE))
-            .andThen(new WaitCommand(0.4))
+        return new InstantCommand(() -> setVoltage(PULSE_FORWARD_VOLTAGE))
+            .andThen(new WaitCommand(PULSE_FORWARD_SEC))
             .andThen(new InstantCommand(() -> setVoltage(PULSE_REVERSE_VOLTAGE)))
-            .andThen(new WaitCommand(0.1)).repeatedly().finallyDo(this::stop);
+            .andThen(new WaitCommand(PULSE_REVERSE_SEC))
+            .repeatedly()
+            .finallyDo(this::stop);
     }
 }
