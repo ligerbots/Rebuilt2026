@@ -22,7 +22,7 @@ import frc.robot.Constants;
 
 public class IntakeRoller extends SubsystemBase {
     private static final Current SUPPLY_CURRENT_LIMIT = Amps.of(40);
-    private static final Current STATOR_CURRENT_LIMIT = Amps.of(120);
+    private static final Current STATOR_CURRENT_LIMIT = Amps.of(60);
     
     private static final double INTAKE_VOLTAGE = 7.5;  // was 9
     private static final double OUTTAKE_VOLTAGE = 6.0;

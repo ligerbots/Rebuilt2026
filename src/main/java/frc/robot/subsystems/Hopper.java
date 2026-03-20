@@ -29,7 +29,7 @@ import frc.robot.Constants;
 public class Hopper extends SubsystemBase {
     
     private static final Current SUPPLY_CURRENT_LIMIT = Amps.of(20);
-    private static final Current STATOR_CURRENT_LIMIT =  Amps.of(70);
+    private static final Current STATOR_CURRENT_LIMIT =  Amps.of(30);
 
     private static final double PULSE_FORWARD_VOLTAGE = 7.0;
     private static final double PULSE_REVERSE_VOLTAGE = -4.0;
