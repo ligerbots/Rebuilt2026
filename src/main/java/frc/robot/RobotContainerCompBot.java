@@ -136,29 +136,6 @@ public class RobotContainerCompBot extends RobotContainer {
                 "Swipe Shoot Alt"
                 ));
 
-        // m_chosenAutoPaths.addOption("Depot Double Swipe Steal", List.of(
-        //         "First Swipe Steal",
-        //         "Swipe Shoot",
-        //         "Depot Double Swipe Blitz",
-        //         "Depot Trench Run Out"
-        //         ));
-
-        // m_chosenAutoPaths.addOption("Out-Back Out-Back // Depot Double Blitz", List.of(
-        //         "Depot Double Blitz"
-        // ));
-
-        // m_chosenAutoPaths.addOption("Orbit Auto First Cut", List.of(
-        //     1.7, // shoot preloaded balls for 1.7 seconds, then start auto paths
-        //     "Orbit Auto Step 1",
-        //     "Orbit Auto Step 2",
-        //     2.0, // shoot for 2 seconds
-        //     "Orbit Auto Step 3",
-        //     "Orbit Auto Step 4",
-        //     2.0, // shoot for 2 seconds
-        //     "Orbit Auto Step 5 trench to outpost",
-        //     5.0 // wait for 5 seconds at outpost to intake and shoot balls
-        //     ));
-
         // m_chosenAutoPaths.addOption("Shoot While Moving", List.of(   
         //         "Shoot While Moving"
         // ));
