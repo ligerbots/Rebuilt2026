@@ -8,6 +8,7 @@ import java.util.function.Supplier;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -28,6 +29,8 @@ import frc.robot.utilities.ShooterLookupTable.ShootValue;
 public class Shoot extends Command {
     static final boolean PLOT_SHOT_LOCATION = false;
 
+    private static record ShotSelection(Translation2d target, ShotType effectiveShotType) {}
+
     // Tolerance values for comparing actual vs target values
     private final Shooter m_shooter;
     private final Turret m_turret;
@@ -39,7 +42,7 @@ public class Shoot extends Command {
     private final Shooter.ShotType m_shotType;
 
     private static final double LATENCY_SECONDS_TRANSLATION = 0.075;
-    private static final double LATENCY_SECONDS_ROTATION = 0.075;
+    private static final double LATENCY_SECONDS_ROTATION = 0.01;
 
     // for fixed shot only
     private final Translation2d m_fixedShotVector;
@@ -96,14 +99,16 @@ public class Shoot extends Command {
     public void execute() {
         // Pose is needed for plotting, so fetch it once here
         Pose2d robotPose = m_poseSupplier.get();
+        ShotType effectiveShotType = m_shotType;
 
         Translation2d shotVector;
         if (m_shotType == ShotType.FIXED) {
             shotVector = m_fixedShotVector;
             if (PLOT_SHOT_LOCATION) m_turret.plotShotVectors(robotPose, shotVector, Translation2d.kZero, Translation2d.kZero);
         } else {    
-            Translation2d target = targetForShotType();
-            shotVector = findMovingShotVector(robotPose, target);
+            ShotSelection shotSelection = targetForShotType();
+            effectiveShotType = shotSelection.effectiveShotType();
+            shotVector = findMovingShotVector(robotPose, shotSelection.target(), effectiveShotType);
             // old static shot
             // Translation2d translationToTarget = Turret.getTranslationToGoal(robotPose, target);
         }
@@ -113,7 +118,7 @@ public class Shoot extends Command {
             shotValue = testShotValue();
         } else {
             // Calculate distance and angle to target, send to shooter and turret subsystems
-            shotValue = m_shooter.getShootValue(shotVector.getNorm(), m_shotType);
+            shotValue = m_shooter.getShootValue(shotVector.getNorm(), effectiveShotType);
         }
         
         m_turret.setAngle(shotVector.getAngle());
@@ -157,65 +162,73 @@ public class Shoot extends Command {
         return false;
     }
 
-    private Translation2d targetForShotType() {
+    private ShotSelection targetForShotType() {
         switch (m_shotType) {
             case HUB:
-                return FieldConstants.flipTranslation(FieldConstants.HUB_POSITION_BLUE);
+                return new ShotSelection(FieldConstants.flipTranslation(FieldConstants.HUB_POSITION_BLUE), ShotType.HUB);
             case PASS:
                 double yBlue = FieldConstants.flipTranslation(m_poseSupplier.get().getTranslation()).getY();
                 if (yBlue < FieldConstants.FIELD_WIDTH / 2.0)
-                    return FieldConstants.flipTranslation(FieldConstants.PASSING_TARGET_LOWER_BLUE);
-                return FieldConstants.flipTranslation(FieldConstants.PASSING_TARGET_UPPER_BLUE);
+                    return new ShotSelection(FieldConstants.flipTranslation(FieldConstants.PASSING_TARGET_LOWER_BLUE), ShotType.PASS);
+                return new ShotSelection(FieldConstants.flipTranslation(FieldConstants.PASSING_TARGET_UPPER_BLUE), ShotType.PASS);
             // needed to suppress the warning
             // case TEST:
             //     return FieldConstants.flipTranslation(FieldConstants.HUB_POSITION_BLUE);
             default:
                 break;
         }
-        return shotAutoTarget(m_poseSupplier.get());
+        return autoShotSelection(m_poseSupplier.get());
     }
 
     // Determine where we should shoot based on the robot location
-    public static Translation2d shotAutoTarget(Pose2d robotPose) {
+    private static ShotSelection autoShotSelection(Pose2d robotPose) {
         Translation2d blueLocation = FieldConstants.flipTranslation(robotPose.getTranslation());
         Translation2d target;
+        ShotType shotType;
         if (blueLocation.getX() < FieldConstants.HUB_POSITION_BLUE.getX()) {
             target = FieldConstants.HUB_POSITION_BLUE;
+            shotType = ShotType.HUB;
         } else if (blueLocation.getY() < FieldConstants.FIELD_WIDTH / 2.0) {
             target = FieldConstants.PASSING_TARGET_LOWER_BLUE;
+            shotType = ShotType.PASS;
         } else {
             target = FieldConstants.PASSING_TARGET_UPPER_BLUE;
+            shotType = ShotType.PASS;
         }
 
-        return FieldConstants.flipTranslation(target);
+        return new ShotSelection(FieldConstants.flipTranslation(target), shotType);
     }
 
-    public Translation2d findMovingShotVector(Pose2d currentPose, Translation2d target) {
+    public static Translation2d shotAutoTarget(Pose2d robotPose) {
+        return autoShotSelection(robotPose).target();
+    }
+
+    public Translation2d findMovingShotVector(Pose2d currentPose, Translation2d target, ShotType effectiveShotType) {
         ChassisSpeeds speedInformation = m_speedsSupplier.get();
         Translation2d robotVelVector = new Translation2d(speedInformation.vxMetersPerSecond, speedInformation.vyMetersPerSecond);
 
-        Pose2d futureRobotPose = new Pose2d(
-            currentPose.getTranslation().plus(robotVelVector.times(LATENCY_SECONDS_TRANSLATION)),
-            currentPose.getRotation().plus(Rotation2d.fromRadians(speedInformation.omegaRadiansPerSecond * LATENCY_SECONDS_ROTATION))
-        );
+        Pose2d futureRobotPose = currentPose.exp(new Twist2d(
+                speedInformation.vxMetersPerSecond * LATENCY_SECONDS_TRANSLATION,
+                speedInformation.vyMetersPerSecond * LATENCY_SECONDS_TRANSLATION,
+                speedInformation.omegaRadiansPerSecond * LATENCY_SECONDS_ROTATION));
 
         // // Centripetal Velocity Calculator
         // // This is the speed of the turret caused by the robot rotating
-        // double turretCentripetalSpeed = Math.abs(speedInformation.omegaRadiansPerSecond) * Turret.TURRET_OFFSET.getNorm();
+        double turretCentripetalSpeed = Math.abs(speedInformation.omegaRadiansPerSecond) * Turret.TURRET_OFFSET.getNorm();
 
         // // net field direction of the "centripetal" velocity
         // // do the sum directly to save some object constructors
-        // Rotation2d turretCentripetalDirection = Rotation2d.fromDegrees(
-        //         futureRobotPose.getRotation().getDegrees() + 
-        //         Turret.TURRET_OFFSET.getAngle().getDegrees() +
-        //         Math.copySign(90.0, speedInformation.omegaRadiansPerSecond));
+        Rotation2d turretCentripetalDirection = Rotation2d.fromDegrees(
+                futureRobotPose.getRotation().getDegrees() + 
+                Turret.TURRET_OFFSET.getAngle().getDegrees() +
+                Math.copySign(90.0, speedInformation.omegaRadiansPerSecond));
         
-        // Translation2d centripetalVelocity = new Translation2d(turretCentripetalSpeed, turretCentripetalDirection);
-        Translation2d centripetalVelocity = Translation2d.kZero;
+        Translation2d centripetalVelocity = new Translation2d(turretCentripetalSpeed, turretCentripetalDirection);
+        // Translation2d centripetalVelocity = Translation2d.kZero;
 
         // net velocity of the turret: velocity of the robot's center, plus centripetal velocity around the center
-        // Translation2d turretVelTotal = robotVelVector.plus(centripetalVelocity);
-        Translation2d turretVelTotal = robotVelVector;
+        Translation2d turretVelTotal = robotVelVector.plus(centripetalVelocity);
+        // Translation2d turretVelTotal = robotVelVector;
 
         Pose2d lookaheadPose = futureRobotPose;
 
@@ -224,13 +237,13 @@ public class Shoot extends Command {
         double previousTargetDistance = 0;
 
         for (int i = 0; i < 20; i++) {
-            double timeOfFlight = m_shooter.getShootValue(targetDistance, m_shotType).timeOfFlight;
+            double timeOfFlight = m_shooter.getShootValue(targetDistance, effectiveShotType).timeOfFlight;
             Translation2d offset = turretVelTotal.times(timeOfFlight);
 
-            lookaheadPose = new Pose2d(
-                futureRobotPose.getTranslation().plus(offset),
-                futureRobotPose.getRotation()
-            );
+            lookaheadPose = futureRobotPose.exp(new Twist2d(
+                    speedInformation.vxMetersPerSecond * timeOfFlight,
+                    speedInformation.vyMetersPerSecond * timeOfFlight,
+                    speedInformation.omegaRadiansPerSecond * timeOfFlight));
 
             targetVector = Turret.getTranslationToGoal(lookaheadPose, target);
             targetDistance = targetVector.getNorm();

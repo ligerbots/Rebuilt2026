@@ -90,6 +90,10 @@ public class ShooterLookupTable {
     if (after == null) {
       return before.getValue();
     }
+    // prevents divide by zero err if we get a dupe floor and ceiling 
+    if (before.getKey().equals(after.getKey())) {
+    return before.getValue();
+    }
 
     double distanceDiff = after.getKey() - before.getKey();
 
