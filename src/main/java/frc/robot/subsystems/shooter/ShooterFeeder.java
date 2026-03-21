@@ -31,7 +31,7 @@ public class ShooterFeeder extends SubsystemBase {
     private static final double SUPPLY_CURRENT_LIMIT = 35;
     private static final double STATOR_CURRENT_LIMIT = 90;
 
-    private static double FEEDER_BELT_FEED_VOLTAGE = 6.0; // TODO: tune this value
+    private static double FEEDER_BELT_FEED_VOLTAGE = 9.0; // TODO: tune this value
     private static double FEEDER_BELT_UNJAM_VOLTAGE = -6.0; // TODO: tune this value
     
     private double m_goalRPM;
@@ -65,7 +65,7 @@ public class ShooterFeeder extends SubsystemBase {
         m_motorKicker.setNeutralMode(NeutralModeValue.Coast);
 
         // TODO: figure if needs to be changed for 2nd motor
-        talonFXConfigs.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        talonFXConfigs.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
         m_motorBelts.getConfigurator().apply(talonFXConfigs);
         m_motorBelts.setNeutralMode(NeutralModeValue.Brake);
