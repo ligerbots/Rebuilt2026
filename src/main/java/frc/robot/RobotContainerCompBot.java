@@ -370,7 +370,7 @@ public class RobotContainerCompBot extends RobotContainer {
     private Command UnJamCommand() {
         return new ParallelCommandGroup(
                 new StartEndCommand(m_hopper::reverse, m_hopper::stop, m_hopper),
-                new StartEndCommand(m_shooterFeeder::runReverse, m_shooterFeeder::stop, m_shooterFeeder),
+                new StartEndCommand(m_shooterFeeder::runReverseUnjam, m_shooterFeeder::stop, m_shooterFeeder),
                 m_intake.outtakeCommand());
     }
 

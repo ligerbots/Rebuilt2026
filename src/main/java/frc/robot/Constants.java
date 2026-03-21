@@ -17,11 +17,11 @@ public class Constants {
     public static final int CHAIN_CLIMBER_MOTOR_CAN_ID = 15; 
     public static final int INTAKE_DEPLOY_ID = 16;
     public static final int INTAKE_ROLLER_CAN_ID = 17;
-    public static final int SHOOTER_FEEDER_CAN_ID = 18;
+    public static final int SHOOTER_KICKER_CAN_ID = 18;
     public static final int HOPPER_TRANSFER_CAN_ID = 19;
     public static final int CHAIN_CLIMBER_FOLLOWER_MOTOR_CAN_ID = 20; 
     public static final int TURRET_CAN_ID = 21;
-    public static final int SHOOTER_FEEDER_FOLLOWER_CAN_ID = 22;
+    public static final int SHOOTER_FEEDER_BELTS_CAN_ID = 22;
 
 
     public static final int TURRET_SMALL_CANCODER_ID = 5;

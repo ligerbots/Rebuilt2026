@@ -118,6 +118,7 @@ public class Shoot extends Command {
         
         m_turret.setAngle(shotVector.getAngle());
         m_shooter.setShootValues(shotValue);
+        m_feeder.setKickerRPM(shotValue.feedRPM);
         
         // Once the flywheel is up to speed, latch it on.
         if (!m_flywheelOnTarget && m_shooter.onTarget())
@@ -125,7 +126,8 @@ public class Shoot extends Command {
 
         // Run feeder only when shooter and turret are ready
         if (m_flywheelOnTarget && m_turret.isOnTarget()) {
-            m_feeder.setRPM(shotValue.feedRPM);
+            m_feeder.runFeederBelts();
+            // m_feeder.setKickerRPM(shotValue.feedRPM);
             // m_hopper.feed();
         } else {
             // TODO: turret seemed to be interrupting the shot too much
