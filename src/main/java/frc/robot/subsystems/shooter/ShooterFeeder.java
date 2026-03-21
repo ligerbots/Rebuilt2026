@@ -123,8 +123,8 @@ public class ShooterFeeder extends SubsystemBase {
         setFeederBeltsVoltage(FEEDER_BELT_UNJAM_VOLTAGE);
     }
 
-    public void stopFeeder() {
-        setKickerRPM(0); // TODO: add for belt feeder
+    public void stopFeederBelts() {
+        m_motorBelts.set(0);
     }
 
     public void stop(){
