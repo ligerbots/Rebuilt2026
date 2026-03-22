@@ -9,12 +9,10 @@ package frc.robot.subsystems.shooter;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
-import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -24,9 +22,9 @@ import frc.robot.Constants;
 public class ShooterFeeder extends SubsystemBase {
     
     private static final double K_P = 0.1; 
-    private static final double K_FF = 0.0021;
+    private static final double K_FF = 0.0021;  // TODO: might need retuning after split
     
-    private static final double REVERSE_RPM = -1000.0;
+    // private static final double REVERSE_RPM = -1000.0;
     
     private static final double SUPPLY_CURRENT_LIMIT = 35;
     private static final double STATOR_CURRENT_LIMIT = 90;
@@ -34,10 +32,10 @@ public class ShooterFeeder extends SubsystemBase {
     private static double FEEDER_BELT_FEED_VOLTAGE = 9.0; // TODO: tune this value
     private static double FEEDER_BELT_UNJAM_VOLTAGE = -6.0; // TODO: tune this value
     
-    private double m_goalRPM;
     private final TalonFX m_motorKicker;
     private final TalonFX m_motorBelts;
 
+    private double m_goalRPM;
 
     private final VelocityVoltage m_velocityControl = new VelocityVoltage(0).withEnableFOC(true);
     private final VoltageOut m_voltageControl = new VoltageOut(0);
@@ -48,6 +46,7 @@ public class ShooterFeeder extends SubsystemBase {
         
         m_motorKicker = new TalonFX(Constants.SHOOTER_KICKER_CAN_ID);
         m_motorBelts = new TalonFX(Constants.SHOOTER_FEEDER_BELTS_CAN_ID);
+
         Slot0Configs slot0configs = talonFXConfigs.Slot0;
         slot0configs.kP = K_P;
         slot0configs.kI = 0.0;
@@ -64,33 +63,36 @@ public class ShooterFeeder extends SubsystemBase {
         m_motorKicker.getConfigurator().apply(talonFXConfigs);
         m_motorKicker.setNeutralMode(NeutralModeValue.Coast);
 
-        // TODO: figure if needs to be changed for 2nd motor
         talonFXConfigs.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
         m_motorBelts.getConfigurator().apply(talonFXConfigs);
         m_motorBelts.setNeutralMode(NeutralModeValue.Brake);
 
 
-        // if (Constants.OPTIMIZE_CAN) {
-        //     optimizeCAN();
-        // }        
+        if (Constants.OPTIMIZE_CAN) {
+            optimizeCAN();
+        }        
     }
 
     private void optimizeCAN() {
         m_motorKicker.getVelocity().setUpdateFrequency(Constants.ROBOT_FREQUENCY_HZ);
         m_motorKicker.getMotorVoltage().setUpdateFrequency(Constants.ROBOT_FREQUENCY_HZ);
         m_motorKicker.optimizeBusUtilization();
+
+        m_motorBelts.getMotorVoltage().setUpdateFrequency(Constants.ROBOT_FREQUENCY_HZ);
+        m_motorBelts.optimizeBusUtilization();
     }
 
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("shooterFeeder/currentRPM", getKickerRPM()); 
-        SmartDashboard.putNumber("shooterFeeder/goalRPM", m_goalRPM);
-        SmartDashboard.putNumber("shooterFeeder/statorCurrent", m_motorKicker.getStatorCurrent().getValueAsDouble());
-        SmartDashboard.putNumber("shooterFeeder/supplyCurrent", m_motorKicker.getSupplyCurrent().getValueAsDouble());
-        SmartDashboard.putNumber("shooterFeeder/belts/statorCurrent", m_motorBelts.getStatorCurrent().getValueAsDouble());
-        SmartDashboard.putNumber("shooterFeeder/belts/supplyCurrent", m_motorBelts.getSupplyCurrent().getValueAsDouble());
-        SmartDashboard.putNumber("shooterFeeder/belts/voltage", m_motorBelts.getMotorVoltage().getValueAsDouble());
+        SmartDashboard.putNumber("kicker/currentRPM", getKickerRPM()); 
+        SmartDashboard.putNumber("kicker/goalRPM", m_goalRPM);
+        SmartDashboard.putNumber("kicker/statorCurrent", m_motorKicker.getStatorCurrent().getValueAsDouble());
+        SmartDashboard.putNumber("kicker/supplyCurrent", m_motorKicker.getSupplyCurrent().getValueAsDouble());
+
+        SmartDashboard.putNumber("feeder/statorCurrent", m_motorBelts.getStatorCurrent().getValueAsDouble());
+        SmartDashboard.putNumber("feeder/supplyCurrent", m_motorBelts.getSupplyCurrent().getValueAsDouble());
+        SmartDashboard.putNumber("feeder/voltage", m_motorBelts.getMotorVoltage().getValueAsDouble());
     }
     
     public double getKickerRPM(){
@@ -102,17 +104,17 @@ public class ShooterFeeder extends SubsystemBase {
         m_motorKicker.setControl(m_voltageControl);
     }
 
-    public void setFeederBeltsVoltage(double voltage) {
-        m_voltageControl.Output = voltage;
-        m_motorBelts.setControl(m_voltageControl);
-    }
-    
     public void setKickerRPM(double rpm) {
         m_goalRPM = rpm;
         m_velocityControl.Velocity = m_goalRPM / 60;   // velocity is in rot/second
         m_velocityControl.FeedForward = K_FF * rpm;
 
         m_motorKicker.setControl(m_velocityControl);
+    }
+    
+    public void setFeederBeltsVoltage(double voltage) {
+        m_voltageControl.Output = voltage;
+        m_motorBelts.setControl(m_voltageControl);
     }
     
     public void runFeederBelts() {
