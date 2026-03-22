@@ -81,7 +81,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void disabledInit() {
-        m_robotContainer.setDisableEnableValues(false);
+        // m_robotContainer.setDisableEnableValues(false);
     }
 
     @Override
@@ -108,7 +108,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousInit() {
-        m_robotContainer.setDisableEnableValues(true);
+        // m_robotContainer.setDisableEnableValues(true);
 
         m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
@@ -125,7 +125,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopInit() {
-        m_robotContainer.setDisableEnableValues(true);
+        // m_robotContainer.setDisableEnableValues(true);
 
         if (m_autonomousCommand != null) {
             CommandScheduler.getInstance().cancel(m_autonomousCommand);

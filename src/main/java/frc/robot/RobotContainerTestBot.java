@@ -76,9 +76,9 @@ public class RobotContainerTestBot extends RobotContainer {
         configureAutos();
     }
 
-    @Override
-    public void setDisableEnableValues(boolean enabled) {
-    }
+    // @Override
+    // public void setDisableEnableValues(boolean enabled) {
+    // }
 
 
     private void configureAutos() {
