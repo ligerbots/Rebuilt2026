@@ -158,7 +158,4 @@ public class RobotContainerTestBot extends RobotContainer {
         return Math.abs(value) * value;
     }
     
-    public void teleopInit() {
-        System.out.println("Teleop Init");
-    }
 }
