@@ -7,43 +7,37 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Orbit Auto Step 1"
+            "pathName": "First Swipe Blitz"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Orbit Auto Step 2"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 2.0
+            "pathName": "Swipe Shoot"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Orbit Auto Step 3"
+            "pathName": "Second Swipe"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Orbit Auto Step 4"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 2.0
+            "pathName": "Swipe Shoot Alt"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Orbit Auto Step 5 trench to outpost"
+            "pathName": "Third Swipe"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Swipe Shoot Alt"
           }
         }
       ]

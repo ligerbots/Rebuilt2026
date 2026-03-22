@@ -7,13 +7,25 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Trench Start to Center Middle"
+            "pathName": "First Swipe Steal"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Center Middle to Far Trench"
+            "pathName": "Swipe Shoot"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Depot Double Swipe Blitz"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Depot Trench Run Out"
           }
         }
       ]

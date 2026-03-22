@@ -17,6 +17,7 @@ import com.pathplanner.lib.events.EventTrigger;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -28,7 +29,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.InternalButton;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
+
 import frc.robot.commands.*;
 import frc.robot.commands.autoCommands.AutoCommandInterface;
 import frc.robot.commands.autoCommands.CoreAuto;
@@ -83,8 +84,6 @@ public class RobotContainerCompBot extends RobotContainer {
     private final SendableChooser<String> m_chosenFieldSide = new SendableChooser<>();
     private final SendableChooser<List<Object>> m_chosenAutoPaths = new SendableChooser<>();
 
-    // private double m_preloadShootTime = 0.0; // seconds to shoot preloaded balls before starting auto paths
-
     private int m_autoSelectionCode; 
     
     public RobotContainerCompBot() {
@@ -123,60 +122,26 @@ public class RobotContainerCompBot extends RobotContainer {
                 "Swipe Shoot",
                 "Depot Double Swipe Blitz",
                 "Depot Trench Run Out"
-        ));
+                ));
 
-        m_chosenAutoPaths.addOption("Out-Back Out-Back // Depot Double Blitz", List.of(
-                "Depot Double Blitz"
-        ));
+        m_chosenAutoPaths.addOption("Triple Swipe Blitz", List.of(
+                "First Swipe Blitz",
+                "Swipe Shoot",
+                "Second Swipe",
+                "Swipe Shoot Alt",
+                "Third Swipe",
+                "Swipe Shoot Alt"
+                ));
 
-        m_chosenAutoPaths.addOption("Orbit Auto First Cut", List.of(
-            1.7, // shoot preloaded balls for 1.7 seconds, then start auto paths
-            "Orbit Auto Step 1",
-            "Orbit Auto Step 2",
-            2.0, // shoot for 2 seconds
-            "Orbit Auto Step 3",
-            "Orbit Auto Step 4",
-            2.0, // shoot for 2 seconds
-            "Orbit Auto Step 5 trench to outpost",
-            5.0 // wait for 5 seconds at outpost to intake and shoot balls
-            ));
-
-        m_chosenAutoPaths.addOption("Shoot While Moving", List.of(   
-                "Shoot While Moving"
-        ));
-
-        m_chosenAutoPaths.addOption("SnowBlow // Depot Full Pass Blitz", List.of(
-                // "Depot Full Pass Blitz"
-                "Trench Start to Center Middle",
-                "Center Middle to Far Trench"));
-
-        m_chosenAutoPaths.addOption("Out-Back Depot // Depot Single Pass Blitz", List.of(   
-                "Depot Single Pass Blitz"
-        ));
-
-        m_chosenAutoPaths.addOption("Depot Single Pass", List.of(
-                "Depot Single Pass"
-        ));
-
-        m_chosenAutoPaths.addOption("Depot Simple", List.of(
-                "Depot Simple"
-        ));
-        m_chosenAutoPaths.addOption("Test Shooting While Rotating", List.of(
-                "Test Shooting While Rotating"
-        ));
-
-        m_chosenAutoPaths.addOption("Depot Single Pass Multipart", List.of(
-                "Trench Start to Center Middle",
-                "Center Middle to Depot",
-                "Depot to Finish"
-        ));
+        // m_chosenAutoPaths.addOption("Shoot While Moving", List.of(   
+        //         "Shoot While Moving"
+        // ));
 
         SmartDashboard.putData("Auto Choice", m_chosenAutoPaths);
 
         m_chosenFieldSide.setDefaultOption("Depot Side", "Depot Side");
         m_chosenFieldSide.addOption("Outpost Side", "Outpost Side");
         SmartDashboard.putData("Field Side", m_chosenFieldSide);
-        // SmartDashboard.putNumber("Preload Shoot Time", 0.0);
 
         SmartDashboard.putBoolean("autoStatus/runningIntake", false);
         SmartDashboard.putBoolean("autoStatus/runningShooter", false);
@@ -186,7 +151,9 @@ public class RobotContainerCompBot extends RobotContainer {
 
     public Command getShootCommand() {
         return new Shoot(m_shooter, m_turret, m_shooterFeeder, m_hopper, m_drivetrain::getPose, m_drivetrain::getFieldCentricSpeeds, ShotType.AUTO)
-                        .alongWith(new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningShooter", true)));
+                        .alongWith(
+                            m_hopper.pulseCommand(),
+                            new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningShooter", true)));
     }
     
     private void configureAutoEventTriggers() {
@@ -209,11 +176,10 @@ public class RobotContainerCompBot extends RobotContainer {
         );
 
         // Just shoot
-        m_driverController.rightTrigger().whileTrue(new Shoot(m_shooter, m_turret, m_shooterFeeder, m_hopper,
-                    m_drivetrain::getPose, m_drivetrain::getFieldCentricSpeeds, ShotType.AUTO));
+        m_driverController.rightTrigger().whileTrue(getShootCommand());
 
-        m_driverController.rightBumper().whileTrue(new Shoot(m_shooter, m_turret, m_shooterFeeder, m_hopper,
-                    m_drivetrain::getPose, m_drivetrain::getFieldCentricSpeeds, ShotType.AUTO));
+        // shoot while intaking
+        m_driverController.rightBumper().whileTrue(getShootCommand());
         m_driverController.rightBumper().onTrue(m_intake.getPivot().deployCommand());
         m_driverController.rightBumper().whileTrue(
                 new StartEndCommand(m_intake.getRoller()::intake, m_intake.getRoller()::stop, m_intake.getRoller()));
@@ -227,36 +193,48 @@ public class RobotContainerCompBot extends RobotContainer {
         // Stow the intake
         m_driverController.leftBumper().onTrue(m_intake.stowCommand());
 
-        m_driverController.a().whileTrue(new Shoot(m_shooter, m_turret, m_shooterFeeder, m_hopper,
-                    m_drivetrain::getPose, m_drivetrain::getFieldCentricSpeeds, ShotType.TEST));
+        // lock wheels
+        m_driverController.back().whileTrue(m_drivetrain.applyRequest(() -> m_brakeRequest));
+
+        // Unjam
+        m_farm.button(21).whileTrue(UnJamCommand());
+        m_driverController.a().whileTrue(UnJamHopperCommand());
+        m_driverController.b().whileTrue(UnJamHopperCommand());
+        m_driverController.y().whileTrue(UnJamHopperCommand());
+        m_driverController.x().whileTrue(UnJamHopperCommand());
+
+        // fixed shots - distance in inches, plus ROBOT angle of turret
+        // ladder - robot against the outside of the ladder, intake to the left for the dirver
+        m_farm.button(11).whileTrue(new Shoot(m_shooter, m_turret, m_shooterFeeder, m_hopper,
+                    m_drivetrain::getPose, m_drivetrain::getFieldCentricSpeeds, 130.0, Rotation2d.kCCW_90deg)
+                    .alongWith(m_hopper.pulseCommand()));
+
+        // corner shot
+        m_farm.button(13).whileTrue(new Shoot(m_shooter, m_turret, m_shooterFeeder, m_hopper,
+                    m_drivetrain::getPose, m_drivetrain::getFieldCentricSpeeds, 210.0, Rotation2d.kZero)
+                    .alongWith(m_hopper.pulseCommand()));
+
+        m_farm.button(15).whileTrue(new Shoot(m_shooter, m_turret, m_shooterFeeder, m_hopper,
+                    m_drivetrain::getPose, m_drivetrain::getFieldCentricSpeeds, ShotType.TEST)
+                    .alongWith(m_hopper.pulseCommand()));
 
         m_farm.button(1).onTrue(new InstantCommand(m_shooter::increaseFlyFudge));
         m_farm.button(2).onTrue(new InstantCommand(m_shooter::decreaseFlyFudge));
 
-        m_farm.button(6).onTrue(new InstantCommand(m_shooter::increaseHoodFudge));
-        m_farm.button(7).onTrue(new InstantCommand(m_shooter::decreaseHoodFudge));
+        m_farm.button(6).onTrue(new InstantCommand(m_shooter::increaseFeedFudge));
+        m_farm.button(7).onTrue(new InstantCommand(m_shooter::decreaseFeedFudge));
+
+        m_farm.button(9).onTrue(new InstantCommand(m_shooter::increaseHoodFudge));
+        m_farm.button(10).onTrue(new InstantCommand(m_shooter::decreaseHoodFudge));
 
         m_farm.button(4).onTrue(new InstantCommand(m_turret::increaseTurretFudge));
         m_farm.button(5).onTrue(new InstantCommand(m_turret::decreaseTurretFudge));
 
-        m_farm.button(21).whileTrue(
-                new ParallelCommandGroup(
-                        new StartEndCommand(m_hopper::reverse, m_hopper::stop, m_hopper),
-                        new StartEndCommand(m_intake.getRoller()::outtake, m_intake.getRoller()::stop, m_intake),
-                        new StartEndCommand(m_shooterFeeder::runReverse, m_shooterFeeder::stop, m_shooterFeeder)
-            ));
+        m_farm.button(12).onTrue(new InstantCommand(m_intake.getRoller()::increaseIntakeFudge));
+        m_farm.button(14).onTrue(new InstantCommand(m_intake.getRoller()::decreaseIntakeFudge));
 
-        // SmartDashboard.putNumber("hood/testAngle", 0.0);
-        // SmartDashboard.putNumber("flywheel/testRPM", 0.0); 
-        // SmartDashboard.putNumber("shooterFeeder/testRPM", 0.0); 
-
-        m_driverController.x().onTrue(new InstantCommand(m_shooter::stop).alongWith(new InstantCommand(m_shooterFeeder::stop)));
-
-        // lock wheels
-        // m_driverController.a().whileTrue(m_drivetrain.applyRequest(() -> m_brakeRequest));
-        // m_driverController.b().whileTrue(drivetrain.applyRequest(() ->
-        //     point.withModuleDirection(new Rotation2d(-m_driverController.getLeftY(), -m_driverController.getLeftX()))
-        // ));
+        // Reset the field-centric heading on Start press.
+        m_driverController.start().onTrue(m_drivetrain.runOnce(m_drivetrain::seedFieldCentric));
 
         // Run SysId routines when holding back/start and X/Y.
         // Note that each routine should be run exactly once in a single log.
@@ -264,9 +242,6 @@ public class RobotContainerCompBot extends RobotContainer {
         // m_driverController.back().and(m_driverController.x()).whileTrue(m_drivetrain.sysIdDynamic(Direction.kReverse));
         // m_driverController.start().and(m_driverController.y()).whileTrue(m_drivetrain.sysIdQuasistatic(Direction.kForward));
         // m_driverController.start().and(m_driverController.x()).whileTrue(m_drivetrain.sysIdQuasistatic(Direction.kReverse));
-
-        // Reset the field-centric heading on left bumper press.
-        // m_driverController.leftBumper().onTrue(m_drivetrain.runOnce(m_drivetrain::seedFieldCentric));
 
         m_drivetrain.registerTelemetry(m_logger::telemeterize);
 
@@ -287,11 +262,11 @@ public class RobotContainerCompBot extends RobotContainer {
         // SmartDashboard.putNumber("turret/testAngle", 0.0);
         // m_driverController.a().onTrue(new InstantCommand(() -> m_turret.setAngle(Rotation2d.fromDegrees(SmartDashboard.getNumber("turret/testAngle", 0.0)))));
 
-        Command turretAngleTest = new TMP_turretAngleTest(m_drivetrain::getPose, m_turret);
-        m_driverController.start().whileTrue(turretAngleTest);
-        SmartDashboard.putBoolean("TurretAngleTest", false);
-        Trigger turretAngleTestTrigger = new Trigger(() -> SmartDashboard.getBoolean("TurretAngleTest", false));
-        turretAngleTestTrigger.whileTrue(turretAngleTest);
+        // Command turretAngleTest = new TMP_turretAngleTest(m_drivetrain::getPose, m_turret);
+        // m_driverController.start().whileTrue(turretAngleTest);
+        // SmartDashboard.putBoolean("TurretAngleTest", false);
+        // Trigger turretAngleTestTrigger = new Trigger(() -> SmartDashboard.getBoolean("TurretAngleTest", false));
+        // turretAngleTestTrigger.whileTrue(turretAngleTest);
     }
 
     public CommandSwerveDrivetrain getDriveTrain() {
@@ -299,11 +274,9 @@ public class RobotContainerCompBot extends RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        // double preloadShootTime = SmartDashboard.getNumber("Preload Shoot Time", 0.0);
         int currentAutoSelectionCode = Objects.hash(
             m_chosenAutoPaths.getSelected(),
             m_chosenFieldSide.getSelected(),
-            // preloadShootTime,
             DriverStation.getAlliance());
 
         // Only call constructor if the auto selection inputs have changed
@@ -330,12 +303,25 @@ public class RobotContainerCompBot extends RobotContainer {
                 m_driveRequest.withVelocityX(-conditionAxis(m_driverController.getLeftY()) * MAX_SPEED)
                     .withVelocityY(-conditionAxis(m_driverController.getLeftX()) * MAX_SPEED)
                     .withRotationalRate(-conditionAxis(m_driverController.getRightX()) * MAX_ANGULAR_RATE)
-            );
+                );
     }
 
     private double conditionAxis(double value) {
         value = MathUtil.applyDeadband(value, JOYSTICK_DEADBAND);
         // Square the axis, retaining the sign
         return Math.abs(value) * value;
+    }
+
+    private Command UnJamCommand() {
+        return new ParallelCommandGroup(
+                new StartEndCommand(m_hopper::reverse, m_hopper::stop, m_hopper),
+                new StartEndCommand(m_shooterFeeder::runReverse, m_shooterFeeder::stop, m_shooterFeeder),
+                m_intake.outtakeCommand());
+    }
+
+    private Command UnJamHopperCommand() {
+        return new ParallelCommandGroup(
+                new StartEndCommand(m_hopper::reverse, m_hopper::stop, m_hopper),
+                m_intake.outtakeCommand());
     }
 }

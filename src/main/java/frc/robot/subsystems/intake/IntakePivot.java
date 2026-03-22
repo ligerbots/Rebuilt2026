@@ -4,6 +4,9 @@
 
 package frc.robot.subsystems.intake;
 
+import static edu.wpi.first.units.Units.Amps;
+
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.Slot1Configs;
@@ -14,6 +17,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -23,8 +27,8 @@ import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.Constants;
 
 public class IntakePivot extends SubsystemBase {
-    private static final double SUPPLY_CURRENT_LIMIT = 40;
-    private static final double STATOR_CURRENT_LIMIT = 60;
+    private static final Current SUPPLY_CURRENT_LIMIT = Amps.of(40);
+    private static final Current STATOR_CURRENT_LIMIT = Amps.of(120);
     
     private static final double K_P = 15.0;
     private static final double K_P_HOLD = 3.0;
@@ -66,10 +70,7 @@ public class IntakePivot extends SubsystemBase {
         m_motor = new TalonFX(Constants.INTAKE_DEPLOY_ID);
         
         TalonFXConfiguration talonFXConfigs = new TalonFXConfiguration();
-        
-        talonFXConfigs.CurrentLimits.SupplyCurrentLimit = SUPPLY_CURRENT_LIMIT;
-        talonFXConfigs.CurrentLimits.StatorCurrentLimit = STATOR_CURRENT_LIMIT;
-        
+                
         Slot0Configs slot0configs = talonFXConfigs.Slot0;
         slot0configs.kP = K_P;
         slot0configs.kI = 0.0;
@@ -84,6 +85,14 @@ public class IntakePivot extends SubsystemBase {
         
         magicConfigs.MotionMagicCruiseVelocity = MAX_VEL_ROT_PER_SEC;
         magicConfigs.MotionMagicAcceleration = MAX_ACC_ROT_PER_SEC2;
+        
+
+         CurrentLimitsConfigs currentLimits = new CurrentLimitsConfigs()
+                .withSupplyCurrentLimit(SUPPLY_CURRENT_LIMIT)
+                .withStatorCurrentLimit(STATOR_CURRENT_LIMIT)
+                .withStatorCurrentLimitEnable(true)
+                .withSupplyCurrentLimitEnable(true);
+        talonFXConfigs.withCurrentLimits(currentLimits);
         
         m_motor.getConfigurator().apply(talonFXConfigs);
         m_motor.setPosition(0);

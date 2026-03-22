@@ -14,8 +14,9 @@ public class Shooter extends SubsystemBase {
     public enum ShotType {
         HUB,
         PASS,
-        TEST,   // test shot using SmartDashboard values. See Shoot cmd
-        AUTO    // auto select hub vs pass
+        TEST,    // test shot using SmartDashboard values. See Shoot cmd
+        AUTO,    // auto select hub vs pass
+        FIXED    // fixed distance and turret heading
     }
     
     private static final String HUB_LOOKUP_TABLE_FILE = "hub_shot_lookup_table.csv"; 
@@ -27,7 +28,12 @@ public class Shooter extends SubsystemBase {
     // Manual adjust on the flywheel RPM
     // NOTE: this is a multiplicative change: +5%, +10%, etc
     private double m_flyFudge = 1.0;
-    private static final double FUDGE_INCREMENT = 0.05;
+    private static final double FLY_FUDGE_INCREMENT = 0.05;
+
+    // Manual adjust on the flywheel RPM
+    // NOTE: this is a multiplicative change: +5%, +10%, etc
+    private double m_feedFudge = 1.0;
+    private static final double FEED_FUDGE_INCREMENT = 0.05;
 
     // Manual adjust on the hood angle (additive)
     private double m_hoodFudgeDegree = 0.0;
@@ -83,11 +89,19 @@ public class Shooter extends SubsystemBase {
     }
 
     public void increaseFlyFudge() {
-        m_flyFudge += FUDGE_INCREMENT;
+        m_flyFudge += FLY_FUDGE_INCREMENT;
     }
 
     public void decreaseFlyFudge() {
-        m_flyFudge -= FUDGE_INCREMENT;
+        m_flyFudge -= FLY_FUDGE_INCREMENT;
+    }
+
+    public void increaseFeedFudge() {
+        m_feedFudge += FEED_FUDGE_INCREMENT;
+    }
+
+    public void decreaseFeedFudge() {
+        m_feedFudge -= FEED_FUDGE_INCREMENT;
     }
 
     public void increaseHoodFudge() {
@@ -110,6 +124,7 @@ public class Shooter extends SubsystemBase {
 
         ShootValue shootValue = m_hubShotLookupTable.getShootValues(distanceMeters);
         shootValue.flyRPM *= m_flyFudge;
+        shootValue.feedRPM *= m_feedFudge;
         shootValue.hoodAngle = shootValue.hoodAngle.plus(Rotation2d.fromDegrees(m_hoodFudgeDegree));
 
         return shootValue;

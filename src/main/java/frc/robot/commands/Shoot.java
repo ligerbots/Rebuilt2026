@@ -9,7 +9,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 
@@ -26,7 +26,7 @@ import frc.robot.utilities.ShooterLookupTable.ShootValue;
 * Manages turret aiming, shooter spin-up, and feeder activation.
 */
 public class Shoot extends Command {
-    static final boolean PLOT_SHOT_LOCATION = true;
+    static final boolean PLOT_SHOT_LOCATION = false;
 
     // Tolerance values for comparing actual vs target values
     private final Shooter m_shooter;
@@ -38,29 +38,52 @@ public class Shoot extends Command {
 
     private final Shooter.ShotType m_shotType;
 
-    private static final double LATENCY_SECONDS = 0.05; 
+    private static final double LATENCY_SECONDS_TRANSLATION = 0.075;
+    private static final double LATENCY_SECONDS_ROTATION = 0.075;
+
+    // for fixed shot only
+    private final Translation2d m_fixedShotVector;
 
     // We want to "latch" the shooting on as soon as the flywheel is up
     //   to speed once. Otherwise, we turn off the feeder when the RPM drops - bad
     private boolean m_flywheelOnTarget = false;
 
-    public Shoot(Shooter shooter, Turret turret, ShooterFeeder feeder, Hopper hopper,
-                Supplier<Pose2d> poseSupplier, Supplier<ChassisSpeeds> speeds, Shooter.ShotType shotType) {
+    private Shoot(Shooter shooter, Turret turret, ShooterFeeder feeder, Hopper hopper,
+            Supplier<Pose2d> poseSupplier, Supplier<ChassisSpeeds> speeds, Shooter.ShotType shotType,
+            double shotDistanceInches, Rotation2d turretHeading) {
         m_turret = turret;
         m_shooter = shooter;
         m_feeder = feeder;
         m_hopper = hopper;
+        addRequirements(shooter, turret, feeder);
+        
         m_poseSupplier = poseSupplier;
         m_speedsSupplier = speeds;
 
         m_shotType = shotType;
-        addRequirements(shooter, turret, feeder, hopper);
+
+        // fixed shot only
+        m_fixedShotVector = new Translation2d(Units.inchesToMeters(shotDistanceInches), turretHeading);
 
         // SD values used in the Test command
         SmartDashboard.putNumber("hood/testAngle", 0.0);
         SmartDashboard.putNumber("flywheel/testRPM", 0.0); 
         SmartDashboard.putNumber("shooterFeeder/testRPM", 0.0); 
     }
+
+    public Shoot(Shooter shooter, Turret turret, ShooterFeeder feeder, Hopper hopper,
+            Supplier<Pose2d> poseSupplier, Supplier<ChassisSpeeds> speeds, Shooter.ShotType shotType) {
+        this(shooter, turret, feeder, hopper,
+                poseSupplier, speeds, shotType, 0.0, Rotation2d.kZero);
+    }
+
+    public Shoot(Shooter shooter, Turret turret, ShooterFeeder feeder, Hopper hopper,
+                Supplier<Pose2d> poseSupplier, Supplier<ChassisSpeeds> speeds, 
+                 double shotDistanceInches, Rotation2d turretHeading) {
+        this(shooter, turret, feeder, hopper,
+                poseSupplier, speeds, ShotType.FIXED, shotDistanceInches, turretHeading);
+    }
+
     
     // Called when the command is initially scheduled.
     @Override
@@ -74,10 +97,16 @@ public class Shoot extends Command {
         // Pose is needed for plotting, so fetch it once here
         Pose2d robotPose = m_poseSupplier.get();
 
-        Translation2d target = targetForShotType();
-        Translation2d shotVector = findMovingShotVector(robotPose, target);
-        // old static shot
-        // Translation2d translationToTarget = Turret.getTranslationToGoal(robotPose, target);
+        Translation2d shotVector;
+        if (m_shotType == ShotType.FIXED) {
+            shotVector = m_fixedShotVector;
+            if (PLOT_SHOT_LOCATION) m_turret.plotShotVectors(robotPose, shotVector, Translation2d.kZero, Translation2d.kZero);
+        } else {    
+            Translation2d target = targetForShotType();
+            shotVector = findMovingShotVector(robotPose, target);
+            // old static shot
+            // Translation2d translationToTarget = Turret.getTranslationToGoal(robotPose, target);
+        }
 
         ShootValue shotValue;
         if (m_shotType == ShotType.TEST) {
@@ -97,7 +126,7 @@ public class Shoot extends Command {
         // Run feeder only when shooter and turret are ready
         if (m_flywheelOnTarget && m_turret.isOnTarget()) {
             m_feeder.setRPM(shotValue.feedRPM);
-            m_hopper.feed();
+            // m_hopper.feed();
         } else {
             // TODO: turret seemed to be interrupting the shot too much
             //  maybe widen the tolerance and re-enable this code?
@@ -166,25 +195,27 @@ public class Shoot extends Command {
         Translation2d robotVelVector = new Translation2d(speedInformation.vxMetersPerSecond, speedInformation.vyMetersPerSecond);
 
         Pose2d futureRobotPose = new Pose2d(
-            currentPose.getTranslation().plus(robotVelVector.times(LATENCY_SECONDS)),
-            currentPose.getRotation().plus(Rotation2d.fromRadians(speedInformation.omegaRadiansPerSecond * LATENCY_SECONDS))
+            currentPose.getTranslation().plus(robotVelVector.times(LATENCY_SECONDS_TRANSLATION)),
+            currentPose.getRotation().plus(Rotation2d.fromRadians(speedInformation.omegaRadiansPerSecond * LATENCY_SECONDS_ROTATION))
         );
 
-        // Centripetal Velocity Calculator
-        // This is the speed of the turret caused by the robot rotating
-        double turretCentripetalSpeed = Math.abs(speedInformation.omegaRadiansPerSecond) * Turret.TURRET_OFFSET.getNorm();
+        // // Centripetal Velocity Calculator
+        // // This is the speed of the turret caused by the robot rotating
+        // double turretCentripetalSpeed = Math.abs(speedInformation.omegaRadiansPerSecond) * Turret.TURRET_OFFSET.getNorm();
+
+        // // net field direction of the "centripetal" velocity
+        // // do the sum directly to save some object constructors
+        // Rotation2d turretCentripetalDirection = Rotation2d.fromDegrees(
+        //         futureRobotPose.getRotation().getDegrees() + 
+        //         Turret.TURRET_OFFSET.getAngle().getDegrees() +
+        //         Math.copySign(90.0, speedInformation.omegaRadiansPerSecond));
         
-        // net field direction of the "centripetal" velocity
-        // do the sum directly to save some object constructors
-        Rotation2d turretCentripetalDirection = Rotation2d.fromDegrees(
-                futureRobotPose.getRotation().getDegrees() + 
-                Turret.TURRET_OFFSET.getAngle().getDegrees() +
-                Math.copySign(90.0, speedInformation.omegaRadiansPerSecond));
-        
-        Translation2d centripetalVelocity = new Translation2d(turretCentripetalSpeed, turretCentripetalDirection);
+        // Translation2d centripetalVelocity = new Translation2d(turretCentripetalSpeed, turretCentripetalDirection);
+        Translation2d centripetalVelocity = Translation2d.kZero;
 
         // net velocity of the turret: velocity of the robot's center, plus centripetal velocity around the center
-        Translation2d turretVelTotal = robotVelVector.plus(centripetalVelocity);
+        // Translation2d turretVelTotal = robotVelVector.plus(centripetalVelocity);
+        Translation2d turretVelTotal = robotVelVector;
 
         Pose2d lookaheadPose = futureRobotPose;
 
