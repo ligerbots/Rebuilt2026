@@ -9,12 +9,10 @@ package frc.robot.subsystems.shooter;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
-import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -25,14 +23,12 @@ public class ShooterFeeder extends SubsystemBase {
     
     private static final double K_P = 0.1; 
     private static final double K_FF = 0.0021;
-    
-    private static final double REVERSE_RPM = -1000.0;
-    
+        
     private static final double SUPPLY_CURRENT_LIMIT = 35;
     private static final double STATOR_CURRENT_LIMIT = 90;
 
-    private static double FEEDER_BELT_FEED_VOLTAGE = 9.0; // TODO: tune this value
-    private static double FEEDER_BELT_UNJAM_VOLTAGE = -6.0; // TODO: tune this value
+    private static double FEEDER_BELT_FEED_VOLTAGE = 9.0;
+    private static double FEEDER_BELT_UNJAM_VOLTAGE = -6.0;
     
     private double m_goalRPM;
     private final TalonFX m_motorKicker;
