@@ -9,29 +9,35 @@ package frc.robot.subsystems.shooter;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
-import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
 public class ShooterFeeder extends SubsystemBase {
+    private static final double SPEED_TOLERANCE_RPM = 100.0;
+    private static final int PULSE_FILTER_TAPS = 5;
+    private static final int PULSE_DEBOUNCE_CYCLES = 4;
+    private static final int PULSE_COOLDOWN_CYCLES = 25;
+
+    private static final double BELTS_HIGH_STATOR_CURRENT_AMPS = 45.0;
+    private static final double BELTS_LOW_RPM_THRESHOLD = 250.0;
     
     private static final double K_P = 0.1; 
     private static final double K_FF = 0.0021;
-    
-    private static final double REVERSE_RPM = -1000.0;
-    
-    private static final double SUPPLY_CURRENT_LIMIT = 35;
-    private static final double STATOR_CURRENT_LIMIT = 90;
 
-    private static double FEEDER_BELT_FEED_VOLTAGE = 9.0; // TODO: tune this value
+    private static final double KICKER_SUPPLY_CURRENT_LIMIT = 35;
+    private static final double KICKER_STATOR_CURRENT_LIMIT = 90;
+    private static final double BELTS_SUPPLY_CURRENT_LIMIT = 30;
+    private static final double BELTS_STATOR_CURRENT_LIMIT = 90;
+
+    private static double FEEDER_BELT_FEED_VOLTAGE = 11.0; // TODO: tune this value
     private static double FEEDER_BELT_UNJAM_VOLTAGE = -6.0; // TODO: tune this value
     
     private double m_goalRPM;
@@ -39,36 +45,50 @@ public class ShooterFeeder extends SubsystemBase {
     private final TalonFX m_motorBelts;
 
 
-    private final VelocityVoltage m_velocityControl = new VelocityVoltage(0).withEnableFOC(true);
-    private final VoltageOut m_voltageControl = new VoltageOut(0);
+    private final VelocityVoltage m_velocityControl = new VelocityVoltage(0).withEnableFOC(false);
+    private final VoltageOut m_beltsVoltageControl = new VoltageOut(0);
+
+    private final LinearFilter m_beltsRpmFilter = LinearFilter.movingAverage(PULSE_FILTER_TAPS);
+    private final LinearFilter m_beltsCurrentFilter = LinearFilter.movingAverage(PULSE_FILTER_TAPS);
+
+    private double m_filteredBeltsRPM;
+    private double m_filteredBeltsStatorCurrent;
+    private double m_beltsCommandVoltage;
+    private boolean m_requestHopperPulse;
+    private int m_pulseDebounceCycles;
+    private int m_pulseCooldownCycles;
 
     // Creates a new ShooterFeeder
     public ShooterFeeder() {
-        TalonFXConfiguration talonFXConfigs = new TalonFXConfiguration();  
+        TalonFXConfiguration kickerConfigs = new TalonFXConfiguration();
+        TalonFXConfiguration beltsConfigs = new TalonFXConfiguration();
         
         m_motorKicker = new TalonFX(Constants.SHOOTER_KICKER_CAN_ID);
         m_motorBelts = new TalonFX(Constants.SHOOTER_FEEDER_BELTS_CAN_ID);
-        Slot0Configs slot0configs = talonFXConfigs.Slot0;
-        slot0configs.kP = K_P;
-        slot0configs.kI = 0.0;
-        slot0configs.kD = 0.0;
+        Slot0Configs kickerSlot0Configs = kickerConfigs.Slot0;
+        kickerSlot0Configs.kP = K_P;
+        kickerSlot0Configs.kI = 0.0;
+        kickerSlot0Configs.kD = 0.0;
 
-        talonFXConfigs.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        kickerConfigs.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        beltsConfigs.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
-        CurrentLimitsConfigs currentLimits = new CurrentLimitsConfigs()
-                .withSupplyCurrentLimit(SUPPLY_CURRENT_LIMIT)
-                .withStatorCurrentLimit(STATOR_CURRENT_LIMIT);
-        talonFXConfigs.withCurrentLimits(currentLimits);
+        CurrentLimitsConfigs kickerCurrentLimits = new CurrentLimitsConfigs()
+                .withSupplyCurrentLimit(KICKER_SUPPLY_CURRENT_LIMIT)
+                .withStatorCurrentLimit(KICKER_STATOR_CURRENT_LIMIT);
+        kickerConfigs.withCurrentLimits(kickerCurrentLimits);
+
+        CurrentLimitsConfigs beltsCurrentLimits = new CurrentLimitsConfigs()
+                .withSupplyCurrentLimit(BELTS_SUPPLY_CURRENT_LIMIT)
+                .withStatorCurrentLimit(BELTS_STATOR_CURRENT_LIMIT);
+        beltsConfigs.withCurrentLimits(beltsCurrentLimits);
         
         // enable brake mode (after main config)
-        m_motorKicker.getConfigurator().apply(talonFXConfigs);
+        m_motorKicker.getConfigurator().apply(kickerConfigs);
         m_motorKicker.setNeutralMode(NeutralModeValue.Coast);
 
-        // TODO: figure if needs to be changed for 2nd motor
-        talonFXConfigs.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
-
-        m_motorBelts.getConfigurator().apply(talonFXConfigs);
-        m_motorBelts.setNeutralMode(NeutralModeValue.Brake);
+        m_motorBelts.getConfigurator().apply(beltsConfigs);
+        m_motorBelts.setNeutralMode(NeutralModeValue.Coast);
 
 
         // if (Constants.OPTIMIZE_CAN) {
@@ -84,27 +104,52 @@ public class ShooterFeeder extends SubsystemBase {
 
     @Override
     public void periodic() {
+        m_filteredBeltsRPM = m_beltsRpmFilter.calculate(Math.abs(getBeltsRPM()));
+        m_filteredBeltsStatorCurrent = m_beltsCurrentFilter.calculate(getBeltsStatorCurrent());
+        updateHopperPulseRequest();
+
         SmartDashboard.putNumber("shooterFeeder/currentRPM", getKickerRPM()); 
         SmartDashboard.putNumber("shooterFeeder/goalRPM", m_goalRPM);
-        SmartDashboard.putNumber("shooterFeeder/statorCurrent", m_motorKicker.getStatorCurrent().getValueAsDouble());
-        SmartDashboard.putNumber("shooterFeeder/supplyCurrent", m_motorKicker.getSupplyCurrent().getValueAsDouble());
-        SmartDashboard.putNumber("shooterFeeder/belts/statorCurrent", m_motorBelts.getStatorCurrent().getValueAsDouble());
-        SmartDashboard.putNumber("shooterFeeder/belts/supplyCurrent", m_motorBelts.getSupplyCurrent().getValueAsDouble());
+        SmartDashboard.putNumber("shooterFeeder/statorCurrent", getKickerStatorCurrent());
+        SmartDashboard.putNumber("shooterFeeder/supplyCurrent", getKickerSupplyCurrent());
+        SmartDashboard.putNumber("shooterFeeder/belts/statorCurrent", getBeltsStatorCurrent());
+        SmartDashboard.putNumber("shooterFeeder/belts/supplyCurrent", getBeltsSupplyCurrent());
+        SmartDashboard.putNumber("shooterFeeder/belts/currentRPM", getBeltsRPM());
+        SmartDashboard.putNumber("shooterFeeder/belts/filteredRPM", m_filteredBeltsRPM);
+        SmartDashboard.putNumber("shooterFeeder/belts/filteredStatorCurrent", m_filteredBeltsStatorCurrent);
         SmartDashboard.putNumber("shooterFeeder/belts/voltage", m_motorBelts.getMotorVoltage().getValueAsDouble());
+        SmartDashboard.putBoolean("shooterFeeder/onTarget", onTarget());
+        SmartDashboard.putBoolean("shooterFeeder/requestHopperPulse", m_requestHopperPulse);
     }
     
     public double getKickerRPM(){
         return m_motorKicker.getVelocity().getValueAsDouble() * 60; //convert rps to rpm
     }
-    
-    public void setKickerVoltage(double voltage) {
-        m_voltageControl.Output = voltage;
-        m_motorKicker.setControl(m_voltageControl);
+
+    public double getKickerStatorCurrent() {
+        return m_motorKicker.getStatorCurrent().getValueAsDouble();
     }
 
+    public double getKickerSupplyCurrent() {
+        return m_motorKicker.getSupplyCurrent().getValueAsDouble();
+    }
+
+    public double getBeltsStatorCurrent() {
+        return m_motorBelts.getStatorCurrent().getValueAsDouble();
+    }
+
+    public double getBeltsSupplyCurrent() {
+        return m_motorBelts.getSupplyCurrent().getValueAsDouble();
+    }
+
+    public double getBeltsRPM() {
+        return m_motorBelts.getVelocity().getValueAsDouble() * 60; // convert rps to rpm
+    }
+    
     public void setFeederBeltsVoltage(double voltage) {
-        m_voltageControl.Output = voltage;
-        m_motorBelts.setControl(m_voltageControl);
+        m_beltsCommandVoltage = voltage;
+        m_beltsVoltageControl.Output = voltage;
+        m_motorBelts.setControl(m_beltsVoltageControl);
     }
     
     public void setKickerRPM(double rpm) {
@@ -113,6 +158,10 @@ public class ShooterFeeder extends SubsystemBase {
         m_velocityControl.FeedForward = K_FF * rpm;
 
         m_motorKicker.setControl(m_velocityControl);
+    }
+
+    public boolean onTarget() {
+        return Math.abs(getKickerRPM() - m_goalRPM) < SPEED_TOLERANCE_RPM;
     }
     
     public void runFeederBelts() {
@@ -124,11 +173,61 @@ public class ShooterFeeder extends SubsystemBase {
     }
 
     public void stopFeederBelts() {
-        m_motorBelts.set(0);
+        setFeederBeltsVoltage(0.0);
+    }
+
+    public boolean shouldRequestHopperPulse() {
+        return m_requestHopperPulse;
+    }
+
+    public void onHopperPulseTriggered() {
+        m_requestHopperPulse = false;
+        m_pulseDebounceCycles = 0;
+        m_pulseCooldownCycles = PULSE_COOLDOWN_CYCLES;
     }
 
     public void stop(){
         m_motorKicker.setVoltage(0);
         m_motorBelts.setVoltage(0);
+        m_goalRPM = 0.0;
+        resetPulseDetection();
+    }
+
+    private void updateHopperPulseRequest() {
+        if (m_pulseCooldownCycles > 0) {
+            m_pulseCooldownCycles--;
+            m_pulseDebounceCycles = 0;
+            m_requestHopperPulse = false;
+            return;
+        }
+
+        if (shouldStartPulseCandidate()) {
+            m_pulseDebounceCycles++;
+            if (m_pulseDebounceCycles >= PULSE_DEBOUNCE_CYCLES) {
+                m_requestHopperPulse = true;
+            }
+        } else {
+            m_pulseDebounceCycles = 0;
+            m_requestHopperPulse = false;
+        }
+    }
+
+    private boolean shouldStartPulseCandidate() {
+        boolean beltsRunningForward = m_beltsCommandVoltage > 1.0;
+        boolean beltsCurrentHigh = m_filteredBeltsStatorCurrent > BELTS_HIGH_STATOR_CURRENT_AMPS;
+        boolean beltsRpmLow = m_filteredBeltsRPM < BELTS_LOW_RPM_THRESHOLD;
+
+        return beltsRunningForward && (beltsCurrentHigh || beltsRpmLow);
+    }
+
+    private void resetPulseDetection() {
+        m_beltsRpmFilter.reset();
+        m_beltsCurrentFilter.reset();
+        m_filteredBeltsRPM = 0.0;
+        m_filteredBeltsStatorCurrent = 0.0;
+        m_beltsCommandVoltage = 0.0;
+        m_requestHopperPulse = false;
+        m_pulseDebounceCycles = 0;
+        m_pulseCooldownCycles = 0;
     }
 }

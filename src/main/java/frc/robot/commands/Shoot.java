@@ -55,7 +55,7 @@ public class Shoot extends Command {
         m_shooter = shooter;
         m_feeder = feeder;
         m_hopper = hopper;
-        addRequirements(shooter, turret, feeder);
+        addRequirements(shooter, turret, feeder, hopper);
         
         m_poseSupplier = poseSupplier;
         m_speedsSupplier = speeds;
@@ -125,15 +125,18 @@ public class Shoot extends Command {
             m_flywheelOnTarget = true;
 
         // Run feeder only when shooter and turret are ready
-        if (m_flywheelOnTarget && m_turret.isOnTarget()) {
+        if (m_flywheelOnTarget && m_turret.isOnTarget() && m_feeder.onTarget()) {
+            m_hopper.feed();
             m_feeder.runFeederBelts();
-            // m_feeder.setKickerRPM(shotValue.feedRPM);
-            // m_hopper.feed();
+            if (m_feeder.shouldRequestHopperPulse()) {
+                m_hopper.requestPulse();
+                m_feeder.onHopperPulseTriggered();
+            }
         } else {
             // TODO: turret seemed to be interrupting the shot too much
             //  maybe widen the tolerance and re-enable this code?
-            // m_feeder.stop();
-            // m_hopper.stop();
+            m_feeder.stopFeederBelts();
+            m_hopper.stop();
 
             // if (PLOT_SHOT_LOCATION) m_turret.plotShotVectors(null, null, null, null);
         }

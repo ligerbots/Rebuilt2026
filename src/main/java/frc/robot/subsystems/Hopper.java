@@ -6,11 +6,6 @@
 
 package frc.robot.subsystems;
 
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
-
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -22,27 +17,35 @@ import static edu.wpi.first.units.Units.Amps;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 
 import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import frc.robot.Constants;
 
 public class Hopper extends SubsystemBase {
+    private enum HopperMode {
+        STOPPED,
+        FEEDING,
+        REVERSING
+    }
     
     private static final Current SUPPLY_CURRENT_LIMIT = Amps.of(20);
     private static final Current STATOR_CURRENT_LIMIT =  Amps.of(70);
 
-    private static final double PULSE_FORWARD_VOLTAGE = 9.0;
-    private static final double PULSE_REVERSE_VOLTAGE = -4.0;
-    private static final double PULSE_FORWARD_SEC = 0.65;
+    private static final double PULSE_REVERSE_VOLTAGE = -6.5;
     private static final double PULSE_REVERSE_SEC = 0.05;
 
     private static final double INTAKE_VOLTAGE = 0.5;
-    private static final double FEED_VOLTAGE = 3.0;
+    private static final double FEED_VOLTAGE = 10.0;
     private static final double REVERSE_VOLTAGE = -8.0;
     
     private final TalonFX m_motor;
 
     private final VoltageOut m_voltageControl = new VoltageOut(0);
+    private final Timer m_pulseTimer = new Timer();
+    private HopperMode m_mode = HopperMode.STOPPED;
+    private boolean m_pulseActive = false;
 
     // Creates a new Hopper
     public Hopper() {
@@ -75,25 +78,39 @@ public class Hopper extends SubsystemBase {
     
     @Override
     public void periodic() {
+        if (m_pulseActive && m_pulseTimer.hasElapsed(PULSE_REVERSE_SEC)) {
+            finishPulse();
+        }
+
         SmartDashboard.putNumber("hopper/voltage", m_motor.getMotorVoltage().getValueAsDouble()); 
         SmartDashboard.putNumber("hopper/statorCurrent", m_motor.getStatorCurrent().getValueAsDouble()); 
         SmartDashboard.putNumber("hopper/supplyCurrent", m_motor.getSupplyCurrent().getValueAsDouble()); 
+        SmartDashboard.putBoolean("hopper/pulseActive", isPulseActive());
     }
     
     public void intake(){
+        m_mode = HopperMode.STOPPED;
+        cancelPulse();
         setVoltage(INTAKE_VOLTAGE);
     }
     
     public void feed(){
-        setVoltage(FEED_VOLTAGE);
+        m_mode = HopperMode.FEEDING;
+        if (!m_pulseActive) {
+            setVoltage(FEED_VOLTAGE);
+        }
     }
     
 
     public void reverse() {
+        m_mode = HopperMode.REVERSING;
+        cancelPulse();
         setVoltage(REVERSE_VOLTAGE);
     }
 
     public void stop(){
+        m_mode = HopperMode.STOPPED;
+        cancelPulse();
         setVoltage(0);
     }
     
@@ -105,20 +122,38 @@ public class Hopper extends SubsystemBase {
         m_voltageControl.Output = voltage;
         m_motor.setControl(m_voltageControl);
     }
-    
-    // public Command pulseCommand() {
-    //     return new InstantCommand(() -> setVoltage(PULSE_VOLTAGE))
-    //         .andThen(new WaitCommand(0.5))
-    //         .andThen(new InstantCommand(() -> setVoltage(0)))
-    //         .andThen(new WaitCommand(0.05)).repeatedly().finallyDo(this::stop);
-    // }
 
-    public Command pulseCommand() {
-        return new InstantCommand(() -> setVoltage(PULSE_FORWARD_VOLTAGE))
-            .andThen(new WaitCommand(PULSE_FORWARD_SEC))
-            .andThen(new InstantCommand(() -> setVoltage(PULSE_REVERSE_VOLTAGE)))
-            .andThen(new WaitCommand(PULSE_REVERSE_SEC))
-            .repeatedly()
-            .finallyDo(this::stop);
+    public void requestPulse() {
+        if (isPulseActive()) {
+            return;
+        }
+
+        m_pulseActive = true;
+        m_pulseTimer.restart();
+        setVoltage(PULSE_REVERSE_VOLTAGE);
+    }
+
+    public boolean isPulseActive() {
+        return m_pulseActive;
+    }
+
+    private void finishPulse() {
+        m_pulseActive = false;
+        m_pulseTimer.stop();
+        m_pulseTimer.reset();
+
+        if (m_mode == HopperMode.FEEDING) {
+            setVoltage(FEED_VOLTAGE);
+        } else if (m_mode == HopperMode.REVERSING) {
+            setVoltage(REVERSE_VOLTAGE);
+        } else {
+            setVoltage(0.0);
+        }
+    }
+
+    private void cancelPulse() {
+        m_pulseActive = false;
+        m_pulseTimer.stop();
+        m_pulseTimer.reset();
     }
 }
