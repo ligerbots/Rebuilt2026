@@ -135,8 +135,8 @@ public class Shoot extends Command {
         } else {
             // TODO: turret seemed to be interrupting the shot too much
             //  maybe widen the tolerance and re-enable this code?
-            m_feeder.stopFeederBelts();
-            m_hopper.stop();
+            // m_feeder.stopFeederBelts();
+            // m_hopper.stop();
 
             // if (PLOT_SHOT_LOCATION) m_turret.plotShotVectors(null, null, null, null);
         }

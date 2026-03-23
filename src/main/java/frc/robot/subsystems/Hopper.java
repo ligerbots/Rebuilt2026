@@ -139,8 +139,6 @@ public class Hopper extends SubsystemBase {
 
     private void finishPulse() {
         m_pulseActive = false;
-        m_pulseTimer.stop();
-        m_pulseTimer.reset();
 
         if (m_mode == HopperMode.FEEDING) {
             setVoltage(FEED_VOLTAGE);
