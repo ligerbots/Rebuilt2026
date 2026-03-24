@@ -104,10 +104,13 @@ public class RobotContainerCompBot extends RobotContainer {
 
         configureAutos();
     }
-    
-    // public void configureDisabled(boolean disabled) {
-    //    m_hopper.set
+
+    // @Override
+    // public void setDisableEnableValues(boolean enabled) {
+    //     // Enabled = coast mode, Disabled = brake mode
+    //     m_intake.getPivot().setBrakeMode(!enabled);
     // }
+
     private void configureAutos() {
 
         // assign the Shoot button that is used during Autos
@@ -172,6 +175,8 @@ public class RobotContainerCompBot extends RobotContainer {
         RobotModeTriggers.disabled().whileTrue(
             m_drivetrain.applyRequest(() -> idle).ignoringDisable(true)
         );
+
+        RobotModeTriggers.disabled().onChange(new InstantCommand(() -> m_intake.getPivot().setBrakeMode(DriverStation.isDisabled())));
 
         // Just shoot
         m_driverController.rightTrigger().whileTrue(getShootCommand());
