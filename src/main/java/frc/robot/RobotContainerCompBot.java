@@ -25,6 +25,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.InternalButton;
@@ -257,7 +258,12 @@ public class RobotContainerCompBot extends RobotContainer {
         // m_driverController.a().onTrue(new InstantCommand(() -> m_shooterFeeder.setRPM(SmartDashboard.getNumber("shooterFeeder/testRPM", 0.0))));
 
         // SmartDashboard.putNumber("turret/testAngle", 0.0);
-        // m_driverController.a().onTrue(new InstantCommand(() -> m_turret.setAngle(Rotation2d.fromDegrees(SmartDashboard.getNumber("turret/testAngle", 0.0)))));
+        // m_farm.button(16).onTrue(new InstantCommand(() -> m_turret.setAngle(Rotation2d.fromDegrees(SmartDashboard.getNumber("turret/testAngle", 0.0)))));
+
+        // m_farm.button(22).whileTrue(new InstantCommand(() -> m_turret.setAngle(Rotation2d.fromDegrees(320.0)))
+        //         .andThen(new WaitCommand(0.4))
+        //         .andThen(new InstantCommand(() -> m_turret.setAngle(Rotation2d.fromDegrees(280.0))))
+        // );
 
         // Command turretAngleTest = new TMP_turretAngleTest(m_drivetrain::getPose, m_turret);
         // m_driverController.start().whileTrue(turretAngleTest);
@@ -312,7 +318,7 @@ public class RobotContainerCompBot extends RobotContainer {
     private Command UnJamCommand() {
         return new ParallelCommandGroup(
                 new StartEndCommand(m_hopper::reverse, m_hopper::stop, m_hopper),
-                new StartEndCommand(m_shooterFeeder::runReverse, m_shooterFeeder::stop, m_shooterFeeder),
+                new StartEndCommand(m_shooterFeeder::runReverseUnjam, m_shooterFeeder::stop, m_shooterFeeder),
                 m_intake.outtakeCommand());
     }
 

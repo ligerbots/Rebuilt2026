@@ -38,8 +38,8 @@ public class Shoot extends Command {
 
     private final Shooter.ShotType m_shotType;
 
-    private static final double LATENCY_SECONDS_TRANSLATION = 0.075;
-    private static final double LATENCY_SECONDS_ROTATION = 0.075;
+    private static final double LATENCY_SECONDS_TRANSLATION = 0.03;
+    private static final double LATENCY_SECONDS_ROTATION = 0.05;
 
     // for fixed shot only
     private final Translation2d m_fixedShotVector;
@@ -118,6 +118,7 @@ public class Shoot extends Command {
         
         m_turret.setAngle(shotVector.getAngle());
         m_shooter.setShootValues(shotValue);
+        m_feeder.setKickerRPM(shotValue.feedRPM);
         
         // Once the flywheel is up to speed, latch it on.
         if (!m_flywheelOnTarget && m_shooter.onTarget())
@@ -125,12 +126,13 @@ public class Shoot extends Command {
 
         // Run feeder only when shooter and turret are ready
         if (m_flywheelOnTarget && m_turret.isOnTarget()) {
-            m_feeder.setRPM(shotValue.feedRPM);
+            m_feeder.runFeederBelts();
             // m_hopper.feed();
-        } else {
+        } else if (!m_shooter.onTarget()) {
+            // m_feeder.stopFeederBelts();
             // TODO: turret seemed to be interrupting the shot too much
             //  maybe widen the tolerance and re-enable this code?
-            // m_feeder.stop();
+            // m_feeder.stopFeederBelts();
             // m_hopper.stop();
 
             // if (PLOT_SHOT_LOCATION) m_turret.plotShotVectors(null, null, null, null);

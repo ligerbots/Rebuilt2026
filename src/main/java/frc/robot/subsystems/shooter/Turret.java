@@ -45,7 +45,7 @@ public class Turret extends SubsystemBase {
     private final CANcoder m_thruboreLarge; 
     
     private static final Current SUPPLY_CURRENT_LIMIT = Amps.of(20);
-    private static final Current STATOR_CURRENT_LIMIT = Amps.of(100);
+    private static final Current STATOR_CURRENT_LIMIT = Amps.of(20);
 
     // Manual turret angle adjustment (additive)
     private double m_turretFudgeDegrees = 0;
@@ -59,8 +59,8 @@ public class Turret extends SubsystemBase {
     private static final double TURRET_GEAR_RATIO =  54.0 / 12.0 * TURRET_TOOTH_COUNT / 10.0;
     
     private static final double K_P = 2.0;
-    private static final double MAX_VEL_ROT_PER_SEC = 2.0 * TURRET_GEAR_RATIO;
-    private static final double MAX_ACC_ROT_PER_SEC_SQ = 10.0 * TURRET_GEAR_RATIO;
+    private static final double MAX_VEL_ROT_PER_SEC = 10.0 * TURRET_GEAR_RATIO;
+    private static final double MAX_ACC_ROT_PER_SEC_SQ = 40.0 * TURRET_GEAR_RATIO;
     //
     // 2/14 - Slowed down for testing, until chain working properly
     // private static final double MAX_VEL_ROT_PER_SEC = 2.0 * TURRET_GEAR_RATIO;
@@ -139,9 +139,13 @@ public class Turret extends SubsystemBase {
     // This method will be called once per scheduler run
     @Override
     public void periodic() {    
-        SmartDashboard.putNumber("turret/goalAngle", getGoalDeg());
-        SmartDashboard.putNumber("turret/currentAngle", getAngle().getDegrees());
+        double goal = getGoalDeg();
+        double currentAngle = getAngle().getDegrees();
+        SmartDashboard.putNumber("turret/shootAngle", m_shootAngle + TURRET_HEADING_OFFSET_DEG);
+        SmartDashboard.putNumber("turret/goalAngle", goal);
+        SmartDashboard.putNumber("turret/currentAngle", currentAngle);
         SmartDashboard.putNumber("turret/fudgeAngle", m_turretFudgeDegrees);
+        SmartDashboard.putNumber("turret/angleError", goal - currentAngle);
 
         // Values for testing and tuning
         SmartDashboard.putNumber("turret/crtAngleRaw",getCRTAngleRaw().getDegrees());   
