@@ -177,7 +177,9 @@ public class RobotContainerCompBot extends RobotContainer {
         );
 
         // enable/disable brake mode on the pivot when the robot is disabled
-        RobotModeTriggers.disabled().onChange(new InstantCommand(() -> m_intake.getPivot().setBrakeMode(DriverStation.isDisabled())));
+        RobotModeTriggers.disabled().onChange(
+            new InstantCommand(() -> m_intake.getPivot().setBrakeMode(DriverStation.isDisabled())).ignoringDisable(true)
+        );
 
         // Just shoot
         m_driverController.rightTrigger().whileTrue(getShootCommand());
@@ -257,10 +259,15 @@ public class RobotContainerCompBot extends RobotContainer {
         // m_driverController.x().onTrue(new InstantCommand(() -> m_shooter.getHood().setAngle(Rotation2d.fromDegrees(SmartDashboard.getNumber("hood/testAngle", 0.0)))));
         
         // SmartDashboard.putNumber("flywheel/testVoltage", 0.0); 
-        // m_driverController.y().onTrue(new InstantCommand(() -> m_shooter.getFlywheel().setVoltage(SmartDashboard.getNumber("flywheel/testVoltage", 0.0))));
+        // m_farm.button(22).onTrue(new InstantCommand(() -> m_shooter.getFlywheel().setVoltage(SmartDashboard.getNumber("flywheel/testVoltage", 0.0))));
 
-        // m_driverController.b().onTrue(new InstantCommand(() -> m_shooter.getFlywheel().setRPM(SmartDashboard.getNumber("flywheel/testRPM", 0.0))));
-        
+        // m_farm.button(23).onTrue(new InstantCommand(() -> m_shooter.getFlywheel().setRPM(SmartDashboard.getNumber("flywheel/testRPM", 0.0))));
+
+        SmartDashboard.putNumber("feeder/testVoltage", 0.0); 
+        m_farm.button(22).onTrue(new InstantCommand(() -> m_shooterFeeder.setKickerVoltage(SmartDashboard.getNumber("feeder/testVoltage", 0.0))));
+
+        m_farm.button(23).onTrue(new InstantCommand(() -> m_shooterFeeder.setKickerRPM(SmartDashboard.getNumber("kicker/testRPM", 0.0))));
+
         // m_driverController.a().onTrue(new InstantCommand(() -> m_shooterFeeder.setRPM(SmartDashboard.getNumber("shooterFeeder/testRPM", 0.0))));
 
         // SmartDashboard.putNumber("turret/testAngle", 0.0);

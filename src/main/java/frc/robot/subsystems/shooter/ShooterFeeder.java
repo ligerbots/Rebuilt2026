@@ -21,8 +21,9 @@ import frc.robot.Constants;
 
 public class ShooterFeeder extends SubsystemBase {
     
-    private static final double K_P = 0.1; 
-    private static final double K_FF = 0.0021;  // TODO: might need retuning after split
+    private static final double K_P = 0.2;
+    private static final double K_D = 0.03; 
+    private static final double K_FF = 0.00217;
     
     private static final double SUPPLY_CURRENT_LIMIT = 30;
     private static final double STATOR_CURRENT_LIMIT = 60;
@@ -47,8 +48,9 @@ public class ShooterFeeder extends SubsystemBase {
 
         Slot0Configs slot0configs = talonFXConfigs.Slot0;
         slot0configs.kP = K_P;
-        slot0configs.kI = 0.0;
+        slot0configs.kI = K_D;
         slot0configs.kD = 0.0;
+        slot0configs.kV = K_FF * 60.0;
 
         talonFXConfigs.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
@@ -106,8 +108,6 @@ public class ShooterFeeder extends SubsystemBase {
     public void setKickerRPM(double rpm) {
         m_goalRPM = rpm;
         m_velocityControl.Velocity = m_goalRPM / 60;   // velocity is in rot/second
-        m_velocityControl.FeedForward = K_FF * rpm;
-
         m_motorKicker.setControl(m_velocityControl);
     }
     

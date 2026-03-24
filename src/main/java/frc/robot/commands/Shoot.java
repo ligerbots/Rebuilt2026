@@ -68,7 +68,7 @@ public class Shoot extends Command {
         // SD values used in the Test command
         SmartDashboard.putNumber("hood/testAngle", 0.0);
         SmartDashboard.putNumber("flywheel/testRPM", 0.0); 
-        SmartDashboard.putNumber("shooterFeeder/testRPM", 0.0); 
+        SmartDashboard.putNumber("kicker/testRPM", 0.0); 
     }
 
     public Shoot(Shooter shooter, Turret turret, ShooterFeeder feeder, Hopper hopper,
@@ -257,7 +257,7 @@ public class Shoot extends Command {
     private ShootValue testShotValue() {
         return new ShootValue(
                 SmartDashboard.getNumber("flywheel/testRPM", 0.0),
-                SmartDashboard.getNumber("shooterFeeder/testRPM", 0.0),
+                SmartDashboard.getNumber("kicker/testRPM", 0.0),
                 Rotation2d.fromDegrees(SmartDashboard.getNumber("hood/testAngle", 0.0)),
                 SmartDashboard.getNumber("shooter/testTimeOfFlight", 0.0));
     }
