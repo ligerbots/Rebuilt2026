@@ -30,10 +30,10 @@ public class Flywheel extends SubsystemBase {
     private final TalonFX m_motor;
     private final TalonFX m_follower;
     
-    private static final double K_P = 0.75;  // tuned 2/7
+    private static final double K_P = 0.90;  // 3/23 = 0.75
     private static final double K_FF = 0.0019;
 
-    private static final Current SUPPLY_CURRENT_LIMIT = Amps.of(40);
+    private static final Current SUPPLY_CURRENT_LIMIT = Amps.of(30);
     private static final Current STATOR_CURRENT_LIMIT = Amps.of(60);
         
     // VelocityControl instance which we reuse - saves some memory thrashing
