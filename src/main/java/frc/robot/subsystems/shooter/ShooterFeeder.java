@@ -24,20 +24,18 @@ public class ShooterFeeder extends SubsystemBase {
     private static final double K_P = 0.1; 
     private static final double K_FF = 0.0021;  // TODO: might need retuning after split
     
-    // private static final double REVERSE_RPM = -1000.0;
-    
-    private static final double SUPPLY_CURRENT_LIMIT = 35;
-    private static final double STATOR_CURRENT_LIMIT = 90;
+    private static final double SUPPLY_CURRENT_LIMIT = 30;
+    private static final double STATOR_CURRENT_LIMIT = 60;
 
-    private static double FEEDER_BELT_FEED_VOLTAGE = 9.0; // TODO: tune this value
-    private static double FEEDER_BELT_UNJAM_VOLTAGE = -6.0; // TODO: tune this value
+    private static double FEEDER_BELT_FEED_VOLTAGE = 9.0;
+    private static double FEEDER_BELT_UNJAM_VOLTAGE = -6.0;
     
     private final TalonFX m_motorKicker;
     private final TalonFX m_motorBelts;
 
     private double m_goalRPM;
 
-    private final VelocityVoltage m_velocityControl = new VelocityVoltage(0).withEnableFOC(true);
+    private final VelocityVoltage m_velocityControl = new VelocityVoltage(0).withEnableFOC(false);
     private final VoltageOut m_voltageControl = new VoltageOut(0);
 
     // Creates a new ShooterFeeder
