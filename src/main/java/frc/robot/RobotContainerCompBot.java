@@ -257,13 +257,14 @@ public class RobotContainerCompBot extends RobotContainer {
         
         // m_driverController.a().onTrue(new InstantCommand(() -> m_shooterFeeder.setRPM(SmartDashboard.getNumber("shooterFeeder/testRPM", 0.0))));
 
-        SmartDashboard.putNumber("turret/testAngle", 0.0);
-        m_farm.button(16).onTrue(new InstantCommand(() -> m_turret.setAngle(Rotation2d.fromDegrees(SmartDashboard.getNumber("turret/testAngle", 0.0)))));
+        // SmartDashboard.putNumber("turret/testAngle", 0.0);
+        // m_farm.button(16).onTrue(new InstantCommand(() -> m_turret.setAngle(Rotation2d.fromDegrees(SmartDashboard.getNumber("turret/testAngle", 0.0)))));
 
-        m_farm.button(22).whileTrue(new InstantCommand(() -> m_turret.setAngle(Rotation2d.fromDegrees(320.0)))
-                .andThen(new WaitCommand(0.4))
-                .andThen(new InstantCommand(() -> m_turret.setAngle(Rotation2d.fromDegrees(280.0))))
-        );
+        // m_farm.button(22).whileTrue(new InstantCommand(() -> m_turret.setAngle(Rotation2d.fromDegrees(320.0)))
+        //         .andThen(new WaitCommand(0.4))
+        //         .andThen(new InstantCommand(() -> m_turret.setAngle(Rotation2d.fromDegrees(280.0))))
+        // );
+
         // Command turretAngleTest = new TMP_turretAngleTest(m_drivetrain::getPose, m_turret);
         // m_driverController.start().whileTrue(turretAngleTest);
         // SmartDashboard.putBoolean("TurretAngleTest", false);
