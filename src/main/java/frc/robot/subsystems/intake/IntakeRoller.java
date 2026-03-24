@@ -28,7 +28,7 @@ public class IntakeRoller extends SubsystemBase {
     private static final double OUTTAKE_VOLTAGE = 6.0;
 
     private final TalonFX m_motor;
-    private final VoltageOut m_voltageControl = new VoltageOut(0).withEnableFOC(false);
+    private final VoltageOut m_voltageControl = new VoltageOut(0).withEnableFOC(true);
 
     private double m_intakeVoltageOffset = 0;
     private static final double INTAKE_FUDGE = 0.5;

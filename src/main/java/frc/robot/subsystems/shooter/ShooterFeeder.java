@@ -35,7 +35,7 @@ public class ShooterFeeder extends SubsystemBase {
 
     private double m_goalRPM;
 
-    private final VelocityVoltage m_velocityControl = new VelocityVoltage(0).withEnableFOC(false);
+    private final VelocityVoltage m_velocityControl = new VelocityVoltage(0).withEnableFOC(true);
     private final VoltageOut m_voltageControl = new VoltageOut(0);
 
     // Creates a new ShooterFeeder
