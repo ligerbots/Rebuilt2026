@@ -23,9 +23,9 @@ public class ShooterFeeder extends SubsystemBase {
     
     private static final double K_P = 0.1; 
     private static final double K_FF = 0.0021;
-        
-    private static final double SUPPLY_CURRENT_LIMIT = 35;
-    private static final double STATOR_CURRENT_LIMIT = 90;
+    
+    private static final double SUPPLY_CURRENT_LIMIT = 40;
+    private static final double STATOR_CURRENT_LIMIT = 60;
 
     private static double FEEDER_BELT_FEED_VOLTAGE = 9.0;
     private static double FEEDER_BELT_UNJAM_VOLTAGE = -6.0;
@@ -35,7 +35,7 @@ public class ShooterFeeder extends SubsystemBase {
     private final TalonFX m_motorBelts;
 
 
-    private final VelocityVoltage m_velocityControl = new VelocityVoltage(0).withEnableFOC(true);
+    private final VelocityVoltage m_velocityControl = new VelocityVoltage(0).withEnableFOC(false);
     private final VoltageOut m_voltageControl = new VoltageOut(0);
 
     // Creates a new ShooterFeeder
