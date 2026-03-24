@@ -42,7 +42,7 @@ public class Hopper extends SubsystemBase {
     
     private final TalonFX m_motor;
 
-    private final VoltageOut m_voltageControl = new VoltageOut(0);
+    private final VoltageOut m_voltageControl = new VoltageOut(0).withEnableFOC(true);
 
     // Creates a new Hopper
     public Hopper() {
