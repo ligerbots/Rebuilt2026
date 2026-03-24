@@ -128,7 +128,8 @@ public class Shoot extends Command {
         if (m_flywheelOnTarget && m_turret.isOnTarget()) {
             m_feeder.runFeederBelts();
             // m_hopper.feed();
-        } else if (!m_shooter.onTarget()) {
+        }   
+        // else if (!m_shooter.onTarget()) {
             // m_feeder.stopFeederBelts();
             // TODO: turret seemed to be interrupting the shot too much
             //  maybe widen the tolerance and re-enable this code?
@@ -136,7 +137,7 @@ public class Shoot extends Command {
             // m_hopper.stop();
 
             // if (PLOT_SHOT_LOCATION) m_turret.plotShotVectors(null, null, null, null);
-        }
+        // }
     }
     
     @Override

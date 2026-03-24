@@ -57,13 +57,14 @@ public class ShooterFeeder extends SubsystemBase {
                 .withStatorCurrentLimit(STATOR_CURRENT_LIMIT);
         talonFXConfigs.withCurrentLimits(currentLimits);
         
-        // enable brake mode (after main config)
         m_motorKicker.getConfigurator().apply(talonFXConfigs);
+        // put kicker in Coast mode, so that it spins down slowly
         m_motorKicker.setNeutralMode(NeutralModeValue.Coast);
 
         talonFXConfigs.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
         m_motorBelts.getConfigurator().apply(talonFXConfigs);
+        // put feed belts in Brake mode so it stops quickly
         m_motorBelts.setNeutralMode(NeutralModeValue.Brake);
 
 
