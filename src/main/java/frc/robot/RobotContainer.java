@@ -13,6 +13,4 @@ public abstract class RobotContainer {
     public abstract Pose2d getInitialPose();
 
     public abstract CommandSwerveDrivetrain getDriveTrain();
-
-    // public abstract void setDisableEnableValues(boolean enabled);
 }

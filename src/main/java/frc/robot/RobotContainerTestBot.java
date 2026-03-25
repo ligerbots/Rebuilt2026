@@ -76,11 +76,6 @@ public class RobotContainerTestBot extends RobotContainer {
         configureAutos();
     }
 
-    // @Override
-    // public void setDisableEnableValues(boolean enabled) {
-    // }
-
-
     private void configureAutos() {
         m_chosenFieldSide.setDefaultOption("Depot Side", "Depot Side");
         m_chosenFieldSide.addOption("Outpost Side", "Outpost Side");
