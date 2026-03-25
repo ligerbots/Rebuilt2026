@@ -46,7 +46,7 @@ public class Shoot extends Command {
 
     // We want to "latch" the shooting on as soon as the flywheel is up
     //   to speed once. Otherwise, we turn off the feeder when the RPM drops - bad
-    private boolean m_flywheelOnTarget = false;
+    private boolean m_doShoot = false;
 
     private Shoot(Shooter shooter, Turret turret, ShooterFeeder feeder, Hopper hopper,
             Supplier<Pose2d> poseSupplier, Supplier<ChassisSpeeds> speeds, Shooter.ShotType shotType,
@@ -89,7 +89,7 @@ public class Shoot extends Command {
     @Override
     public void initialize() {
         // at start, wait for flywheel to get to speed
-        m_flywheelOnTarget = false;
+        m_doShoot = false;
     }
     
     @Override
@@ -121,11 +121,11 @@ public class Shoot extends Command {
         m_feeder.setKickerRPM(shotValue.feedRPM);
         
         // Once the flywheel is up to speed, latch it on.
-        if (!m_flywheelOnTarget && m_shooter.onTarget() && m_turret.isOnTarget())
-            m_flywheelOnTarget = true;
+        if (!m_doShoot && m_shooter.onTarget() && m_turret.isOnTarget())
+            m_doShoot = true;
 
         // Run feeder only when shooter and turret are ready
-        if (m_flywheelOnTarget) {
+        if (m_doShoot) {
             m_feeder.runFeederBelts();
             m_hopper.feed();
         } else {
