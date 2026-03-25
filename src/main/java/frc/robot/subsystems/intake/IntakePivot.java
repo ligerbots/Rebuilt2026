@@ -50,7 +50,7 @@ public class IntakePivot extends SubsystemBase {
 
     private final TalonFX m_motor;
     private final MotionMagicVoltage m_positionControl = new MotionMagicVoltage(0).withEnableFOC(true);
-    private final VoltageOut m_stopControl = new VoltageOut(0);
+    private final VoltageOut m_stopControl = new VoltageOut(0).withEnableFOC(true);
 
     private static enum SlotNumber {
         MOVE(0),

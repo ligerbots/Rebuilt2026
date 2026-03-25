@@ -41,7 +41,7 @@ public class Flywheel extends SubsystemBase {
         
     // VelocityControl instance which we reuse - saves some memory thrashing
     private final VelocityVoltage m_velocityControl = new VelocityVoltage(0).withEnableFOC(true);
-    private final VoltageOut m_voltageControl = new VoltageOut(0);
+    private final VoltageOut m_voltageControl = new VoltageOut(0).withEnableFOC(true);
 
     private double m_goalRPM;
     
