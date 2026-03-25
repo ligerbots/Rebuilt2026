@@ -121,11 +121,11 @@ public class Shoot extends Command {
         m_feeder.setKickerRPM(shotValue.feedRPM);
         
         // Once the flywheel is up to speed, latch it on.
-        if (!m_flywheelOnTarget && m_shooter.onTarget())
+        if (!m_flywheelOnTarget && m_shooter.onTarget() && m_turret.isOnTarget())
             m_flywheelOnTarget = true;
 
         // Run feeder only when shooter and turret are ready
-        if (m_flywheelOnTarget && m_turret.isOnTarget()) {
+        if (m_flywheelOnTarget) {
             m_feeder.runFeederBelts();
             m_hopper.feed();
         } else {

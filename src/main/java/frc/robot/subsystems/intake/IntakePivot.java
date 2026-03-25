@@ -179,6 +179,6 @@ public class IntakePivot extends SubsystemBase {
     }
 
     public void fudgeIntakeOutWhenDeployed() {
-        m_motor.setPosition(DEPLOY_POSITION.getRotations());
+        m_motor.setPosition(DEPLOY_POSITION.getRotations() / GEAR_RATIO);
     }
 }

@@ -42,7 +42,7 @@ public class IntakeRoller extends SubsystemBase {
          CurrentLimitsConfigs currentLimits = new CurrentLimitsConfigs()
                 .withSupplyCurrentLimit(SUPPLY_CURRENT_LIMIT)
                 .withStatorCurrentLimit(STATOR_CURRENT_LIMIT)
-                .withStatorCurrentLimitEnable(true)
+                .withStatorCurrentLimitEnable(false)   // no limit, to prevent jams
                 .withSupplyCurrentLimitEnable(true);
         talonFXConfigs.withCurrentLimits(currentLimits);
         talonFXConfigs.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
