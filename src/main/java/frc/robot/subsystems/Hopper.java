@@ -89,7 +89,6 @@ public class Hopper extends SubsystemBase {
         setVoltage(FEED_VOLTAGE);
     }
     
-
     public void reverse() {
         setVoltage(REVERSE_VOLTAGE);
     }

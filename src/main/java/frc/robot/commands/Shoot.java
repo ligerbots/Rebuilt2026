@@ -129,6 +129,8 @@ public class Shoot extends Command {
             m_feeder.runFeederBelts();
             m_hopper.feed();
         } else {
+            // TODO test this !!
+            // m_hopper.reverse();
             m_feeder.runReverseUnjam();
         }
         // else if (!m_shooter.onTarget()) {
