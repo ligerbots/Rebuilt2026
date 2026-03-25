@@ -38,7 +38,7 @@ public class Shoot extends Command {
 
     private final Shooter.ShotType m_shotType;
 
-    private static final double LATENCY_SECONDS_TRANSLATION = 0.05;
+    private static final double LATENCY_SECONDS_TRANSLATION = 0.03;
     private static final double LATENCY_SECONDS_ROTATION = 0.05;
 
     // for fixed shot only
