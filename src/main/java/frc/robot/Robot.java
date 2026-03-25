@@ -80,9 +80,7 @@ public class Robot extends TimedRobot {
     }
 
     @Override
-    public void disabledInit() {
-        // m_robotContainer.setDisableEnableValues(false);
-    }
+    public void disabledInit() {}
 
     @Override
     public void disabledPeriodic() {
