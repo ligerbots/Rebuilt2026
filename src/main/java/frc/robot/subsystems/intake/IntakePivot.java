@@ -177,4 +177,8 @@ public class IntakePivot extends SubsystemBase {
         cmd.addRequirements(this);
         return cmd;
     }
+
+    public void fudgeIntakeOutWhenDeployed() {
+        m_motor.setPosition(DEPLOY_POSITION.getRotations());
+    }
 }
