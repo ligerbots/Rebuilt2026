@@ -8,6 +8,7 @@ package frc.robot.subsystems.shooter;
 
 import static edu.wpi.first.units.Units.Amps;
 
+import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -29,6 +30,8 @@ public class Flywheel extends SubsystemBase {
     
     private final TalonFX m_motor;
     private final TalonFX m_follower;
+    private final BaseStatusSignal m_velocitySignal;
+    private final BaseStatusSignal m_accelerationSignal;
     
     private static final double K_P = 0.4;  // 3/23 = 0.75
     private static final double K_FF = 0.00188;  // V / rpm
@@ -48,6 +51,8 @@ public class Flywheel extends SubsystemBase {
         
         m_motor = new TalonFX(Constants.FLYWHEEL_CAN_ID);
         m_follower = new TalonFX(Constants.FLYWHEEL_FOLLOWER_CAN_ID);
+        m_velocitySignal = m_motor.getVelocity();
+        m_accelerationSignal = m_motor.getAcceleration();
         
         Slot0Configs slot0configs = talonFXConfigs.Slot0;
         slot0configs.kP = K_P;
@@ -77,7 +82,8 @@ public class Flywheel extends SubsystemBase {
     }
 
     private void optimizeCAN() {
-        m_motor.getVelocity().setUpdateFrequency(Constants.ROBOT_FREQUENCY_HZ);
+        m_velocitySignal.setUpdateFrequency(Constants.ROBOT_FREQUENCY_HZ);
+        m_accelerationSignal.setUpdateFrequency(Constants.ROBOT_FREQUENCY_HZ);
         if (Constants.ENABLE_CAN_DIAGNOSTICS) {
             m_motor.getStatorCurrent().setUpdateFrequency(Constants.CAN_DIAGNOSTIC_FREQUENCY_HZ);
             m_motor.getSupplyCurrent().setUpdateFrequency(Constants.CAN_DIAGNOSTIC_FREQUENCY_HZ);
@@ -106,7 +112,7 @@ public class Flywheel extends SubsystemBase {
     }
     
     public double getRPM(){
-        return m_motor.getVelocity().getValueAsDouble() * 60; //convert rps to rpm
+        return BaseStatusSignal.getLatencyCompensatedValueAsDouble(m_velocitySignal, m_accelerationSignal) * 60.0;
     }
     
     public void setRPM(double rpm) {

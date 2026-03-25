@@ -4,6 +4,7 @@
 //look for motor ratios
 package frc.robot.subsystems.shooter;
 
+import com.ctre.phoenix6.BaseStatusSignal;
 import frc.robot.Constants;
 import frc.robot.utilities.ChineseRemainder;
 import edu.wpi.first.math.MathUtil;
@@ -43,6 +44,8 @@ public class Turret extends SubsystemBase {
     private final TalonFX m_turretMotor;
     private final CANcoder m_thruboreSmall; 
     private final CANcoder m_thruboreLarge; 
+    private final BaseStatusSignal m_turretPositionSignal;
+    private final BaseStatusSignal m_turretVelocitySignal;
     
     private static final Current SUPPLY_CURRENT_LIMIT = Amps.of(20);
     private static final Current STATOR_CURRENT_LIMIT = Amps.of(60);
@@ -87,6 +90,8 @@ public class Turret extends SubsystemBase {
         m_turretMotor = new TalonFX(Constants.TURRET_CAN_ID);
         m_thruboreSmall =  new CANcoder(Constants.TURRET_SMALL_CANCODER_ID);
         m_thruboreLarge = new CANcoder(Constants.TURRET_LARGE_CANCODER_ID);
+        m_turretPositionSignal = m_turretMotor.getPosition();
+        m_turretVelocitySignal = m_turretMotor.getVelocity();
         
         CANcoderConfiguration cancoderConfig = new CANcoderConfiguration();
         cancoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1.0;
@@ -128,7 +133,8 @@ public class Turret extends SubsystemBase {
     
     private void optimizeCAN() {
         // For the turret, we want the position every loop
-        m_turretMotor.getPosition().setUpdateFrequency(Constants.ROBOT_FREQUENCY_HZ);
+        m_turretPositionSignal.setUpdateFrequency(Constants.ROBOT_FREQUENCY_HZ);
+        m_turretVelocitySignal.setUpdateFrequency(Constants.ROBOT_FREQUENCY_HZ);
         m_turretMotor.optimizeBusUtilization();
 
         // for the throughbores, we don't need frequent values after init
@@ -189,7 +195,8 @@ public class Turret extends SubsystemBase {
     
     // get angle of turret
     public Rotation2d getAngle(){
-        double rot = m_turretMotor.getPosition().getValueAsDouble() / TURRET_GEAR_RATIO + TURRET_HEADING_OFFSET_DEG / 360.0;
+        double rot = BaseStatusSignal.getLatencyCompensatedValueAsDouble(m_turretPositionSignal, m_turretVelocitySignal)
+                / TURRET_GEAR_RATIO + TURRET_HEADING_OFFSET_DEG / 360.0;
         return Rotation2d.fromRotations(rot);
     }
        

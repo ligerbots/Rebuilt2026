@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems.shooter;
 
+import com.ctre.phoenix6.BaseStatusSignal;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Current;
@@ -42,6 +43,8 @@ public class Hood extends SubsystemBase {
     private static final double MAX_ACC_ROT_PER_SEC = 15.0 / GEAR_RATIO;
 
     private final TalonFX m_motor;
+    private final BaseStatusSignal m_positionSignal;
+    private final BaseStatusSignal m_velocitySignal;
     private double m_goalDeg = 0.0;
 
     private final MotionMagicVoltage m_positionControl = new MotionMagicVoltage(0);    
@@ -49,6 +52,8 @@ public class Hood extends SubsystemBase {
     /** Creates a new Hood. */
     public Hood() {
         m_motor = new TalonFX(Constants.HOOD_CAN_ID);
+        m_positionSignal = m_motor.getPosition();
+        m_velocitySignal = m_motor.getVelocity();
         
         TalonFXConfiguration talonFXConfigs = new TalonFXConfiguration();        
         Slot0Configs slot0configs = talonFXConfigs.Slot0;
@@ -79,7 +84,8 @@ public class Hood extends SubsystemBase {
     }
 
     private void optimizeCAN() {
-        m_motor.getPosition().setUpdateFrequency(Constants.CAN_CONTROL_FREQUENCY_HZ);
+        m_positionSignal.setUpdateFrequency(Constants.CAN_CONTROL_FREQUENCY_HZ);
+        m_velocitySignal.setUpdateFrequency(Constants.CAN_CONTROL_FREQUENCY_HZ);
         m_motor.optimizeBusUtilization();
     }
 
@@ -99,7 +105,7 @@ public class Hood extends SubsystemBase {
     }
     
     public Rotation2d getAngle() {
-        double rot = m_motor.getPosition().getValueAsDouble();
+        double rot = BaseStatusSignal.getLatencyCompensatedValueAsDouble(m_positionSignal, m_velocitySignal);
         return Rotation2d.fromRotations(rot * GEAR_RATIO);
     }
     
