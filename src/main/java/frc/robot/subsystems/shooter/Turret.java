@@ -35,7 +35,7 @@ public class Turret extends SubsystemBase {
     // public for the Shoot command - not the greatest, but a pain otherwise
     public static final Translation2d TURRET_OFFSET = new Translation2d(Units.inchesToMeters(-2.5626),  Units.inchesToMeters(-4.875));
     private static final double TURRET_HEADING_OFFSET_DEG = 180.0;
-    private static final double ANGLE_TOLERANCE_DEG = 2.0; 
+    private static final double ANGLE_TOLERANCE_DEG = 5.0; 
     
     private double m_goalDeg = 0.0; // angle limited to our constraints
     private double m_shootAngle = 0.0; // raw shoot angle (actual angle we want to shoot)
@@ -45,7 +45,7 @@ public class Turret extends SubsystemBase {
     private final CANcoder m_thruboreLarge; 
     
     private static final Current SUPPLY_CURRENT_LIMIT = Amps.of(20);
-    private static final Current STATOR_CURRENT_LIMIT = Amps.of(20);
+    private static final Current STATOR_CURRENT_LIMIT = Amps.of(60);
 
     // Manual turret angle adjustment (additive)
     private double m_turretFudgeDegrees = 0;

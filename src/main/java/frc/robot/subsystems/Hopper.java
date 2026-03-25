@@ -31,18 +31,19 @@ public class Hopper extends SubsystemBase {
     private static final Current SUPPLY_CURRENT_LIMIT = Amps.of(20);
     private static final Current STATOR_CURRENT_LIMIT =  Amps.of(30);
 
-    private static final double PULSE_FORWARD_VOLTAGE = 6.0;
+    private static final double PULSE_FORWARD_VOLTAGE = 9.0;
     private static final double PULSE_REVERSE_VOLTAGE = -2.0;
     private static final double PULSE_FORWARD_SEC = 0.8;
     private static final double PULSE_REVERSE_SEC = 0.05;
 
     private static final double INTAKE_VOLTAGE = 0.5;
-    private static final double FEED_VOLTAGE = 3.0;
+    // voltage for plain feeding while shooting, no pulsing
+    private static final double FEED_VOLTAGE = 9.0;
     private static final double REVERSE_VOLTAGE = -8.0;
     
     private final TalonFX m_motor;
 
-    private final VoltageOut m_voltageControl = new VoltageOut(0);
+    private final VoltageOut m_voltageControl = new VoltageOut(0).withEnableFOC(true);
 
     // Creates a new Hopper
     public Hopper() {
@@ -88,7 +89,6 @@ public class Hopper extends SubsystemBase {
         setVoltage(FEED_VOLTAGE);
     }
     
-
     public void reverse() {
         setVoltage(REVERSE_VOLTAGE);
     }
@@ -106,13 +106,7 @@ public class Hopper extends SubsystemBase {
         m_motor.setControl(m_voltageControl);
     }
     
-    // public Command pulseCommand() {
-    //     return new InstantCommand(() -> setVoltage(PULSE_VOLTAGE))
-    //         .andThen(new WaitCommand(0.5))
-    //         .andThen(new InstantCommand(() -> setVoltage(0)))
-    //         .andThen(new WaitCommand(0.05)).repeatedly().finallyDo(this::stop);
-    // }
-
+    // Note: currently not used
     public Command pulseCommand() {
         return new InstantCommand(() -> setVoltage(PULSE_FORWARD_VOLTAGE))
             .andThen(new WaitCommand(PULSE_FORWARD_SEC))

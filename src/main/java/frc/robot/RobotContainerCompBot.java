@@ -25,7 +25,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.InternalButton;
@@ -104,10 +103,7 @@ public class RobotContainerCompBot extends RobotContainer {
 
         configureAutos();
     }
-    
-    // public void configureDisabled(boolean disabled) {
-    //    m_hopper.set
-    // }
+
     private void configureAutos() {
 
         // assign the Shoot button that is used during Autos
@@ -148,10 +144,10 @@ public class RobotContainerCompBot extends RobotContainer {
     }
 
     public Command getShootCommand() {
-        return new Shoot(m_shooter, m_turret, m_shooterFeeder, m_hopper, m_drivetrain::getPose, m_drivetrain::getFieldCentricSpeeds, ShotType.AUTO)
-                        .alongWith(
-                            m_hopper.pulseCommand(),
-                            new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningShooter", true)));
+        return new Shoot(m_shooter, m_turret, m_shooterFeeder, m_hopper, m_drivetrain::getPose, m_drivetrain::getFieldCentricSpeeds, ShotType.AUTO);
+                        // .alongWith(
+                        //     m_hopper.pulseCommand(),
+                        //     new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningShooter", true)));
     }
     
     private void configureAutoEventTriggers() {
@@ -171,6 +167,12 @@ public class RobotContainerCompBot extends RobotContainer {
         final var idle = new SwerveRequest.Idle();
         RobotModeTriggers.disabled().whileTrue(
             m_drivetrain.applyRequest(() -> idle).ignoringDisable(true)
+        );
+
+        // enable/disable brake mode on the pivot when the robot is disabled
+        RobotModeTriggers.disabled().onFalse(new InstantCommand(() -> m_intake.getPivot().setBrakeMode(false)));
+        RobotModeTriggers.disabled().onTrue(
+            new InstantCommand(() -> m_intake.getPivot().setBrakeMode(true)).ignoringDisable(true)
         );
 
         // Just shoot
@@ -204,20 +206,23 @@ public class RobotContainerCompBot extends RobotContainer {
         // fixed shots - distance in inches, plus ROBOT angle of turret
         // ladder - robot against the outside of the ladder, intake to the left for the dirver
         m_farm.button(11).whileTrue(new Shoot(m_shooter, m_turret, m_shooterFeeder, m_hopper,
-                    m_drivetrain::getPose, m_drivetrain::getFieldCentricSpeeds, 130.0, Rotation2d.kCCW_90deg)
-                    .alongWith(m_hopper.pulseCommand()));
+                    m_drivetrain::getPose, m_drivetrain::getFieldCentricSpeeds, 130.0, Rotation2d.kCCW_90deg));
+                    // .alongWith(m_hopper.pulseCommand()));
 
         // corner shot
         m_farm.button(13).whileTrue(new Shoot(m_shooter, m_turret, m_shooterFeeder, m_hopper,
-                    m_drivetrain::getPose, m_drivetrain::getFieldCentricSpeeds, 210.0, Rotation2d.kZero)
-                    .alongWith(m_hopper.pulseCommand()));
+                    m_drivetrain::getPose, m_drivetrain::getFieldCentricSpeeds, 210.0, Rotation2d.kZero));
+                    // .alongWith(m_hopper.pulseCommand()));
 
         m_farm.button(15).whileTrue(new Shoot(m_shooter, m_turret, m_shooterFeeder, m_hopper,
-                    m_drivetrain::getPose, m_drivetrain::getFieldCentricSpeeds, ShotType.TEST)
-                    .alongWith(m_hopper.pulseCommand()));
+                    m_drivetrain::getPose, m_drivetrain::getFieldCentricSpeeds, ShotType.TEST));
+                    // .alongWith(m_hopper.pulseCommand()));
 
         m_farm.button(1).onTrue(new InstantCommand(m_shooter::increaseFlyFudge));
         m_farm.button(2).onTrue(new InstantCommand(m_shooter::decreaseFlyFudge));
+
+        // set the intake sensor position assuming it is deployed
+        m_farm.button(24).onTrue(new InstantCommand(() -> m_intake.getPivot().setPositionToDeployed()));
 
         m_farm.button(6).onTrue(new InstantCommand(m_shooter::increaseFeedFudge));
         m_farm.button(7).onTrue(new InstantCommand(m_shooter::decreaseFeedFudge));
@@ -251,10 +256,15 @@ public class RobotContainerCompBot extends RobotContainer {
         // m_driverController.x().onTrue(new InstantCommand(() -> m_shooter.getHood().setAngle(Rotation2d.fromDegrees(SmartDashboard.getNumber("hood/testAngle", 0.0)))));
         
         // SmartDashboard.putNumber("flywheel/testVoltage", 0.0); 
-        // m_driverController.y().onTrue(new InstantCommand(() -> m_shooter.getFlywheel().setVoltage(SmartDashboard.getNumber("flywheel/testVoltage", 0.0))));
+        // m_farm.button(22).onTrue(new InstantCommand(() -> m_shooter.getFlywheel().setVoltage(SmartDashboard.getNumber("flywheel/testVoltage", 0.0))));
 
-        // m_driverController.b().onTrue(new InstantCommand(() -> m_shooter.getFlywheel().setRPM(SmartDashboard.getNumber("flywheel/testRPM", 0.0))));
-        
+        // m_farm.button(23).onTrue(new InstantCommand(() -> m_shooter.getFlywheel().setRPM(SmartDashboard.getNumber("flywheel/testRPM", 0.0))));
+
+        SmartDashboard.putNumber("feeder/testVoltage", 0.0); 
+        m_farm.button(22).onTrue(new InstantCommand(() -> m_shooterFeeder.setKickerVoltage(SmartDashboard.getNumber("feeder/testVoltage", 0.0))));
+
+        m_farm.button(23).onTrue(new InstantCommand(() -> m_shooterFeeder.setKickerRPM(SmartDashboard.getNumber("kicker/testRPM", 0.0))));
+
         // m_driverController.a().onTrue(new InstantCommand(() -> m_shooterFeeder.setRPM(SmartDashboard.getNumber("shooterFeeder/testRPM", 0.0))));
 
         // SmartDashboard.putNumber("turret/testAngle", 0.0);

@@ -21,8 +21,10 @@ import frc.robot.Constants;
 
 public class ShooterFeeder extends SubsystemBase {
     
-    private static final double K_P = 0.1; 
-    private static final double K_FF = 0.0021;  // TODO: might need retuning after split
+    private static final double K_P = 0.2;
+    private static final double K_D = 0.03;   // TODO ** retest these settings **
+    private static final double K_I = 0.0; 
+    private static final double K_FF = 0.00217;  // V/rpm
     
     private static final double SUPPLY_CURRENT_LIMIT = 30;
     private static final double STATOR_CURRENT_LIMIT = 60;
@@ -35,8 +37,8 @@ public class ShooterFeeder extends SubsystemBase {
 
     private double m_goalRPM;
 
-    private final VelocityVoltage m_velocityControl = new VelocityVoltage(0).withEnableFOC(false);
-    private final VoltageOut m_voltageControl = new VoltageOut(0);
+    private final VelocityVoltage m_velocityControl = new VelocityVoltage(0).withEnableFOC(true);
+    private final VoltageOut m_voltageControl = new VoltageOut(0).withEnableFOC(true);
 
     // Creates a new ShooterFeeder
     public ShooterFeeder() {
@@ -47,23 +49,27 @@ public class ShooterFeeder extends SubsystemBase {
 
         Slot0Configs slot0configs = talonFXConfigs.Slot0;
         slot0configs.kP = K_P;
-        slot0configs.kI = 0.0;
-        slot0configs.kD = 0.0;
+        slot0configs.kI = K_I;
+        slot0configs.kD = K_D;
+        slot0configs.kV = K_FF * 60.0;   // K_FF is in V/rpm, motor uses rps
 
         talonFXConfigs.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
         CurrentLimitsConfigs currentLimits = new CurrentLimitsConfigs()
                 .withSupplyCurrentLimit(SUPPLY_CURRENT_LIMIT)
-                .withStatorCurrentLimit(STATOR_CURRENT_LIMIT);
+                .withSupplyCurrentLimitEnable(true)
+                .withStatorCurrentLimit(STATOR_CURRENT_LIMIT)
+                .withStatorCurrentLimitEnable(true);
         talonFXConfigs.withCurrentLimits(currentLimits);
         
-        // enable brake mode (after main config)
         m_motorKicker.getConfigurator().apply(talonFXConfigs);
+        // put kicker in Coast mode, so that it spins down slowly
         m_motorKicker.setNeutralMode(NeutralModeValue.Coast);
 
         talonFXConfigs.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
         m_motorBelts.getConfigurator().apply(talonFXConfigs);
+        // put feed belts in Brake mode so it stops quickly
         m_motorBelts.setNeutralMode(NeutralModeValue.Brake);
 
 
@@ -105,8 +111,6 @@ public class ShooterFeeder extends SubsystemBase {
     public void setKickerRPM(double rpm) {
         m_goalRPM = rpm;
         m_velocityControl.Velocity = m_goalRPM / 60;   // velocity is in rot/second
-        m_velocityControl.FeedForward = K_FF * rpm;
-
         m_motorKicker.setControl(m_velocityControl);
     }
     
