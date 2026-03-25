@@ -115,10 +115,13 @@ public class Shoot extends Command {
             shotValue = m_shooter.getShootValue(shotVector.getNorm(), m_shotType);
         }
         
-        m_turret.setAngle(shotVector.getAngle());
+        Rotation2d angle = shotVector.getAngle();
+        m_turret.setAngle(angle);
         m_shooter.setShootValues(shotValue);
         m_feeder.setKickerRPM(shotValue.feedRPM);
         
+        SmartDashboard.putNumber("shoot/shotAngle", angle.getDegrees());
+
         // Once the flywheel is up to speed, latch it on.
         if (!m_doShoot && m_shooter.onTarget() && m_turret.isOnTarget())
             m_doShoot = true;
@@ -200,6 +203,9 @@ public class Shoot extends Command {
         ChassisSpeeds speedInformation = m_speedsSupplier.get();
         Translation2d robotVelVector = new Translation2d(speedInformation.vxMetersPerSecond, speedInformation.vyMetersPerSecond);
 
+        SmartDashboard.putNumber("shoot/robotVel", robotVelVector.getNorm());
+        SmartDashboard.putNumber("shoot/robotOmega", speedInformation.omegaRadiansPerSecond);
+
         Pose2d futureRobotPose = new Pose2d(
             currentPose.getTranslation().plus(robotVelVector.times(LATENCY_SECONDS_TRANSLATION)),
             currentPose.getRotation().plus(Rotation2d.fromRadians(speedInformation.omegaRadiansPerSecond * LATENCY_SECONDS_ROTATION))
@@ -228,9 +234,10 @@ public class Shoot extends Command {
         Translation2d targetVector = Turret.getTranslationToGoal(lookaheadPose, target);
         double targetDistance = targetVector.getNorm();
         double previousTargetDistance = 0;
+        double timeOfFlight = 0;
 
         for (int i = 0; i < 20; i++) {
-            double timeOfFlight = m_shooter.getShootValue(targetDistance, m_shotType).timeOfFlight;
+            timeOfFlight = m_shooter.getShootValue(targetDistance, m_shotType).timeOfFlight;
             Translation2d offset = turretVelTotal.times(timeOfFlight);
 
             lookaheadPose = new Pose2d(
@@ -253,7 +260,10 @@ public class Shoot extends Command {
 
             previousTargetDistance = targetDistance;
         }
-       
+
+        SmartDashboard.putNumber("shoot/tof", timeOfFlight);
+        SmartDashboard.putNumber("shoot/targetDistance", targetDistance);
+
         return targetVector;
     }
 
