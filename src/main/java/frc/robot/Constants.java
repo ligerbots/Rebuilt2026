@@ -34,4 +34,17 @@ public class Constants {
     // Enable CAN optimization code
     // Allows quickly seeing the effect
     public static final boolean OPTIMIZE_CAN = true;
+
+    // Extra Talon/CANcoder telemetry is useful for debugging, but it adds CAN traffic.
+    // Leave this off for normal driving and only enable it when actively diagnosing hardware.
+    public static final boolean ENABLE_CAN_DIAGNOSTICS = false;
+
+    // Slow status rate for dashboard-only signals when diagnostics are enabled.
+    public static final double CAN_DIAGNOSTIC_FREQUENCY_HZ = 5.0;
+
+    // Baseline closed-loop position rate for normal operation.
+    public static final double CAN_CONTROL_FREQUENCY_HZ = 25.0;
+
+    // Extra dashboard telemetry that is handy in the pit but not essential on the field.
+    public static final boolean ENABLE_DEBUGGING_DASHBOARD = false;
 }

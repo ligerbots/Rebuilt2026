@@ -79,24 +79,31 @@ public class ShooterFeeder extends SubsystemBase {
     }
 
     private void optimizeCAN() {
-        m_motorKicker.getVelocity().setUpdateFrequency(Constants.ROBOT_FREQUENCY_HZ);
-        m_motorKicker.getMotorVoltage().setUpdateFrequency(Constants.ROBOT_FREQUENCY_HZ);
-        m_motorKicker.optimizeBusUtilization();
+        if (Constants.ENABLE_CAN_DIAGNOSTICS) {
+            m_motorKicker.getVelocity().setUpdateFrequency(Constants.CAN_DIAGNOSTIC_FREQUENCY_HZ);
+            m_motorKicker.getStatorCurrent().setUpdateFrequency(Constants.CAN_DIAGNOSTIC_FREQUENCY_HZ);
+            m_motorKicker.getSupplyCurrent().setUpdateFrequency(Constants.CAN_DIAGNOSTIC_FREQUENCY_HZ);
 
-        m_motorBelts.getMotorVoltage().setUpdateFrequency(Constants.ROBOT_FREQUENCY_HZ);
+            m_motorBelts.getMotorVoltage().setUpdateFrequency(Constants.CAN_DIAGNOSTIC_FREQUENCY_HZ);
+            m_motorBelts.getStatorCurrent().setUpdateFrequency(Constants.CAN_DIAGNOSTIC_FREQUENCY_HZ);
+            m_motorBelts.getSupplyCurrent().setUpdateFrequency(Constants.CAN_DIAGNOSTIC_FREQUENCY_HZ);
+        }
+        m_motorKicker.optimizeBusUtilization();
         m_motorBelts.optimizeBusUtilization();
     }
 
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("kicker/currentRPM", getKickerRPM()); 
         SmartDashboard.putNumber("kicker/goalRPM", m_goalRPM);
-        SmartDashboard.putNumber("kicker/statorCurrent", m_motorKicker.getStatorCurrent().getValueAsDouble());
-        SmartDashboard.putNumber("kicker/supplyCurrent", m_motorKicker.getSupplyCurrent().getValueAsDouble());
+        if (Constants.ENABLE_CAN_DIAGNOSTICS) {
+            SmartDashboard.putNumber("kicker/currentRPM", getKickerRPM()); 
+            SmartDashboard.putNumber("kicker/statorCurrent", m_motorKicker.getStatorCurrent().getValueAsDouble());
+            SmartDashboard.putNumber("kicker/supplyCurrent", m_motorKicker.getSupplyCurrent().getValueAsDouble());
 
-        SmartDashboard.putNumber("feeder/statorCurrent", m_motorBelts.getStatorCurrent().getValueAsDouble());
-        SmartDashboard.putNumber("feeder/supplyCurrent", m_motorBelts.getSupplyCurrent().getValueAsDouble());
-        SmartDashboard.putNumber("feeder/voltage", m_motorBelts.getMotorVoltage().getValueAsDouble());
+            SmartDashboard.putNumber("feeder/statorCurrent", m_motorBelts.getStatorCurrent().getValueAsDouble());
+            SmartDashboard.putNumber("feeder/supplyCurrent", m_motorBelts.getSupplyCurrent().getValueAsDouble());
+            SmartDashboard.putNumber("feeder/voltage", m_motorBelts.getMotorVoltage().getValueAsDouble());
+        }
     }
     
     public double getKickerRPM(){

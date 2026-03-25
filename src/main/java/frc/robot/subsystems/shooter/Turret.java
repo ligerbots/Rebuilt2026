@@ -77,7 +77,7 @@ public class Turret extends SubsystemBase {
     
     private Field2d m_field;
 
-    private final MotionMagicVoltage m_positionControl = new MotionMagicVoltage(0);
+    private final MotionMagicVoltage m_positionControl = new MotionMagicVoltage(0).withEnableFOC(true);
 
     /** Creates a new Turret. */
     public Turret(Field2d field) {
@@ -132,6 +132,10 @@ public class Turret extends SubsystemBase {
         m_turretMotor.optimizeBusUtilization();
 
         // for the throughbores, we don't need frequent values after init
+        if (Constants.ENABLE_CAN_DIAGNOSTICS) {
+            m_thruboreSmall.getAbsolutePosition().setUpdateFrequency(Constants.CAN_DIAGNOSTIC_FREQUENCY_HZ);
+            m_thruboreLarge.getAbsolutePosition().setUpdateFrequency(Constants.CAN_DIAGNOSTIC_FREQUENCY_HZ);
+        }
         m_thruboreSmall.optimizeBusUtilization();
         m_thruboreLarge.optimizeBusUtilization();
     }
@@ -141,15 +145,18 @@ public class Turret extends SubsystemBase {
     public void periodic() {    
         double goal = getGoalDeg();
         double currentAngle = getAngle().getDegrees();
-        SmartDashboard.putNumber("turret/shootAngle", m_shootAngle + TURRET_HEADING_OFFSET_DEG);
-        SmartDashboard.putNumber("turret/goalAngle", goal);
-        SmartDashboard.putNumber("turret/currentAngle", currentAngle);
-        SmartDashboard.putNumber("turret/fudgeAngle", m_turretFudgeDegrees);
-        SmartDashboard.putNumber("turret/angleError", goal - currentAngle);
+        
 
-        // Values for testing and tuning
-        SmartDashboard.putNumber("turret/crtAngleRaw",getCRTAngleRaw().getDegrees());   
-        SmartDashboard.putNumber("turret/crtAngle",getCRTAngle().getDegrees());
+        if (Constants.ENABLE_CAN_DIAGNOSTICS) {
+            // Values for testing and tuning
+            SmartDashboard.putNumber("turret/crtAngleRaw",getCRTAngleRaw().getDegrees());   
+            SmartDashboard.putNumber("turret/crtAngle",getCRTAngle().getDegrees());
+            SmartDashboard.putNumber("turret/shootAngle", m_shootAngle + TURRET_HEADING_OFFSET_DEG);
+            SmartDashboard.putNumber("turret/goalAngle", goal);
+            SmartDashboard.putNumber("turret/currentAngle", currentAngle);
+            SmartDashboard.putNumber("turret/fudgeAngle", m_turretFudgeDegrees);
+            SmartDashboard.putNumber("turret/angleError", goal - currentAngle);
+        }
         
         // USE ME FOR TUNING ABSOLUTE ENCODER OFFSETS ONLY:
         // ChineseRemainder.smartDashboardLogABSOffsets(ENCODER_SMALL_TOOTH_COUNT, ENCODER_LARGE_TOOTH_COUNT, 

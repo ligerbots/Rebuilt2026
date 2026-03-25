@@ -79,7 +79,7 @@ public class Hood extends SubsystemBase {
     }
 
     private void optimizeCAN() {
-        m_motor.getPosition().setUpdateFrequency(Constants.ROBOT_FREQUENCY_HZ);
+        m_motor.getPosition().setUpdateFrequency(Constants.CAN_CONTROL_FREQUENCY_HZ);
         m_motor.optimizeBusUtilization();
     }
 

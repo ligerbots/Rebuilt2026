@@ -70,15 +70,21 @@ public class Hopper extends SubsystemBase {
     }
 
     private void optimizeCAN() {
-        m_motor.getMotorVoltage().setUpdateFrequency(Constants.ROBOT_FREQUENCY_HZ);
+        if (Constants.ENABLE_CAN_DIAGNOSTICS) {
+            m_motor.getMotorVoltage().setUpdateFrequency(Constants.CAN_DIAGNOSTIC_FREQUENCY_HZ);
+            m_motor.getStatorCurrent().setUpdateFrequency(Constants.CAN_DIAGNOSTIC_FREQUENCY_HZ);
+            m_motor.getSupplyCurrent().setUpdateFrequency(Constants.CAN_DIAGNOSTIC_FREQUENCY_HZ);
+        }
         m_motor.optimizeBusUtilization();
     }
     
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("hopper/voltage", m_motor.getMotorVoltage().getValueAsDouble()); 
-        SmartDashboard.putNumber("hopper/statorCurrent", m_motor.getStatorCurrent().getValueAsDouble()); 
-        SmartDashboard.putNumber("hopper/supplyCurrent", m_motor.getSupplyCurrent().getValueAsDouble()); 
+        if (Constants.ENABLE_CAN_DIAGNOSTICS) {
+            SmartDashboard.putNumber("hopper/voltage", m_motor.getMotorVoltage().getValueAsDouble()); 
+            SmartDashboard.putNumber("hopper/statorCurrent", m_motor.getStatorCurrent().getValueAsDouble()); 
+            SmartDashboard.putNumber("hopper/supplyCurrent", m_motor.getSupplyCurrent().getValueAsDouble()); 
+        }
     }
     
     public void intake(){

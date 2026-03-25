@@ -57,16 +57,20 @@ public class IntakeRoller extends SubsystemBase {
     }
     
     private void optimizeCAN() {
-        m_motor.getVelocity().setUpdateFrequency(Constants.ROBOT_FREQUENCY_HZ);
-        m_motor.getMotorVoltage().setUpdateFrequency(Constants.ROBOT_FREQUENCY_HZ);
+        if (Constants.ENABLE_CAN_DIAGNOSTICS) {
+            m_motor.getVelocity().setUpdateFrequency(Constants.CAN_DIAGNOSTIC_FREQUENCY_HZ);
+            m_motor.getMotorVoltage().setUpdateFrequency(Constants.CAN_DIAGNOSTIC_FREQUENCY_HZ);
+        }
         m_motor.optimizeBusUtilization();
     }
 
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("intake/voltage", m_motor.getMotorVoltage().getValueAsDouble()); 
-        SmartDashboard.putNumber("intake/RPM", m_motor.getVelocity().getValueAsDouble() * 60.0); 
-        SmartDashboard.putNumber("intake/voltageFudge", m_intakeVoltageOffset);
+        if (Constants.ENABLE_CAN_DIAGNOSTICS) {
+            SmartDashboard.putNumber("intake/voltageFudge", m_intakeVoltageOffset);
+            SmartDashboard.putNumber("intake/voltage", m_motor.getMotorVoltage().getValueAsDouble()); 
+            SmartDashboard.putNumber("intake/RPM", m_motor.getVelocity().getValueAsDouble() * 60.0); 
+        }
     }
          
     public void intake() {

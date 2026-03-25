@@ -105,8 +105,11 @@ public class IntakePivot extends SubsystemBase {
     }
 
     private void optimizeCAN() {
-        m_motor.getPosition().setUpdateFrequency(Constants.ROBOT_FREQUENCY_HZ);
-        m_motor.getMotorVoltage().setUpdateFrequency(Constants.ROBOT_FREQUENCY_HZ);
+        m_motor.getPosition().setUpdateFrequency(Constants.CAN_CONTROL_FREQUENCY_HZ);
+        if (Constants.ENABLE_CAN_DIAGNOSTICS) {
+            m_motor.getSupplyCurrent().setUpdateFrequency(Constants.CAN_DIAGNOSTIC_FREQUENCY_HZ);
+            m_motor.getStatorCurrent().setUpdateFrequency(Constants.CAN_DIAGNOSTIC_FREQUENCY_HZ);
+        }
         m_motor.optimizeBusUtilization();
     }
 
@@ -115,9 +118,11 @@ public class IntakePivot extends SubsystemBase {
         // This method will be called once per scheduler run
         SmartDashboard.putNumber("intake/deployGoal", m_goal.getDegrees());
         SmartDashboard.putNumber("intake/deployAngle", getAngle().getDegrees());
-        SmartDashboard.putNumber("intake/supplyCurrent", m_motor.getSupplyCurrent().getValueAsDouble());
-        SmartDashboard.putNumber("intake/statorCurrent", m_motor.getStatorCurrent().getValueAsDouble());
         SmartDashboard.putBoolean("intake/onTarget", onTarget());
+        if (Constants.ENABLE_CAN_DIAGNOSTICS) {
+            SmartDashboard.putNumber("intake/supplyCurrent", m_motor.getSupplyCurrent().getValueAsDouble());
+            SmartDashboard.putNumber("intake/statorCurrent", m_motor.getStatorCurrent().getValueAsDouble());
+        }
         // SmartDashboard.putNumber("intake/rawMotorAngle",  m_pivotMotor.getPosition().getValueAsDouble());
     }
 

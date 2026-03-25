@@ -71,26 +71,33 @@ public class Flywheel extends SubsystemBase {
         m_follower.setNeutralMode(NeutralModeValue.Coast);
         m_follower.setControl(new Follower(m_motor.getDeviceID(), MotorAlignmentValue.Opposed));
 
-        // DO NOT mess with the update frequency on the motors. This can affect
-        //  the leader/follower behavior. If we really need it, we will investigate.
-        // https://www.chiefdelphi.com/t/setting-up-ctre-followers/512315/12
+        if (Constants.OPTIMIZE_CAN) {
+            optimizeCAN();
+        }
     }
 
-    // private void optimizeCAN() {
-    //     // For the motor, we want the RPM every loop
-    //     m_motor.getVelocity().setUpdateFrequency(Constants.ROBOT_FREQUENCY_HZ);
-    //     m_motor.getStatorCurrent().setUpdateFrequency(Constants.ROBOT_FREQUENCY_HZ);
-    //     m_motor.optimizeBusUtilization();
-    // }
+    private void optimizeCAN() {
+        m_motor.getVelocity().setUpdateFrequency(Constants.ROBOT_FREQUENCY_HZ);
+        if (Constants.ENABLE_CAN_DIAGNOSTICS) {
+            m_motor.getStatorCurrent().setUpdateFrequency(Constants.CAN_DIAGNOSTIC_FREQUENCY_HZ);
+            m_motor.getSupplyCurrent().setUpdateFrequency(Constants.CAN_DIAGNOSTIC_FREQUENCY_HZ);
+            m_follower.getStatorCurrent().setUpdateFrequency(Constants.CAN_DIAGNOSTIC_FREQUENCY_HZ);
+            m_follower.getSupplyCurrent().setUpdateFrequency(Constants.CAN_DIAGNOSTIC_FREQUENCY_HZ);
+        }
+        m_motor.optimizeBusUtilization();
+        m_follower.optimizeBusUtilization();
+    }
 
     @Override
     public void periodic() {
         SmartDashboard.putNumber("flywheel/currentRPM", getRPM()); 
         SmartDashboard.putNumber("flywheel/goalRPM", m_goalRPM);
-        SmartDashboard.putNumber("flywheel/leaderStator", m_motor.getStatorCurrent().getValueAsDouble());
-        SmartDashboard.putNumber("flywheel/followerStator", m_follower.getStatorCurrent().getValueAsDouble());
-        SmartDashboard.putNumber("flywheel/leaderSupply", m_motor.getSupplyCurrent().getValueAsDouble());
-        SmartDashboard.putNumber("flywheel/followerSupply", m_follower.getSupplyCurrent().getValueAsDouble());
+        if (Constants.ENABLE_CAN_DIAGNOSTICS) {
+            SmartDashboard.putNumber("flywheel/leaderStator", m_motor.getStatorCurrent().getValueAsDouble());
+            SmartDashboard.putNumber("flywheel/followerStator", m_follower.getStatorCurrent().getValueAsDouble());
+            SmartDashboard.putNumber("flywheel/leaderSupply", m_motor.getSupplyCurrent().getValueAsDouble());
+            SmartDashboard.putNumber("flywheel/followerSupply", m_follower.getSupplyCurrent().getValueAsDouble());
+        }
     }
     
     public void setVoltage(double voltage) {
@@ -120,6 +127,7 @@ public class Flywheel extends SubsystemBase {
     }
         
     public void stop() { 
+        m_goalRPM = 0.0;
         setVoltage(0);
     }
 }
