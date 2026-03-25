@@ -56,7 +56,9 @@ public class ShooterFeeder extends SubsystemBase {
 
         CurrentLimitsConfigs currentLimits = new CurrentLimitsConfigs()
                 .withSupplyCurrentLimit(SUPPLY_CURRENT_LIMIT)
-                .withStatorCurrentLimit(STATOR_CURRENT_LIMIT);
+                .withSupplyCurrentLimitEnable(true)
+                .withStatorCurrentLimit(STATOR_CURRENT_LIMIT)
+                .withStatorCurrentLimitEnable(true);
         talonFXConfigs.withCurrentLimits(currentLimits);
         
         m_motorKicker.getConfigurator().apply(talonFXConfigs);
