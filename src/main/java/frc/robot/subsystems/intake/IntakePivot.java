@@ -49,7 +49,7 @@ public class IntakePivot extends SubsystemBase {
     private Rotation2d m_goal = Rotation2d.kZero;
 
     private final TalonFX m_motor;
-    private final MotionMagicVoltage m_positionControl = new MotionMagicVoltage(0);
+    private final MotionMagicVoltage m_positionControl = new MotionMagicVoltage(0).withEnableFOC(true);
     private final VoltageOut m_stopControl = new VoltageOut(0);
 
     private static enum SlotNumber {
@@ -105,7 +105,7 @@ public class IntakePivot extends SubsystemBase {
     }
 
     private void optimizeCAN() {
-        m_motor.getPosition().setUpdateFrequency(Constants.CAN_CONTROL_FREQUENCY_HZ);
+        m_motor.getPosition().setUpdateFrequency(Constants.ROBOT_FREQUENCY_HZ);
         if (Constants.ENABLE_CAN_DIAGNOSTICS) {
             m_motor.getSupplyCurrent().setUpdateFrequency(Constants.CAN_DIAGNOSTIC_FREQUENCY_HZ);
             m_motor.getStatorCurrent().setUpdateFrequency(Constants.CAN_DIAGNOSTIC_FREQUENCY_HZ);

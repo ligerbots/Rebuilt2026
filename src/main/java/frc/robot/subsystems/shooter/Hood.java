@@ -30,8 +30,8 @@ public class Hood extends SubsystemBase {
 
     private static final double GEAR_RATIO = 12.0/36.0 * 15.0/24.0 * 10.0/174.0;
     
-    private static final Current SUPPLY_CURRENT_LIMIT = Amps.of(20);
-    private static final Current STATOR_CURRENT_LIMIT = Amps.of(20);
+    private static final Current SUPPLY_CURRENT_LIMIT = Amps.of(30);
+    private static final Current STATOR_CURRENT_LIMIT = Amps.of(50);
     
     private static final double K_P = 5.0;
     
@@ -47,7 +47,7 @@ public class Hood extends SubsystemBase {
     private final BaseStatusSignal m_velocitySignal;
     private double m_goalDeg = 0.0;
 
-    private final MotionMagicVoltage m_positionControl = new MotionMagicVoltage(0);    
+    private final MotionMagicVoltage m_positionControl = new MotionMagicVoltage(0).withEnableFOC(true);    
     
     /** Creates a new Hood. */
     public Hood() {

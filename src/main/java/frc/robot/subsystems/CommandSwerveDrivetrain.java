@@ -281,13 +281,11 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         }
 
         m_aprilTagVision.addVisionMeasurements(this);
-
-        if (Constants.ENABLE_DEBUGGING_DASHBOARD) {
-            Pose2d pose = getPose();
-            Translation2d target = Shoot.shotAutoTarget(pose);
-            Translation2d turretToTarget = Turret.getTranslationToGoal(pose, target);
-            SmartDashboard.putNumber("turret/distToShotTarget", Units.metersToInches(turretToTarget.getNorm()));
-        }
+        Pose2d pose = getPose();
+        Translation2d target = Shoot.shotAutoTarget(pose);
+        Translation2d turretToTarget = Turret.getTranslationToGoal(pose, target);
+        SmartDashboard.putNumber("turret/distToShotTarget", Units.metersToInches(turretToTarget.getNorm()));
+        
 
         /*
          * Periodically try to apply the operator perspective.
