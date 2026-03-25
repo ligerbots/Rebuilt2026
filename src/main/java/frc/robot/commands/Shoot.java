@@ -127,8 +127,10 @@ public class Shoot extends Command {
         // Run feeder only when shooter and turret are ready
         if (m_flywheelOnTarget && m_turret.isOnTarget()) {
             m_feeder.runFeederBelts();
-            // m_hopper.feed();
-        }   
+            m_hopper.feed();
+        } else {
+            m_feeder.runReverseUnjam();
+        }
         // else if (!m_shooter.onTarget()) {
             // m_feeder.stopFeederBelts();
             // TODO: turret seemed to be interrupting the shot too much

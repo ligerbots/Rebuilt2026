@@ -152,9 +152,9 @@ public class RobotContainerCompBot extends RobotContainer {
 
     public Command getShootCommand() {
         return new Shoot(m_shooter, m_turret, m_shooterFeeder, m_hopper, m_drivetrain::getPose, m_drivetrain::getFieldCentricSpeeds, ShotType.AUTO)
-                        .alongWith(
-                            m_hopper.pulseCommand(),
-                            new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningShooter", true)));
+                        // .alongWith(
+                        //     m_hopper.pulseCommand(),
+                        //     new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningShooter", true)));
     }
     
     private void configureAutoEventTriggers() {
