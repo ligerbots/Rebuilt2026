@@ -8,6 +8,7 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 
@@ -31,7 +32,7 @@ public class Hopper extends SubsystemBase {
     private static final Current SUPPLY_CURRENT_LIMIT = Amps.of(20);
     private static final Current STATOR_CURRENT_LIMIT =  Amps.of(30);
 
-    private static final double PULSE_FORWARD_VOLTAGE = 6.0;
+    private static final double PULSE_FORWARD_VOLTAGE = 9.0;
     private static final double PULSE_REVERSE_VOLTAGE = -2.0;
     private static final double PULSE_FORWARD_SEC = 0.8;
     private static final double PULSE_REVERSE_SEC = 0.05;
@@ -107,18 +108,15 @@ public class Hopper extends SubsystemBase {
     }
     
     // public Command pulseCommand() {
-    //     return new InstantCommand(() -> setVoltage(PULSE_VOLTAGE))
-    //         .andThen(new WaitCommand(0.5))
-    //         .andThen(new InstantCommand(() -> setVoltage(0)))
-    //         .andThen(new WaitCommand(0.05)).repeatedly().finallyDo(this::stop);
+    //     return new InstantCommand(() -> setVoltage(PULSE_FORWARD_VOLTAGE))
+    //         .andThen(new WaitCommand(PULSE_FORWARD_SEC))
+    //         .andThen(new InstantCommand(() -> setVoltage(PULSE_REVERSE_VOLTAGE)))
+    //         .andThen(new WaitCommand(PULSE_REVERSE_SEC))
+    //         .repeatedly()
+    //         .finallyDo(this::stop);
     // }
 
     public Command pulseCommand() {
-        return new InstantCommand(() -> setVoltage(PULSE_FORWARD_VOLTAGE))
-            .andThen(new WaitCommand(PULSE_FORWARD_SEC))
-            .andThen(new InstantCommand(() -> setVoltage(PULSE_REVERSE_VOLTAGE)))
-            .andThen(new WaitCommand(PULSE_REVERSE_SEC))
-            .repeatedly()
-            .finallyDo(this::stop);
+        return new StartEndCommand(() -> setVoltage(PULSE_FORWARD_VOLTAGE), this::stop, this);
     }
 }

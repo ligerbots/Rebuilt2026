@@ -177,8 +177,9 @@ public class RobotContainerCompBot extends RobotContainer {
         );
 
         // enable/disable brake mode on the pivot when the robot is disabled
-        RobotModeTriggers.disabled().onChange(
-            new InstantCommand(() -> m_intake.getPivot().setBrakeMode(DriverStation.isDisabled())).ignoringDisable(true)
+        RobotModeTriggers.disabled().onFalse(new InstantCommand(() -> m_intake.getPivot().setBrakeMode(false)));
+        RobotModeTriggers.disabled().onTrue(
+            new InstantCommand(() -> m_intake.getPivot().setBrakeMode(true)).ignoringDisable(true)
         );
 
         // Just shoot
