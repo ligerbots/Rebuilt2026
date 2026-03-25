@@ -28,7 +28,6 @@ import frc.robot.utilities.ShooterLookupTable.ShootValue;
 public class Shoot extends Command {
     static final boolean PLOT_SHOT_LOCATION = false;
 
-    // Tolerance values for comparing actual vs target values
     private final Shooter m_shooter;
     private final Turret m_turret;
     private final ShooterFeeder m_feeder;
