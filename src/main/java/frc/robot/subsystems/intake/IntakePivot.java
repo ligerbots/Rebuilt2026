@@ -120,7 +120,11 @@ public class IntakePivot extends SubsystemBase {
         SmartDashboard.putBoolean("intake/onTarget", onTarget());
         // SmartDashboard.putNumber("intake/rawMotorAngle",  m_pivotMotor.getPosition().getValueAsDouble());
     }
-    
+
+    public void setPositionToDeployed() {
+        m_motor.setPosition(DEPLOY_POSITION.getRotations() / GEAR_RATIO);
+    }
+
     public void setAngle(Rotation2d angle) {
         setAngle(angle, SlotNumber.MOVE);
     }
@@ -176,9 +180,5 @@ public class IntakePivot extends SubsystemBase {
         // Then, if it gets stuck in WaitUntilCommand, another Pivot command will still kill it.
         cmd.addRequirements(this);
         return cmd;
-    }
-
-    public void fudgeIntakeOutWhenDeployed() {
-        m_motor.setPosition(DEPLOY_POSITION.getRotations() / GEAR_RATIO);
     }
 }
