@@ -138,6 +138,12 @@ public class Turret extends SubsystemBase {
     private void optimizeCAN() {
         // For the turret, we want the position every loop
         m_turretMotor.getPosition().setUpdateFrequency(Constants.ROBOT_FREQUENCY_HZ);
+        
+        // for debug?
+        m_turretMotor.getMotorVoltage().setUpdateFrequency(Constants.ROBOT_FREQUENCY_HZ);
+        m_turretMotor.getVelocity().setUpdateFrequency(Constants.ROBOT_FREQUENCY_HZ);
+        m_turretMotor.getAcceleration().setUpdateFrequency(Constants.ROBOT_FREQUENCY_HZ);
+
         m_turretMotor.optimizeBusUtilization();
 
         // for the throughbores, we don't need frequent values after init
@@ -154,6 +160,10 @@ public class Turret extends SubsystemBase {
         SmartDashboard.putNumber("turret/angleError", goal - currentAngle);
 
         SmartDashboard.putNumber("turret/fudgeAngle", m_turretFudgeDegrees);
+
+        SmartDashboard.putNumber("turret/voltage", m_turretMotor.getMotorVoltage().getValueAsDouble());
+        SmartDashboard.putNumber("turret/velocityRPS", m_turretMotor.getVelocity().getValueAsDouble());
+        SmartDashboard.putNumber("turret/accelRPS2", m_turretMotor.getAcceleration().getValueAsDouble());
 
         // Values for testing and tuning
         // SmartDashboard.putNumber("turret/crtAngleRaw",getCRTAngleRaw().getDegrees());   
