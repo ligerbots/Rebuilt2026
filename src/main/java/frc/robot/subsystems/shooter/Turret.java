@@ -210,7 +210,11 @@ public class Turret extends SubsystemBase {
     }
 
     public boolean isOnTarget() {
-        return Math.abs(getAngle().getDegrees() - getShootAngleDeg()) < ANGLE_TOLERANCE_DEG; 
+        double errorDeg = MathUtil.inputModulus(
+                getAngle().getDegrees() - getGoalDeg(),
+                -180.0,
+                180.0);
+        return Math.abs(errorDeg) < ANGLE_TOLERANCE_DEG; 
     }
     
     private Rotation2d getCRTAngleRaw(){
