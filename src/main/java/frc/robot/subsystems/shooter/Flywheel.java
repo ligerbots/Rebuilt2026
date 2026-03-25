@@ -53,7 +53,7 @@ public class Flywheel extends SubsystemBase {
         slot0configs.kP = K_P;
         slot0configs.kI = 0.0;
         slot0configs.kD = 0.0;
-        slot0configs.kV = K_FF * 60.0;
+        slot0configs.kV = K_FF * 60.0;   // K_FF is in V/rpm, motor uses rps
 
         CurrentLimitsConfigs currentLimits = new CurrentLimitsConfigs()
                 .withSupplyCurrentLimit(SUPPLY_CURRENT_LIMIT)

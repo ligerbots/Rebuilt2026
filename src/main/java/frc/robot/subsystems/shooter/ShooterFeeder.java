@@ -23,7 +23,7 @@ public class ShooterFeeder extends SubsystemBase {
     
     private static final double K_P = 0.2;
     private static final double K_D = 0.03; 
-    private static final double K_FF = 0.00217;
+    private static final double K_FF = 0.00217;  // V/rpm
     
     private static final double SUPPLY_CURRENT_LIMIT = 30;
     private static final double STATOR_CURRENT_LIMIT = 60;
@@ -50,7 +50,7 @@ public class ShooterFeeder extends SubsystemBase {
         slot0configs.kP = K_P;
         slot0configs.kI = K_D;
         slot0configs.kD = 0.0;
-        slot0configs.kV = K_FF * 60.0;
+        slot0configs.kV = K_FF * 60.0;   // K_FF is in V/rpm, motor uses rps
 
         talonFXConfigs.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
