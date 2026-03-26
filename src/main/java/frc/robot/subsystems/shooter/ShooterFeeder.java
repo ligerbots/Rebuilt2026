@@ -22,12 +22,12 @@ import frc.robot.Constants;
 
 public class ShooterFeeder extends SubsystemBase {
     private static final double SPEED_TOLERANCE_RPM = 100.0;
-    private static final int PULSE_FILTER_TAPS = 5;
+    private static final int PULSE_FILTER_TAPS = 10;
     private static final int PULSE_DEBOUNCE_CYCLES = 40;
     private static final int PULSE_COOLDOWN_CYCLES = 30;
 
     private static final double BELTS_HIGH_STATOR_CURRENT_AMPS = 55.0;
-    private static final double BELTS_LOW_RPM_THRESHOLD = 3000.0;
+    private static final double BELTS_LOW_RPM_THRESHOLD = 2500.0;
 
     private static final double K_P = 0.2;
     private static final double K_D = 0.0;
