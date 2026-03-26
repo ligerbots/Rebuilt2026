@@ -30,10 +30,11 @@ public class Flywheel extends SubsystemBase {
     private final TalonFX m_motor;
     private final TalonFX m_follower;
     
-    private static final double K_P = 0.4;  // 3/23 = 0.75
+    private static final double K_P = 0.6;  // 3/23 = 0.75
+    private static final double K_D = 0.0;
     private static final double K_FF = 0.00188;  // V / rpm
 
-    private static final Current SUPPLY_CURRENT_LIMIT = Amps.of(30);
+    private static final Current SUPPLY_CURRENT_LIMIT = Amps.of(40);
     private static final Current STATOR_CURRENT_LIMIT = Amps.of(60);
         
     // VelocityControl instance which we reuse - saves some memory thrashing
@@ -52,7 +53,7 @@ public class Flywheel extends SubsystemBase {
         Slot0Configs slot0configs = talonFXConfigs.Slot0;
         slot0configs.kP = K_P;
         slot0configs.kI = 0.0;
-        slot0configs.kD = 0.0;
+        slot0configs.kD = K_D;
         slot0configs.kV = K_FF * 60.0;   // K_FF is in V/rpm, motor uses rps
 
         CurrentLimitsConfigs currentLimits = new CurrentLimitsConfigs()

@@ -61,8 +61,8 @@ public class Turret extends SubsystemBase {
     private static final double K_P = 2.0;
     private static final double K_D = 0.0;
     private static final double K_I = 0.0;
-    private static final double K_S = 0.0;
-    private static final double K_V = 0.0;
+    private static final double K_S = 0.3;
+    private static final double K_V = 0.1;
     private static final double K_A = 0.0;
 
     private static final double MAX_VEL_ROT_PER_SEC = 10.0 * TURRET_GEAR_RATIO;
@@ -218,7 +218,11 @@ public class Turret extends SubsystemBase {
     }
 
     public boolean isOnTarget() {
-        return Math.abs(getAngle().getDegrees() - getShootAngleDeg()) < ANGLE_TOLERANCE_DEG; 
+        double errorDeg = MathUtil.inputModulus(
+                getAngle().getDegrees() - getGoalDeg(),
+                -180.0,
+                180.0);
+        return Math.abs(errorDeg) < ANGLE_TOLERANCE_DEG; 
     }
     
     private Rotation2d getCRTAngleRaw(){

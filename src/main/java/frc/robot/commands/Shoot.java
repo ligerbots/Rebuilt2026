@@ -37,8 +37,10 @@ public class Shoot extends Command {
 
     private final Shooter.ShotType m_shotType;
 
-    private static final double LATENCY_SECONDS_TRANSLATION = 0.03;
+    private static final double LATENCY_SECONDS_TRANSLATION = 0.05;
     private static final double LATENCY_SECONDS_ROTATION = 0.05;
+
+    private static final double TOF_SCALE = 0.75;  // grasping at straws!!!
 
     // for fixed shot only
     private final Translation2d m_fixedShotVector;
@@ -132,8 +134,8 @@ public class Shoot extends Command {
             m_hopper.feed();
         } else {
             // TODO test this !!
-            // m_hopper.reverse();
-            m_feeder.runReverseUnjam();
+            m_hopper.reverse();
+            // m_feeder.runReverseUnjam();
         }
         // else if (!m_shooter.onTarget()) {
             // m_feeder.stopFeederBelts();
@@ -226,8 +228,7 @@ public class Shoot extends Command {
         // Translation2d centripetalVelocity = Translation2d.kZero;
 
         // net velocity of the turret: velocity of the robot's center, plus centripetal velocity around the center
-        // Translation2d turretVelTotal = robotVelVector.plus(centripetalVelocity);
-        Translation2d turretVelTotal = robotVelVector;
+        Translation2d turretVelTotal = robotVelVector.plus(centripetalVelocity);
 
         Pose2d lookaheadPose = futureRobotPose;
 
@@ -238,6 +239,8 @@ public class Shoot extends Command {
 
         for (int i = 0; i < 20; i++) {
             timeOfFlight = m_shooter.getShootValue(targetDistance, m_shotType).timeOfFlight;
+            // this is totally unsupported by real world!
+            timeOfFlight *= TOF_SCALE;
             Translation2d offset = turretVelTotal.times(timeOfFlight);
 
             lookaheadPose = new Pose2d(
