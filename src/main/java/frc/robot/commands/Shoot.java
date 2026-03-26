@@ -40,7 +40,8 @@ public class Shoot extends Command {
     private static final double LATENCY_SECONDS_TRANSLATION = 0.05;
     private static final double LATENCY_SECONDS_ROTATION = 0.05;
 
-    private static final double TOF_SCALE = 0.75;  // grasping at straws!!!
+    // seem to need to scale the TOF numbers down
+    private static final double TOF_SCALE = 0.75;
 
     // for fixed shot only
     private final Translation2d m_fixedShotVector;
@@ -133,9 +134,7 @@ public class Shoot extends Command {
             m_feeder.runFeederBelts();
             m_hopper.feed();
         } else {
-            // TODO test this !!
             m_hopper.reverse();
-            // m_feeder.runReverseUnjam();
         }
         // else if (!m_shooter.onTarget()) {
             // m_feeder.stopFeederBelts();

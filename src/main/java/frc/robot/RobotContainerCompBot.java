@@ -259,7 +259,7 @@ public class RobotContainerCompBot extends RobotContainer {
         // SmartDashboard.putNumber("flywheel/testVoltage", 0.0); 
         // m_farm.button(22).onTrue(new InstantCommand(() -> m_shooter.getFlywheel().setVoltage(SmartDashboard.getNumber("flywheel/testVoltage", 0.0))));
 
-        m_farm.button(23).onTrue(new InstantCommand(() -> m_shooter.getFlywheel().setRPM(SmartDashboard.getNumber("flywheel/testRPM", 0.0))));
+        // m_farm.button(23).onTrue(new InstantCommand(() -> m_shooter.getFlywheel().setRPM(SmartDashboard.getNumber("flywheel/testRPM", 0.0))));
 
         // SmartDashboard.putNumber("feeder/testVoltage", 0.0); 
         // m_farm.button(22).onTrue(new InstantCommand(() -> m_shooterFeeder.setKickerVoltage(SmartDashboard.getNumber("feeder/testVoltage", 0.0))));

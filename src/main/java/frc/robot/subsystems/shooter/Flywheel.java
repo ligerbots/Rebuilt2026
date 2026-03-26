@@ -30,8 +30,8 @@ public class Flywheel extends SubsystemBase {
     private final TalonFX m_motor;
     private final TalonFX m_follower;
     
-    private static final double K_P = 0.6;  // 3/23 = 0.75
-    private static final double K_D = 0.0;
+    private static final double K_P = 0.6;       // tuned 3/25
+    private static final double K_D = 0.0;       // D>0 does not help 3/25
     private static final double K_FF = 0.00188;  // V / rpm
 
     private static final Current SUPPLY_CURRENT_LIMIT = Amps.of(40);
