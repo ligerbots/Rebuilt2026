@@ -22,13 +22,13 @@ import frc.robot.Constants;
 
 public class IntakeRoller extends SubsystemBase {
     private static final Current SUPPLY_CURRENT_LIMIT = Amps.of(40);
-    private static final Current STATOR_CURRENT_LIMIT = Amps.of(120);
+    private static final Current STATOR_CURRENT_LIMIT = Amps.of(70);
     
-    private static final double INTAKE_VOLTAGE = 7.5;  // was 9
+    private static final double INTAKE_VOLTAGE = 9.0;  // was 9
     private static final double OUTTAKE_VOLTAGE = 6.0;
 
     private final TalonFX m_motor;
-    private final VoltageOut m_voltageControl = new VoltageOut(0).withEnableFOC(false);
+    private final VoltageOut m_voltageControl = new VoltageOut(0).withEnableFOC(true);
 
     private double m_intakeVoltageOffset = 0;
     private static final double INTAKE_FUDGE = 0.5;
@@ -42,7 +42,7 @@ public class IntakeRoller extends SubsystemBase {
          CurrentLimitsConfigs currentLimits = new CurrentLimitsConfigs()
                 .withSupplyCurrentLimit(SUPPLY_CURRENT_LIMIT)
                 .withStatorCurrentLimit(STATOR_CURRENT_LIMIT)
-                .withStatorCurrentLimitEnable(true)
+                .withStatorCurrentLimitEnable(false)   // no limit, to prevent jams
                 .withSupplyCurrentLimitEnable(true);
         talonFXConfigs.withCurrentLimits(currentLimits);
         talonFXConfigs.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
