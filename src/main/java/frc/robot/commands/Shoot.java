@@ -48,7 +48,7 @@ public class Shoot extends Command {
 
     // We want to "latch" the shooting on as soon as the flywheel is up
     //   to speed once. Otherwise, we turn off the feeder when the RPM drops - bad
-    private boolean m_doShoot = false;
+    private boolean m_shooterOnTarget = false;
 
     private Shoot(Shooter shooter, Turret turret, ShooterFeeder feeder, Hopper hopper,
             Supplier<Pose2d> poseSupplier, Supplier<ChassisSpeeds> speeds, Shooter.ShotType shotType,
@@ -91,7 +91,7 @@ public class Shoot extends Command {
     @Override
     public void initialize() {
         // at start, wait for flywheel to get to speed
-        m_doShoot = false;
+        m_shooterOnTarget = false;
     }
     
     @Override
@@ -126,25 +126,26 @@ public class Shoot extends Command {
         SmartDashboard.putNumber("shoot/shotAngle", angle.getDegrees());
 
         // Once the flywheel is up to speed, latch it on.
-        if (!m_doShoot && m_shooter.onTarget() && m_turret.isOnTarget())
-            m_doShoot = true;
+        if (!m_shooterOnTarget && m_shooter.onTarget())
+            m_shooterOnTarget = true;
 
-        // Run feeder only when shooter and turret are ready
-        if (m_doShoot) {
-            m_feeder.runFeederBelts();
-            m_hopper.feed();
-        } else {
+        if (!m_shooterOnTarget) {
+            // while the flywheel spins up, reverse the hopper to prevent jams
             m_hopper.reverse();
-        }
-        // else if (!m_shooter.onTarget()) {
-            // m_feeder.stopFeederBelts();
-            // TODO: turret seemed to be interrupting the shot too much
-            //  maybe widen the tolerance and re-enable this code?
-            // m_feeder.stopFeederBelts();
-            // m_hopper.stop();
+        } else {
+            // flywheel has gotten up to speed
+            if (m_turret.inDeadZone()) {
+                // if in the dead zone, turn off the feed
+                m_feeder.stopFeederBelts();
+                m_hopper.reverse();
 
-            // if (PLOT_SHOT_LOCATION) m_turret.plotShotVectors(null, null, null, null);
-        // }
+                if (PLOT_SHOT_LOCATION) m_turret.plotShotVectors(null, null, null, null);
+            } else {
+                // everything is good. Shoot!
+                m_feeder.runFeederBelts();
+                m_hopper.feed();
+            }
+        }
     }
     
     @Override
