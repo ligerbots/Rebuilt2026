@@ -22,12 +22,12 @@ import frc.robot.Constants;
 
 public class ShooterFeeder extends SubsystemBase {
     private static final double SPEED_TOLERANCE_RPM = 100.0;
-    private static final int PULSE_FILTER_TAPS = 10;
+    private static final int PULSE_FILTER_TAPS = 5;
     private static final int PULSE_DEBOUNCE_CYCLES = 40;
     private static final int PULSE_COOLDOWN_CYCLES = 30;
 
     private static final double BELTS_HIGH_STATOR_CURRENT_AMPS = 55.0;
-    private static final double BELTS_LOW_RPM_THRESHOLD = 200.0;
+    private static final double BELTS_LOW_RPM_THRESHOLD = 3000.0;
 
     private static final double K_P = 0.2;
     private static final double K_D = 0.0;
@@ -39,7 +39,7 @@ public class ShooterFeeder extends SubsystemBase {
     private static final double BELTS_SUPPLY_CURRENT_LIMIT = 30.0;
     private static final double BELTS_STATOR_CURRENT_LIMIT = 90.0;
 
-    private static final double FEEDER_BELT_FEED_VOLTAGE = 10.0;
+    private static final double FEEDER_BELT_FEED_VOLTAGE = 11.0;
     private static final double FEEDER_BELT_UNJAM_VOLTAGE = -6.0;
 
     private final TalonFX m_motorKicker;
@@ -47,7 +47,7 @@ public class ShooterFeeder extends SubsystemBase {
 
     private double m_goalRPM;
 
-    private final VelocityVoltage m_velocityControl = new VelocityVoltage(0).withEnableFOC(false);
+    private final VelocityVoltage m_velocityControl = new VelocityVoltage(0).withEnableFOC(true);
     private final VoltageOut m_beltsVoltageControl = new VoltageOut(0).withEnableFOC(true);
 
     private final LinearFilter m_beltsRpmFilter = LinearFilter.movingAverage(PULSE_FILTER_TAPS);
