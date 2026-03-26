@@ -28,25 +28,27 @@ public class ShooterFeeder extends SubsystemBase {
 
     private static final double BELTS_HIGH_STATOR_CURRENT_AMPS = 55.0;
     private static final double BELTS_LOW_RPM_THRESHOLD = 200.0;
-    
-    private static final double K_P = 0.1; 
-    private static final double K_FF = 0.0021;
 
-    private static final double KICKER_SUPPLY_CURRENT_LIMIT = 35;
-    private static final double KICKER_STATOR_CURRENT_LIMIT = 90;
-    private static final double BELTS_SUPPLY_CURRENT_LIMIT = 30;
-    private static final double BELTS_STATOR_CURRENT_LIMIT = 90;
+    private static final double K_P = 0.2;
+    private static final double K_D = 0.0;
+    private static final double K_I = 0.0;
+    private static final double K_FF = 0.00217; // V/rpm
 
-    private static double FEEDER_BELT_FEED_VOLTAGE = 11.0; // TODO: tune this value
-    private static double FEEDER_BELT_UNJAM_VOLTAGE = -6.0; // TODO: tune this value
-    
-    private double m_goalRPM;
+    private static final double KICKER_SUPPLY_CURRENT_LIMIT = 35.0;
+    private static final double KICKER_STATOR_CURRENT_LIMIT = 90.0;
+    private static final double BELTS_SUPPLY_CURRENT_LIMIT = 30.0;
+    private static final double BELTS_STATOR_CURRENT_LIMIT = 90.0;
+
+    private static final double FEEDER_BELT_FEED_VOLTAGE = 10.0;
+    private static final double FEEDER_BELT_UNJAM_VOLTAGE = -6.0;
+
     private final TalonFX m_motorKicker;
     private final TalonFX m_motorBelts;
 
+    private double m_goalRPM;
 
     private final VelocityVoltage m_velocityControl = new VelocityVoltage(0).withEnableFOC(false);
-    private final VoltageOut m_beltsVoltageControl = new VoltageOut(0);
+    private final VoltageOut m_beltsVoltageControl = new VoltageOut(0).withEnableFOC(true);
 
     private final LinearFilter m_beltsRpmFilter = LinearFilter.movingAverage(PULSE_FILTER_TAPS);
     private final LinearFilter m_beltsCurrentFilter = LinearFilter.movingAverage(PULSE_FILTER_TAPS);
@@ -62,44 +64,51 @@ public class ShooterFeeder extends SubsystemBase {
     public ShooterFeeder() {
         TalonFXConfiguration kickerConfigs = new TalonFXConfiguration();
         TalonFXConfiguration beltsConfigs = new TalonFXConfiguration();
-        
+
         m_motorKicker = new TalonFX(Constants.SHOOTER_KICKER_CAN_ID);
         m_motorBelts = new TalonFX(Constants.SHOOTER_FEEDER_BELTS_CAN_ID);
+
         Slot0Configs kickerSlot0Configs = kickerConfigs.Slot0;
         kickerSlot0Configs.kP = K_P;
-        kickerSlot0Configs.kI = 0.0;
-        kickerSlot0Configs.kD = 0.0;
+        kickerSlot0Configs.kI = K_I;
+        kickerSlot0Configs.kD = K_D;
+        kickerSlot0Configs.kV = K_FF * 60.0; // K_FF is in V/rpm, motor uses rps
 
         kickerConfigs.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         beltsConfigs.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
         CurrentLimitsConfigs kickerCurrentLimits = new CurrentLimitsConfigs()
                 .withSupplyCurrentLimit(KICKER_SUPPLY_CURRENT_LIMIT)
-                .withStatorCurrentLimit(KICKER_STATOR_CURRENT_LIMIT);
+                .withSupplyCurrentLimitEnable(true)
+                .withStatorCurrentLimit(KICKER_STATOR_CURRENT_LIMIT)
+                .withStatorCurrentLimitEnable(true);
         kickerConfigs.withCurrentLimits(kickerCurrentLimits);
 
         CurrentLimitsConfigs beltsCurrentLimits = new CurrentLimitsConfigs()
                 .withSupplyCurrentLimit(BELTS_SUPPLY_CURRENT_LIMIT)
-                .withStatorCurrentLimit(BELTS_STATOR_CURRENT_LIMIT);
+                .withSupplyCurrentLimitEnable(true)
+                .withStatorCurrentLimit(BELTS_STATOR_CURRENT_LIMIT)
+                .withStatorCurrentLimitEnable(true);
         beltsConfigs.withCurrentLimits(beltsCurrentLimits);
-        
-        // enable brake mode (after main config)
+
         m_motorKicker.getConfigurator().apply(kickerConfigs);
         m_motorKicker.setNeutralMode(NeutralModeValue.Coast);
 
         m_motorBelts.getConfigurator().apply(beltsConfigs);
         m_motorBelts.setNeutralMode(NeutralModeValue.Coast);
 
-
-        // if (Constants.OPTIMIZE_CAN) {
-        //     optimizeCAN();
-        // }        
+        if (Constants.OPTIMIZE_CAN) {
+            optimizeCAN();
+        }
     }
 
     private void optimizeCAN() {
         m_motorKicker.getVelocity().setUpdateFrequency(Constants.ROBOT_FREQUENCY_HZ);
         m_motorKicker.getMotorVoltage().setUpdateFrequency(Constants.ROBOT_FREQUENCY_HZ);
         m_motorKicker.optimizeBusUtilization();
+
+        m_motorBelts.getMotorVoltage().setUpdateFrequency(Constants.ROBOT_FREQUENCY_HZ);
+        m_motorBelts.optimizeBusUtilization();
     }
 
     @Override
@@ -108,22 +117,23 @@ public class ShooterFeeder extends SubsystemBase {
         m_filteredBeltsStatorCurrent = m_beltsCurrentFilter.calculate(getBeltsStatorCurrent());
         updateHopperPulseRequest();
 
-        SmartDashboard.putNumber("shooterFeeder/currentRPM", getKickerRPM()); 
-        SmartDashboard.putNumber("shooterFeeder/goalRPM", m_goalRPM);
-        SmartDashboard.putNumber("shooterFeeder/statorCurrent", getKickerStatorCurrent());
-        SmartDashboard.putNumber("shooterFeeder/supplyCurrent", getKickerSupplyCurrent());
-        SmartDashboard.putNumber("shooterFeeder/belts/statorCurrent", getBeltsStatorCurrent());
-        SmartDashboard.putNumber("shooterFeeder/belts/supplyCurrent", getBeltsSupplyCurrent());
+        SmartDashboard.putNumber("kicker/currentRPM", getKickerRPM());
+        SmartDashboard.putNumber("kicker/goalRPM", m_goalRPM);
+        SmartDashboard.putNumber("kicker/statorCurrent", getKickerStatorCurrent());
+        SmartDashboard.putNumber("kicker/supplyCurrent", getKickerSupplyCurrent());
+
+        SmartDashboard.putNumber("feeder/statorCurrent", getBeltsStatorCurrent());
+        SmartDashboard.putNumber("feeder/supplyCurrent", getBeltsSupplyCurrent());
         SmartDashboard.putNumber("shooterFeeder/belts/currentRPM", getBeltsRPM());
         SmartDashboard.putNumber("shooterFeeder/belts/filteredRPM", m_filteredBeltsRPM);
         SmartDashboard.putNumber("shooterFeeder/belts/filteredStatorCurrent", m_filteredBeltsStatorCurrent);
-        SmartDashboard.putNumber("shooterFeeder/belts/voltage", m_motorBelts.getMotorVoltage().getValueAsDouble());
+        SmartDashboard.putNumber("feeder/voltage", m_motorBelts.getMotorVoltage().getValueAsDouble());
         SmartDashboard.putBoolean("shooterFeeder/onTarget", onTarget());
         SmartDashboard.putBoolean("shooterFeeder/requestHopperPulse", m_requestHopperPulse);
     }
-    
-    public double getKickerRPM(){
-        return m_motorKicker.getVelocity().getValueAsDouble() * 60; //convert rps to rpm
+
+    public double getKickerRPM() {
+        return m_motorKicker.getVelocity().getValueAsDouble() * 60;
     }
 
     public double getKickerStatorCurrent() {
@@ -143,27 +153,30 @@ public class ShooterFeeder extends SubsystemBase {
     }
 
     public double getBeltsRPM() {
-        return m_motorBelts.getVelocity().getValueAsDouble() * 60; // convert rps to rpm
+        return m_motorBelts.getVelocity().getValueAsDouble() * 60;
     }
-    
+
+    public void setKickerVoltage(double voltage) {
+        m_motorKicker.setControl(new VoltageOut(voltage).withEnableFOC(true));
+    }
+
     public void setFeederBeltsVoltage(double voltage) {
         m_beltsCommandVoltage = voltage;
         m_beltsVoltageControl.Output = voltage;
         m_motorBelts.setControl(m_beltsVoltageControl);
     }
-    
+
     public void setKickerRPM(double rpm) {
         m_goalRPM = rpm;
-        m_velocityControl.Velocity = m_goalRPM / 60;   // velocity is in rot/second
+        m_velocityControl.Velocity = m_goalRPM / 60;
         m_velocityControl.FeedForward = K_FF * rpm;
-
         m_motorKicker.setControl(m_velocityControl);
     }
 
     public boolean onTarget() {
         return Math.abs(getKickerRPM() - m_goalRPM) < SPEED_TOLERANCE_RPM;
     }
-    
+
     public void runFeederBelts() {
         setFeederBeltsVoltage(FEEDER_BELT_FEED_VOLTAGE);
     }
@@ -186,7 +199,7 @@ public class ShooterFeeder extends SubsystemBase {
         m_pulseCooldownCycles = PULSE_COOLDOWN_CYCLES;
     }
 
-    public void stop(){
+    public void stop() {
         m_motorKicker.setVoltage(0);
         m_motorBelts.setVoltage(0);
         m_goalRPM = 0.0;

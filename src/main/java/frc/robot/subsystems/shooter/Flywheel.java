@@ -30,14 +30,15 @@ public class Flywheel extends SubsystemBase {
     private final TalonFX m_motor;
     private final TalonFX m_follower;
     
-    private static final double K_P = 0.75;  // tuned 2/7
-    private static final double K_FF = 0.0019;
+    private static final double K_P = 0.6;       // tuned 3/25
+    private static final double K_D = 0.0;       // D>0 does not help 3/25
+    private static final double K_FF = 0.00188;  // V / rpm
 
     private static final Current SUPPLY_CURRENT_LIMIT = Amps.of(40);
-    private static final Current STATOR_CURRENT_LIMIT = Amps.of(120);
+    private static final Current STATOR_CURRENT_LIMIT = Amps.of(60);
         
     // VelocityControl instance which we reuse - saves some memory thrashing
-    private final VelocityVoltage m_velocityControl = new VelocityVoltage(0).withEnableFOC(false);
+    private final VelocityVoltage m_velocityControl = new VelocityVoltage(0).withEnableFOC(true);
     private final VoltageOut m_voltageControl = new VoltageOut(0);
 
     private double m_goalRPM;
@@ -52,8 +53,9 @@ public class Flywheel extends SubsystemBase {
         Slot0Configs slot0configs = talonFXConfigs.Slot0;
         slot0configs.kP = K_P;
         slot0configs.kI = 0.0;
-        slot0configs.kD = 0.0;
-        
+        slot0configs.kD = K_D;
+        slot0configs.kV = K_FF * 60.0;   // K_FF is in V/rpm, motor uses rps
+
         CurrentLimitsConfigs currentLimits = new CurrentLimitsConfigs()
                 .withSupplyCurrentLimit(SUPPLY_CURRENT_LIMIT)
                 .withStatorCurrentLimit(STATOR_CURRENT_LIMIT)
@@ -105,7 +107,6 @@ public class Flywheel extends SubsystemBase {
         m_goalRPM = rpm;
 
         m_velocityControl.Velocity = m_goalRPM / 60;
-        m_velocityControl.FeedForward = K_FF * rpm;
         m_motor.setControl(m_velocityControl);
     }
     

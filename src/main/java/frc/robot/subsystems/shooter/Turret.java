@@ -35,7 +35,7 @@ public class Turret extends SubsystemBase {
     // public for the Shoot command - not the greatest, but a pain otherwise
     public static final Translation2d TURRET_OFFSET = new Translation2d(Units.inchesToMeters(-2.5626),  Units.inchesToMeters(-4.875));
     private static final double TURRET_HEADING_OFFSET_DEG = 180.0;
-    private static final double ANGLE_TOLERANCE_DEG = 2.0; 
+    private static final double ANGLE_TOLERANCE_DEG = 5.0; 
     
     private double m_goalDeg = 0.0; // angle limited to our constraints
     private double m_shootAngle = 0.0; // raw shoot angle (actual angle we want to shoot)
@@ -45,7 +45,7 @@ public class Turret extends SubsystemBase {
     private final CANcoder m_thruboreLarge; 
     
     private static final Current SUPPLY_CURRENT_LIMIT = Amps.of(20);
-    private static final Current STATOR_CURRENT_LIMIT = Amps.of(100);
+    private static final Current STATOR_CURRENT_LIMIT = Amps.of(60);
 
     // Manual turret angle adjustment (additive)
     private double m_turretFudgeDegrees = 0;
@@ -58,9 +58,15 @@ public class Turret extends SubsystemBase {
     private static final int TURRET_TOOTH_COUNT = 100;
     private static final double TURRET_GEAR_RATIO =  54.0 / 12.0 * TURRET_TOOTH_COUNT / 10.0;
     
-    private static final double K_P = 2.0;
-    private static final double MAX_VEL_ROT_PER_SEC = 2.0 * TURRET_GEAR_RATIO;
-    private static final double MAX_ACC_ROT_PER_SEC_SQ = 10.0 * TURRET_GEAR_RATIO;
+    private static final double K_P = 2.0;    // values tuned 3/25
+    private static final double K_D = 0.0;
+    private static final double K_I = 0.0;
+    private static final double K_S = 0.3;    // not sure this helps? but does not hurt
+    private static final double K_V = 0.1;    // roughly correct 3/25 (hard to measure)
+    private static final double K_A = 0.0;
+
+    private static final double MAX_VEL_ROT_PER_SEC = 10.0 * TURRET_GEAR_RATIO;
+    private static final double MAX_ACC_ROT_PER_SEC_SQ = 40.0 * TURRET_GEAR_RATIO;
     //
     // 2/14 - Slowed down for testing, until chain working properly
     // private static final double MAX_VEL_ROT_PER_SEC = 2.0 * TURRET_GEAR_RATIO;
@@ -77,7 +83,7 @@ public class Turret extends SubsystemBase {
     
     private Field2d m_field;
 
-    private final MotionMagicVoltage m_positionControl = new MotionMagicVoltage(0);
+    private final MotionMagicVoltage m_positionControl = new MotionMagicVoltage(0).withEnableFOC(true);
 
     /** Creates a new Turret. */
     public Turret(Field2d field) {
@@ -98,9 +104,12 @@ public class Turret extends SubsystemBase {
                    
         Slot0Configs slot0configs = talonFXConfigs.Slot0;
         slot0configs.kP = K_P;
-        slot0configs.kI = 0.0;
-        slot0configs.kD = 0.0;
-        
+        slot0configs.kI = K_I;
+        slot0configs.kD = K_D;
+        slot0configs.kV = K_V;
+        slot0configs.kS = K_S;
+        slot0configs.kA = K_A;
+
         // setting up motionmagic configs
         MotionMagicConfigs magicConfigs = talonFXConfigs.MotionMagic;
         magicConfigs.MotionMagicCruiseVelocity = MAX_VEL_ROT_PER_SEC; 
@@ -129,6 +138,12 @@ public class Turret extends SubsystemBase {
     private void optimizeCAN() {
         // For the turret, we want the position every loop
         m_turretMotor.getPosition().setUpdateFrequency(Constants.ROBOT_FREQUENCY_HZ);
+        
+        // for debug?
+        m_turretMotor.getMotorVoltage().setUpdateFrequency(Constants.ROBOT_FREQUENCY_HZ);
+        m_turretMotor.getVelocity().setUpdateFrequency(Constants.ROBOT_FREQUENCY_HZ);
+        m_turretMotor.getAcceleration().setUpdateFrequency(Constants.ROBOT_FREQUENCY_HZ);
+
         m_turretMotor.optimizeBusUtilization();
 
         // for the throughbores, we don't need frequent values after init
@@ -139,13 +154,20 @@ public class Turret extends SubsystemBase {
     // This method will be called once per scheduler run
     @Override
     public void periodic() {    
-        SmartDashboard.putNumber("turret/goalAngle", getGoalDeg());
-        SmartDashboard.putNumber("turret/currentAngle", getAngle().getDegrees());
+        double goal = getGoalDeg();
+        double currentAngle = getAngle().getDegrees();
+        SmartDashboard.putNumber("turret/currentAngle", currentAngle);
+        SmartDashboard.putNumber("turret/angleError", goal - currentAngle);
+
         SmartDashboard.putNumber("turret/fudgeAngle", m_turretFudgeDegrees);
 
+        SmartDashboard.putNumber("turret/voltage", m_turretMotor.getMotorVoltage().getValueAsDouble());
+        SmartDashboard.putNumber("turret/velocityRPS", m_turretMotor.getVelocity().getValueAsDouble());
+        SmartDashboard.putNumber("turret/accelRPS2", m_turretMotor.getAcceleration().getValueAsDouble());
+
         // Values for testing and tuning
-        SmartDashboard.putNumber("turret/crtAngleRaw",getCRTAngleRaw().getDegrees());   
-        SmartDashboard.putNumber("turret/crtAngle",getCRTAngle().getDegrees());
+        // SmartDashboard.putNumber("turret/crtAngleRaw",getCRTAngleRaw().getDegrees());   
+        // SmartDashboard.putNumber("turret/crtAngle",getCRTAngle().getDegrees());
         
         // USE ME FOR TUNING ABSOLUTE ENCODER OFFSETS ONLY:
         // ChineseRemainder.smartDashboardLogABSOffsets(ENCODER_SMALL_TOOTH_COUNT, ENCODER_LARGE_TOOTH_COUNT, 
@@ -174,6 +196,10 @@ public class Turret extends SubsystemBase {
 
         m_positionControl.Position = m_goalDeg/360.0 * TURRET_GEAR_RATIO;
         m_turretMotor.setControl(m_positionControl);
+
+        // update these log items right away
+        SmartDashboard.putNumber("turret/shootAngle", m_shootAngle + TURRET_HEADING_OFFSET_DEG);
+        SmartDashboard.putNumber("turret/goalAngle", m_goalDeg + TURRET_HEADING_OFFSET_DEG);
     }
     
     // get angle of turret
@@ -192,7 +218,12 @@ public class Turret extends SubsystemBase {
     }
 
     public boolean isOnTarget() {
-        return Math.abs(getAngle().getDegrees() - getShootAngleDeg()) < ANGLE_TOLERANCE_DEG; 
+        // wrap the error to +/- 180 - needed when the goal is ~0
+        double errorDeg = MathUtil.inputModulus(
+                getAngle().getDegrees() - getGoalDeg(),
+                -180.0,
+                180.0);
+        return Math.abs(errorDeg) < ANGLE_TOLERANCE_DEG; 
     }
     
     private Rotation2d getCRTAngleRaw(){

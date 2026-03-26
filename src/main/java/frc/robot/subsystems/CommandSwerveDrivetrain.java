@@ -288,6 +288,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         Translation2d turretToTarget = Turret.getTranslationToGoal(pose, target);
         SmartDashboard.putNumber("turret/distToShotTarget", Units.metersToInches(turretToTarget.getNorm()));
 
+        SmartDashboard.putNumber("drivetrain/pidgeonVelocityZWorld", getPigeon2().getAngularVelocityZWorld().getValueAsDouble());
+
         /*
          * Periodically try to apply the operator perspective.
          * If we haven't applied the operator perspective before, then we should apply it regardless of DS state.
