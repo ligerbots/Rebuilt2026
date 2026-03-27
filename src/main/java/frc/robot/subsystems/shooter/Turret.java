@@ -35,7 +35,10 @@ public class Turret extends SubsystemBase {
     // public for the Shoot command - not the greatest, but a pain otherwise
     public static final Translation2d TURRET_OFFSET = new Translation2d(Units.inchesToMeters(-2.5626),  Units.inchesToMeters(-4.875));
     private static final double TURRET_HEADING_OFFSET_DEG = 180.0;
-    private static final double ANGLE_TOLERANCE_DEG = 5.0; 
+    private static final double ANGLE_TOLERANCE_DEG = 5.0;
+
+    private static final double DEADZONE_TOLERANCE_DEG = 2.0; 
+    private static final double SIDE_FLIP_TOLERANCE_DEG = 10.0; 
     
     private double m_goalDeg = 0.0; // angle limited to our constraints
     private double m_shootAngle = 0.0; // raw shoot angle (actual angle we want to shoot)
@@ -73,7 +76,7 @@ public class Turret extends SubsystemBase {
     // private static final double MAX_ACC_ROT_PER_SEC_SQ = 10.0 * TURRET_GEAR_RATIO;
 
     private static final double MAX_ROTATION_DEG = 165.0;
-    private static final double MIN_ROTATION_DEG = -185.0; // -220 is max
+    private static final double MIN_ROTATION_DEG = -190.0; // -220 is max
     private static final double MID_LINE_DEGREES = (MAX_ROTATION_DEG + MIN_ROTATION_DEG) / 2.0;
     
     // this is just the middle point of the full CRT range
@@ -213,8 +216,17 @@ public class Turret extends SubsystemBase {
         return m_goalDeg + TURRET_HEADING_OFFSET_DEG;
     }
 
-    private double getShootAngleDeg() {
-        return m_shootAngle + TURRET_HEADING_OFFSET_DEG;
+    // private double getShootAngleDeg() {
+    //     return m_shootAngle + TURRET_HEADING_OFFSET_DEG;
+    // }
+
+    public boolean inDeadZone() {
+        // wrap the error to +/- 180 - needed when the goal is ~0
+        double goalErrDeg = MathUtil.inputModulus(m_shootAngle - m_goalDeg, -180.0, 180.0);
+        double positionErrDeg = MathUtil.inputModulus(getAngle().getDegrees() - getGoalDeg(), -180.0, 180.0);
+
+        // return Math.abs(goalErrDeg) >= DEADZONE_TOLERANCE_DEG;
+        return Math.abs(goalErrDeg) >= DEADZONE_TOLERANCE_DEG || Math.abs(positionErrDeg) >= SIDE_FLIP_TOLERANCE_DEG;
     }
 
     public boolean isOnTarget() {

@@ -93,6 +93,10 @@ public class ShooterLookupTable {
 
     double distanceDiff = after.getKey() - before.getKey();
 
+    // protect against divide by zero
+    if (distanceDiff < 1e-6)
+      return before.getValue();
+
     // Interpolate between two entries
     double ratio = (distance - before.getKey()) / distanceDiff;
     return ShooterLookupTable.interpolate(before.getValue(), after.getValue(), ratio);
