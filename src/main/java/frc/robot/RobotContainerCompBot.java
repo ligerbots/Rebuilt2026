@@ -128,6 +128,11 @@ public class RobotContainerCompBot extends RobotContainer {
                 "Swipe Shoot Alt"
                 ));
 
+        m_chosenAutoPaths.addOption("Pass Blitz", List.of(
+                "Pass Swipe",
+                "Pass Shoot"
+                ));
+
         // m_chosenAutoPaths.addOption("Shoot While Moving", List.of(   
         //         "Shoot While Moving"
         // ));
