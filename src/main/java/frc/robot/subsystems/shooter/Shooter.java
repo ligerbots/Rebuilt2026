@@ -28,7 +28,7 @@ public class Shooter extends SubsystemBase {
     // Manual adjust on the flywheel RPM
     // NOTE: this is a multiplicative change: +5%, +10%, etc
     private double m_flyFudge = 1.0;
-    private static final double FLY_FUDGE_INCREMENT = 0.05;
+    private static final double FLY_FUDGE_INCREMENT = 0.02;
 
     // Manual adjust on the flywheel RPM
     // NOTE: this is a multiplicative change: +5%, +10%, etc
