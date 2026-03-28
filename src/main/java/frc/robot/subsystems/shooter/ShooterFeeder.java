@@ -26,13 +26,13 @@ public class ShooterFeeder extends SubsystemBase {
     private static final double K_I = 0.0; 
     private static final double K_FF = 0.00217;  // V/rpm
     
-    private static final double FEED_SUPPLY_CURRENT_LIMIT = 40;
+    private static final double FEED_SUPPLY_CURRENT_LIMIT = 35;
     private static final double FEED_STATOR_CURRENT_LIMIT = 80;
 
     private static final double KICKER_SUPPLY_CURRENT_LIMIT = 30;
     private static final double KICKER_STATOR_CURRENT_LIMIT = 50;
 
-    private static double FEEDER_BELT_FEED_VOLTAGE = 8.0;
+    private static double FEEDER_BELT_FEED_VOLTAGE = 10.0;
     private static double FEEDER_BELT_UNJAM_VOLTAGE = -6.0;
     
     private final TalonFX m_motorKicker;

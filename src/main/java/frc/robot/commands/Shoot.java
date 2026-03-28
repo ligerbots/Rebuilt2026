@@ -33,7 +33,7 @@ public class Shoot extends Command {
     private final Shooter m_shooter;
     private final Turret m_turret;
     private final ShooterFeeder m_feeder;
-    // private final Hopper m_hopper;
+    private final Hopper m_hopper;
     private final Supplier<ChassisSpeeds> m_speedsSupplier;
     private final Supplier<Pose2d> m_poseSupplier;
 
@@ -60,7 +60,7 @@ public class Shoot extends Command {
         m_turret = turret;
         m_shooter = shooter;
         m_feeder = feeder;
-        // m_hopper = hopper;
+        m_hopper = hopper;
         addRequirements(shooter, turret, feeder);
         
         m_poseSupplier = poseSupplier;
@@ -118,6 +118,7 @@ public class Shoot extends Command {
             // Translation2d translationToTarget = Turret.getTranslationToGoal(robotPose, target);
         }
 
+
         ShootValue shotValue;
         if (m_shotType == ShotType.TEST) {
             shotValue = testShotValue();
@@ -156,6 +157,8 @@ public class Shoot extends Command {
                 m_feeder.runFeederBelts();
                 // m_hopper.feed();
             }
+        } else {
+            m_hopper.reverse();
         }
     }
     
