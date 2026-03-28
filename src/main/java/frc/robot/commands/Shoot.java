@@ -45,7 +45,7 @@ public class Shoot extends Command {
     // seem to need to scale the TOF numbers down
     private static final double TOF_SCALE = 0.75;
 
-    private static final double FLYWHEEL_SCALE = 0.98;
+    private static final double FLYWHEEL_SCALE = 0.96; //was 0.98 Q7
 
     // for fixed shot only
     private final Translation2d m_fixedShotVector;
@@ -128,7 +128,7 @@ public class Shoot extends Command {
         
         Rotation2d angle = shotVector.getAngle();
         shotValue.flyRPM *= FLYWHEEL_SCALE;
-        
+
         m_turret.setAngle(angle);
         m_shooter.setShootValues(shotValue);
         m_feeder.setKickerRPM(shotValue.feedRPM);
