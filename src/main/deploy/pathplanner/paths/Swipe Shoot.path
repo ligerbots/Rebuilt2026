@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.356926158350345,
-        "y": 7.559389981742299
+        "x": 4.357102564102565,
+        "y": 7.55
       },
       "isLocked": false,
       "linkedName": "Trench In"
@@ -20,8 +20,8 @@
         "y": 7.55
       },
       "prevControl": {
-        "x": 1.930057061340941,
-        "y": 7.521968616262482
+        "x": 2.4791538461538476,
+        "y": 7.558346153846154
       },
       "nextControl": null,
       "isLocked": false,
