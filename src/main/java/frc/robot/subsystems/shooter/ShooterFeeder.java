@@ -26,10 +26,13 @@ public class ShooterFeeder extends SubsystemBase {
     private static final double K_I = 0.0; 
     private static final double K_FF = 0.00217;  // V/rpm
     
-    private static final double SUPPLY_CURRENT_LIMIT = 30;
-    private static final double STATOR_CURRENT_LIMIT = 70;
+    private static final double FEED_SUPPLY_CURRENT_LIMIT = 40;
+    private static final double FEED_STATOR_CURRENT_LIMIT = 70;
 
-    private static double FEEDER_BELT_FEED_VOLTAGE = 10.0;
+    private static final double KICKER_SUPPLY_CURRENT_LIMIT = 30;
+    private static final double KICKER_STATOR_CURRENT_LIMIT = 50;
+
+    private static double FEEDER_BELT_FEED_VOLTAGE = 9.0;
     private static double FEEDER_BELT_UNJAM_VOLTAGE = -6.0;
     
     private final TalonFX m_motorKicker;
@@ -56,9 +59,9 @@ public class ShooterFeeder extends SubsystemBase {
         talonFXConfigs.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
         CurrentLimitsConfigs currentLimits = new CurrentLimitsConfigs()
-                .withSupplyCurrentLimit(SUPPLY_CURRENT_LIMIT)
+                .withSupplyCurrentLimit(KICKER_SUPPLY_CURRENT_LIMIT)
                 .withSupplyCurrentLimitEnable(true)
-                .withStatorCurrentLimit(STATOR_CURRENT_LIMIT)
+                .withStatorCurrentLimit(KICKER_STATOR_CURRENT_LIMIT)
                 .withStatorCurrentLimitEnable(true);
         talonFXConfigs.withCurrentLimits(currentLimits);
         
@@ -67,6 +70,11 @@ public class ShooterFeeder extends SubsystemBase {
         m_motorKicker.setNeutralMode(NeutralModeValue.Coast);
 
         talonFXConfigs.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+        currentLimits = new CurrentLimitsConfigs()
+                .withSupplyCurrentLimit(FEED_SUPPLY_CURRENT_LIMIT)
+                .withSupplyCurrentLimitEnable(true)
+                .withStatorCurrentLimit(FEED_STATOR_CURRENT_LIMIT)
+                .withStatorCurrentLimitEnable(true);
 
         m_motorBelts.getConfigurator().apply(talonFXConfigs);
         // put feed belts in Brake mode so it stops quickly
