@@ -1,0 +1,182 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 4.107102564102565,
+        "y": 7.55
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 3.832911257852052,
+        "y": 7.500905017468023
+      },
+      "isLocked": false,
+      "linkedName": "Trench In Alt"
+    },
+    {
+      "anchor": {
+        "x": 0.5891269140476023,
+        "y": 7.565864722937166
+      },
+      "prevControl": {
+        "x": 0.3391495471239122,
+        "y": 7.569228653064089
+      },
+      "nextControl": {
+        "x": 1.6307898124072984,
+        "y": 7.551847129068515
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 1.7889310347068514,
+        "y": 7.207589881351417
+      },
+      "prevControl": {
+        "x": 1.7950267828205284,
+        "y": 7.45751555401218
+      },
+      "nextControl": {
+        "x": 1.780599061646718,
+        "y": 6.865978985885937
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 0.655782698528671,
+        "y": 6.999290554848076
+      },
+      "prevControl": {
+        "x": 0.4058692186904592,
+        "y": 7.005867225370135
+      },
+      "nextControl": {
+        "x": 0.9723976748137515,
+        "y": 6.990958581787941
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 1.5023846153846168,
+        "y": 6.395525641025642
+      },
+      "prevControl": {
+        "x": 1.5639677620832417,
+        "y": 7.007622527908208
+      },
+      "nextControl": {
+        "x": 1.454772424008521,
+        "y": 5.922291068236007
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 0.6440312645330402,
+        "y": 5.963885481599589
+      },
+      "prevControl": {
+        "x": 0.8938876347608179,
+        "y": 5.972358630754399
+      },
+      "nextControl": {
+        "x": 0.3941748943052624,
+        "y": 5.955412332444779
+      },
+      "isLocked": false,
+      "linkedName": "Auto Depot Depth"
+    },
+    {
+      "anchor": {
+        "x": 2.9804031823059685,
+        "y": 5.941129976211098
+      },
+      "prevControl": {
+        "x": 2.5554725562391507,
+        "y": 5.941129976211098
+      },
+      "nextControl": {
+        "x": 3.431445656949609,
+        "y": 5.941129976211098
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 3.272022239410647,
+        "y": 7.140934096870349
+      },
+      "prevControl": {
+        "x": 3.2024182222627884,
+        "y": 6.543079397298802
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": null
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 5,
+      "rotationDegrees": 180.0
+    }
+  ],
+  "constraintZones": [
+    {
+      "name": "Shoot",
+      "minWaypointRelativePos": 0.47840531561461597,
+      "maxWaypointRelativePos": 7.0,
+      "constraints": {
+        "maxVelocity": 0.75,
+        "maxAcceleration": 2.0,
+        "maxAngularVelocity": 100.0,
+        "maxAngularAcceleration": 720.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    }
+  ],
+  "pointTowardsZones": [],
+  "eventMarkers": [
+    {
+      "name": "Run Intake",
+      "waypointRelativePos": 0,
+      "endWaypointRelativePos": null,
+      "command": null
+    },
+    {
+      "name": "Shooter Running",
+      "waypointRelativePos": 0.5116279069767441,
+      "endWaypointRelativePos": 7.0,
+      "command": null
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0.0,
+    "rotation": 180.0
+  },
+  "reversed": false,
+  "folder": null,
+  "idealStartingState": {
+    "velocity": 3.0,
+    "rotation": 180.0
+  },
+  "useDefaultConstraints": true
+}
