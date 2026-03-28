@@ -33,7 +33,7 @@ public class Shoot extends Command {
     private final Shooter m_shooter;
     private final Turret m_turret;
     private final ShooterFeeder m_feeder;
-    private final Hopper m_hopper;
+    // private final Hopper m_hopper;
     private final Supplier<ChassisSpeeds> m_speedsSupplier;
     private final Supplier<Pose2d> m_poseSupplier;
 
@@ -58,7 +58,7 @@ public class Shoot extends Command {
         m_turret = turret;
         m_shooter = shooter;
         m_feeder = feeder;
-        m_hopper = hopper;
+        // m_hopper = hopper;
         addRequirements(shooter, turret, feeder);
         
         m_poseSupplier = poseSupplier;
@@ -135,21 +135,22 @@ public class Shoot extends Command {
         if (!m_shooterOnTarget && m_shooter.onTarget())
             m_shooterOnTarget = true;
 
-        if (!m_shooterOnTarget) {
-            // while the flywheel spins up, reverse the hopper to prevent jams
-            m_hopper.reverse();
-        } else {
+        // if (!m_shooterOnTarget) {
+        //     // while the flywheel spins up, reverse the hopper to prevent jams
+        //     m_hopper.reverse();
+        // } else {
+        if (m_shooterOnTarget) {
             // flywheel has gotten up to speed
             if (m_turret.inDeadZone()) {
                 // if in the dead zone, turn off the feed
                 m_feeder.stopFeederBelts();
-                m_hopper.reverse();
+                // m_hopper.reverse();
 
                 if (PLOT_SHOT_LOCATION) m_turret.plotShotVectors(null, null, null, null);
             } else {
                 // everything is good. Shoot!
                 m_feeder.runFeederBelts();
-                m_hopper.feed();
+                // m_hopper.feed();
             }
         }
     }
@@ -158,7 +159,7 @@ public class Shoot extends Command {
     public void end(boolean interrupted) {
         m_shooter.stop();
         m_feeder.stop();
-        m_hopper.stop();
+        // m_hopper.stop();
 
         // erase our velocity vector scribblings
         if (PLOT_SHOT_LOCATION) m_turret.plotShotVectors(null, null, null, null);
