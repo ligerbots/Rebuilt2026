@@ -68,12 +68,12 @@
         "y": 7.5
       },
       "prevControl": {
-        "x": 7.444397435897437,
-        "y": 7.476948717948718
+        "x": 7.843819277108434,
+        "y": 7.499084337349398
       },
       "nextControl": {
-        "x": 5.4304072336571725,
-        "y": 7.505092515857863
+        "x": 5.4303716900004515,
+        "y": 7.500162871645561
       },
       "isLocked": false,
       "linkedName": "Trench Out"
@@ -117,6 +117,19 @@
       "maxWaypointRelativePos": 2.53599114064228,
       "constraints": {
         "maxVelocity": 2.0,
+        "maxAcceleration": 10.0,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 720.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    },
+    {
+      "name": "Constraints Zone",
+      "minWaypointRelativePos": 3.677419354838711,
+      "maxWaypointRelativePos": 4.153846153846147,
+      "constraints": {
+        "maxVelocity": 1.0,
         "maxAcceleration": 10.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0,

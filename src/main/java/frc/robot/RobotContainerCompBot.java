@@ -132,6 +132,12 @@ public class RobotContainerCompBot extends RobotContainer {
                 "Pass Swipe",
                 "Pass Shoot"
                 ));
+        
+        m_chosenAutoPaths.addOption("Center Auto", List.of(
+                "Center to First Shoot",
+                3.0, // shoot for 3 seconds to ensure all 8 balls are out
+                "First Shoot to Depot"
+                ));
 
         // m_chosenAutoPaths.addOption("Shoot While Moving", List.of(   
         //         "Shoot While Moving"
