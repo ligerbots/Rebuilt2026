@@ -113,8 +113,8 @@
   "constraintZones": [
     {
       "name": "Intake",
-      "minWaypointRelativePos": 1.36,
-      "maxWaypointRelativePos": 2.53599114064228,
+      "minWaypointRelativePos": 1.3178294573643452,
+      "maxWaypointRelativePos": 2.3809523809523894,
       "constraints": {
         "maxVelocity": 2.0,
         "maxAcceleration": 10.0,
