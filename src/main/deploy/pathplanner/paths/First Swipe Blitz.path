@@ -3,12 +3,12 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 4.0,
+        "x": 4.43,
         "y": 7.55
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.344361566202378,
+        "x": 4.774361566202377,
         "y": 7.552537355491423
       },
       "isLocked": false,
@@ -114,7 +114,7 @@
     {
       "name": "Intake",
       "minWaypointRelativePos": 1.3178294573643452,
-      "maxWaypointRelativePos": 2.3809523809523894,
+      "maxWaypointRelativePos": 2.02657807308972,
       "constraints": {
         "maxVelocity": 2.0,
         "maxAcceleration": 10.0,
