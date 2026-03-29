@@ -137,7 +137,7 @@
       "minWaypointRelativePos": 3.717121588089337,
       "maxWaypointRelativePos": 3.935483870967746,
       "constraints": {
-        "maxVelocity": 2.0,
+        "maxVelocity": 2.5,
         "maxAcceleration": 10.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0,
