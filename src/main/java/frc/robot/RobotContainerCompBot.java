@@ -139,6 +139,12 @@ public class RobotContainerCompBot extends RobotContainer {
                 "First Shoot to Depot"
                 ));
 
+        m_chosenAutoPaths.addOption("Swing Depot Double Swipe Blitz", List.of(
+                "Swing First Swipe Blitz",
+                "Swipe Shoot",
+                "Depot Double Swipe Blitz"
+                ));
+
         // m_chosenAutoPaths.addOption("Shoot While Moving", List.of(   
         //         "Shoot While Moving"
         // ));
