@@ -145,6 +145,22 @@ public class RobotContainerCompBot extends RobotContainer {
                 "Depot Double Swipe Blitz"
                 ));
 
+        m_chosenAutoPaths.addOption("Steal DOUBLE Swipe", List.of(
+                "First Swipe Steal",
+                "Swipe Shoot",
+                "Depot Double Swipe Blitz",
+                "Depot Trench Run Out"
+                ));
+
+        m_chosenAutoPaths.addOption("Steal TRIPLE Swipe", List.of(
+                "First Swipe Steal",
+                "Swipe Shoot",
+                "Second Swipe",
+                "Swipe Shoot Alt",
+                "Third Swipe",
+                "Swipe Shoot Alt"
+                ));
+
         // m_chosenAutoPaths.addOption("Shoot While Moving", List.of(   
         //         "Shoot While Moving"
         // ));
