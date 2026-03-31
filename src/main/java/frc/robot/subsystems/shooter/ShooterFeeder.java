@@ -9,7 +9,7 @@ package frc.robot.subsystems.shooter;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.VelocityVoltage;
+import com.ctre.phoenix6.controls.MotionMagicVelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -40,7 +40,7 @@ public class ShooterFeeder extends SubsystemBase {
 
     private double m_goalRPM;
 
-    private final VelocityVoltage m_velocityControl = new VelocityVoltage(0).withEnableFOC(true);
+    private final MotionMagicVelocityTorqueCurrentFOC m_velocityControl = new MotionMagicVelocityTorqueCurrentFOC(0);
     private final VoltageOut m_voltageControl = new VoltageOut(0).withEnableFOC(true);
 
     // Creates a new ShooterFeeder
@@ -111,10 +111,10 @@ public class ShooterFeeder extends SubsystemBase {
         return m_motorKicker.getVelocity().getValueAsDouble() * 60; //convert rps to rpm
     }
     
-    public void setKickerVoltage(double voltage) {
-        m_voltageControl.Output = voltage;
-        m_motorKicker.setControl(m_voltageControl);
-    }
+    // public void setKickerVoltage(double rpm) {
+    //     m_voltageControl.Output = rpm;
+    //     m_motorKicker.setControl(m_voltageControl);
+    // }
 
     public void setKickerRPM(double rpm) {
         m_goalRPM = rpm;

@@ -40,6 +40,7 @@ public class Hopper extends SubsystemBase {
     // voltage for plain feeding while shooting, no pulsing
     private static final double FEED_VOLTAGE = 6.0;
     private static final double REVERSE_VOLTAGE = -8.0;
+    private static final double REVERSE_VOLTAGE_SLOW = -1.0;
     
     private final TalonFX m_motor;
 
@@ -91,6 +92,10 @@ public class Hopper extends SubsystemBase {
     
     public void reverse() {
         setVoltage(REVERSE_VOLTAGE);
+    }
+
+    public void slowReverse() {
+        setVoltage(REVERSE_VOLTAGE_SLOW);
     }
 
     public void stop(){
