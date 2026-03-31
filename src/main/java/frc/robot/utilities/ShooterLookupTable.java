@@ -52,6 +52,13 @@ public class ShooterLookupTable {
       this.hoodAngle = hoodAngle;
       this.timeOfFlight = timeOfFlight;
     }
+
+    public ShootValue(ShootValue other) {
+      this.flyRPM = other.flyRPM;
+      this.feedRPM = other.feedRPM;
+      this.hoodAngle = other.hoodAngle;
+      this.timeOfFlight = other.timeOfFlight;
+    }
   }
 
   /**
@@ -76,6 +83,8 @@ public class ShooterLookupTable {
    * Retrieves shooter parameters for a given distance.
    * Performs linear interpolation if the distance falls between lookup table entries.
    * 
+   * ** NOTE ** always return a copy so that the actual LUT values cannot get changed
+   * 
    * @param distance The distance in meters
    * @return ShootValue containing RPM and hood angle, or null if distance is out of range
    */
@@ -85,17 +94,17 @@ public class ShooterLookupTable {
 
     // Handle out-of-range distances (eg. below min or above max value in lookup table)
     if (before == null) {
-      return after != null ? after.getValue() : null;
+      return after != null ? new ShootValue(after.getValue()) : null;
     }
     if (after == null) {
-      return before.getValue();
+      return new ShootValue(before.getValue());
     }
 
     double distanceDiff = after.getKey() - before.getKey();
 
     // protect against divide by zero
     if (distanceDiff < 1e-6)
-      return before.getValue();
+      return new ShootValue(before.getValue());
 
     // Interpolate between two entries
     double ratio = (distance - before.getKey()) / distanceDiff;

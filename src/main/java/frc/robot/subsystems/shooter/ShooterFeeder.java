@@ -142,5 +142,6 @@ public class ShooterFeeder extends SubsystemBase {
     public void stop(){
         m_motorKicker.setVoltage(0);
         m_motorBelts.setVoltage(0);
+        m_goalRPM = 0;
     }
 }
