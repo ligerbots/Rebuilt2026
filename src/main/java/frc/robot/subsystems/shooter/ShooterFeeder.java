@@ -10,6 +10,7 @@ import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVelocityTorqueCurrentFOC;
+import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -40,7 +41,7 @@ public class ShooterFeeder extends SubsystemBase {
 
     private double m_goalRPM;
 
-    private final MotionMagicVelocityTorqueCurrentFOC m_velocityControl = new MotionMagicVelocityTorqueCurrentFOC(0);
+    private final VelocityVoltage m_velocityControl = new VelocityVoltage(0).withEnableFOC(true);
     private final VoltageOut m_voltageControl = new VoltageOut(0).withEnableFOC(true);
 
     // Creates a new ShooterFeeder

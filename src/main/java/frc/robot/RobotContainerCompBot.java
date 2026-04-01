@@ -220,7 +220,8 @@ public class RobotContainerCompBot extends RobotContainer {
         // Deploy and run the intake (intake will stay out)
         m_driverController.leftTrigger().onTrue(m_intake.getPivot().deployCommand());
         m_driverController.leftTrigger().whileTrue(
-                new StartEndCommand(m_intake.getRoller()::intake, m_intake.getRoller()::stop, m_intake.getRoller()).alongWith(new StartEndCommand(m_hopper::reverse, m_hopper::stop, m_hopper)));
+                new StartEndCommand(m_intake.getRoller()::intake, m_intake.getRoller()::stop, m_intake.getRoller())
+                .alongWith(new StartEndCommand(m_hopper::slowReverse, m_hopper::stop, m_hopper)));
                         // .alongWith(new StartEndCommand(m_hopper::intake, m_hopper::stop, m_hopper)));
 
         // Stow the intake
