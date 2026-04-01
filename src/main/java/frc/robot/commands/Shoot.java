@@ -154,7 +154,7 @@ public class Shoot extends Command {
                 if (PLOT_SHOT_LOCATION) m_turret.plotShotVectors(null, null, null, null);
             } else {
                 // everything is good. Shoot!
-                m_feeder.runFeederBelts();
+                m_feeder.setBeltTorque(SmartDashboard.getNumber("kicker/belts/torque",0.0));
                 // m_hopper.feed();
             }
         } else {

@@ -9,12 +9,14 @@ package frc.robot.subsystems.shooter;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.TorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.units.measure.Torque;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -42,6 +44,7 @@ public class ShooterFeeder extends SubsystemBase {
 
     private final VelocityVoltage m_velocityControl = new VelocityVoltage(0).withEnableFOC(true);
     private final VoltageOut m_voltageControl = new VoltageOut(0).withEnableFOC(true);
+    private final TorqueCurrentFOC m_torqueControl = new TorqueCurrentFOC(0);
 
     // Creates a new ShooterFeeder
     public ShooterFeeder() {
@@ -84,6 +87,8 @@ public class ShooterFeeder extends SubsystemBase {
         if (Constants.OPTIMIZE_CAN) {
             optimizeCAN();
         }        
+
+        SmartDashboard.putNumber("kicker/belts/torque", 0.0);
     }
 
     private void optimizeCAN() {
@@ -105,6 +110,7 @@ public class ShooterFeeder extends SubsystemBase {
         SmartDashboard.putNumber("feeder/statorCurrent", m_motorBelts.getStatorCurrent().getValueAsDouble());
         SmartDashboard.putNumber("feeder/supplyCurrent", m_motorBelts.getSupplyCurrent().getValueAsDouble());
         SmartDashboard.putNumber("feeder/voltage", m_motorBelts.getMotorVoltage().getValueAsDouble());
+        SmartDashboard.putNumber("feeder/RPM", m_motorBelts.getVelocity().getValueAsDouble()*60);
     }
     
     public double getKickerRPM(){
@@ -126,6 +132,11 @@ public class ShooterFeeder extends SubsystemBase {
         m_voltageControl.Output = voltage;
         m_motorBelts.setControl(m_voltageControl);
     }
+
+    public void setBeltTorque(double torque) {
+        m_torqueControl.Output = torque;
+        m_motorBelts.setControl(m_torqueControl);
+    }
     
     public void runFeederBelts() {
         setFeederBeltsVoltage(FEEDER_BELT_FEED_VOLTAGE);
@@ -142,6 +153,5 @@ public class ShooterFeeder extends SubsystemBase {
     public void stop(){
         m_motorKicker.setVoltage(0);
         m_motorBelts.setVoltage(0);
-        m_goalRPM = 0;
     }
 }
