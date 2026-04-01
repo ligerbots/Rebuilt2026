@@ -118,7 +118,6 @@ public class Shoot extends Command {
             // Translation2d translationToTarget = Turret.getTranslationToGoal(robotPose, target);
         }
 
-
         ShootValue shotValue;
         if (m_shotType == ShotType.TEST) {
             shotValue = testShotValue();
@@ -140,11 +139,12 @@ public class Shoot extends Command {
         if (!m_shooterOnTarget && m_shooter.onTarget())
             m_shooterOnTarget = true;
 
-        // if (!m_shooterOnTarget) {
-        //     // while the flywheel spins up, reverse the hopper to prevent jams
-        //     m_hopper.reverse();
-        // } else {
-        if (m_shooterOnTarget) {
+        if (!m_shooterOnTarget) {
+            // while the flywheel spins up, reverse the hopper to prevent jams
+            // NOTE: the hopper is also getting commanded to PULSE, by a separate command
+            //   this is not great but should not cause serious problems.
+            m_hopper.reverse();
+        } else {
             // flywheel has gotten up to speed
             if (m_turret.inDeadZone()) {
                 // if in the dead zone, turn off the feed
@@ -157,8 +157,6 @@ public class Shoot extends Command {
                 m_feeder.runFeederBelts();
                 // m_hopper.feed();
             }
-        } else {
-            m_hopper.reverse();
         }
     }
     
