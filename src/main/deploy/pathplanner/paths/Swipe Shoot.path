@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.356926158350345,
-        "y": 7.559389981742299
+        "x": 4.357102564102565,
+        "y": 7.55
       },
       "isLocked": false,
       "linkedName": "Trench In"
@@ -20,8 +20,8 @@
         "y": 7.55
       },
       "prevControl": {
-        "x": 1.930057061340941,
-        "y": 7.521968616262482
+        "x": 2.6419487179487193,
+        "y": 7.511833333333334
       },
       "nextControl": null,
       "isLocked": false,
@@ -35,7 +35,7 @@
       "minWaypointRelativePos": 0.0,
       "maxWaypointRelativePos": 1.0,
       "constraints": {
-        "maxVelocity": 0.15,
+        "maxVelocity": 0.2,
         "maxAcceleration": 5.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0,

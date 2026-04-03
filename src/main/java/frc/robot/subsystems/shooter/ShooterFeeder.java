@@ -21,13 +21,16 @@ import frc.robot.Constants;
 
 public class ShooterFeeder extends SubsystemBase {
     
-    private static final double K_P = 0.2;
-    private static final double K_D = 0.0;
-    private static final double K_I = 0.0; 
-    private static final double K_FF = 0.00217;  // V/rpm
+    private static final double KICKER_K_P = 0.2;
+    private static final double KICKER_K_I = 0.0; 
+    private static final double KICKER_K_D = 0.0;
+    private static final double KICKER_K_FF = 0.00217;  // V/rpm
     
-    private static final double SUPPLY_CURRENT_LIMIT = 30;
-    private static final double STATOR_CURRENT_LIMIT = 70;
+    private static final double FEED_SUPPLY_CURRENT_LIMIT = 35;
+    private static final double FEED_STATOR_CURRENT_LIMIT = 80;
+
+    private static final double KICKER_SUPPLY_CURRENT_LIMIT = 30;
+    private static final double KICKER_STATOR_CURRENT_LIMIT = 50;
 
     private static double FEEDER_BELT_FEED_VOLTAGE = 10.0;
     private static double FEEDER_BELT_UNJAM_VOLTAGE = -6.0;
@@ -42,36 +45,44 @@ public class ShooterFeeder extends SubsystemBase {
 
     // Creates a new ShooterFeeder
     public ShooterFeeder() {
-        TalonFXConfiguration talonFXConfigs = new TalonFXConfiguration();  
-        
         m_motorKicker = new TalonFX(Constants.SHOOTER_KICKER_CAN_ID);
         m_motorBelts = new TalonFX(Constants.SHOOTER_FEEDER_BELTS_CAN_ID);
 
-        Slot0Configs slot0configs = talonFXConfigs.Slot0;
-        slot0configs.kP = K_P;
-        slot0configs.kI = K_I;
-        slot0configs.kD = K_D;
-        slot0configs.kV = K_FF * 60.0;   // K_FF is in V/rpm, motor uses rps
+        TalonFXConfiguration kickerConfig = new TalonFXConfiguration();  
+        Slot0Configs slot0configs = kickerConfig.Slot0;
+        slot0configs.kP = KICKER_K_P;
+        slot0configs.kI = KICKER_K_I;
+        slot0configs.kD = KICKER_K_D;
+        slot0configs.kV = KICKER_K_FF * 60.0;   // K_FF is in V/rpm, motor uses rps
 
-        talonFXConfigs.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        kickerConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
-        CurrentLimitsConfigs currentLimits = new CurrentLimitsConfigs()
-                .withSupplyCurrentLimit(SUPPLY_CURRENT_LIMIT)
+        CurrentLimitsConfigs kickerCurrentLimits = new CurrentLimitsConfigs()
+                .withSupplyCurrentLimit(KICKER_SUPPLY_CURRENT_LIMIT)
                 .withSupplyCurrentLimitEnable(true)
-                .withStatorCurrentLimit(STATOR_CURRENT_LIMIT)
+                .withStatorCurrentLimit(KICKER_STATOR_CURRENT_LIMIT)
                 .withStatorCurrentLimitEnable(true);
-        talonFXConfigs.withCurrentLimits(currentLimits);
+        kickerConfig.withCurrentLimits(kickerCurrentLimits);
         
-        m_motorKicker.getConfigurator().apply(talonFXConfigs);
+        m_motorKicker.getConfigurator().apply(kickerConfig);
         // put kicker in Coast mode, so that it spins down slowly
         m_motorKicker.setNeutralMode(NeutralModeValue.Coast);
 
-        talonFXConfigs.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+        //-------
 
-        m_motorBelts.getConfigurator().apply(talonFXConfigs);
-        // put feed belts in Brake mode so it stops quickly
+        TalonFXConfiguration beltsConfig = new TalonFXConfiguration();
+
+        beltsConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+        CurrentLimitsConfigs beltsCurrentLimits = new CurrentLimitsConfigs()
+                .withSupplyCurrentLimit(FEED_SUPPLY_CURRENT_LIMIT)
+                .withSupplyCurrentLimitEnable(true)
+                .withStatorCurrentLimit(FEED_STATOR_CURRENT_LIMIT)
+                .withStatorCurrentLimitEnable(true);
+        beltsConfig.withCurrentLimits(beltsCurrentLimits);
+
+        m_motorBelts.getConfigurator().apply(beltsConfig);
+        // put feed belts in Brake mode so they stop quickly
         m_motorBelts.setNeutralMode(NeutralModeValue.Brake);
-
 
         if (Constants.OPTIMIZE_CAN) {
             optimizeCAN();
@@ -134,5 +145,6 @@ public class ShooterFeeder extends SubsystemBase {
     public void stop(){
         m_motorKicker.setVoltage(0);
         m_motorBelts.setVoltage(0);
+        m_goalRPM = 0;
     }
 }

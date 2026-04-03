@@ -122,5 +122,6 @@ public class Flywheel extends SubsystemBase {
         
     public void stop() { 
         setVoltage(0);
+        m_goalRPM = 0;
     }
 }

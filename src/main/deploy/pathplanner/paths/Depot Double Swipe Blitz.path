@@ -84,12 +84,12 @@
         "y": 7.55
       },
       "prevControl": {
-        "x": 4.333351287147055,
-        "y": 7.656355607848093
+        "x": 4.35624673114883,
+        "y": 7.570668430681176
       },
       "nextControl": {
-        "x": 1.9673984519273007,
-        "y": 6.544162139776073
+        "x": 2.5256666666666683,
+        "y": 7.418807692307692
       },
       "isLocked": false,
       "linkedName": "Trench In"
@@ -210,11 +210,24 @@
     },
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 6.052667116812973,
+      "minWaypointRelativePos": 6.16,
       "maxWaypointRelativePos": 9.0,
       "constraints": {
         "maxVelocity": 0.25,
         "maxAcceleration": 1.0,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 720.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    },
+    {
+      "name": "Constraints Zone",
+      "minWaypointRelativePos": 3.6279069767441756,
+      "maxWaypointRelativePos": 4.265780730897009,
+      "constraints": {
+        "maxVelocity": 2.5,
+        "maxAcceleration": 10.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0,
         "nominalVoltage": 12.0,

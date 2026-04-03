@@ -32,8 +32,8 @@ public class Hopper extends SubsystemBase {
     private static final Current STATOR_CURRENT_LIMIT =  Amps.of(30);
 
     private static final double PULSE_FORWARD_VOLTAGE = 9.0;
-    private static final double PULSE_REVERSE_VOLTAGE = -2.0;
-    private static final double PULSE_FORWARD_SEC = 0.8;
+    private static final double PULSE_REVERSE_VOLTAGE = -3.0;
+    private static final double PULSE_FORWARD_SEC = 0.4;
     private static final double PULSE_REVERSE_SEC = 0.05;
 
     private static final double INTAKE_VOLTAGE = 0.5;

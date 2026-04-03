@@ -45,6 +45,8 @@ public class Shoot extends Command {
     // seem to need to scale the TOF numbers down
     private static final double TOF_SCALE = 0.75;
 
+    private static final double FLYWHEEL_SCALE = 0.96; //was 0.98 Q7
+
     // for fixed shot only
     private final Translation2d m_fixedShotVector;
 
@@ -125,6 +127,8 @@ public class Shoot extends Command {
         }
         
         Rotation2d angle = shotVector.getAngle();
+        shotValue.flyRPM *= FLYWHEEL_SCALE;
+
         m_turret.setAngle(angle);
         m_shooter.setShootValues(shotValue);
         m_feeder.setKickerRPM(shotValue.feedRPM);
@@ -137,19 +141,21 @@ public class Shoot extends Command {
 
         if (!m_shooterOnTarget) {
             // while the flywheel spins up, reverse the hopper to prevent jams
+            // NOTE: the hopper is also getting commanded to PULSE, by a separate command
+            //   this is not great but should not cause serious problems.
             m_hopper.reverse();
         } else {
             // flywheel has gotten up to speed
             if (m_turret.inDeadZone()) {
                 // if in the dead zone, turn off the feed
                 m_feeder.stopFeederBelts();
-                m_hopper.reverse();
+                // m_hopper.reverse();
 
                 if (PLOT_SHOT_LOCATION) m_turret.plotShotVectors(null, null, null, null);
             } else {
                 // everything is good. Shoot!
                 m_feeder.runFeederBelts();
-                m_hopper.feed();
+                // m_hopper.feed();
             }
         }
     }
@@ -158,7 +164,7 @@ public class Shoot extends Command {
     public void end(boolean interrupted) {
         m_shooter.stop();
         m_feeder.stop();
-        m_hopper.stop();
+        // m_hopper.stop();
 
         // erase our velocity vector scribblings
         if (PLOT_SHOT_LOCATION) m_turret.plotShotVectors(null, null, null, null);
