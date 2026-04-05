@@ -33,6 +33,18 @@ public class ShooterFeeder extends SubsystemBase {
     private static final double KICKER_SUPPLY_CURRENT_LIMIT = 30;
     private static final double KICKER_STATOR_CURRENT_LIMIT = 50;
 
+    private static final double FEEDER_BELT_FEED_VOLTAGE = 11.0;
+    private static final double FEEDER_BELT_UNJAM_VOLTAGE = -6.0;
+
+    // parameters for adaptive hopper pulsing
+    private static final double SPEED_TOLERANCE_RPM = 100.0;
+    private static final int PULSE_FILTER_TAPS = 10;
+    private static final int PULSE_DEBOUNCE_CYCLES = 40;
+    private static final int PULSE_COOLDOWN_CYCLES = 30;
+
+    private static final double BELTS_HIGH_STATOR_CURRENT_AMPS = 55.0;
+    private static final double BELTS_LOW_RPM_THRESHOLD = 2500.0;
+
     private final TalonFX m_motorKicker;
     private final TalonFX m_motorBelts;
 
@@ -164,7 +176,6 @@ public class ShooterFeeder extends SubsystemBase {
     public void setKickerRPM(double rpm) {
         m_goalRPM = rpm;
         m_velocityControl.Velocity = m_goalRPM / 60;
-        m_velocityControl.FeedForward = K_FF * rpm;
         m_motorKicker.setControl(m_velocityControl);
     }
 
