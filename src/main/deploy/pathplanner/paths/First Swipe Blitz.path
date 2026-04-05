@@ -3,12 +3,12 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 4.0,
+        "x": 4.43,
         "y": 7.55
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.344361566202378,
+        "x": 4.774361566202377,
         "y": 7.552537355491423
       },
       "isLocked": false,
@@ -68,12 +68,12 @@
         "y": 7.5
       },
       "prevControl": {
-        "x": 7.444397435897437,
-        "y": 7.476948717948718
+        "x": 7.843819277108434,
+        "y": 7.499084337349398
       },
       "nextControl": {
-        "x": 5.4304072336571725,
-        "y": 7.505092515857863
+        "x": 5.4303716900004515,
+        "y": 7.500162871645561
       },
       "isLocked": false,
       "linkedName": "Trench Out"
@@ -113,10 +113,23 @@
   "constraintZones": [
     {
       "name": "Intake",
-      "minWaypointRelativePos": 1.36,
-      "maxWaypointRelativePos": 2.53599114064228,
+      "minWaypointRelativePos": 1.3178294573643452,
+      "maxWaypointRelativePos": 2.02657807308972,
       "constraints": {
         "maxVelocity": 2.0,
+        "maxAcceleration": 10.0,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 720.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    },
+    {
+      "name": "Constraints Zone",
+      "minWaypointRelativePos": 3.677419354838711,
+      "maxWaypointRelativePos": 3.9482564679414924,
+      "constraints": {
+        "maxVelocity": 1.5,
         "maxAcceleration": 10.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0,

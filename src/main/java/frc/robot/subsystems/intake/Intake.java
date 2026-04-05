@@ -29,7 +29,7 @@ public class Intake extends SubsystemBase {
   public Command stowCommand() {
     Command cmd = new InstantCommand(() -> m_intakeRoller.intake())
                 .andThen(new InstantCommand(() -> m_intakePivot.setAngle(IntakePivot.STOW_POSITION)))
-                .andThen(new WaitUntilCommand(m_intakePivot::onTarget))
+                .andThen(new WaitUntilCommand(m_intakePivot::onTarget)).withTimeout(1)
                 .andThen(new InstantCommand(() -> m_intakePivot.holdAngle(IntakePivot.STOW_POSITION)))
                 .andThen(new InstantCommand(m_intakeRoller::stop));
     cmd.addRequirements(m_intakePivot, m_intakeRoller);

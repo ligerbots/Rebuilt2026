@@ -21,26 +21,17 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
 public class ShooterFeeder extends SubsystemBase {
-    private static final double SPEED_TOLERANCE_RPM = 100.0;
-    private static final int PULSE_FILTER_TAPS = 10;
-    private static final int PULSE_DEBOUNCE_CYCLES = 40;
-    private static final int PULSE_COOLDOWN_CYCLES = 30;
+    
+    private static final double KICKER_K_P = 0.2;
+    private static final double KICKER_K_I = 0.0; 
+    private static final double KICKER_K_D = 0.0;
+    private static final double KICKER_K_FF = 0.00217;  // V/rpm
+    
+    private static final double FEED_SUPPLY_CURRENT_LIMIT = 35;
+    private static final double FEED_STATOR_CURRENT_LIMIT = 80;
 
-    private static final double BELTS_HIGH_STATOR_CURRENT_AMPS = 55.0;
-    private static final double BELTS_LOW_RPM_THRESHOLD = 2500.0;
-
-    private static final double K_P = 0.2;
-    private static final double K_D = 0.0;
-    private static final double K_I = 0.0;
-    private static final double K_FF = 0.00217; // V/rpm
-
-    private static final double KICKER_SUPPLY_CURRENT_LIMIT = 35.0;
-    private static final double KICKER_STATOR_CURRENT_LIMIT = 90.0;
-    private static final double BELTS_SUPPLY_CURRENT_LIMIT = 30.0;
-    private static final double BELTS_STATOR_CURRENT_LIMIT = 90.0;
-
-    private static final double FEEDER_BELT_FEED_VOLTAGE = 11.0;
-    private static final double FEEDER_BELT_UNJAM_VOLTAGE = -6.0;
+    private static final double KICKER_SUPPLY_CURRENT_LIMIT = 30;
+    private static final double KICKER_STATOR_CURRENT_LIMIT = 50;
 
     private final TalonFX m_motorKicker;
     private final TalonFX m_motorBelts;
@@ -62,40 +53,44 @@ public class ShooterFeeder extends SubsystemBase {
 
     // Creates a new ShooterFeeder
     public ShooterFeeder() {
-        TalonFXConfiguration kickerConfigs = new TalonFXConfiguration();
-        TalonFXConfiguration beltsConfigs = new TalonFXConfiguration();
-
         m_motorKicker = new TalonFX(Constants.SHOOTER_KICKER_CAN_ID);
         m_motorBelts = new TalonFX(Constants.SHOOTER_FEEDER_BELTS_CAN_ID);
 
-        Slot0Configs kickerSlot0Configs = kickerConfigs.Slot0;
-        kickerSlot0Configs.kP = K_P;
-        kickerSlot0Configs.kI = K_I;
-        kickerSlot0Configs.kD = K_D;
-        kickerSlot0Configs.kV = K_FF * 60.0; // K_FF is in V/rpm, motor uses rps
+        TalonFXConfiguration kickerConfig = new TalonFXConfiguration();  
+        Slot0Configs slot0configs = kickerConfig.Slot0;
+        slot0configs.kP = KICKER_K_P;
+        slot0configs.kI = KICKER_K_I;
+        slot0configs.kD = KICKER_K_D;
+        slot0configs.kV = KICKER_K_FF * 60.0;   // K_FF is in V/rpm, motor uses rps
 
-        kickerConfigs.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-        beltsConfigs.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+        kickerConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
         CurrentLimitsConfigs kickerCurrentLimits = new CurrentLimitsConfigs()
                 .withSupplyCurrentLimit(KICKER_SUPPLY_CURRENT_LIMIT)
                 .withSupplyCurrentLimitEnable(true)
                 .withStatorCurrentLimit(KICKER_STATOR_CURRENT_LIMIT)
                 .withStatorCurrentLimitEnable(true);
-        kickerConfigs.withCurrentLimits(kickerCurrentLimits);
-
-        CurrentLimitsConfigs beltsCurrentLimits = new CurrentLimitsConfigs()
-                .withSupplyCurrentLimit(BELTS_SUPPLY_CURRENT_LIMIT)
-                .withSupplyCurrentLimitEnable(true)
-                .withStatorCurrentLimit(BELTS_STATOR_CURRENT_LIMIT)
-                .withStatorCurrentLimitEnable(true);
-        beltsConfigs.withCurrentLimits(beltsCurrentLimits);
-
-        m_motorKicker.getConfigurator().apply(kickerConfigs);
+        kickerConfig.withCurrentLimits(kickerCurrentLimits);
+        
+        m_motorKicker.getConfigurator().apply(kickerConfig);
+        // put kicker in Coast mode, so that it spins down slowly
         m_motorKicker.setNeutralMode(NeutralModeValue.Coast);
 
-        m_motorBelts.getConfigurator().apply(beltsConfigs);
-        m_motorBelts.setNeutralMode(NeutralModeValue.Coast);
+        //-------
+
+        TalonFXConfiguration beltsConfig = new TalonFXConfiguration();
+
+        beltsConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+        CurrentLimitsConfigs beltsCurrentLimits = new CurrentLimitsConfigs()
+                .withSupplyCurrentLimit(FEED_SUPPLY_CURRENT_LIMIT)
+                .withSupplyCurrentLimitEnable(true)
+                .withStatorCurrentLimit(FEED_STATOR_CURRENT_LIMIT)
+                .withStatorCurrentLimitEnable(true);
+        beltsConfig.withCurrentLimits(beltsCurrentLimits);
+
+        m_motorBelts.getConfigurator().apply(beltsConfig);
+        // put feed belts in Brake mode so they stop quickly
+        m_motorBelts.setNeutralMode(NeutralModeValue.Brake);
 
         if (Constants.OPTIMIZE_CAN) {
             optimizeCAN();

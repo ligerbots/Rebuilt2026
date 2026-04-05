@@ -28,6 +28,8 @@ import frc.robot.utilities.ShooterLookupTable.ShootValue;
 public class Shoot extends Command {
     static final boolean PLOT_SHOT_LOCATION = false;
 
+    private static record ShotSelection(Translation2d target, ShotType effectiveShotType) {}
+
     private final Shooter m_shooter;
     private final Turret m_turret;
     private final ShooterFeeder m_feeder;
@@ -41,12 +43,14 @@ public class Shoot extends Command {
     private static final double LATENCY_SECONDS_ROTATION = 0.05;
     private static final double TOF_SCALE = 0.75;
 
+    private static final double FLYWHEEL_SCALE = 0.96; //was 0.98 Q7
+
     // for fixed shot only
     private final Translation2d m_fixedShotVector;
 
     // We want to "latch" the shooting on as soon as the flywheel is up
     //   to speed once. Otherwise, we turn off the feeder when the RPM drops - bad
-    private boolean m_doShoot = false;
+    private boolean m_shooterOnTarget = false;
 
     private Shoot(Shooter shooter, Turret turret, ShooterFeeder feeder, Hopper hopper,
             Supplier<Pose2d> poseSupplier, Supplier<ChassisSpeeds> speeds, Shooter.ShotType shotType,
@@ -82,51 +86,72 @@ public class Shoot extends Command {
 
     @Override
     public void initialize() {
-        m_doShoot = false;
+        // at start, wait for flywheel to get to speed
+        m_shooterOnTarget = false;
     }
 
     @Override
     public void execute() {
         Pose2d robotPose = m_poseSupplier.get();
 
+        ShotType effectiveShotType;
         Translation2d shotVector;
         if (m_shotType == ShotType.FIXED) {
             shotVector = m_fixedShotVector;
-            if (PLOT_SHOT_LOCATION) {
-                m_turret.plotShotVectors(robotPose, shotVector, Translation2d.kZero, Translation2d.kZero);
-            }
-        } else {
-            Translation2d target = targetForShotType();
-            shotVector = findMovingShotVector(robotPose, target);
+            effectiveShotType = ShotType.HUB;
+            
+            if (PLOT_SHOT_LOCATION) m_turret.plotShotVectors(robotPose, shotVector, Translation2d.kZero, Translation2d.kZero);
+        } else {    
+            ShotSelection shotSelection = targetForShotType();
+            effectiveShotType = shotSelection.effectiveShotType();
+            shotVector = findMovingShotVector(robotPose, shotSelection.target(), effectiveShotType);
+            // old static shot
+            // Translation2d translationToTarget = Turret.getTranslationToGoal(robotPose, target);
         }
 
         ShootValue shotValue;
         if (m_shotType == ShotType.TEST) {
             shotValue = testShotValue();
         } else {
-            shotValue = m_shooter.getShootValue(shotVector.getNorm(), m_shotType);
+            // Calculate distance and angle to target, send to shooter and turret subsystems
+            shotValue = m_shooter.getShootValue(shotVector.getNorm(), effectiveShotType);
         }
 
         Rotation2d angle = shotVector.getAngle();
+        shotValue.flyRPM *= FLYWHEEL_SCALE;
+
         m_turret.setAngle(angle);
         m_shooter.setShootValues(shotValue);
         m_feeder.setKickerRPM(shotValue.feedRPM);
 
         SmartDashboard.putNumber("shoot/shotAngle", angle.getDegrees());
 
-        if (!m_doShoot && m_shooter.onTarget() && m_turret.isOnTarget()) {
-            m_doShoot = true;
-        }
+        // Once the flywheel is up to speed, latch it on.
+        if (!m_shooterOnTarget && m_shooter.onTarget())
+            m_shooterOnTarget = true;
 
-        if (m_doShoot && m_feeder.onTarget()) {
-            m_hopper.feed();
-            m_feeder.runFeederBelts();
-            if (m_feeder.shouldRequestHopperPulse()) {
-                m_hopper.requestPulse();
-                m_feeder.onHopperPulseTriggered();
-            }
-        } else {
+        if (!m_shooterOnTarget) {
+            // while the flywheel spins up, reverse the hopper to prevent jams
+            // NOTE: the hopper is also getting commanded to PULSE, by a separate command
+            //   this is not great but should not cause serious problems.
             m_hopper.reverse();
+        } else {
+            // flywheel has gotten up to speed
+            if (m_turret.inDeadZone()) {
+                // if in the dead zone, turn off the feed
+                m_feeder.stopFeederBelts();
+                // m_hopper.reverse();
+
+                if (PLOT_SHOT_LOCATION) m_turret.plotShotVectors(null, null, null, null);
+            } else {
+                // everything is good. Shoot!
+                m_feeder.runFeederBelts();
+                m_hopper.feed();
+                if (m_feeder.shouldRequestHopperPulse()) {
+                    m_hopper.requestPulse();
+                    m_feeder.onHopperPulseTriggered();
+                }
+            }
         }
     }
 
@@ -134,7 +159,7 @@ public class Shoot extends Command {
     public void end(boolean interrupted) {
         m_shooter.stop();
         m_feeder.stop();
-        m_hopper.stop();
+        // m_hopper.stop();
 
         if (PLOT_SHOT_LOCATION) {
             m_turret.plotShotVectors(null, null, null, null);
@@ -146,37 +171,48 @@ public class Shoot extends Command {
         return false;
     }
 
-    private Translation2d targetForShotType() {
+    private ShotSelection targetForShotType() {
         switch (m_shotType) {
             case HUB:
-                return FieldConstants.flipTranslation(FieldConstants.HUB_POSITION_BLUE);
+                return new ShotSelection(FieldConstants.flipTranslation(FieldConstants.HUB_POSITION_BLUE), ShotType.HUB);
             case PASS:
                 double yBlue = FieldConstants.flipTranslation(m_poseSupplier.get().getTranslation()).getY();
-                if (yBlue < FieldConstants.FIELD_WIDTH / 2.0) {
-                    return FieldConstants.flipTranslation(FieldConstants.PASSING_TARGET_LOWER_BLUE);
-                }
-                return FieldConstants.flipTranslation(FieldConstants.PASSING_TARGET_UPPER_BLUE);
+                if (yBlue < FieldConstants.FIELD_WIDTH / 2.0)
+                    return new ShotSelection(FieldConstants.flipTranslation(FieldConstants.PASSING_TARGET_LOWER_BLUE), ShotType.PASS);
+                return new ShotSelection(FieldConstants.flipTranslation(FieldConstants.PASSING_TARGET_UPPER_BLUE), ShotType.PASS);
+            // needed to suppress the warning
+            // case TEST:
+            //     return FieldConstants.flipTranslation(FieldConstants.HUB_POSITION_BLUE);
             default:
                 break;
         }
-        return shotAutoTarget(m_poseSupplier.get());
+        return autoShotSelection(m_poseSupplier.get());
+    }
+
+    // Determine where we should shoot based on the robot location
+    private static ShotSelection autoShotSelection(Pose2d robotPose) {
+        Translation2d blueLocation = FieldConstants.flipTranslation(robotPose.getTranslation());
+        Translation2d target;
+        ShotType shotType;
+        if (blueLocation.getX() < FieldConstants.HUB_POSITION_BLUE.getX()) {
+            target = FieldConstants.HUB_POSITION_BLUE;
+            shotType = ShotType.HUB;
+        } else if (blueLocation.getY() < FieldConstants.FIELD_WIDTH / 2.0) {
+            target = FieldConstants.PASSING_TARGET_LOWER_BLUE;
+            shotType = ShotType.PASS;
+        } else {
+            target = FieldConstants.PASSING_TARGET_UPPER_BLUE;
+            shotType = ShotType.PASS;
+        }
+
+        return new ShotSelection(FieldConstants.flipTranslation(target), shotType);
     }
 
     public static Translation2d shotAutoTarget(Pose2d robotPose) {
-        Translation2d blueLocation = FieldConstants.flipTranslation(robotPose.getTranslation());
-        Translation2d target;
-        if (blueLocation.getX() < FieldConstants.HUB_POSITION_BLUE.getX()) {
-            target = FieldConstants.HUB_POSITION_BLUE;
-        } else if (blueLocation.getY() < FieldConstants.FIELD_WIDTH / 2.0) {
-            target = FieldConstants.PASSING_TARGET_LOWER_BLUE;
-        } else {
-            target = FieldConstants.PASSING_TARGET_UPPER_BLUE;
-        }
-
-        return FieldConstants.flipTranslation(target);
+        return autoShotSelection(robotPose).target();
     }
 
-    public Translation2d findMovingShotVector(Pose2d currentPose, Translation2d target) {
+    public Translation2d findMovingShotVector(Pose2d currentPose, Translation2d target, ShotType effectiveShotType) {
         ChassisSpeeds speedInformation = m_speedsSupplier.get();
         Translation2d robotVelVector = new Translation2d(speedInformation.vxMetersPerSecond, speedInformation.vyMetersPerSecond);
 
@@ -206,7 +242,8 @@ public class Shoot extends Command {
         double timeOfFlight = 0;
 
         for (int i = 0; i < 20; i++) {
-            timeOfFlight = m_shooter.getShootValue(targetDistance, m_shotType).timeOfFlight;
+            timeOfFlight = m_shooter.getShootValue(targetDistance, effectiveShotType).timeOfFlight;
+            // this is totally unsupported by real world!
             timeOfFlight *= TOF_SCALE;
             Translation2d offset = turretVelTotal.times(timeOfFlight);
 

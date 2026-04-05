@@ -122,7 +122,44 @@ public class RobotContainerCompBot extends RobotContainer {
                 "Swipe Shoot Alt",
                 "Third Swipe",
                 "Swipe Shoot Alt"
-        ));
+                ));
+
+        m_chosenAutoPaths.addOption("Pass Blitz", List.of(
+                "Pass Swipe",
+                "Pass Shoot"
+                ));
+        
+        m_chosenAutoPaths.addOption("Center Auto", List.of(
+                "Center to First Shoot",
+                3.0, // shoot for 3 seconds to ensure all 8 balls are out
+                "First Shoot to Depot"
+                ));
+
+        m_chosenAutoPaths.addOption("Swing Depot Double Swipe Blitz", List.of(
+                "Swing First Swipe Blitz",
+                "Swipe Shoot",
+                "Depot Double Swipe Blitz"
+                ));
+
+        m_chosenAutoPaths.addOption("Steal DOUBLE Swipe", List.of(
+                "First Swipe Steal",
+                "Swipe Shoot",
+                "Depot Double Swipe Blitz",
+                "Depot Trench Run Out"
+                ));
+
+        m_chosenAutoPaths.addOption("Steal TRIPLE Swipe", List.of(
+                "First Swipe Steal",
+                "Swipe Shoot",
+                "Second Swipe",
+                "Swipe Shoot Alt",
+                "Third Swipe",
+                "Swipe Shoot Alt"
+                ));
+
+        // m_chosenAutoPaths.addOption("Shoot While Moving", List.of(   
+        //         "Shoot While Moving"
+        // ));
 
         SmartDashboard.putData("Auto Choice", m_chosenAutoPaths);
 
@@ -137,15 +174,9 @@ public class RobotContainerCompBot extends RobotContainer {
     }
 
     public Command getShootCommand() {
-        return new Shoot(
-                m_shooter,
-                m_turret,
-                m_shooterFeeder,
-                m_hopper,
-                m_drivetrain::getPose,
-                m_drivetrain::getFieldCentricSpeeds,
-                ShotType.AUTO)
-                .alongWith(new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningShooter", true)));
+        return new Shoot(m_shooter, m_turret, m_shooterFeeder, m_hopper, m_drivetrain::getPose, m_drivetrain::getFieldCentricSpeeds, ShotType.AUTO));
+                        // .alongWith(m_hopper.pulseCommand());
+                        //     new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningShooter", true)));
     }
 
     private void configureAutoEventTriggers() {
@@ -195,34 +226,20 @@ public class RobotContainerCompBot extends RobotContainer {
         m_driverController.y().whileTrue(UnJamHopperCommand());
         m_driverController.x().whileTrue(UnJamHopperCommand());
 
-        m_farm.button(11).whileTrue(new Shoot(
-                m_shooter,
-                m_turret,
-                m_shooterFeeder,
-                m_hopper,
-                m_drivetrain::getPose,
-                m_drivetrain::getFieldCentricSpeeds,
-                130.0,
-                Rotation2d.kCCW_90deg));
+        // fixed shots - distance in inches, plus ROBOT angle of turret
+        // ladder - robot against the outside of the ladder, intake to the left for the dirver
+        m_farm.button(11).whileTrue(new Shoot(m_shooter, m_turret, m_shooterFeeder, m_hopper,
+                    m_drivetrain::getPose, m_drivetrain::getFieldCentricSpeeds, 130.0, Rotation2d.kCCW_90deg));
+                //     .alongWith(m_hopper.pulseCommand()));
 
-        m_farm.button(13).whileTrue(new Shoot(
-                m_shooter,
-                m_turret,
-                m_shooterFeeder,
-                m_hopper,
-                m_drivetrain::getPose,
-                m_drivetrain::getFieldCentricSpeeds,
-                210.0,
-                Rotation2d.kZero));
+        // corner shot
+        m_farm.button(13).whileTrue(new Shoot(m_shooter, m_turret, m_shooterFeeder, m_hopper,
+                    m_drivetrain::getPose, m_drivetrain::getFieldCentricSpeeds, 210.0, Rotation2d.k180deg));
+                //     .alongWith(m_hopper.pulseCommand()));
 
-        m_farm.button(15).whileTrue(new Shoot(
-                m_shooter,
-                m_turret,
-                m_shooterFeeder,
-                m_hopper,
-                m_drivetrain::getPose,
-                m_drivetrain::getFieldCentricSpeeds,
-                ShotType.TEST));
+        m_farm.button(15).whileTrue(new Shoot(m_shooter, m_turret, m_shooterFeeder, m_hopper,
+                    m_drivetrain::getPose, m_drivetrain::getFieldCentricSpeeds, ShotType.TEST));
+                //     .alongWith(m_hopper.pulseCommand()));
 
         m_farm.button(1).onTrue(new InstantCommand(m_shooter::increaseFlyFudge));
         m_farm.button(2).onTrue(new InstantCommand(m_shooter::decreaseFlyFudge));
