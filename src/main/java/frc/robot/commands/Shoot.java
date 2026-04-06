@@ -200,7 +200,7 @@ public class Shoot extends Command {
 
     // Determine where we should shoot based on the robot location
     private static ShotSelection autoShotSelection(Pose2d robotPose) {
-        Translation2d blueLocation = FieldConstants.flipTranslation(robotPose.getTranslation());
+        Translation2d blueLocation = blueTurretLocation(robotPose);
         Translation2d target;
         ShotType shotType;
         if (blueLocation.getX() >= FieldConstants.OPPOSITE_ALLIANCE_ZONE_START_X_BLUE) {
@@ -333,11 +333,15 @@ public class Shoot extends Command {
             return shotVector.getNorm();
         }
 
-        Translation2d blueLocation = FieldConstants.flipTranslation(robotPose.getTranslation());
+        Translation2d blueLocation = blueTurretLocation(robotPose);
         if (blueLocation.getY() < FieldConstants.FIELD_WIDTH / 2.0) {
             return blueLocation.getY();
         }
         return FieldConstants.FIELD_WIDTH - blueLocation.getY();
+    }
+
+    private static Translation2d blueTurretLocation(Pose2d robotPose) {
+        return FieldConstants.flipTranslation(Turret.getTurretFieldPosition(robotPose));
     }
 
     private ShootValue testShotValue() {
