@@ -209,15 +209,28 @@ public class Shoot extends Command {
         } else if (blueLocation.getX() < FieldConstants.HUB_POSITION_BLUE.getX()) {
             target = FieldConstants.HUB_POSITION_BLUE;
             shotType = ShotType.HUB;
-        } else if (blueLocation.getY() < FieldConstants.FIELD_WIDTH / 2.0) {
-            target = FieldConstants.PASSING_TARGET_LEFT_BLUE;
+
+        } else {
+            target = calculateDynamicPassTarget(blueLocation) ;
             shotType = ShotType.PASS;
+        } 
+        
+        return new ShotSelection(FieldConstants.flipTranslation(target), shotType);
+    }
+
+    private static Translation2d calculateDynamicPassTarget(Translation2d blueLocation){
+        Translation2d target;
+        double blueY = blueLocation.getY();
+        boolean wantsDynamicTarget = blueY < FieldConstants.PASSING_TARGET_LEFT_BLUE.getY() || blueY > FieldConstants.PASSING_TARGET_RIGHT_BLUE.getY();
+        if (wantsDynamicTarget) {
+            target = new Translation2d(FieldConstants.PASSING_TARGET_LEFT_BLUE.getX() ,blueY);
+        }
+        else if (blueLocation.getY() < FieldConstants.FIELD_WIDTH / 2.0) { 
+            target = FieldConstants.PASSING_TARGET_LEFT_BLUE;
         } else {
             target = FieldConstants.PASSING_TARGET_RIGHT_BLUE;
-            shotType = ShotType.PASS;
         }
-
-        return new ShotSelection(FieldConstants.flipTranslation(target), shotType);
+        return target;
     }
 
     private static Translation2d oppositeAllianceZoneTarget(Translation2d blueLocation) {
