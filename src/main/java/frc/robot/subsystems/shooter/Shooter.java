@@ -14,6 +14,7 @@ public class Shooter extends SubsystemBase {
     public enum ShotType {
         HUB,
         PASS,
+        OPPOSITE_ZONE,
         TEST,    // test shot using SmartDashboard values. See Shoot cmd
         AUTO,    // auto select hub vs pass
         FIXED    // fixed distance and turret heading
@@ -21,9 +22,11 @@ public class Shooter extends SubsystemBase {
     
     private static final String HUB_LOOKUP_TABLE_FILE = "hub_shot_lookup_table.csv"; 
     private static final String PASS_LOOKUP_TABLE_FILE = "pass_shot_lookup_table.csv";
+    private static final String OPPOSITE_ZONE_LOOKUP_TABLE_FILE = "opposite_zone_shot_lookup_table.csv";
     
     private final ShooterLookupTable m_hubShotLookupTable;
     private final ShooterLookupTable m_passShotLookupTable;
+    private final ShooterLookupTable m_oppositeZoneShotLookupTable;
 
     // Manual adjust on the flywheel RPM
     // NOTE: this is a multiplicative change: +5%, +10%, etc
@@ -51,6 +54,7 @@ public class Shooter extends SubsystemBase {
     public Shooter() {
         m_hubShotLookupTable = new ShooterLookupTable(HUB_LOOKUP_TABLE_FILE);
         m_passShotLookupTable = new ShooterLookupTable(PASS_LOOKUP_TABLE_FILE);
+        m_oppositeZoneShotLookupTable = new ShooterLookupTable(OPPOSITE_ZONE_LOOKUP_TABLE_FILE);
         
         m_hood = new Hood();
         m_flywheel = new Flywheel();
@@ -121,6 +125,8 @@ public class Shooter extends SubsystemBase {
         // Calculate distance to target and retrieve shooter hood angle and speed from shot type.
         if (shotType == ShotType.PASS)
             return m_passShotLookupTable.getShootValues(distanceMeters);
+        if (shotType == ShotType.OPPOSITE_ZONE)
+            return m_oppositeZoneShotLookupTable.getShootValues(distanceMeters);
 
         ShootValue shootValue = m_hubShotLookupTable.getShootValues(distanceMeters);
         shootValue.flyRPM *= m_flyFudge;

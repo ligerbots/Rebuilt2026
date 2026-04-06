@@ -16,9 +16,29 @@ public class FieldConstants {
     public static final double FIELD_WIDTH = FlippingUtil.fieldSizeY;  
     public static final double SHOOT_HUB_LINE_BLUE = Units.inchesToMeters(158); // distance from the wall to the line where we want to shoot from
 
+    public static final double OPPOSITE_ALLIANCE_ZONE_START_X_BLUE = Units.inchesToMeters(500);//taken from far side of opposite bump 
+    public static final double SIDE_WALL_TARGET_OFFSET_BLUE = Units.inchesToMeters(24.0); //TODO just a guess for now, needs to get tuned alongside LUT
+    public static final double SIDE_WALL_TARGET_LINE_MAX_DISTANCE_BLUE = Units.inchesToMeters(135.0);// this is the number used to translate robot to wall horizontal distance to vertical distance
+    
+    public static final double OPPOSITE_ALLIANCE_ZONE_FAR_TARGET_DISTANCE = Units.inchesToMeters(445.0);//Far is relative to driverstation. Number is taken from cad as the distance to the end of the bump
+    public static final double OPPOSITE_ALLIANCE_ZONE_CLOSE_TARGET_DISTANCE = Units.inchesToMeters(290);//Far is relative to driverstation. Number is roughly distance from wall to 4th side wall support strut
+
+    
     public static final Translation2d HUB_POSITION_BLUE = new Translation2d(Units.inchesToMeters(182.11),Units.inchesToMeters(158.84));
-    public static final Translation2d PASSING_TARGET_UPPER_BLUE = new Translation2d(Units.inchesToMeters(91.6), Units.inchesToMeters(250));
-    public static final Translation2d PASSING_TARGET_LOWER_BLUE = new Translation2d(Units.inchesToMeters(91.6), Units.inchesToMeters(66));
+    public static final Translation2d PASSING_TARGET_LEFT_BLUE = new Translation2d(Units.inchesToMeters(91.6), Units.inchesToMeters(66));
+    public static final Translation2d PASSING_TARGET_RIGHT_BLUE = new Translation2d(Units.inchesToMeters(91.6), Units.inchesToMeters(250));
+    
+    public static final Translation2d OPPOSITE_ZONE_TARGET_LINE_LEFT_NEAR_BLUE =
+        new Translation2d(OPPOSITE_ALLIANCE_ZONE_CLOSE_TARGET_DISTANCE, SIDE_WALL_TARGET_OFFSET_BLUE);
+    
+    public static final Translation2d OPPOSITE_ZONE_TARGET_LINE_LEFT_FAR_BLUE =
+        new Translation2d(OPPOSITE_ALLIANCE_ZONE_FAR_TARGET_DISTANCE, SIDE_WALL_TARGET_OFFSET_BLUE);
+    
+    public static final Translation2d OPPOSITE_ZONE_TARGET_LINE_RIGHT_NEAR_BLUE =
+        new Translation2d(OPPOSITE_ALLIANCE_ZONE_CLOSE_TARGET_DISTANCE, FIELD_WIDTH - SIDE_WALL_TARGET_OFFSET_BLUE);
+    
+    public static final Translation2d OPPOSITE_ZONE_TARGET_LINE_RIGHT_FAR_BLUE =
+        new Translation2d(OPPOSITE_ALLIANCE_ZONE_FAR_TARGET_DISTANCE, FIELD_WIDTH - SIDE_WALL_TARGET_OFFSET_BLUE);
  
     public static boolean isRedAlliance() {
         Optional<Alliance> alliance = DriverStation.getAlliance();
