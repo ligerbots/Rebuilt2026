@@ -13,6 +13,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -21,6 +22,7 @@ import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.ctre.phoenix6.hardware.CANcoder;
@@ -31,6 +33,12 @@ import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 
 public class Turret extends SubsystemBase {
+    private enum RecoveryState {
+        IDLE,
+        STALL_DETECTING,
+        REVERSING,
+        DISARMED
+    }
     
     // public for the Shoot command - not the greatest, but a pain otherwise
     public static final Translation2d TURRET_OFFSET = new Translation2d(Units.inchesToMeters(-2.5626),  Units.inchesToMeters(-4.875));
@@ -78,6 +86,14 @@ public class Turret extends SubsystemBase {
     private static final double MAX_ROTATION_DEG = 165.0;
     private static final double MIN_ROTATION_DEG = -190.0; // -220 is max
     private static final double MID_LINE_DEGREES = (MAX_ROTATION_DEG + MIN_ROTATION_DEG) / 2.0;
+
+    private static final double STALL_CURRENT_AMPS = 25.0;
+    private static final double STALL_MIN_ERROR_DEG = 6.0;
+    private static final double STALL_MAX_VELOCITY_DEG_PER_SEC = 8.0;
+    private static final double STALL_DETECTION_SEC = 0.15;
+    private static final double RECOVERY_RETREAT_DEG = 12.0;
+    private static final double RECOVERY_REVERSE_SEC = 0.18;
+    private static final double RECOVERY_DISARM_SEC = 0.12;
     
     // this is just the middle point of the full CRT range
     // include "1.0 *" to make sure it does floating point arithmetic
@@ -87,6 +103,13 @@ public class Turret extends SubsystemBase {
     private Field2d m_field;
 
     private final MotionMagicVoltage m_positionControl = new MotionMagicVoltage(0).withEnableFOC(true);
+    private final VoltageOut m_voltageControl = new VoltageOut(0).withEnableFOC(true);
+
+    private double m_lastCommandDirection = 0.0;
+    private RecoveryState m_recoveryState = RecoveryState.IDLE;
+    private double m_stallStartSec = 0.0;
+    private double m_recoveryPhaseEndSec = 0.0;
+    private double m_recoveryGoalDeg = 0.0;
 
     /** Creates a new Turret. */
     public Turret(Field2d field) {
@@ -157,6 +180,8 @@ public class Turret extends SubsystemBase {
     // This method will be called once per scheduler run
     @Override
     public void periodic() {    
+        updateRecoveryState();
+
         double goal = getGoalDeg();
         double currentAngle = getAngle().getDegrees();
         SmartDashboard.putNumber("turret/currentAngle", currentAngle);
@@ -167,6 +192,8 @@ public class Turret extends SubsystemBase {
         SmartDashboard.putNumber("turret/voltage", m_turretMotor.getMotorVoltage().getValueAsDouble());
         SmartDashboard.putNumber("turret/velocityRPS", m_turretMotor.getVelocity().getValueAsDouble());
         SmartDashboard.putNumber("turret/accelRPS2", m_turretMotor.getAcceleration().getValueAsDouble());
+        SmartDashboard.putBoolean("turret/stallRecoveryActive", isRecovering());
+        SmartDashboard.putNumber("turret/statorCurrent", m_turretMotor.getStatorCurrent().getValueAsDouble());
 
         // Values for testing and tuning
         // SmartDashboard.putNumber("turret/crtAngleRaw",getCRTAngleRaw().getDegrees());   
@@ -197,8 +224,14 @@ public class Turret extends SubsystemBase {
         // for now, just limit angle to not go into the dead zone
         m_goalDeg = limitRotationDeg(m_shootAngle);
 
-        m_positionControl.Position = m_goalDeg/360.0 * TURRET_GEAR_RATIO;
-        m_turretMotor.setControl(m_positionControl);
+        double errorDeg = m_goalDeg - getTurretAngleDeg();
+        if (Math.abs(errorDeg) > STALL_MIN_ERROR_DEG) {
+            m_lastCommandDirection = Math.signum(errorDeg);
+        }
+
+        if (!isRecovering()) {
+            applyGoalPosition();
+        }
 
         // update these log items right away
         SmartDashboard.putNumber("turret/shootAngle", m_shootAngle + TURRET_HEADING_OFFSET_DEG);
@@ -253,6 +286,101 @@ public class Turret extends SubsystemBase {
 
     private double limitRotationDeg(double angleDeg) {
         return MathUtil.clamp(angleDeg, MIN_ROTATION_DEG, MAX_ROTATION_DEG);
+    }
+
+    public boolean isRecovering() {
+        return m_recoveryState != RecoveryState.IDLE;
+    }
+
+    public void stop() {
+        clearRecoveryState();
+        setVoltage(0.0);
+    }
+
+    private void updateRecoveryState() {
+        double now = Timer.getFPGATimestamp();
+
+        switch (m_recoveryState) {
+            case IDLE:
+            case STALL_DETECTING:
+                detectStall(now);
+                return;
+            case REVERSING:
+                if (now < m_recoveryPhaseEndSec) {
+                    applyPositionGoal(m_recoveryGoalDeg);
+                    return;
+                }
+
+                m_recoveryState = RecoveryState.DISARMED;
+                m_recoveryPhaseEndSec = now + RECOVERY_DISARM_SEC;
+                setVoltage(0.0);
+                return;
+            case DISARMED:
+                if (now < m_recoveryPhaseEndSec) {
+                    setVoltage(0.0);
+                    return;
+                }
+
+                clearRecoveryState();
+                return;
+            default:
+                return;
+        }
+    }
+
+    private void detectStall(double now) {
+        double errorDeg = m_goalDeg - getTurretAngleDeg();
+        boolean stalled = Math.abs(errorDeg) > STALL_MIN_ERROR_DEG
+                && Math.abs(getTurretVelocityDegPerSec()) < STALL_MAX_VELOCITY_DEG_PER_SEC
+                && m_turretMotor.getStatorCurrent().getValueAsDouble() >= STALL_CURRENT_AMPS;
+
+        if (!stalled || Math.abs(m_lastCommandDirection) < 1e-6) {
+            m_recoveryState = RecoveryState.IDLE;
+            m_stallStartSec = 0.0;
+            return;
+        }
+
+        if (m_recoveryState != RecoveryState.STALL_DETECTING) {
+            m_recoveryState = RecoveryState.STALL_DETECTING;
+            m_stallStartSec = now;
+            return;
+        }
+
+        if (now - m_stallStartSec >= STALL_DETECTION_SEC) {
+            m_recoveryState = RecoveryState.REVERSING;
+            m_recoveryPhaseEndSec = now + RECOVERY_REVERSE_SEC;
+            m_recoveryGoalDeg = limitRotationDeg(
+                    getTurretAngleDeg() - m_lastCommandDirection * RECOVERY_RETREAT_DEG);
+        }
+    }
+
+    private void clearRecoveryState() {
+        m_recoveryState = RecoveryState.IDLE;
+        m_stallStartSec = 0.0;
+        m_recoveryPhaseEndSec = 0.0;
+        m_recoveryGoalDeg = 0.0;
+    }
+
+    private void applyGoalPosition() {
+        applyPositionGoal(m_goalDeg);
+    }
+
+    private void applyPositionGoal(double goalDeg) {
+        m_positionControl.Position = goalDeg / 360.0 * TURRET_GEAR_RATIO;
+        m_turretMotor.setControl(m_positionControl);
+    }
+
+    private void setVoltage(double voltage) {
+        m_voltageControl.Output = voltage;
+        m_turretMotor.setControl(m_voltageControl);
+    }
+
+    private double getTurretAngleDeg() {
+        return m_turretMotor.getPosition().getValueAsDouble() / TURRET_GEAR_RATIO * 360.0;
+    }
+
+    private double getTurretVelocityDegPerSec() {
+        return m_turretMotor.getVelocity().getValueAsDouble() / TURRET_GEAR_RATIO * 360.0;
     }
     
     /**

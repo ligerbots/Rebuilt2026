@@ -135,6 +135,18 @@ public class Shoot extends Command {
         
         SmartDashboard.putNumber("shoot/shotAngle", angle.getDegrees());
 
+        boolean turretRecovering = m_turret.isRecovering();
+        boolean flywheelRecovering = m_shooter.getFlywheel().isRecovering();
+        SmartDashboard.putBoolean("shoot/turretRecovery", turretRecovering);
+        SmartDashboard.putBoolean("shoot/flywheelRecovery", flywheelRecovering);
+
+        if (turretRecovering || flywheelRecovering) {
+            m_shooterOnTarget = false;
+            m_feeder.stop();
+            m_hopper.reverse();
+            return;
+        }
+
         // Once the flywheel is up to speed, latch it on.
         if (!m_shooterOnTarget && m_shooter.onTarget())
             m_shooterOnTarget = true;
