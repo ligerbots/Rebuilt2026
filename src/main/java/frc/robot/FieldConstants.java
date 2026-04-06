@@ -15,6 +15,11 @@ public class FieldConstants {
     public static final double FIELD_LENGTH = FlippingUtil.fieldSizeX;
     public static final double FIELD_WIDTH = FlippingUtil.fieldSizeY;  
     public static final double SHOOT_HUB_LINE_BLUE = Units.inchesToMeters(158); // distance from the wall to the line where we want to shoot from
+    public static final boolean ENABLE_UPDATED_SHOT_LOGIC = true;
+    public static final boolean ENABLE_OPPOSITE_ZONE_SHOT = ENABLE_UPDATED_SHOT_LOGIC;
+    public static final boolean ENABLE_DYNAMIC_PASS_TARGETING = ENABLE_UPDATED_SHOT_LOGIC;
+    public static final boolean ENABLE_PASS_SIDE_LATCH = ENABLE_UPDATED_SHOT_LOGIC;
+    public static final boolean USE_TURRET_POSITION_FOR_SHOT_SELECTION = ENABLE_UPDATED_SHOT_LOGIC;
 
     public static final double OPPOSITE_ALLIANCE_ZONE_START_X_BLUE = Units.inchesToMeters(500);//taken from far side of opposite bump 
     public static final double SIDE_WALL_TARGET_OFFSET_BLUE = Units.inchesToMeters(24.0); //TODO just a guess for now, needs to get tuned alongside LUT
