@@ -32,14 +32,17 @@ public class ShooterFeeder extends SubsystemBase {
     private static final double FEEDER_K_P = 0.2;
     private static final double FEEDER_K_I = 0.0; 
     private static final double FEEDER_K_D = 0.0;
-    private static final double FEEDER_K_FF = 0.00217;  // V/rpm
+    private static final double FEEDER_K_FF = 0.0022;  // V/rpm
     
     private static final double FEEDER_SUPPLY_CURRENT_LIMIT = 35;
     private static final double FEEDER_STATOR_CURRENT_LIMIT = 80;
 
-    private static double FEEDER_BELT_FEED_VOLTAGE = 10.0;
-    private static double FEEDER_BELT_UNJAM_VOLTAGE = -6.0;
-    
+    // private static double FEEDER_BELT_FEED_VOLTAGE = 10.0;
+    // private static double FEEDER_BELT_UNJAM_VOLTAGE = -6.0;
+
+    private static double FEEDER_BELT_FEED_RPM = 4500.0;
+    private static double FEEDER_BELT_UNJAM_RPM = -2700.0;
+
     private final TalonFX m_motorKicker;
     private final TalonFX m_motorFeeder;
 
@@ -154,11 +157,13 @@ public class ShooterFeeder extends SubsystemBase {
     }
 
     public void runFeederBelts() {
-        setFeederBeltsVoltage(FEEDER_BELT_FEED_VOLTAGE);
+        // setFeederBeltsVoltage(FEEDER_BELT_FEED_VOLTAGE);
+        setFeederBeltsVoltage(FEEDER_BELT_FEED_RPM);
     }
 
     public void runReverseUnjam() {
-        setFeederBeltsVoltage(FEEDER_BELT_UNJAM_VOLTAGE);
+        // setFeederBeltsVoltage(FEEDER_BELT_UNJAM_VOLTAGE);
+        setFeederBeltsRPM(FEEDER_BELT_UNJAM_RPM);
     }
 
     public void stopFeederBelts() {
