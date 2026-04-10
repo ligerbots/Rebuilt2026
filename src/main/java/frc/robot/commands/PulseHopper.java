@@ -8,8 +8,8 @@ import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.Turret;
 
 public class PulseHopper extends Command {
-    private static final double DEFAULT_STARTUP_REVERSE_VOLTAGE = -8.0;
-    private static final double DEFAULT_STARTUP_REVERSE_TIMEOUT_SEC = 0.375;
+    private static final double DEFAULT_STARTUP_REVERSE_VOLTAGE = -6.0;
+    private static final double DEFAULT_STARTUP_REVERSE_TIMEOUT_SEC = 0.2;
     private static final double DEFAULT_PULSE_FORWARD_VOLTAGE = 6.0;
     private static final double DEFAULT_PULSE_REVERSE_VOLTAGE = -6.0;
     private static final double DEFAULT_PULSE_FORWARD_SEC = 0.5;
