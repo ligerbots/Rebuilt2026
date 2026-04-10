@@ -25,6 +25,11 @@ public class ShooterFeeder extends SubsystemBase {
     private static final double KICKER_K_I = 0.0; 
     private static final double KICKER_K_D = 0.0;
     private static final double KICKER_K_FF = 0.00217;  // V/rpm
+
+    private static final double BELTS_K_P = 0.2;
+    private static final double BELTS_K_I = 0.0; 
+    private static final double BELTS_K_D = 0.0;
+    private static final double BELTS_K_FF = 0.00217;  // V/rpm
     
     private static final double FEED_SUPPLY_CURRENT_LIMIT = 35;
     private static final double FEED_STATOR_CURRENT_LIMIT = 80;
@@ -49,13 +54,20 @@ public class ShooterFeeder extends SubsystemBase {
         m_motorBelts = new TalonFX(Constants.SHOOTER_FEEDER_BELTS_CAN_ID);
 
         TalonFXConfiguration kickerConfig = new TalonFXConfiguration();  
-        Slot0Configs slot0configs = kickerConfig.Slot0;
-        slot0configs.kP = KICKER_K_P;
-        slot0configs.kI = KICKER_K_I;
-        slot0configs.kD = KICKER_K_D;
-        slot0configs.kV = KICKER_K_FF * 60.0;   // K_FF is in V/rpm, motor uses rps
-
+        Slot0Configs kickerSlot0Configs = kickerConfig.Slot0;
+        kickerSlot0Configs.kP = KICKER_K_P;
+        kickerSlot0Configs.kI = KICKER_K_I;
+        kickerSlot0Configs.kD = KICKER_K_D;
+        kickerSlot0Configs.kV = KICKER_K_FF * 60.0;   // K_FF is in V/rpm, motor uses rps
         kickerConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+
+        TalonFXConfiguration motorBeltsConfig = new TalonFXConfiguration();
+        Slot0Configs beltsSlot0Configs = motorBeltsConfig.Slot0;
+        beltsSlot0Configs.kP = BELTS_K_P;
+        beltsSlot0Configs.kI = BELTS_K_I;
+        beltsSlot0Configs.kD = BELTS_K_D;
+        beltsSlot0Configs.kV = BELTS_K_FF * 60.0;   // K_FF is in V/rpm, motor uses rps
+        motorBeltsConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
         CurrentLimitsConfigs kickerCurrentLimits = new CurrentLimitsConfigs()
                 .withSupplyCurrentLimit(KICKER_SUPPLY_CURRENT_LIMIT)
