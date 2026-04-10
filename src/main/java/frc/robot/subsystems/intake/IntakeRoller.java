@@ -22,9 +22,9 @@ import frc.robot.Constants;
 
 public class IntakeRoller extends SubsystemBase {
     private static final Current SUPPLY_CURRENT_LIMIT = Amps.of(40);
-    private static final Current STATOR_CURRENT_LIMIT = Amps.of(70);
+    private static final Current STATOR_CURRENT_LIMIT = Amps.of(80);
     
-    private static final double INTAKE_VOLTAGE = 9.0;  // was 9
+    private static final double INTAKE_VOLTAGE = 7.0;  // was 9
     private static final double OUTTAKE_VOLTAGE = 6.0;
 
     private final TalonFX m_motor;
@@ -42,7 +42,7 @@ public class IntakeRoller extends SubsystemBase {
          CurrentLimitsConfigs currentLimits = new CurrentLimitsConfigs()
                 .withSupplyCurrentLimit(SUPPLY_CURRENT_LIMIT)
                 .withStatorCurrentLimit(STATOR_CURRENT_LIMIT)
-                .withStatorCurrentLimitEnable(false)   // no limit, to prevent jams
+                .withStatorCurrentLimitEnable(true)   // XX no limit, to prevent jams
                 .withSupplyCurrentLimitEnable(true);
         talonFXConfigs.withCurrentLimits(currentLimits);
         talonFXConfigs.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
@@ -67,6 +67,9 @@ public class IntakeRoller extends SubsystemBase {
         SmartDashboard.putNumber("intake/voltage", m_motor.getMotorVoltage().getValueAsDouble()); 
         SmartDashboard.putNumber("intake/RPM", m_motor.getVelocity().getValueAsDouble() * 60.0); 
         SmartDashboard.putNumber("intake/voltageFudge", m_intakeVoltageOffset);
+        SmartDashboard.putNumber("intake/rollerSupply", m_motor.getSupplyCurrent().getValueAsDouble());
+        SmartDashboard.putNumber("intake/rollerStator", m_motor.getStatorCurrent().getValueAsDouble());
+
     }
          
     public void intake() {
