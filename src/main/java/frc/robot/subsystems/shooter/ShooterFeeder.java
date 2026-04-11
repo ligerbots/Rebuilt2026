@@ -47,7 +47,7 @@ public class ShooterFeeder extends SubsystemBase {
     private final TalonFX m_motorFeeder;
 
     private double m_kickerGoalRPM;
-    private double m_beltsGoalRPM;
+    private double m_feederGoalRPM;
 
     private final VelocityVoltage m_velocityControl = new VelocityVoltage(0).withEnableFOC(true);
     private final VoltageOut m_voltageControl = new VoltageOut(0).withEnableFOC(true);
@@ -123,7 +123,7 @@ public class ShooterFeeder extends SubsystemBase {
         SmartDashboard.putNumber("feeder/supplyCurrent", m_motorFeeder.getSupplyCurrent().getValueAsDouble());
         SmartDashboard.putNumber("feeder/voltage", m_motorFeeder.getMotorVoltage().getValueAsDouble());
         SmartDashboard.putNumber("feeder/currentRPM", getFeederRPM()); 
-        SmartDashboard.putNumber("feeder/goalRPM", m_beltsGoalRPM);
+        SmartDashboard.putNumber("feeder/goalRPM", m_feederGoalRPM);
     }
     
     public double getKickerRPM(){
@@ -151,8 +151,8 @@ public class ShooterFeeder extends SubsystemBase {
     }
     
     public void setFeederBeltsRPM(double rpm) {
-        m_beltsGoalRPM = rpm;
-        m_velocityControl.Velocity = m_beltsGoalRPM / 60;   // velocity is in rot/second
+        m_feederGoalRPM = rpm;
+        m_velocityControl.Velocity = m_feederGoalRPM / 60;   // velocity is in rot/second
         m_motorFeeder.setControl(m_velocityControl);
     }
 
@@ -174,6 +174,6 @@ public class ShooterFeeder extends SubsystemBase {
         m_motorKicker.setVoltage(0);
         m_motorFeeder.setVoltage(0);
         m_kickerGoalRPM = 0;
-        m_beltsGoalRPM = 0;
+        m_feederGoalRPM = 0;
     }
 }
