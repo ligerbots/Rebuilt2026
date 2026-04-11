@@ -32,10 +32,10 @@ public class Flywheel extends SubsystemBase {
     private static final double SPEED_TOLERANCE_RPM = 100.0;
     private static final double DEFAULT_JAM_TOTAL_TORQUE_CURRENT_AMPS = 50.0;
     private static final double DEFAULT_JAM_MIN_GOAL_RPM = 500.0;
-    private static final double DEFAULT_JAM_SPINUP_GRACE_SEC = 0.75;
-    private static final double DEFAULT_JAM_SMOOTHING_WINDOW_SEC = 0.25;
+    private static final double DEFAULT_JAM_SPINUP_GRACE_SEC = 0.65;
+    private static final double DEFAULT_JAM_SMOOTHING_WINDOW_SEC = 0.2;
     private static final double DEFAULT_SHOT_DETECTED_TORQUE_CURRENT_AMPS = 50.0;
-    private static final double DEFAULT_SHOT_DETECTED_ARM_DELAY_SEC = 0.15;
+    private static final double DEFAULT_SHOT_DETECTED_ARM_DELAY_SEC = 0.1;
 
     private static final String JAM_TOTAL_TORQUE_CURRENT_KEY = "flywheel/jamTorqueCurrentThresholdAmps";
     private static final String JAM_MIN_GOAL_RPM_KEY = "flywheel/jamMinGoalRPM";
