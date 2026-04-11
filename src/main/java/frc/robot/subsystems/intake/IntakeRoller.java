@@ -26,15 +26,15 @@ public class IntakeRoller extends SubsystemBase {
     private static final Current SUPPLY_CURRENT_LIMIT = Amps.of(40);
     private static final Current STATOR_CURRENT_LIMIT = Amps.of(80);
     
-    private static final double K_P = 0.2;
+    private static final double K_P = 0.01;
     private static final double K_I = 0.0; 
     private static final double K_D = 0.0;
-    private static final double K_FF = 0.0021;  // V/rpm
+    private static final double K_FF = 0.002135;  // V/rpm
 
     // private static final double INTAKE_VOLTAGE = 7.0;  // was 9
     // private static final double OUTTAKE_VOLTAGE = -6.0;
 
-    private static final double INTAKE_RPM = 3300.0;
+    private static final double INTAKE_RPM = 2000.0;
     private static final double OUTTAKE_RPM = -2800.0;
 
     private final TalonFX m_motor;

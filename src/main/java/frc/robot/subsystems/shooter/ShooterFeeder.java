@@ -32,7 +32,7 @@ public class ShooterFeeder extends SubsystemBase {
     private static final double FEEDER_K_P = 0.2;
     private static final double FEEDER_K_I = 0.0; 
     private static final double FEEDER_K_D = 0.0;
-    private static final double FEEDER_K_FF = 0.0022;  // V/rpm
+    private static final double FEEDER_K_FF = 0.00225;  // V/rpm
     
     private static final double FEEDER_SUPPLY_CURRENT_LIMIT = 35;
     private static final double FEEDER_STATOR_CURRENT_LIMIT = 80;
@@ -158,7 +158,7 @@ public class ShooterFeeder extends SubsystemBase {
 
     public void runFeederBelts() {
         // setFeederBeltsVoltage(FEEDER_BELT_FEED_VOLTAGE);
-        setFeederBeltsVoltage(FEEDER_BELT_FEED_RPM);
+        setFeederBeltsRPM(FEEDER_BELT_FEED_RPM);
     }
 
     public void runReverseUnjam() {

@@ -41,7 +41,7 @@ public class Shoot extends Command {
     private static final double LATENCY_SECONDS_ROTATION = 0.05;
 
     // seem to need to scale the TOF numbers down
-    private static final double TOF_SCALE = 0.72877;
+    private static final double TOF_SCALE = 0.75;
 
     private static final double FLYWHEEL_SCALE = 1.0;
 

@@ -61,10 +61,10 @@ public class Turret extends SubsystemBase {
     private static final int TURRET_TOOTH_COUNT = 100;
     private static final double TURRET_GEAR_RATIO =  54.0 / 12.0 * TURRET_TOOTH_COUNT / 10.0;
     
-    private static final double K_P = 2.0;    // values tuned 3/25
+    private static final double K_P = 1.9;    // values tuned 3/25
     private static final double K_D = 0.0;
     private static final double K_I = 0.0;
-    private static final double K_S = 0.3;    // not sure this helps? but does not hurt
+    private static final double K_S = 0.1;    // not sure this helps? but does not hurt
     private static final double K_V = 0.1;    // roughly correct 3/25 (hard to measure)
     private static final double K_A = 0.0;
 
