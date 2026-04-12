@@ -15,7 +15,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 
 import frc.robot.FieldConstants;
-import frc.robot.subsystems.Hopper;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.ShooterFeeder;
 import frc.robot.subsystems.shooter.Turret;
@@ -38,7 +37,6 @@ public class Shoot extends Command {
     private final Shooter m_shooter;
     private final Turret m_turret;
     private final ShooterFeeder m_feeder;
-    private final Hopper m_hopper;
     private final Supplier<ChassisSpeeds> m_speedsSupplier;
     private final Supplier<Pose2d> m_poseSupplier;
 
@@ -50,23 +48,21 @@ public class Shoot extends Command {
     // seem to need to scale the TOF numbers down
     private static final double TOF_SCALE = 0.75;
 
-    private static final double FLYWHEEL_SCALE = 0.96; //was 0.98 Q7
+    private static final double FLYWHEEL_SCALE = 1.0;
 
     // for fixed shot only
     private final Translation2d m_fixedShotVector;
 
-    // We want to "latch" the shooting on as soon as the flywheel is up
-    //   to speed once. Otherwise, we turn off the feeder when the RPM drops - bad
+    // Once we hit speed once, keep feeding even if RPM dips while shooting.
     private boolean m_shooterOnTarget = false;
     private PassSide m_latchedPassSide = null;
 
-    private Shoot(Shooter shooter, Turret turret, ShooterFeeder feeder, Hopper hopper,
+    private Shoot(Shooter shooter, Turret turret, ShooterFeeder feeder,
             Supplier<Pose2d> poseSupplier, Supplier<ChassisSpeeds> speeds, Shooter.ShotType shotType,
             double shotDistanceInches, Rotation2d turretHeading) {
         m_turret = turret;
         m_shooter = shooter;
         m_feeder = feeder;
-        m_hopper = hopper;
         addRequirements(shooter, turret, feeder);
         
         m_poseSupplier = poseSupplier;
@@ -83,16 +79,16 @@ public class Shoot extends Command {
         SmartDashboard.putNumber("kicker/testRPM", 0.0); 
     }
 
-    public Shoot(Shooter shooter, Turret turret, ShooterFeeder feeder, Hopper hopper,
+    public Shoot(Shooter shooter, Turret turret, ShooterFeeder feeder,
             Supplier<Pose2d> poseSupplier, Supplier<ChassisSpeeds> speeds, Shooter.ShotType shotType) {
-        this(shooter, turret, feeder, hopper,
+        this(shooter, turret, feeder,
                 poseSupplier, speeds, shotType, 0.0, Rotation2d.kZero);
     }
 
-    public Shoot(Shooter shooter, Turret turret, ShooterFeeder feeder, Hopper hopper,
+    public Shoot(Shooter shooter, Turret turret, ShooterFeeder feeder,
                 Supplier<Pose2d> poseSupplier, Supplier<ChassisSpeeds> speeds, 
                  double shotDistanceInches, Rotation2d turretHeading) {
-        this(shooter, turret, feeder, hopper,
+        this(shooter, turret, feeder,
                 poseSupplier, speeds, ShotType.FIXED, shotDistanceInches, turretHeading);
     }
 
@@ -100,7 +96,6 @@ public class Shoot extends Command {
     // Called when the command is initially scheduled.
     @Override
     public void initialize() {
-        // at start, wait for flywheel to get to speed
         m_shooterOnTarget = false;
         m_latchedPassSide = null;
     }
@@ -141,28 +136,18 @@ public class Shoot extends Command {
         
         SmartDashboard.putNumber("shoot/shotAngle", angle.getDegrees());
 
-        // Once the flywheel is up to speed, latch it on.
-        if (!m_shooterOnTarget && m_shooter.onTarget())
+        if (!m_shooterOnTarget && m_shooter.onTarget()) {
             m_shooterOnTarget = true;
+        }
 
-        if (!m_shooterOnTarget) {
-            // while the flywheel spins up, reverse the hopper to prevent jams
-            // NOTE: the hopper is also getting commanded to PULSE, by a separate command
-            //   this is not great but should not cause serious problems.
-            m_hopper.reverse();
+        if (!m_shooterOnTarget || m_turret.inDeadZone()) {
+            // if in the dead zone, turn off the feed
+            m_feeder.stopFeederBelts();
+
+            if (PLOT_SHOT_LOCATION) m_turret.plotShotVectors(null, null, null, null);
         } else {
-            // flywheel has gotten up to speed
-            if (m_turret.inDeadZone()) {
-                // if in the dead zone, turn off the feed
-                m_feeder.stopFeederBelts();
-                // m_hopper.reverse();
-
-                if (PLOT_SHOT_LOCATION) m_turret.plotShotVectors(null, null, null, null);
-            } else {
-                // everything is good. Shoot!
-                m_feeder.runFeederBelts();
-                // m_hopper.feed();
-            }
+            // everything is good. Shoot!
+            m_feeder.runFeederBelts();
         }
     }
     
@@ -170,7 +155,6 @@ public class Shoot extends Command {
     public void end(boolean interrupted) {
         m_shooter.stop();
         m_feeder.stop();
-        // m_hopper.stop();
 
         // erase our velocity vector scribblings
         if (PLOT_SHOT_LOCATION) m_turret.plotShotVectors(null, null, null, null);

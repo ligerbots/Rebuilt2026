@@ -178,8 +178,8 @@ public class RobotContainerCompBot extends RobotContainer {
     }
 
     public Command getShootCommand() {
-        return new Shoot(m_shooter, m_turret, m_shooterFeeder, m_hopper, m_drivetrain::getPose, m_drivetrain::getFieldCentricSpeeds, ShotType.AUTO)
-                        .alongWith(m_hopper.pulseCommand());
+        return withHopperControl(
+                new Shoot(m_shooter, m_turret, m_shooterFeeder, m_drivetrain::getPose, m_drivetrain::getFieldCentricSpeeds, ShotType.AUTO));
                         //     new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningShooter", true)));
     }
     
@@ -238,18 +238,18 @@ public class RobotContainerCompBot extends RobotContainer {
 
         // fixed shots - distance in inches, plus ROBOT angle of turret
         // ladder - robot against the outside of the ladder, intake to the left for the dirver
-        m_farm.button(11).whileTrue(new Shoot(m_shooter, m_turret, m_shooterFeeder, m_hopper,
-                    m_drivetrain::getPose, m_drivetrain::getFieldCentricSpeeds, 130.0, Rotation2d.kCCW_90deg)
-                    .alongWith(m_hopper.pulseCommand()));
+        m_farm.button(11).whileTrue(withHopperControl(
+                new Shoot(m_shooter, m_turret, m_shooterFeeder,
+                        m_drivetrain::getPose, m_drivetrain::getFieldCentricSpeeds, 130.0, Rotation2d.kCCW_90deg)));
 
         // corner shot
-        m_farm.button(13).whileTrue(new Shoot(m_shooter, m_turret, m_shooterFeeder, m_hopper,
-                    m_drivetrain::getPose, m_drivetrain::getFieldCentricSpeeds, 210.0, Rotation2d.k180deg)
-                    .alongWith(m_hopper.pulseCommand()));
+        m_farm.button(13).whileTrue(withHopperControl(
+                new Shoot(m_shooter, m_turret, m_shooterFeeder,
+                        m_drivetrain::getPose, m_drivetrain::getFieldCentricSpeeds, 210.0, Rotation2d.k180deg)));
 
-        m_farm.button(15).whileTrue(new Shoot(m_shooter, m_turret, m_shooterFeeder, m_hopper,
-                    m_drivetrain::getPose, m_drivetrain::getFieldCentricSpeeds, ShotType.TEST)
-                    .alongWith(m_hopper.pulseCommand()));
+        m_farm.button(15).whileTrue(withHopperControl(
+                new Shoot(m_shooter, m_turret, m_shooterFeeder,
+                        m_drivetrain::getPose, m_drivetrain::getFieldCentricSpeeds, ShotType.TEST)));
 
         m_farm.button(1).onTrue(new InstantCommand(m_shooter::increaseFlyFudge));
         m_farm.button(2).onTrue(new InstantCommand(m_shooter::decreaseFlyFudge));
@@ -375,5 +375,9 @@ public class RobotContainerCompBot extends RobotContainer {
         return new ParallelCommandGroup(
                 new StartEndCommand(m_hopper::reverse, m_hopper::stop, m_hopper),
                 m_intake.outtakeCommand());
+    }
+
+    private Command withHopperControl(Command shootCommand) {
+        return shootCommand.alongWith(new PulseHopper(m_hopper, m_shooter, m_turret));
     }
 }
