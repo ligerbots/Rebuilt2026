@@ -48,6 +48,7 @@ import frc.robot.commands.Shoot;
  */
 public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Subsystem {
     private static final double kSimLoopPeriod = 0.005; // 5 ms
+    private static final double kSimOdometryFrequencyHz = Constants.ROBOT_FREQUENCY_HZ;
     private Notifier m_simNotifier = null;
     private double m_lastSimTime;
 
@@ -150,7 +151,9 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         SwerveDrivetrainConstants drivetrainConstants,
         SwerveModuleConstants<?, ?, ?>... modules
     ) {
-        super(drivetrainConstants, modules);
+        // The default Phoenix odometry rate is more aggressive than we need for desktop sim,
+        // which can cause "stale" status signal warnings from the module Talons.
+        super(drivetrainConstants, Utils.isSimulation() ? kSimOdometryFrequencyHz : 0.0, modules);
         // setupPathPlanner();
         if (Utils.isSimulation()) {
             startSimThread();

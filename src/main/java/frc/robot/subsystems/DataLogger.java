@@ -5,6 +5,7 @@
 package frc.robot.subsystems;
 
 // import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -20,6 +21,7 @@ public class DataLogger extends SubsystemBase {
         // SmartDashboard.putNumber("power/totalCurrent", m_powerDist.getTotalCurrent());  
         SmartDashboard.putNumber("power/batteryVoltage", RobotController.getBatteryVoltage());  
 
-        SmartDashboard.putNumber("network/CAN Bus Utilization", RobotController.getCANStatus().percentBusUtilization);
+        SmartDashboard.putNumber("network/CAN Bus Utilization",
+                RobotBase.isSimulation() ? 0.0 : RobotController.getCANStatus().percentBusUtilization);
     }
 }

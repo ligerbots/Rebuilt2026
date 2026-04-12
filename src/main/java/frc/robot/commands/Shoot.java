@@ -11,6 +11,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 
@@ -26,7 +27,7 @@ import frc.robot.utilities.ShooterLookupTable.ShootValue;
 * Manages turret aiming, shooter spin-up, and feeder activation.
 */
 public class Shoot extends Command {
-    static final boolean PLOT_SHOT_LOCATION = false;
+    private static final String PLOT_SHOT_LOCATION_KEY = "shoot/plotShotVisualization";
 
     private static record ShotSelection(Translation2d target, ShotType effectiveShotType) {}
     private enum PassSide {
@@ -77,6 +78,7 @@ public class Shoot extends Command {
         SmartDashboard.putNumber("hood/testAngle", 0.0);
         SmartDashboard.putNumber("flywheel/testRPM", 0.0); 
         SmartDashboard.putNumber("kicker/testRPM", 0.0); 
+        SmartDashboard.setDefaultBoolean(PLOT_SHOT_LOCATION_KEY, RobotBase.isSimulation());
     }
 
     public Shoot(Shooter shooter, Turret turret, ShooterFeeder feeder,
@@ -111,7 +113,9 @@ public class Shoot extends Command {
             shotVector = m_fixedShotVector;
             effectiveShotType = ShotType.HUB;
             
-            if (PLOT_SHOT_LOCATION) m_turret.plotShotVectors(robotPose, shotVector, Translation2d.kZero, Translation2d.kZero);
+            if (shouldPlotShotLocation()) {
+                m_turret.plotShotVectors(robotPose, shotVector, Translation2d.kZero, Translation2d.kZero);
+            }
         } else {    
             ShotSelection shotSelection = targetForShotType(robotPose);
             effectiveShotType = shotSelection.effectiveShotType();
@@ -143,11 +147,13 @@ public class Shoot extends Command {
         if (!m_shooterOnTarget || m_turret.inDeadZone()) {
             // if in the dead zone, turn off the feed
             m_feeder.stopFeederBelts();
-
-            if (PLOT_SHOT_LOCATION) m_turret.plotShotVectors(null, null, null, null);
         } else {
             // everything is good. Shoot!
             m_feeder.runFeederBelts();
+        }
+
+        if (!shouldPlotShotLocation()) {
+            m_turret.clearShotVisualization();
         }
     }
     
@@ -157,7 +163,9 @@ public class Shoot extends Command {
         m_feeder.stop();
 
         // erase our velocity vector scribblings
-        if (PLOT_SHOT_LOCATION) m_turret.plotShotVectors(null, null, null, null);
+        if (shouldPlotShotLocation()) {
+            m_turret.clearShotVisualization();
+        }
     }
     
     /**
@@ -216,12 +224,6 @@ public class Shoot extends Command {
     }
 
     private Translation2d calculatePassTarget(Translation2d blueLocation) {
-        if (FieldConstants.ENABLE_PASS_SIDE_LATCH
-                && m_latchedPassSide != null
-                && passLatchStillValid(blueLocation, m_latchedPassSide)) {
-            return passTargetForSide(m_latchedPassSide);
-        }
-
         double blueY = blueLocation.getY();
         boolean inCenterPassBand = blueY >= FieldConstants.PASSING_TARGET_LEFT_BLUE.getY()
                 && blueY <= FieldConstants.PASSING_TARGET_RIGHT_BLUE.getY();
@@ -229,6 +231,12 @@ public class Shoot extends Command {
         if (!inCenterPassBand) {
             m_latchedPassSide = null;
             return new Translation2d(FieldConstants.PASSING_TARGET_LEFT_BLUE.getX(), blueY);
+        }
+
+        if (FieldConstants.ENABLE_PASS_SIDE_LATCH
+                && m_latchedPassSide != null
+                && passLatchStillValid(blueLocation, m_latchedPassSide)) {
+            return passTargetForSide(m_latchedPassSide);
         }
 
         if (!FieldConstants.ENABLE_PASS_SIDE_LATCH) {
@@ -279,7 +287,7 @@ public class Shoot extends Command {
                 0.0,
                 1.0);
 
-        return nearTarget.interpolate(farTarget, ratio);
+        return farTarget.interpolate(nearTarget, ratio);
     }
 
     public static Translation2d shotAutoTarget(Pose2d robotPose) {
@@ -356,7 +364,7 @@ public class Shoot extends Command {
 
             if (Math.abs(targetDistance - previousTargetDistance) < 0.03) {
                 // if the target distance did not change much, we've converged enough
-                if (PLOT_SHOT_LOCATION) {
+                if (shouldPlotShotLocation()) {
                     m_turret.plotShotVectors(futureRobotPose, 
                             targetVector, robotVelVector.times(timeOfFlight),
                             centripetalVelocity.times(timeOfFlight));
@@ -365,6 +373,12 @@ public class Shoot extends Command {
             }
 
             previousTargetDistance = targetDistance;
+        }
+
+        if (shouldPlotShotLocation()) {
+            m_turret.plotShotVectors(futureRobotPose,
+                    targetVector, robotVelVector.times(timeOfFlight),
+                    centripetalVelocity.times(timeOfFlight));
         }
 
         SmartDashboard.putNumber("shoot/tof", timeOfFlight);
@@ -408,5 +422,9 @@ public class Shoot extends Command {
                 SmartDashboard.getNumber("kicker/testRPM", 0.0),
                 Rotation2d.fromDegrees(SmartDashboard.getNumber("hood/testAngle", 0.0)),
                 SmartDashboard.getNumber("shooter/testTimeOfFlight", 0.0));
+    }
+
+    private static boolean shouldPlotShotLocation() {
+        return SmartDashboard.getBoolean(PLOT_SHOT_LOCATION_KEY, RobotBase.isSimulation());
     }
 }
