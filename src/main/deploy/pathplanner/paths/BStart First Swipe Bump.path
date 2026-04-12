@@ -68,7 +68,7 @@
         "y": 5.481940106358129
       },
       "prevControl": {
-        "x": 4.279375476255104,
+        "x": 4.279375476255103,
         "y": 5.481940106358129
       },
       "nextControl": null,
@@ -126,7 +126,7 @@
   "eventMarkers": [
     {
       "name": "Run Intake",
-      "waypointRelativePos": 0.5,
+      "waypointRelativePos": 0.23034330011072573,
       "endWaypointRelativePos": null,
       "command": null
     }
