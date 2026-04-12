@@ -24,7 +24,7 @@
         "y": 5.481940106358129
       },
       "nextControl": {
-        "x": 4.480452018425331,
+        "x": 4.48045201842533,
         "y": 5.481940106358129
       },
       "isLocked": false,
@@ -78,11 +78,11 @@
     {
       "name": "Shooter Running",
       "waypointRelativePos": 0.0,
-      "endWaypointRelativePos": 0.42524916943522406,
+      "endWaypointRelativePos": 0.974529346622373,
       "command": null
     },
     {
-      "name": "Run Intake",
+      "name": "Stop Intake",
       "waypointRelativePos": 0.6467331118493974,
       "endWaypointRelativePos": null,
       "command": null

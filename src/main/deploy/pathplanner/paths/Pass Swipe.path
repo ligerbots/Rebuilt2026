@@ -156,7 +156,7 @@
       "minWaypointRelativePos": 2.232558139534898,
       "maxWaypointRelativePos": 5.1472868217054115,
       "constraints": {
-        "maxVelocity": 0.75,
+        "maxVelocity": 0.65,
         "maxAcceleration": 10.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0,
@@ -189,7 +189,7 @@
     {
       "name": "Shooter Running",
       "waypointRelativePos": 1.8759689922480884,
-      "endWaypointRelativePos": 5.007751937984488,
+      "endWaypointRelativePos": 5.472868217054262,
       "command": null
     }
   ],
