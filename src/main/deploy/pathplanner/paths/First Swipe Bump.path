@@ -32,16 +32,16 @@
     },
     {
       "anchor": {
-        "x": 7.8397564102564115,
-        "y": 5.628064102564102
+        "x": 8.014179487179488,
+        "y": 5.500153846153847
       },
       "prevControl": {
-        "x": 8.026430259338069,
-        "y": 5.828565644170328
+        "x": 8.537448717948719,
+        "y": 5.73271794871795
       },
       "nextControl": {
-        "x": 7.614793137632802,
-        "y": 5.386436883820226
+        "x": 7.71249406461442,
+        "y": 5.366071436124927
       },
       "isLocked": false,
       "linkedName": null
@@ -83,7 +83,7 @@
     },
     {
       "waypointRelativePos": 1.5438596491227992,
-      "rotationDegrees": -70.10455224104405
+      "rotationDegrees": -66.43658898311116
     },
     {
       "waypointRelativePos": 2.6245614035087717,
@@ -94,7 +94,7 @@
     {
       "name": "Intake",
       "minWaypointRelativePos": 1.3178294573643452,
-      "maxWaypointRelativePos": 1.7895902547065292,
+      "maxWaypointRelativePos": 1.9844961240310026,
       "constraints": {
         "maxVelocity": 2.0,
         "maxAcceleration": 10.0,
