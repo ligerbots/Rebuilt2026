@@ -40,7 +40,7 @@ public class ShooterFeeder extends SubsystemBase {
     // private static double FEEDER_BELT_FEED_VOLTAGE = 10.0;
     // private static double FEEDER_BELT_UNJAM_VOLTAGE = -6.0;
 
-    private static double FEEDER_BELT_FEED_RPM = 4250.0;  // was 4500
+    private static double FEEDER_BELT_FEED_RPM = 4000.0;  // was 4500
     private static double FEEDER_BELT_UNJAM_RPM = -2700.0;
 
     private final TalonFX m_motorKicker;

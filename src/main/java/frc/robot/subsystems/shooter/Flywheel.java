@@ -30,12 +30,12 @@ import frc.robot.Constants;
 
 public class Flywheel extends SubsystemBase {
     private static final double SPEED_TOLERANCE_RPM = 100.0;
-    private static final double DEFAULT_JAM_TOTAL_TORQUE_CURRENT_AMPS = 25.0;
-    private static final double DEFAULT_JAM_MIN_GOAL_RPM = 500.0;
-    private static final double DEFAULT_JAM_SPINUP_GRACE_SEC = 0.25;
+    private static final double DEFAULT_JAM_TOTAL_TORQUE_CURRENT_AMPS = 20.0;
+    private static final double DEFAULT_JAM_MIN_GOAL_RPM = 250.0;
+    private static final double DEFAULT_JAM_SPINUP_GRACE_SEC = 0.125;
     private static final double DEFAULT_JAM_SMOOTHING_WINDOW_SEC = 0.125;
     private static final double DEFAULT_SHOT_DETECTED_TORQUE_CURRENT_AMPS = 35.0;
-    private static final double DEFAULT_SHOT_DETECTED_ARM_DELAY_SEC = 0.05;
+    private static final double DEFAULT_SHOT_DETECTED_ARM_DELAY_SEC = 0.025;
 
     private static final String JAM_TOTAL_TORQUE_CURRENT_KEY = "flywheel/jamTorqueCurrentThresholdAmps";
     private static final String JAM_MIN_GOAL_RPM_KEY = "flywheel/jamMinGoalRPM";

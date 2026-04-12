@@ -28,7 +28,7 @@ public class Hopper extends SubsystemBase {
     private static final Current SUPPLY_CURRENT_LIMIT = Amps.of(20);
     private static final Current STATOR_CURRENT_LIMIT =  Amps.of(30);
 
-    private static final double INTAKE_VOLTAGE = 0.5;
+    private static final double INTAKE_VOLTAGE = 0.125;
     // voltage for plain feeding while shooting, no pulsing
     private static final double FEED_VOLTAGE = 11.0;
     private static final double REVERSE_VOLTAGE = -8.0;
