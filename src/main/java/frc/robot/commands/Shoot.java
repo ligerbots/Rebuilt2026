@@ -189,6 +189,13 @@ public class Shoot extends Command {
                 return new ShotSelection(
                         FieldConstants.flipTranslation(calculatePassTarget(selectionBlueLocation(robotPose))),
                         ShotType.PASS);
+            case OPPOSITE_ZONE:
+                if (!FieldConstants.ENABLE_DYNAMIC_PASS_TARGETING) {
+                    return new ShotSelection(FieldConstants.flipTranslation(standardPassTarget(selectionBlueLocation(robotPose))), ShotType.PASS);
+                }
+                return new ShotSelection(
+                        FieldConstants.flipTranslation(calculatePassTarget(selectionBlueLocation(robotPose))),
+                        ShotType.OPPOSITE_ZONE);
             // needed to suppress the warning
             // case TEST:
             //     return FieldConstants.flipTranslation(FieldConstants.HUB_POSITION_BLUE);
@@ -312,6 +319,8 @@ public class Shoot extends Command {
     }
 
     public Translation2d findMovingShotVector(Pose2d currentPose, Translation2d target, ShotType effectiveShotType) {
+        SmartDashboard.putString("shoot/effectiveShotType", effectiveShotType.toString());
+        SmartDashboard.putNumber("shoot/targetX", target.getX());
         ChassisSpeeds speedInformation = m_speedsSupplier.get();
         Translation2d robotVelVector = new Translation2d(speedInformation.vxMetersPerSecond, speedInformation.vyMetersPerSecond);
 
@@ -388,15 +397,7 @@ public class Shoot extends Command {
     }
 
     private static double shotLookupDistance(Pose2d robotPose, Translation2d shotVector, ShotType effectiveShotType) {
-        if (effectiveShotType != ShotType.OPPOSITE_ZONE) {
-            return shotVector.getNorm();
-        }
-
-        Translation2d blueLocation = selectionBlueLocation(robotPose);
-        if (blueLocation.getY() < FieldConstants.FIELD_WIDTH / 2.0) {
-            return blueLocation.getY();
-        }
-        return FieldConstants.FIELD_WIDTH - blueLocation.getY();
+        return shotVector.getNorm();
     }
 
     private static Translation2d selectionBlueLocation(Pose2d robotPose) {

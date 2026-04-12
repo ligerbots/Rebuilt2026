@@ -22,13 +22,13 @@ public class FieldConstants {
     public static final boolean USE_TURRET_POSITION_FOR_SHOT_SELECTION = ENABLE_UPDATED_SHOT_LOGIC;
 
     public static final double OPPOSITE_ALLIANCE_ZONE_START_X_BLUE = Units.inchesToMeters(500);//taken from far side of opposite bump 
-    public static final double SIDE_WALL_TARGET_OFFSET_BLUE = Units.inchesToMeters(24.0); //TODO just a guess for now, needs to get tuned alongside LUT
-    public static final double SIDE_WALL_TARGET_LINE_MAX_DISTANCE_BLUE = Units.inchesToMeters(400);// this is the number used to translate robot to wall horizontal distance to vertical shot distance
+    public static final double SIDE_WALL_TARGET_OFFSET_BLUE = Units.inchesToMeters(18); //TODO just a guess for now, needs to get tuned alongside LUT
+    public static final double SIDE_WALL_TARGET_LINE_MAX_DISTANCE_BLUE = Units.inchesToMeters(120);// this is the number used to translate robot to wall horizontal distance to vertical shot distance
     public static final double PASS_LATCH_BASE_Y_TOLERANCE_BLUE = Units.inchesToMeters(18.0); //TODO these are based on vibes need to tune
     public static final double PASS_LATCH_MAX_YAW_DEGREES = 22.0; //TODO these are based on vibes need to tune 
     
-    public static final double OPPOSITE_ALLIANCE_ZONE_FAR_TARGET_DISTANCE = Units.inchesToMeters(325.0);//Far is relative to driverstation. Number is taken from cad as the distance to the end of the bump
-    public static final double OPPOSITE_ALLIANCE_ZONE_CLOSE_TARGET_DISTANCE = Units.inchesToMeters(220.0);//Far is relative to driverstation. Number is roughly distance from wall to 4th side wall support strut
+    public static final double OPPOSITE_ALLIANCE_ZONE_FAR_TARGET_DISTANCE = Units.inchesToMeters(350.0);//Far is relative to driverstation. Number is taken from cad as the distance to the end of the bump
+    public static final double OPPOSITE_ALLIANCE_ZONE_CLOSE_TARGET_DISTANCE = Units.inchesToMeters(280.0);//Far is relative to driverstation. Number is roughly distance from wall to 4th side wall support strut
 
     
     public static final Translation2d HUB_POSITION_BLUE = new Translation2d(Units.inchesToMeters(182.11),Units.inchesToMeters(158.84));
