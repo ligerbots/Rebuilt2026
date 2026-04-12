@@ -32,16 +32,16 @@
     },
     {
       "anchor": {
-        "x": 7.68809841379284,
-        "y": 5.981858489966148
+        "x": 7.8397564102564115,
+        "y": 5.628064102564102
       },
       "prevControl": {
-        "x": 7.874772262874498,
-        "y": 6.182360031572374
+        "x": 8.026430259338069,
+        "y": 5.828565644170328
       },
       "nextControl": {
-        "x": 7.46313514116923,
-        "y": 5.740231271222272
+        "x": 7.614793137632802,
+        "y": 5.386436883820226
       },
       "isLocked": false,
       "linkedName": null
@@ -82,8 +82,8 @@
       "rotationDegrees": 0.0
     },
     {
-      "waypointRelativePos": 1.3596491228070129,
-      "rotationDegrees": -56.757
+      "waypointRelativePos": 1.5438596491227992,
+      "rotationDegrees": -70.10455224104405
     },
     {
       "waypointRelativePos": 2.6245614035087717,
@@ -96,7 +96,20 @@
       "minWaypointRelativePos": 1.3178294573643452,
       "maxWaypointRelativePos": 1.7895902547065292,
       "constraints": {
-        "maxVelocity": 5.0,
+        "maxVelocity": 2.0,
+        "maxAcceleration": 10.0,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 720.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    },
+    {
+      "name": "Bump",
+      "minWaypointRelativePos": 2.7818383167220233,
+      "maxWaypointRelativePos": 3.6500553709855774,
+      "constraints": {
+        "maxVelocity": 2.0,
         "maxAcceleration": 10.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0,
