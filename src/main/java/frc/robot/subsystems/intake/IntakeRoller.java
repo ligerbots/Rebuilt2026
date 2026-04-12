@@ -36,7 +36,7 @@ public class IntakeRoller extends SubsystemBase {
 
     private static final double INTAKE_RPM = 2000.0;
     private static final double FAST_INTAKE_RPM_SCALE = 2.0;
-    private static final double OUTTAKE_RPM = -2800.0;
+    private static final double OUTTAKE_RPM = -4000.0;
 
     private final TalonFX m_motor;
 

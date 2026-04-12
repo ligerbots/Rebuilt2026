@@ -401,7 +401,11 @@ public class Shoot extends Command {
 
     private static Translation2d selectionBlueLocation(Pose2d robotPose) {
         if (FieldConstants.USE_TURRET_POSITION_FOR_SHOT_SELECTION) {
-            return blueTurretLocation(robotPose);
+            Translation2d turret = blueTurretLocation(robotPose);
+            double sign = 1.0;
+            if (turret.getY() > FieldConstants.FIELD_WIDTH / 2.0)
+                sign = -1.0;
+            return turret.plus(new Translation2d(0.0, Units.inchesToMeters(sign*12.0)));
         }
         return FieldConstants.flipTranslation(robotPose.getTranslation());
     }
