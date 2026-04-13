@@ -6,10 +6,7 @@
 
 package frc.robot.subsystems;
 
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.VoltageOut;
@@ -28,17 +25,12 @@ import frc.robot.Constants;
 
 public class Hopper extends SubsystemBase {
     
-    private static final Current SUPPLY_CURRENT_LIMIT = Amps.of(20);
-    private static final Current STATOR_CURRENT_LIMIT =  Amps.of(30);
+    private static final Current SUPPLY_CURRENT_LIMIT = Amps.of(35);
+    private static final Current STATOR_CURRENT_LIMIT =  Amps.of(50);
 
-    private static final double PULSE_FORWARD_VOLTAGE = 9.0;
-    private static final double PULSE_REVERSE_VOLTAGE = -3.0;
-    private static final double PULSE_FORWARD_SEC = 0.4;
-    private static final double PULSE_REVERSE_SEC = 0.05;
-
-    private static final double INTAKE_VOLTAGE = 0.5;
+    private static final double INTAKE_VOLTAGE = 0.125;
     // voltage for plain feeding while shooting, no pulsing
-    private static final double FEED_VOLTAGE = 6.0;
+    private static final double FEED_VOLTAGE = 8.0;
     private static final double REVERSE_VOLTAGE = -8.0;
     
     private final TalonFX m_motor;
@@ -104,15 +96,5 @@ public class Hopper extends SubsystemBase {
     public void setVoltage(double voltage) {
         m_voltageControl.Output = voltage;
         m_motor.setControl(m_voltageControl);
-    }
-    
-    // Note: currently not used
-    public Command pulseCommand() {
-        return new InstantCommand(() -> setVoltage(PULSE_FORWARD_VOLTAGE))
-            .andThen(new WaitCommand(PULSE_FORWARD_SEC))
-            .andThen(new InstantCommand(() -> setVoltage(PULSE_REVERSE_VOLTAGE)))
-            .andThen(new WaitCommand(PULSE_REVERSE_SEC))
-            .repeatedly()
-            .finallyDo(this::stop);
     }
 }

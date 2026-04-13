@@ -133,12 +133,25 @@
   "constraintZones": [
     {
       "name": "Shoot",
-      "minWaypointRelativePos": 0.47840531561461597,
+      "minWaypointRelativePos": 4.279069767441861,
       "maxWaypointRelativePos": 7.0,
       "constraints": {
-        "maxVelocity": 0.75,
+        "maxVelocity": 0.6,
         "maxAcceleration": 2.0,
         "maxAngularVelocity": 100.0,
+        "maxAngularAcceleration": 720.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    },
+    {
+      "name": "Shoot Pass",
+      "minWaypointRelativePos": 0.48,
+      "maxWaypointRelativePos": 4.28,
+      "constraints": {
+        "maxVelocity": 1.25,
+        "maxAcceleration": 3.0,
+        "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0,
         "nominalVoltage": 12.0,
         "unlimited": false

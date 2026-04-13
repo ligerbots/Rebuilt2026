@@ -37,7 +37,7 @@ public class Intake extends SubsystemBase {
   }
 
    public Command deployAndRollCommand() {
-    return m_intakePivot.deployCommand().alongWith(this.runRollers());
+    return m_intakePivot.deployCommand().alongWith(this.runFastRollers());
   }
 
   public Command deployCommand() {
@@ -46,6 +46,10 @@ public class Intake extends SubsystemBase {
 
   public Command runRollers() {
     return new InstantCommand(m_intakeRoller::intake, m_intakeRoller);
+  }
+
+  public Command runFastRollers() {
+    return new InstantCommand(m_intakeRoller::fastIntake, m_intakeRoller);
   }
 
   public Command stopRollers() {

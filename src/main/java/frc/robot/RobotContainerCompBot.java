@@ -119,6 +119,62 @@ public class RobotContainerCompBot extends RobotContainer {
                 "Depot Trench Run Out"
                 ));
 
+        // "Depot Double Swipe Blitz.auto"
+        // "Depot Double Swipe Steal.auto"
+        // "Pass Blitz.auto"
+        // "Swing Depot Double Swipe Blitz.auto"
+        // "Triple Swipe Blitz.auto"
+        // "Triple Swipe Steal.auto"
+
+        m_chosenAutoPaths.addOption("BStart Depot Bump Only", List.of(
+                "Bump Preload Bump",
+                "BStart First Swipe Bump",
+                "Bump Bump Shoot",
+                "BStart First Swipe Bump",
+                "Bump Depot Shoot"
+                ));
+
+        m_chosenAutoPaths.addOption("BStart Depot Double Bump", List.of(
+                "Bump Preload Trench",
+                "Second Swipe Bump",
+                "Bump Trench Shoot",
+                "Second Swipe Bump",
+                "Bump Depot Shoot"
+                ));
+
+        m_chosenAutoPaths.addOption("BStart Depot Double Bump", List.of(
+                "Bump Preload Trench",
+                "Second Swipe Bump",
+                "Bump Trench Shoot",
+                "Second Swipe Bump",
+                "Bump Depot Shoot"
+                ));
+
+        m_chosenAutoPaths.addOption("Depot Double Swipe Bump", List.of(
+                "First Swipe Bump",
+                "Bump Trench Shoot",
+                "Second Swipe Bump",
+                "Bump Depot Shoot"
+                ));
+
+        m_chosenAutoPaths.addOption("Depot Triple Swipe Bump", List.of(
+                "First Swipe Bump",
+                "Bump Trench Shoot",
+                "Second Swipe Bump",
+                "Bump Trench Shoot",
+                "Second Swipe Bump",
+                "Bump Depot Shoot"
+                ));
+
+        m_chosenAutoPaths.addOption("Triple Swipe Bump", List.of(
+                "First Swipe Bump",
+                "Bump Trench Shoot",
+                "Second Swipe Bump",
+                "Bump Trench Shoot",
+                "Second Swipe Bump",
+                "Bump Trench Shoot"
+                ));
+
         m_chosenAutoPaths.addOption("Triple Swipe Blitz", List.of(
                 "First Swipe Blitz",
                 "Swipe Shoot",
@@ -178,8 +234,8 @@ public class RobotContainerCompBot extends RobotContainer {
     }
 
     public Command getShootCommand() {
-        return new Shoot(m_shooter, m_turret, m_shooterFeeder, m_hopper, m_drivetrain::getPose, m_drivetrain::getFieldCentricSpeeds, ShotType.AUTO)
-                        .alongWith(m_hopper.pulseCommand());
+        return withHopperControl(
+                new Shoot(m_shooter, m_turret, m_shooterFeeder, m_drivetrain::getPose, m_drivetrain::getFieldCentricSpeeds, ShotType.AUTO));
                         //     new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningShooter", true)));
     }
     
@@ -220,7 +276,7 @@ public class RobotContainerCompBot extends RobotContainer {
         // Deploy and run the intake (intake will stay out)
         m_driverController.leftTrigger().onTrue(m_intake.getPivot().deployCommand());
         m_driverController.leftTrigger().whileTrue(
-                new StartEndCommand(m_intake.getRoller()::intake, m_intake.getRoller()::stop, m_intake.getRoller()));
+                new StartEndCommand(m_intake.getRoller()::fastIntake, m_intake.getRoller()::stop, m_intake.getRoller()));
                         // .alongWith(new StartEndCommand(m_hopper::intake, m_hopper::stop, m_hopper)));
 
         // Stow the intake
@@ -238,18 +294,18 @@ public class RobotContainerCompBot extends RobotContainer {
 
         // fixed shots - distance in inches, plus ROBOT angle of turret
         // ladder - robot against the outside of the ladder, intake to the left for the dirver
-        m_farm.button(11).whileTrue(new Shoot(m_shooter, m_turret, m_shooterFeeder, m_hopper,
-                    m_drivetrain::getPose, m_drivetrain::getFieldCentricSpeeds, 130.0, Rotation2d.kCCW_90deg)
-                    .alongWith(m_hopper.pulseCommand()));
+        m_farm.button(11).whileTrue(withHopperControl(
+                new Shoot(m_shooter, m_turret, m_shooterFeeder,
+                        m_drivetrain::getPose, m_drivetrain::getFieldCentricSpeeds, 130.0, Rotation2d.kCCW_90deg)));
 
         // corner shot
-        m_farm.button(13).whileTrue(new Shoot(m_shooter, m_turret, m_shooterFeeder, m_hopper,
-                    m_drivetrain::getPose, m_drivetrain::getFieldCentricSpeeds, 210.0, Rotation2d.k180deg)
-                    .alongWith(m_hopper.pulseCommand()));
+        m_farm.button(13).whileTrue(withHopperControl(
+                new Shoot(m_shooter, m_turret, m_shooterFeeder,
+                        m_drivetrain::getPose, m_drivetrain::getFieldCentricSpeeds, 210.0, Rotation2d.k180deg)));
 
-        m_farm.button(15).whileTrue(new Shoot(m_shooter, m_turret, m_shooterFeeder, m_hopper,
-                    m_drivetrain::getPose, m_drivetrain::getFieldCentricSpeeds, ShotType.TEST)
-                    .alongWith(m_hopper.pulseCommand()));
+        m_farm.button(15).whileTrue(withHopperControl(
+                new Shoot(m_shooter, m_turret, m_shooterFeeder,
+                        m_drivetrain::getPose, m_drivetrain::getFieldCentricSpeeds, ShotType.TEST)));
 
         m_farm.button(1).onTrue(new InstantCommand(m_shooter::increaseFlyFudge));
         m_farm.button(2).onTrue(new InstantCommand(m_shooter::decreaseFlyFudge));
@@ -375,5 +431,9 @@ public class RobotContainerCompBot extends RobotContainer {
         return new ParallelCommandGroup(
                 new StartEndCommand(m_hopper::reverse, m_hopper::stop, m_hopper),
                 m_intake.outtakeCommand());
+    }
+
+    private Command withHopperControl(Command shootCommand) {
+        return shootCommand.alongWith(new PulseHopper(m_hopper, m_shooter, m_turret));
     }
 }
