@@ -35,7 +35,7 @@ public class Turret extends SubsystemBase {
     // public for the Shoot command - not the greatest, but a pain otherwise
     public static final Translation2d TURRET_OFFSET = new Translation2d(Units.inchesToMeters(-2.5626),  Units.inchesToMeters(-4.875));
     private static final double TURRET_HEADING_OFFSET_DEG = 180.0;
-    private static final double ANGLE_TOLERANCE_DEG = 5.0;
+    private static final double ANGLE_TOLERANCE_DEG = 10.0;
 
     private static final double DEADZONE_TOLERANCE_DEG = 2.0; 
     private static final double SIDE_FLIP_TOLERANCE_DEG = 10.0; 
@@ -323,10 +323,7 @@ public class Turret extends SubsystemBase {
     public void plotShotVectors(Pose2d robotPose, Translation2d targetVector, Translation2d robotMotion, Translation2d centripetalMotion) {
         try {
             if (robotPose == null || targetVector == null) {
-                // erase the lines
-                m_field.getObject("turretHeading").setPoses();
-                m_field.getObject("robotHeading").setPoses();
-                m_field.getObject("centripetalHeading").setPoses();
+                clearShotVisualization();
                 return;
             }
 
@@ -344,6 +341,7 @@ public class Turret extends SubsystemBase {
                     new Pose2d(turretLoc, turretHeadingField),
                     new Pose2d(robotEndLoc, turretHeadingField)
             );
+            m_field.getObject("shotTarget").setPose(new Pose2d(robotEndLoc, Rotation2d.kZero));
 
             m_field.getObject("robotHeading").setPoses(
                     new Pose2d(robotEndLoc, robotMotion.getAngle()),
@@ -357,6 +355,13 @@ public class Turret extends SubsystemBase {
             // bad! log this and keep going
             DriverStation.reportError("Exception plotting shot vectors", e.getStackTrace());
         }
+    }
+
+    public void clearShotVisualization() {
+        m_field.getObject("turretHeading").setPoses();
+        m_field.getObject("robotHeading").setPoses();
+        m_field.getObject("centripetalHeading").setPoses();
+        m_field.getObject("shotTarget").setPoses();
     }
 
     public static Translation2d getTurretFieldPosition(Pose2d robotPose) {

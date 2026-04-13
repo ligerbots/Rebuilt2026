@@ -10,6 +10,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 
@@ -25,9 +27,13 @@ import frc.robot.utilities.ShooterLookupTable.ShootValue;
 * Manages turret aiming, shooter spin-up, and feeder activation.
 */
 public class Shoot extends Command {
-    static final boolean PLOT_SHOT_LOCATION = false;
+    private static final String PLOT_SHOT_LOCATION_KEY = "shoot/plotShotVisualization";
 
     private static record ShotSelection(Translation2d target, ShotType effectiveShotType) {}
+    private enum PassSide {
+        LEFT,
+        RIGHT
+    }
 
     private final Shooter m_shooter;
     private final Turret m_turret;
@@ -50,6 +56,7 @@ public class Shoot extends Command {
 
     // Once we hit speed once, keep feeding even if RPM dips while shooting.
     private boolean m_shooterOnTarget = false;
+    private PassSide m_latchedPassSide = null;
 
     private Shoot(Shooter shooter, Turret turret, ShooterFeeder feeder,
             Supplier<Pose2d> poseSupplier, Supplier<ChassisSpeeds> speeds, Shooter.ShotType shotType,
@@ -71,6 +78,7 @@ public class Shoot extends Command {
         SmartDashboard.putNumber("hood/testAngle", 0.0);
         SmartDashboard.putNumber("flywheel/testRPM", 0.0); 
         SmartDashboard.putNumber("kicker/testRPM", 0.0); 
+        SmartDashboard.setDefaultBoolean(PLOT_SHOT_LOCATION_KEY, RobotBase.isSimulation());
     }
 
     public Shoot(Shooter shooter, Turret turret, ShooterFeeder feeder,
@@ -91,6 +99,7 @@ public class Shoot extends Command {
     @Override
     public void initialize() {
         m_shooterOnTarget = false;
+        m_latchedPassSide = null;
     }
     
     @Override
@@ -104,9 +113,11 @@ public class Shoot extends Command {
             shotVector = m_fixedShotVector;
             effectiveShotType = ShotType.HUB;
             
-            if (PLOT_SHOT_LOCATION) m_turret.plotShotVectors(robotPose, shotVector, Translation2d.kZero, Translation2d.kZero);
+            if (shouldPlotShotLocation()) {
+                m_turret.plotShotVectors(robotPose, shotVector, Translation2d.kZero, Translation2d.kZero);
+            }
         } else {    
-            ShotSelection shotSelection = targetForShotType();
+            ShotSelection shotSelection = targetForShotType(robotPose);
             effectiveShotType = shotSelection.effectiveShotType();
             shotVector = findMovingShotVector(robotPose, shotSelection.target(), effectiveShotType);
             // old static shot
@@ -117,8 +128,7 @@ public class Shoot extends Command {
         if (m_shotType == ShotType.TEST) {
             shotValue = testShotValue();
         } else {
-            // Calculate distance and angle to target, send to shooter and turret subsystems
-            shotValue = m_shooter.getShootValue(shotVector.getNorm(), effectiveShotType);
+            shotValue = m_shooter.getShootValue(shotLookupDistance(robotPose, shotVector, effectiveShotType), effectiveShotType);
         }
         
         Rotation2d angle = shotVector.getAngle();
@@ -136,12 +146,14 @@ public class Shoot extends Command {
 
         if (!m_shooterOnTarget || m_turret.inDeadZone()) {
             // if in the dead zone, turn off the feed
-            m_feeder.stopFeederBelts();
-
-            if (PLOT_SHOT_LOCATION) m_turret.plotShotVectors(null, null, null, null);
+            m_feeder.runFeederBelts();
         } else {
             // everything is good. Shoot!
             m_feeder.runFeederBelts();
+        }
+
+        if (!shouldPlotShotLocation()) {
+            m_turret.clearShotVisualization();
         }
     }
     
@@ -151,7 +163,9 @@ public class Shoot extends Command {
         m_feeder.stop();
 
         // erase our velocity vector scribblings
-        if (PLOT_SHOT_LOCATION) m_turret.plotShotVectors(null, null, null, null);
+        if (shouldPlotShotLocation()) {
+            m_turret.clearShotVisualization();
+        }
     }
     
     /**
@@ -164,48 +178,149 @@ public class Shoot extends Command {
         return false;
     }
 
-    private ShotSelection targetForShotType() {
+    private ShotSelection targetForShotType(Pose2d robotPose) {
         switch (m_shotType) {
             case HUB:
                 return new ShotSelection(FieldConstants.flipTranslation(FieldConstants.HUB_POSITION_BLUE), ShotType.HUB);
             case PASS:
-                double yBlue = FieldConstants.flipTranslation(m_poseSupplier.get().getTranslation()).getY();
-                if (yBlue < FieldConstants.FIELD_WIDTH / 2.0)
-                    return new ShotSelection(FieldConstants.flipTranslation(FieldConstants.PASSING_TARGET_LOWER_BLUE), ShotType.PASS);
-                return new ShotSelection(FieldConstants.flipTranslation(FieldConstants.PASSING_TARGET_UPPER_BLUE), ShotType.PASS);
+                if (!FieldConstants.ENABLE_DYNAMIC_PASS_TARGETING) {
+                    return new ShotSelection(FieldConstants.flipTranslation(standardPassTarget(selectionBlueLocation(robotPose))), ShotType.PASS);
+                }
+                return new ShotSelection(
+                        FieldConstants.flipTranslation(calculatePassTarget(selectionBlueLocation(robotPose))),
+                        ShotType.PASS);
+            case OPPOSITE_ZONE:
+                if (!FieldConstants.ENABLE_DYNAMIC_PASS_TARGETING) {
+                    return new ShotSelection(FieldConstants.flipTranslation(standardPassTarget(selectionBlueLocation(robotPose))), ShotType.PASS);
+                }
+                return new ShotSelection(
+                        FieldConstants.flipTranslation(calculatePassTarget(selectionBlueLocation(robotPose))),
+                        ShotType.OPPOSITE_ZONE);
             // needed to suppress the warning
             // case TEST:
             //     return FieldConstants.flipTranslation(FieldConstants.HUB_POSITION_BLUE);
             default:
                 break;
         }
-        return autoShotSelection(m_poseSupplier.get());
+        return autoShotSelection(robotPose);
     }
 
     // Determine where we should shoot based on the robot location
-    private static ShotSelection autoShotSelection(Pose2d robotPose) {
-        Translation2d blueLocation = FieldConstants.flipTranslation(robotPose.getTranslation());
+    private ShotSelection autoShotSelection(Pose2d robotPose) {
+        Translation2d blueLocation = selectionBlueLocation(robotPose);
         Translation2d target;
         ShotType shotType;
-        if (blueLocation.getX() < FieldConstants.HUB_POSITION_BLUE.getX()) {
+        if (FieldConstants.ENABLE_OPPOSITE_ZONE_SHOT
+                && blueLocation.getX() >= FieldConstants.OPPOSITE_ALLIANCE_ZONE_START_X_BLUE) {
+            m_latchedPassSide = null;
+            target = oppositeAllianceZoneTarget(blueLocation);
+            shotType = ShotType.OPPOSITE_ZONE;
+        } else if (blueLocation.getX() < FieldConstants.HUB_POSITION_BLUE.getX()) {
+            m_latchedPassSide = null;
             target = FieldConstants.HUB_POSITION_BLUE;
             shotType = ShotType.HUB;
-        } else if (blueLocation.getY() < FieldConstants.FIELD_WIDTH / 2.0) {
-            target = FieldConstants.PASSING_TARGET_LOWER_BLUE;
-            shotType = ShotType.PASS;
-        } else {
-            target = FieldConstants.PASSING_TARGET_UPPER_BLUE;
-            shotType = ShotType.PASS;
-        }
 
+        } else {
+            target = FieldConstants.ENABLE_DYNAMIC_PASS_TARGETING
+                    ? calculatePassTarget(blueLocation)
+                    : standardPassTarget(blueLocation);
+            shotType = ShotType.PASS;
+        } 
+        
         return new ShotSelection(FieldConstants.flipTranslation(target), shotType);
     }
 
+    private Translation2d calculatePassTarget(Translation2d blueLocation) {
+        double blueY = blueLocation.getY();
+        boolean inCenterPassBand = blueY >= FieldConstants.PASSING_TARGET_LEFT_BLUE.getY()
+                && blueY <= FieldConstants.PASSING_TARGET_RIGHT_BLUE.getY();
+
+        if (!inCenterPassBand) {
+            m_latchedPassSide = null;
+            return new Translation2d(FieldConstants.PASSING_TARGET_LEFT_BLUE.getX(), blueY);
+        }
+
+        if (FieldConstants.ENABLE_PASS_SIDE_LATCH
+                && m_latchedPassSide != null
+                && passLatchStillValid(blueLocation, m_latchedPassSide)) {
+            return passTargetForSide(m_latchedPassSide);
+        }
+
+        if (!FieldConstants.ENABLE_PASS_SIDE_LATCH) {
+            return standardPassTarget(blueLocation);
+        }
+
+        if (m_latchedPassSide == null) {
+            m_latchedPassSide = blueLocation.getY() < FieldConstants.FIELD_WIDTH / 2.0
+                    ? PassSide.LEFT
+                    : PassSide.RIGHT;
+        }
+
+        return m_latchedPassSide == PassSide.LEFT
+                ? FieldConstants.PASSING_TARGET_LEFT_BLUE
+                : FieldConstants.PASSING_TARGET_RIGHT_BLUE;
+    }
+
+    private static boolean passLatchStillValid(Translation2d blueLocation, PassSide latchedSide) {
+        Translation2d latchedTarget = passTargetForSide(latchedSide);
+        double distanceFromPassWall = Math.abs(blueLocation.getX() - latchedTarget.getX());
+        double allowedYOffset = FieldConstants.PASS_LATCH_BASE_Y_TOLERANCE_BLUE
+                + distanceFromPassWall * Math.tan(Math.toRadians(FieldConstants.PASS_LATCH_MAX_YAW_DEGREES));
+
+        return Math.abs(blueLocation.getY() - latchedTarget.getY()) <= allowedYOffset;
+    }
+
+    private static Translation2d passTargetForSide(PassSide side) {
+        return side == PassSide.LEFT
+                ? FieldConstants.PASSING_TARGET_LEFT_BLUE
+                : FieldConstants.PASSING_TARGET_RIGHT_BLUE;
+    }
+
+    private static Translation2d oppositeAllianceZoneTarget(Translation2d blueLocation) {
+        boolean leftSide = blueLocation.getY() < FieldConstants.FIELD_WIDTH / 2.0;
+        
+        Translation2d nearTarget = leftSide
+                ? FieldConstants.OPPOSITE_ZONE_TARGET_LINE_LEFT_NEAR_BLUE
+                : FieldConstants.OPPOSITE_ZONE_TARGET_LINE_RIGHT_NEAR_BLUE;
+        Translation2d farTarget = leftSide
+                ? FieldConstants.OPPOSITE_ZONE_TARGET_LINE_LEFT_FAR_BLUE
+                : FieldConstants.OPPOSITE_ZONE_TARGET_LINE_RIGHT_FAR_BLUE;
+
+        double distanceFromSideWall = leftSide
+                ? blueLocation.getY()
+                : FieldConstants.FIELD_WIDTH - blueLocation.getY();
+        double ratio = MathUtil.clamp(
+                distanceFromSideWall / FieldConstants.SIDE_WALL_TARGET_LINE_MAX_DISTANCE_BLUE,
+                0.0,
+                1.0);
+
+        return farTarget.interpolate(nearTarget, ratio);
+    }
+
     public static Translation2d shotAutoTarget(Pose2d robotPose) {
-        return autoShotSelection(robotPose).target();
+        Translation2d blueLocation = selectionBlueLocation(robotPose);
+        Translation2d target;
+
+        if (FieldConstants.ENABLE_OPPOSITE_ZONE_SHOT
+                && blueLocation.getX() >= FieldConstants.OPPOSITE_ALLIANCE_ZONE_START_X_BLUE) {
+            target = oppositeAllianceZoneTarget(blueLocation);
+        } else if (blueLocation.getX() < FieldConstants.HUB_POSITION_BLUE.getX()) {
+            target = FieldConstants.HUB_POSITION_BLUE;
+        } else if (!FieldConstants.ENABLE_DYNAMIC_PASS_TARGETING) {
+            target = standardPassTarget(blueLocation);
+        } else if (blueLocation.getY() >= FieldConstants.PASSING_TARGET_LEFT_BLUE.getY()
+                && blueLocation.getY() <= FieldConstants.PASSING_TARGET_RIGHT_BLUE.getY()) {
+            target = standardPassTarget(blueLocation);
+        } else {
+            target = new Translation2d(FieldConstants.PASSING_TARGET_LEFT_BLUE.getX(), blueLocation.getY());
+        }
+
+        return FieldConstants.flipTranslation(target);
     }
 
     public Translation2d findMovingShotVector(Pose2d currentPose, Translation2d target, ShotType effectiveShotType) {
+        SmartDashboard.putString("shoot/effectiveShotType", effectiveShotType.toString());
+        SmartDashboard.putNumber("shoot/targetX", target.getX());
         ChassisSpeeds speedInformation = m_speedsSupplier.get();
         Translation2d robotVelVector = new Translation2d(speedInformation.vxMetersPerSecond, speedInformation.vyMetersPerSecond);
 
@@ -242,7 +357,8 @@ public class Shoot extends Command {
         double timeOfFlight = 0;
 
         for (int i = 0; i < 20; i++) {
-            timeOfFlight = m_shooter.getShootValue(targetDistance, effectiveShotType).timeOfFlight;
+            double lookupDistance = shotLookupDistance(lookaheadPose, targetVector, effectiveShotType);
+            timeOfFlight = m_shooter.getShootValue(lookupDistance, effectiveShotType).timeOfFlight;
             // this is totally unsupported by real world!
             timeOfFlight *= TOF_SCALE;
             Translation2d offset = turretVelTotal.times(timeOfFlight);
@@ -257,7 +373,7 @@ public class Shoot extends Command {
 
             if (Math.abs(targetDistance - previousTargetDistance) < 0.03) {
                 // if the target distance did not change much, we've converged enough
-                if (PLOT_SHOT_LOCATION) {
+                if (shouldPlotShotLocation()) {
                     m_turret.plotShotVectors(futureRobotPose, 
                             targetVector, robotVelVector.times(timeOfFlight),
                             centripetalVelocity.times(timeOfFlight));
@@ -268,10 +384,41 @@ public class Shoot extends Command {
             previousTargetDistance = targetDistance;
         }
 
+        if (shouldPlotShotLocation()) {
+            m_turret.plotShotVectors(futureRobotPose,
+                    targetVector, robotVelVector.times(timeOfFlight),
+                    centripetalVelocity.times(timeOfFlight));
+        }
+
         SmartDashboard.putNumber("shoot/tof", timeOfFlight);
         SmartDashboard.putNumber("shoot/targetDistance", targetDistance);
 
         return targetVector;
+    }
+
+    private static double shotLookupDistance(Pose2d robotPose, Translation2d shotVector, ShotType effectiveShotType) {
+        return shotVector.getNorm();
+    }
+
+    private static Translation2d selectionBlueLocation(Pose2d robotPose) {
+        if (FieldConstants.USE_TURRET_POSITION_FOR_SHOT_SELECTION) {
+            Translation2d turret = blueTurretLocation(robotPose);
+            double sign = 1.0;
+            if (turret.getY() > FieldConstants.FIELD_WIDTH / 2.0)
+                sign = -1.0;
+            return turret.plus(new Translation2d(0.0, Units.inchesToMeters(sign*12.0)));
+        }
+        return FieldConstants.flipTranslation(robotPose.getTranslation());
+    }
+
+    private static Translation2d blueTurretLocation(Pose2d robotPose) {
+        return FieldConstants.flipTranslation(Turret.getTurretFieldPosition(robotPose));
+    }
+
+    private static Translation2d standardPassTarget(Translation2d blueLocation) {
+        return blueLocation.getY() < FieldConstants.FIELD_WIDTH / 2.0
+                ? FieldConstants.PASSING_TARGET_LEFT_BLUE
+                : FieldConstants.PASSING_TARGET_RIGHT_BLUE;
     }
 
     private ShootValue testShotValue() {
@@ -280,5 +427,9 @@ public class Shoot extends Command {
                 SmartDashboard.getNumber("kicker/testRPM", 0.0),
                 Rotation2d.fromDegrees(SmartDashboard.getNumber("hood/testAngle", 0.0)),
                 SmartDashboard.getNumber("shooter/testTimeOfFlight", 0.0));
+    }
+
+    private static boolean shouldPlotShotLocation() {
+        return SmartDashboard.getBoolean(PLOT_SHOT_LOCATION_KEY, RobotBase.isSimulation());
     }
 }

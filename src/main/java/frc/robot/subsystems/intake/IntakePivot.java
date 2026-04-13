@@ -33,15 +33,15 @@ public class IntakePivot extends SubsystemBase {
     private static final double K_P = 15.0;
     private static final double K_P_HOLD = 3.0;
     
-    private static final double MAX_VEL_ROT_PER_SEC = 40.0;
-    private static final double MAX_ACC_ROT_PER_SEC2 = 75.0;
+    private static final double MAX_VEL_ROT_PER_SEC = 75.0;
+    private static final double MAX_ACC_ROT_PER_SEC2 = 120.0;
     
     private static final double ANGLE_TOLERANCE_DEG = 3.0;
 
     private static final double GEAR_RATIO = 1.0 / 24.0;
     
     // STOW is public so Intake can handle the command
-    public static final Rotation2d STOW_POSITION = Rotation2d.fromDegrees(-3.0);   // was -5
+    public static final Rotation2d STOW_POSITION = Rotation2d.fromDegrees(-5.0);   // was -5
     private static final Rotation2d DEPLOY_POSITION = Rotation2d.fromDegrees(80.0);
 
     private static final Rotation2d PULSE_POSITION = Rotation2d.fromDegrees(10.0);

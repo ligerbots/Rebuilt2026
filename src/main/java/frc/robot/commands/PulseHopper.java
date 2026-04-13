@@ -8,12 +8,12 @@ import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.Turret;
 
 public class PulseHopper extends Command {
-    private static final double DEFAULT_STARTUP_REVERSE_VOLTAGE = -11.0;
+    private static final double DEFAULT_STARTUP_REVERSE_VOLTAGE = -12.0;
     private static final double DEFAULT_STARTUP_REVERSE_TIMEOUT_SEC = 0.45;
-    private static final double DEFAULT_PULSE_FORWARD_VOLTAGE = 6.0;
-    private static final double DEFAULT_PULSE_REVERSE_VOLTAGE = -10.0;
-    private static final double DEFAULT_PULSE_FORWARD_SEC = 0.4;
-    private static final double DEFAULT_PULSE_REVERSE_SEC = 0.2;
+    private static final double DEFAULT_PULSE_FORWARD_VOLTAGE = 7.0;
+    private static final double DEFAULT_PULSE_REVERSE_VOLTAGE = -8.0;
+    private static final double DEFAULT_PULSE_FORWARD_SEC = 1.5;
+    private static final double DEFAULT_PULSE_REVERSE_SEC = 0.25;
 
     private static final String STARTUP_REVERSE_VOLTAGE_KEY = "hopper/startupReverseVoltage";
     private static final String STARTUP_REVERSE_TIMEOUT_KEY = "hopper/startupReverseTimeoutSec";
@@ -58,27 +58,31 @@ public class PulseHopper extends Command {
 
     @Override
     public void execute() {
-        if (!m_shooterOnTarget && m_shooter.onTarget()) {
-            m_shooterOnTarget = true;
-        }
+        // if (!m_shooterOnTarget && m_shooter.onTarget()) {
+        //     m_shooterOnTarget = true;
+        // }
 
-        if (m_startupReverseActive) {
-            m_hopper.setVoltage(getStartupReverseVoltage());
+        // if (m_startupReverseActive) {
+        //     m_hopper.setVoltage(getStartupReverseVoltage());
 
-            boolean shotDetected = m_shooterOnTarget && m_shooter.getFlywheel().isShotDetected();
-            boolean startupTimedOut = m_startupReverseTimer.hasElapsed(getStartupReverseTimeoutSec());
-            if (shotDetected || startupTimedOut) {
-                m_startupReverseActive = false;
-                m_isPulsing = false;
-                m_pulsingForward = true;
-                m_lastPulsePhaseTimeSec = Timer.getFPGATimestamp();
-            }
-        } else if (m_shooter.getFlywheel().isCurrentJamDetected()) {
+        //     boolean shotDetected = m_shooterOnTarget && m_shooter.getFlywheel().isShotDetected();
+        //     boolean startupTimedOut = m_startupReverseTimer.hasElapsed(getStartupReverseTimeoutSec());
+        //     if (shotDetected || startupTimedOut) {
+        //         m_startupReverseActive = false;
+        //         m_isPulsing = false;
+        //         m_pulsingForward = true;
+        //         m_lastPulsePhaseTimeSec = Timer.getFPGATimestamp();
+        //     }
+        //     else {
             runPulseCycle();
-        } else {
-            m_isPulsing = false;
-            m_hopper.feed();
-        }
+    //     }
+    // }
+        // } else if (m_shooter.getFlywheel().isCurrentJamDetected()) {
+        //     runPulseCycle();
+        // } else {
+        //     m_isPulsing = false;
+        //     m_hopper.feed();
+        // }
 
         SmartDashboard.putBoolean("hopper/pulseActive", m_isPulsing);
         SmartDashboard.putBoolean("hopper/shooterLatched", m_shooterOnTarget);

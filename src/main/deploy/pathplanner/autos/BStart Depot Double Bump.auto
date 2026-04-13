@@ -1,0 +1,43 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Bump Preload Trench"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Second Swipe Bump"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Bump Trench Shoot"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Second Swipe Bump"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Bump Depot Shoot"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}

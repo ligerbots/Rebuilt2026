@@ -7,19 +7,31 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Crash First Swipe Blitz"
+            "pathName": "Bump Preload Bump"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Swipe Shoot"
+            "pathName": "BStart First Swipe Bump"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Depot Double Swipe Blitz"
+            "pathName": "Bump Bump Shoot"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "BStart First Swipe Bump"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Bump Depot Shoot"
           }
         }
       ]

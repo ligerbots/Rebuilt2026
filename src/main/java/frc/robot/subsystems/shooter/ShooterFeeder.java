@@ -35,7 +35,7 @@ public class ShooterFeeder extends SubsystemBase {
     private static final double FEEDER_K_FF = 0.0022;  // V/rpm
     
     private static final double FEEDER_SUPPLY_CURRENT_LIMIT = 35;
-    private static final double FEEDER_STATOR_CURRENT_LIMIT = 80;
+    private static final double FEEDER_STATOR_CURRENT_LIMIT = 90;
 
     // private static double FEEDER_BELT_FEED_VOLTAGE = 10.0;
     // private static double FEEDER_BELT_UNJAM_VOLTAGE = -6.0;

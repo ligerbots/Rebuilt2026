@@ -1,0 +1,110 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 3.6187179487179497,
+        "y": 5.895512820512821
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 2.3391397737382853,
+        "y": 5.895512820512821
+      },
+      "isLocked": false,
+      "linkedName": "Bump Start"
+    },
+    {
+      "anchor": {
+        "x": 3.480452018425331,
+        "y": 5.481940106358129
+      },
+      "prevControl": {
+        "x": 2.480452018425331,
+        "y": 5.481940106358129
+      },
+      "nextControl": {
+        "x": 4.48045201842533,
+        "y": 5.481940106358129
+      },
+      "isLocked": false,
+      "linkedName": "Bump In"
+    },
+    {
+      "anchor": {
+        "x": 5.721752771601292,
+        "y": 5.481940106358129
+      },
+      "prevControl": {
+        "x": 5.4718354634763084,
+        "y": 5.475510557418872
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "Bump Out"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [
+    {
+      "name": "Constraints Zone",
+      "minWaypointRelativePos": 0,
+      "maxWaypointRelativePos": 0.4119601328903556,
+      "constraints": {
+        "maxVelocity": 1.0,
+        "maxAcceleration": 3.0,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 720.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    },
+    {
+      "name": "Constraints Zone",
+      "minWaypointRelativePos": 0.8239202657807378,
+      "maxWaypointRelativePos": 2.0,
+      "constraints": {
+        "maxVelocity": 2.5,
+        "maxAcceleration": 10.0,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 720.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    }
+  ],
+  "pointTowardsZones": [],
+  "eventMarkers": [
+    {
+      "name": "Shooter Running",
+      "waypointRelativePos": 0.0,
+      "endWaypointRelativePos": 0.974529346622373,
+      "command": null
+    },
+    {
+      "name": "Stop Intake",
+      "waypointRelativePos": 0.6467331118493974,
+      "endWaypointRelativePos": null,
+      "command": null
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 10.0,
+    "maxAcceleration": 10.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 2.5,
+    "rotation": 0.0
+  },
+  "reversed": false,
+  "folder": null,
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 0.0
+  },
+  "useDefaultConstraints": false
+}
