@@ -26,6 +26,8 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.util.datalog.DoubleLogEntry;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Notifier;
@@ -72,6 +74,10 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private final SwerveRequest.SysIdSwerveRotation m_rotationCharacterization = new SwerveRequest.SysIdSwerveRotation();
 
     private final AprilTagVision m_aprilTagVision;
+    private final DoubleLogEntry m_turretDistanceLog =
+            new DoubleLogEntry(DataLogManager.getLog(), "LOG:/SmartDashboard/turret/distToShotTarget");
+    private final DoubleLogEntry m_pigeonVelocityLog =
+            new DoubleLogEntry(DataLogManager.getLog(), "LOG:/SmartDashboard/drivetrain/pidgeonVelocityZWorld");
 
     /* SysId routine for characterizing translation. This is used to find PID gains for the drive motors. */
     private final SysIdRoutine m_sysIdRoutineTranslation = new SysIdRoutine(
@@ -288,12 +294,24 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             m_aprilTagVision.addVisionMeasurements(this);
         }
 
-        if (PerformanceTuning.shouldPublishDrivetrainDashboardThisLoop()) {
+        boolean publishDrivetrainDashboard = PerformanceTuning.shouldPublishDrivetrainDashboardThisLoop();
+        boolean directDrivetrainLog = PerformanceTuning.isDrivetrainDirectLogEnabled();
+        if (publishDrivetrainDashboard || directDrivetrainLog) {
             Pose2d pose = getPose();
             Translation2d target = Shoot.shotAutoTarget(pose);
             Translation2d turretToTarget = Turret.getTranslationToGoal(pose, target);
-            SmartDashboard.putNumber("turret/distToShotTarget", Units.metersToInches(turretToTarget.getNorm()));
-            SmartDashboard.putNumber("drivetrain/pidgeonVelocityZWorld", getPigeon2().getAngularVelocityZWorld().getValueAsDouble());
+            double turretDistanceInches = Units.metersToInches(turretToTarget.getNorm());
+            double pigeonVelocity = getPigeon2().getAngularVelocityZWorld().getValueAsDouble();
+
+            if (directDrivetrainLog) {
+                m_turretDistanceLog.append(turretDistanceInches);
+                m_pigeonVelocityLog.append(pigeonVelocity);
+            }
+
+            if (publishDrivetrainDashboard) {
+                SmartDashboard.putNumber("turret/distToShotTarget", turretDistanceInches);
+                SmartDashboard.putNumber("drivetrain/pidgeonVelocityZWorld", pigeonVelocity);
+            }
         }
 
         /*

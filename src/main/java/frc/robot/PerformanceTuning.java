@@ -29,10 +29,12 @@ public final class PerformanceTuning {
         SmartDashboard.setDefaultBoolean("perf/drivetrainDashboardEnabled", true);
         SmartDashboard.setDefaultBoolean("perf/drivetrainDashboardThrottleEnabled", true);
         SmartDashboard.setDefaultNumber("perf/drivetrainDashboardEveryLoops", 3);
+        SmartDashboard.setDefaultBoolean("perf/drivetrainDirectLogEnabled", true);
 
         SmartDashboard.setDefaultBoolean("perf/dataLoggerEnabled", true);
         SmartDashboard.setDefaultBoolean("perf/dataLoggerThrottleEnabled", true);
         SmartDashboard.setDefaultNumber("perf/dataLoggerEveryLoops", 5);
+        SmartDashboard.setDefaultBoolean("perf/dataLoggerDirectLogEnabled", true);
 
         SmartDashboard.setDefaultBoolean("perf/flywheelDashboardEnabled", true);
         SmartDashboard.setDefaultBoolean("perf/flywheelDashboardThrottleEnabled", true);
@@ -106,6 +108,10 @@ public final class PerformanceTuning {
         );
     }
 
+    public static boolean isDrivetrainDirectLogEnabled() {
+        return SmartDashboard.getBoolean("perf/drivetrainDirectLogEnabled", true);
+    }
+
     public static boolean shouldPublishDataLoggerThisLoop() {
         return gatedSection(
             "dataLogger",
@@ -113,6 +119,10 @@ public final class PerformanceTuning {
             "perf/dataLoggerThrottleEnabled", true,
             "perf/dataLoggerEveryLoops", 5
         );
+    }
+
+    public static boolean isDataLoggerDirectLogEnabled() {
+        return SmartDashboard.getBoolean("perf/dataLoggerDirectLogEnabled", true);
     }
 
     public static boolean shouldPublishFlywheelDashboardThisLoop() {
