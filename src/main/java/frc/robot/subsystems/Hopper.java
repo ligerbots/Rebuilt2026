@@ -33,7 +33,7 @@ public class Hopper extends SubsystemBase {
     private static final Current SUPPLY_CURRENT_LIMIT = Amps.of(35);
     private static final Current STATOR_CURRENT_LIMIT =  Amps.of(50);
 
-    private static final double K_P = 0.4;
+    private static final double K_P = 0.1;
     private static final double K_I = 0.0;
     private static final double K_D = 0.0;
     private static final double K_FF = 0.0022;  // V/rpm

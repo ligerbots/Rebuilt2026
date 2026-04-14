@@ -61,11 +61,13 @@ public class Flywheel extends SubsystemBase {
     private final VoltageOut m_voltageControl = new VoltageOut(0);
 
     private double m_goalRPM;
+    private double m_jamGrace;
     private double m_lastSpinupCommandTimeSec;
     private double m_onTargetStartTimeSec;
     private boolean m_shotDetectionArmed = false;
     private final Deque<TorqueCurrentSample> m_torqueCurrentSamples = new ArrayDeque<>();
     private double m_torqueCurrentSampleSum = 0.0;
+    private double JAM_GRACE = 0.75;
     
     // Creates a new FlyWheel
     public Flywheel() {
@@ -119,9 +121,10 @@ public class Flywheel extends SubsystemBase {
     public void periodic() {
         updateTorqueCurrentAverage();
         updateShotDetectionArming();
-
+        updateJamTime();        
         SmartDashboard.putNumber("flywheel/currentRPM", getRPM()); 
         SmartDashboard.putNumber("flywheel/goalRPM", m_goalRPM);
+        SmartDashboard.putNumber("flywheel/jamGrace", m_jamGrace);
         SmartDashboard.putNumber("flywheel/leaderStator", m_motor.getStatorCurrent().getValueAsDouble());
         SmartDashboard.putNumber("flywheel/followerStator", m_follower.getStatorCurrent().getValueAsDouble());
         SmartDashboard.putNumber("flywheel/leaderSupply", m_motor.getSupplyCurrent().getValueAsDouble());
@@ -157,6 +160,8 @@ public class Flywheel extends SubsystemBase {
         return m_torqueCurrentSampleSum / m_torqueCurrentSamples.size();
     }
     
+
+
     public void setRPM(double rpm) {
         if (Math.abs(rpm - m_goalRPM) > SPEED_TOLERANCE_RPM) {
             m_lastSpinupCommandTimeSec = Timer.getFPGATimestamp();
@@ -181,7 +186,10 @@ public class Flywheel extends SubsystemBase {
     }
 
     public boolean isCurrentJamDetected() {
-        return getAverageTorqueCurrent() <= getJamTorqueCurrentThresholdAmps();
+        if(m_jamGrace >= JAM_GRACE){
+            return true;
+        }
+        else return false;
     }
 
     public boolean isShotDetected() {
@@ -228,6 +236,13 @@ public class Flywheel extends SubsystemBase {
         return !m_torqueCurrentSamples.isEmpty()
                 && now - m_torqueCurrentSamples.peekFirst().timestampSec() >= getJamSmoothingWindowSec();
     }
+
+    private void updateJamTime(){
+        double now = Timer.getFPGATimestamp();
+        if (isShotDetected() == true){
+                m_jamGrace = now;
+            }
+        }
 
     private void updateShotDetectionArming() {
         double now = Timer.getFPGATimestamp();

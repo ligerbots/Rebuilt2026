@@ -8,17 +8,17 @@ import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.Turret;
 
 public class PulseHopper extends Command {
-    private static final double DEFAULT_STARTUP_REVERSE_RPM = -5400.0;
+    private static final double DEFAULT_STARTUP_REVERSE_SPEED = -5000.0;
     private static final double DEFAULT_STARTUP_REVERSE_TIMEOUT_SEC = 0.45;
-    private static final double DEFAULT_PULSE_FORWARD_RPM = 3200.0;
-    private static final double DEFAULT_PULSE_REVERSE_RPM = -3600.0;
-    private static final double DEFAULT_PULSE_FORWARD_SEC = 1.5;
-    private static final double DEFAULT_PULSE_REVERSE_SEC = 0.25;
+    private static final double DEFAULT_PULSE_FORWARD_VOLTAGE = 6.0;
+    private static final double DEFAULT_PULSE_REVERSE_VOLTAGE = -10.0;
+    private static final double DEFAULT_PULSE_FORWARD_SEC = 0.4;
+    private static final double DEFAULT_PULSE_REVERSE_SEC = 0.2;
 
-    private static final String STARTUP_REVERSE_RPM_KEY = "hopper/startupReverseRPM";
+    private static final String STARTUP_REVERSE_VOLTAGE_KEY = "hopper/startupReverseVoltage";
     private static final String STARTUP_REVERSE_TIMEOUT_KEY = "hopper/startupReverseTimeoutSec";
-    private static final String PULSE_FORWARD_RPM_KEY = "hopper/pulseForwardRPM";
-    private static final String PULSE_REVERSE_RPM_KEY = "hopper/pulseReverseRPM";
+    private static final String PULSE_FORWARD_VOLTAGE_KEY = "hopper/pulseForwardVoltage";
+    private static final String PULSE_REVERSE_VOLTAGE_KEY = "hopper/pulseReverseVoltage";
     private static final String PULSE_FORWARD_SEC_KEY = "hopper/pulseForwardSec";
     private static final String PULSE_REVERSE_SEC_KEY = "hopper/pulseReverseSec";
 
@@ -36,10 +36,10 @@ public class PulseHopper extends Command {
         m_hopper = hopper;
         m_shooter = shooter;
 
-        SmartDashboard.setDefaultNumber(STARTUP_REVERSE_RPM_KEY, DEFAULT_STARTUP_REVERSE_RPM);
+        SmartDashboard.setDefaultNumber(STARTUP_REVERSE_VOLTAGE_KEY, DEFAULT_STARTUP_REVERSE_SPEED);
         SmartDashboard.setDefaultNumber(STARTUP_REVERSE_TIMEOUT_KEY, DEFAULT_STARTUP_REVERSE_TIMEOUT_SEC);
-        SmartDashboard.setDefaultNumber(PULSE_FORWARD_RPM_KEY, DEFAULT_PULSE_FORWARD_RPM);
-        SmartDashboard.setDefaultNumber(PULSE_REVERSE_RPM_KEY, DEFAULT_PULSE_REVERSE_RPM);
+        SmartDashboard.setDefaultNumber(PULSE_FORWARD_VOLTAGE_KEY, DEFAULT_PULSE_FORWARD_VOLTAGE);
+        SmartDashboard.setDefaultNumber(PULSE_REVERSE_VOLTAGE_KEY, DEFAULT_PULSE_REVERSE_VOLTAGE);
         SmartDashboard.setDefaultNumber(PULSE_FORWARD_SEC_KEY, DEFAULT_PULSE_FORWARD_SEC);
         SmartDashboard.setDefaultNumber(PULSE_REVERSE_SEC_KEY, DEFAULT_PULSE_REVERSE_SEC);
 
@@ -58,31 +58,27 @@ public class PulseHopper extends Command {
 
     @Override
     public void execute() {
-        // if (!m_shooterOnTarget && m_shooter.onTarget()) {
-        //     m_shooterOnTarget = true;
-        // }
+        if (!m_shooterOnTarget && m_shooter.onTarget()) {
+            m_shooterOnTarget = true;
+        }
 
-        // if (m_startupReverseActive) {
-        //     m_hopper.setRPM(getStartupReverseRPM());
+        if (m_startupReverseActive) {
+            m_hopper.setRPM(getStartupReverseSpeed());
 
-        //     boolean shotDetected = m_shooterOnTarget && m_shooter.getFlywheel().isShotDetected();
-        //     boolean startupTimedOut = m_startupReverseTimer.hasElapsed(getStartupReverseTimeoutSec());
-        //     if (shotDetected || startupTimedOut) {
-        //         m_startupReverseActive = false;
-        //         m_isPulsing = false;
-        //         m_pulsingForward = true;
-        //         m_lastPulsePhaseTimeSec = Timer.getFPGATimestamp();
-        //     }
-        //     else {
+            boolean shotDetected = m_shooterOnTarget && m_shooter.getFlywheel().isShotDetected();
+            boolean startupTimedOut = m_startupReverseTimer.hasElapsed(getStartupReverseTimeoutSec());
+            if (shotDetected || startupTimedOut) {
+                m_startupReverseActive = false;
+                m_isPulsing = false;
+                m_pulsingForward = true;
+                m_lastPulsePhaseTimeSec = Timer.getFPGATimestamp();
+            }
+        } else if (m_shooter.getFlywheel().isCurrentJamDetected()) {  
             runPulseCycle();
-    //     }
-    // }
-        // } else if (m_shooter.getFlywheel().isCurrentJamDetected()) {
-        //     runPulseCycle();
-        // } else {
-        //     m_isPulsing = false;
-        //     m_hopper.feed();
-        // }
+        } else {
+            m_isPulsing = false;
+            m_hopper.feed();
+        }
 
         SmartDashboard.putBoolean("hopper/pulseActive", m_isPulsing);
         SmartDashboard.putBoolean("hopper/shooterLatched", m_shooterOnTarget);
@@ -110,35 +106,35 @@ public class PulseHopper extends Command {
             m_isPulsing = true;
             m_pulsingForward = true;
             m_lastPulsePhaseTimeSec = now;
-            m_hopper.setRPM(getPulseForwardRPM());
+            m_hopper.reverse();
             return;
         }
 
         if (m_pulsingForward && now - m_lastPulsePhaseTimeSec >= getPulseForwardSec()) {
             m_pulsingForward = false;
             m_lastPulsePhaseTimeSec = now;
-            m_hopper.setRPM(getPulseReverseRPM());
+            m_hopper.reverse();
         } else if (!m_pulsingForward && now - m_lastPulsePhaseTimeSec >= getPulseReverseSec()) {
             m_pulsingForward = true;
             m_lastPulsePhaseTimeSec = now;
-            m_hopper.setRPM(getPulseForwardRPM());
+            m_hopper.feed();
         }
     }
 
-    private double getPulseForwardRPM() {
-        return SmartDashboard.getNumber(PULSE_FORWARD_RPM_KEY, DEFAULT_PULSE_FORWARD_RPM);
+    private double getPulseForwardVoltage() {
+        return SmartDashboard.getNumber(PULSE_FORWARD_VOLTAGE_KEY, DEFAULT_PULSE_FORWARD_VOLTAGE);
     }
 
-    private double getStartupReverseRPM() {
-        return SmartDashboard.getNumber(STARTUP_REVERSE_RPM_KEY, DEFAULT_STARTUP_REVERSE_RPM);
+    private double getStartupReverseSpeed() {
+        return SmartDashboard.getNumber(STARTUP_REVERSE_VOLTAGE_KEY, DEFAULT_STARTUP_REVERSE_SPEED);
     }
 
     private double getStartupReverseTimeoutSec() {
         return Math.max(0.0, SmartDashboard.getNumber(STARTUP_REVERSE_TIMEOUT_KEY, DEFAULT_STARTUP_REVERSE_TIMEOUT_SEC));
     }
 
-    private double getPulseReverseRPM() {
-        return SmartDashboard.getNumber(PULSE_REVERSE_RPM_KEY, DEFAULT_PULSE_REVERSE_RPM);
+    private double getPulseReverseVoltage() {
+        return SmartDashboard.getNumber(PULSE_REVERSE_VOLTAGE_KEY, DEFAULT_PULSE_REVERSE_VOLTAGE);
     }
 
     private double getPulseForwardSec() {
