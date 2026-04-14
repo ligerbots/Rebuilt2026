@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.PerformanceTuning;
 
 public class DataLogger extends SubsystemBase {
     // private final PowerDistribution m_powerDist = new PowerDistribution();
@@ -18,6 +19,10 @@ public class DataLogger extends SubsystemBase {
 
     @Override
     public void periodic() {
+        if (!PerformanceTuning.shouldPublishDataLoggerThisLoop()) {
+            return;
+        }
+
         // SmartDashboard.putNumber("power/totalCurrent", m_powerDist.getTotalCurrent());  
         SmartDashboard.putNumber("power/batteryVoltage", RobotController.getBatteryVoltage());  
 

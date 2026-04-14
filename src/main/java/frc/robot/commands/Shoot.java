@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 
 import frc.robot.FieldConstants;
+import frc.robot.PerformanceTuning;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.ShooterFeeder;
 import frc.robot.subsystems.shooter.Turret;
@@ -138,7 +139,9 @@ public class Shoot extends Command {
         m_shooter.setShootValues(shotValue);
         m_feeder.setKickerRPM(shotValue.feedRPM);
         
-        SmartDashboard.putNumber("shoot/shotAngle", angle.getDegrees());
+        if (PerformanceTuning.isShootDashboardEnabled()) {
+            SmartDashboard.putNumber("shoot/shotAngle", angle.getDegrees());
+        }
 
         if (!m_shooterOnTarget && m_shooter.onTarget()) {
             m_shooterOnTarget = true;
@@ -319,13 +322,17 @@ public class Shoot extends Command {
     }
 
     public Translation2d findMovingShotVector(Pose2d currentPose, Translation2d target, ShotType effectiveShotType) {
-        SmartDashboard.putString("shoot/effectiveShotType", effectiveShotType.toString());
-        SmartDashboard.putNumber("shoot/targetX", target.getX());
+        if (PerformanceTuning.isShootDashboardEnabled()) {
+            SmartDashboard.putString("shoot/effectiveShotType", effectiveShotType.toString());
+            SmartDashboard.putNumber("shoot/targetX", target.getX());
+        }
         ChassisSpeeds speedInformation = m_speedsSupplier.get();
         Translation2d robotVelVector = new Translation2d(speedInformation.vxMetersPerSecond, speedInformation.vyMetersPerSecond);
 
-        SmartDashboard.putNumber("shoot/robotVel", robotVelVector.getNorm());
-        SmartDashboard.putNumber("shoot/robotOmega", speedInformation.omegaRadiansPerSecond);
+        if (PerformanceTuning.isShootDashboardEnabled()) {
+            SmartDashboard.putNumber("shoot/robotVel", robotVelVector.getNorm());
+            SmartDashboard.putNumber("shoot/robotOmega", speedInformation.omegaRadiansPerSecond);
+        }
 
         Pose2d futureRobotPose = new Pose2d(
             currentPose.getTranslation().plus(robotVelVector.times(LATENCY_SECONDS_TRANSLATION)),
@@ -356,7 +363,7 @@ public class Shoot extends Command {
         double previousTargetDistance = 0;
         double timeOfFlight = 0;
 
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < PerformanceTuning.getShootLookaheadMaxIterations(); i++) {
             double lookupDistance = shotLookupDistance(lookaheadPose, targetVector, effectiveShotType);
             timeOfFlight = m_shooter.getShootValue(lookupDistance, effectiveShotType).timeOfFlight;
             // this is totally unsupported by real world!
@@ -390,8 +397,10 @@ public class Shoot extends Command {
                     centripetalVelocity.times(timeOfFlight));
         }
 
-        SmartDashboard.putNumber("shoot/tof", timeOfFlight);
-        SmartDashboard.putNumber("shoot/targetDistance", targetDistance);
+        if (PerformanceTuning.isShootDashboardEnabled()) {
+            SmartDashboard.putNumber("shoot/tof", timeOfFlight);
+            SmartDashboard.putNumber("shoot/targetDistance", targetDistance);
+        }
 
         return targetVector;
     }
@@ -430,6 +439,7 @@ public class Shoot extends Command {
     }
 
     private static boolean shouldPlotShotLocation() {
-        return SmartDashboard.getBoolean(PLOT_SHOT_LOCATION_KEY, RobotBase.isSimulation());
+        return PerformanceTuning.isShootPlotEnabled()
+                && SmartDashboard.getBoolean(PLOT_SHOT_LOCATION_KEY, RobotBase.isSimulation());
     }
 }

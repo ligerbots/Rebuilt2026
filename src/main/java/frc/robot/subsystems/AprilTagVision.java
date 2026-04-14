@@ -47,6 +47,7 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import frc.robot.Constants;
+import frc.robot.PerformanceTuning;
 import frc.robot.Robot.RobotType;
 
 public class AprilTagVision {
@@ -186,6 +187,9 @@ public class AprilTagVision {
         if (m_aprilTagFieldLayout == null)
             return;
 
+        boolean plotVisibleTags = PLOT_VISIBLE_TAGS && PerformanceTuning.isVisionFieldPlotsEnabled();
+        boolean plotPoseSolutions = PLOT_POSE_SOLUTIONS && PerformanceTuning.isVisionFieldPlotsEnabled();
+
         // Some lists for later plotting
         // Accumulate the results, and then plot them at the end
         ArrayList<Pose2d> visibleTags = new ArrayList<Pose2d>();
@@ -205,8 +209,13 @@ public class AprilTagVision {
                 // estimatePnpDistanceTrigSolvePose needs a history of the robot heading
                 cam.poseEstimator.addHeadingData(Timer.getFPGATimestamp(), currentPose.getRotation());
 
-                for (PhotonPipelineResult pipeRes : cam.photonCamera.getAllUnreadResults()) {
-                    camFrames.add(new CameraMeasurement(cam, pipeRes));
+                List<PhotonPipelineResult> unreadResults = cam.photonCamera.getAllUnreadResults();
+                int maxFramesPerCamera = PerformanceTuning.getVisionMaxFramesPerCamera();
+                int startIndex = maxFramesPerCamera > 0
+                        ? Math.max(0, unreadResults.size() - maxFramesPerCamera)
+                        : 0;
+                for (int i = startIndex; i < unreadResults.size(); i++) {
+                    camFrames.add(new CameraMeasurement(cam, unreadResults.get(i)));
                 }
             }
 
@@ -217,7 +226,7 @@ public class AprilTagVision {
             for (CameraMeasurement frame : camFrames) {
                 // loop over the individual tags in the frame and 
                 // add them to a list so we can plot them
-                if (PLOT_VISIBLE_TAGS) {
+                if (plotVisibleTags) {
                     for (PhotonTrackedTarget target : frame.pipelineResult.targets) {
                         int targetFiducialId = target.getFiducialId();
                         if (targetFiducialId <= 0)
@@ -292,10 +301,10 @@ public class AprilTagVision {
             DriverStation.reportError("Error updating odometry from AprilTags " + e.getLocalizedMessage(), false);
         }
 
-        if (PLOT_VISIBLE_TAGS) {
+        if (plotVisibleTags) {
             plotPoses(m_field, "visibleTags", visibleTags);
         }
-        if (PLOT_POSE_SOLUTIONS) {
+        if (plotPoseSolutions) {
             plotPoses(m_field, "visionPoses", globalMeasurements);
         }
     }

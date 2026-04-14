@@ -27,6 +27,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.PerformanceTuning;
 
 public class Flywheel extends SubsystemBase {
     private static final double SPEED_TOLERANCE_RPM = 175.0;
@@ -119,6 +120,10 @@ public class Flywheel extends SubsystemBase {
     public void periodic() {
         updateTorqueCurrentAverage();
         updateShotDetectionArming();
+
+        if (!PerformanceTuning.shouldPublishFlywheelDashboardThisLoop()) {
+            return;
+        }
 
         SmartDashboard.putNumber("flywheel/currentRPM", getRPM()); 
         SmartDashboard.putNumber("flywheel/goalRPM", m_goalRPM);

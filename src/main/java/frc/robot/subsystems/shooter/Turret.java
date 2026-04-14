@@ -29,6 +29,7 @@ import static edu.wpi.first.units.Units.Amps;
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import frc.robot.PerformanceTuning;
 
 public class Turret extends SubsystemBase {
     
@@ -156,7 +157,11 @@ public class Turret extends SubsystemBase {
 
     // This method will be called once per scheduler run
     @Override
-    public void periodic() {    
+    public void periodic() {
+        if (!PerformanceTuning.shouldPublishTurretDashboardThisLoop()) {
+            return;
+        }
+
         double goal = getGoalDeg();
         double currentAngle = getAngle().getDegrees();
         SmartDashboard.putNumber("turret/currentAngle", currentAngle);

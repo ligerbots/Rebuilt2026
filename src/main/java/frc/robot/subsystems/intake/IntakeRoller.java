@@ -21,6 +21,7 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.PerformanceTuning;
 
 public class IntakeRoller extends SubsystemBase {
     private static final Current SUPPLY_CURRENT_LIMIT = Amps.of(40);
@@ -87,6 +88,10 @@ public class IntakeRoller extends SubsystemBase {
 
     @Override
     public void periodic() {
+        if (!PerformanceTuning.shouldPublishIntakeRollerDashboardThisLoop()) {
+            return;
+        }
+
         SmartDashboard.putNumber("intake/voltage", m_motor.getMotorVoltage().getValueAsDouble()); 
         SmartDashboard.putNumber("intake/RPM", getRPM()); 
         SmartDashboard.putNumber("intake/goalRPM", m_goalRPM); 

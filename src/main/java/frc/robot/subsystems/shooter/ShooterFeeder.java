@@ -18,6 +18,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.PerformanceTuning;
 
 public class ShooterFeeder extends SubsystemBase {
     
@@ -114,6 +115,10 @@ public class ShooterFeeder extends SubsystemBase {
 
     @Override
     public void periodic() {
+        if (!PerformanceTuning.shouldPublishFeederDashboardThisLoop()) {
+            return;
+        }
+
         SmartDashboard.putNumber("kicker/currentRPM", getKickerRPM()); 
         SmartDashboard.putNumber("kicker/goalRPM", m_kickerGoalRPM);
         SmartDashboard.putNumber("kicker/statorCurrent", m_motorKicker.getStatorCurrent().getValueAsDouble());
