@@ -22,14 +22,17 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.InternalButton;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 import frc.robot.commands.*;
 import frc.robot.commands.autoCommands.AutoCommandInterface;
@@ -110,7 +113,7 @@ public class RobotContainerCompBot extends RobotContainer {
         // assign the Shoot button that is used during Autos
         // used only when shooting directly in the command
         // not used by PathPlanner triggers
-        m_virtualShootButton.whileTrue(getShootCommand());
+        bindShootTrigger(m_virtualShootButton, getShootCommand(m_virtualShootButton::getAsBoolean));
 
         m_chosenAutoPaths.setDefaultOption("Depot Double Swipe Blitz", List.of(
                 "First Swipe Blitz",
@@ -234,8 +237,19 @@ public class RobotContainerCompBot extends RobotContainer {
     }
 
     public Command getShootCommand() {
+        return getShootCommand(() -> true);
+    }
+
+    public Command getShootCommand(java.util.function.BooleanSupplier wantsShootSupplier) {
         return withHopperControl(
-                new Shoot(m_shooter, m_turret, m_shooterFeeder, m_drivetrain::getPose, m_drivetrain::getFieldCentricSpeeds, ShotType.AUTO));
+                new Shoot(
+                        m_shooter,
+                        m_turret,
+                        m_shooterFeeder,
+                        m_drivetrain::getPose,
+                        m_drivetrain::getFieldCentricSpeeds,
+                        ShotType.AUTO,
+                        wantsShootSupplier));
                         //     new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningShooter", true)));
     }
     
@@ -243,7 +257,10 @@ public class RobotContainerCompBot extends RobotContainer {
         new EventTrigger("Run Intake").onTrue(m_intake.deployAndRollCommand().alongWith(new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningIntake", true))));
         new EventTrigger("Stop Intake").onTrue(m_intake.stowCommand().alongWith(new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningIntake", false))));
 
-        new EventTrigger("Shooter Running").whileTrue(getShootCommand());
+        InternalButton autoShootHeld = new InternalButton();
+        new EventTrigger("Shooter Running").onTrue(new InstantCommand(() -> autoShootHeld.setPressed(true)));
+        new EventTrigger("Shooter Running").onFalse(new InstantCommand(() -> autoShootHeld.setPressed(false)));
+        bindShootTrigger(autoShootHeld, getShootCommand(autoShootHeld::getAsBoolean));
         new EventTrigger("Shooter Running").onFalse(new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningShooter", false)));
 
      }
@@ -265,10 +282,12 @@ public class RobotContainerCompBot extends RobotContainer {
         );
 
         // Just shoot
-        m_driverController.rightTrigger().whileTrue(getShootCommand());
+        var driverShootTrigger = m_driverController.rightTrigger();
+        bindShootTrigger(driverShootTrigger, getShootCommand(driverShootTrigger::getAsBoolean));
 
         // shoot while intaking
-        m_driverController.rightBumper().whileTrue(getShootCommand());
+        var driverShootWhileIntakingTrigger = m_driverController.rightBumper();
+        bindShootTrigger(driverShootWhileIntakingTrigger, getShootCommand(driverShootWhileIntakingTrigger::getAsBoolean));
         m_driverController.rightBumper().onTrue(m_intake.getPivot().deployCommand());
         m_driverController.rightBumper().whileTrue(
                 new StartEndCommand(m_intake.getRoller()::intake, m_intake.getRoller()::stop, m_intake.getRoller()));
@@ -294,18 +313,24 @@ public class RobotContainerCompBot extends RobotContainer {
 
         // fixed shots - distance in inches, plus ROBOT angle of turret
         // ladder - robot against the outside of the ladder, intake to the left for the dirver
-        m_farm.button(11).whileTrue(withHopperControl(
+        var ladderShotButton = m_farm.button(11);
+        bindShootTrigger(ladderShotButton, withHopperControl(
                 new Shoot(m_shooter, m_turret, m_shooterFeeder,
-                        m_drivetrain::getPose, m_drivetrain::getFieldCentricSpeeds, 130.0, Rotation2d.kCCW_90deg)));
+                        m_drivetrain::getPose, m_drivetrain::getFieldCentricSpeeds, 130.0, Rotation2d.kCCW_90deg,
+                        ladderShotButton::getAsBoolean)));
 
         // corner shot
-        m_farm.button(13).whileTrue(withHopperControl(
+        var cornerShotButton = m_farm.button(13);
+        bindShootTrigger(cornerShotButton, withHopperControl(
                 new Shoot(m_shooter, m_turret, m_shooterFeeder,
-                        m_drivetrain::getPose, m_drivetrain::getFieldCentricSpeeds, 210.0, Rotation2d.k180deg)));
+                        m_drivetrain::getPose, m_drivetrain::getFieldCentricSpeeds, 210.0, Rotation2d.k180deg,
+                        cornerShotButton::getAsBoolean)));
 
-        m_farm.button(15).whileTrue(withHopperControl(
+        var testShotButton = m_farm.button(15);
+        bindShootTrigger(testShotButton, withHopperControl(
                 new Shoot(m_shooter, m_turret, m_shooterFeeder,
-                        m_drivetrain::getPose, m_drivetrain::getFieldCentricSpeeds, ShotType.TEST)));
+                        m_drivetrain::getPose, m_drivetrain::getFieldCentricSpeeds, ShotType.TEST,
+                        testShotButton::getAsBoolean)));
 
         m_farm.button(1).onTrue(new InstantCommand(m_shooter::increaseFlyFudge));
         m_farm.button(2).onTrue(new InstantCommand(m_shooter::decreaseFlyFudge));
@@ -433,7 +458,16 @@ public class RobotContainerCompBot extends RobotContainer {
                 m_intake.outtakeCommand());
     }
 
-    private Command withHopperControl(Command shootCommand) {
-        return shootCommand.alongWith(new PulseHopper(m_hopper, m_shooter, m_turret));
+    private Command withHopperControl(Shoot shootCommand) {
+        return shootCommand.deadlineFor(new PulseHopper(m_hopper, () -> m_shooter.getFlywheel().isJamDetected()));
+    }
+
+    private void bindShootTrigger(Trigger trigger, Command shootCommand) {
+        trigger.onTrue(Commands.runOnce(() -> CommandScheduler.getInstance().schedule(shootCommand)));
+        trigger.onFalse(new InstantCommand(() -> {
+            if (!Shoot.isFinishAfterReleaseEnabledForBindings() && shootCommand.isScheduled()) {
+                shootCommand.cancel();
+            }
+        }));
     }
 }

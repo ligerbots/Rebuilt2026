@@ -40,7 +40,7 @@ public class Shooter extends SubsystemBase {
 
     // Manual adjust on the hood angle (additive)
     private double m_hoodFudgeDegree = 0.0;
-    private static final double HOOD_FUDGE_INCREMENT_DEGREES = 0.5;
+    private static final double HOOD_FUDGE_INCREMENT_DEGREES = 0.1;
     
     private Hood m_hood;
     private Flywheel m_flywheel;
@@ -87,8 +87,12 @@ public class Shooter extends SubsystemBase {
     }
 
     public void setShootValues(ShootValue shootValues) {
+        setShootValues(shootValues, true);
+    }
+
+    public void setShootValues(ShootValue shootValues, boolean allowFlywheelReset) {
         // Phase 2: Set shooter speed, and hood angle
-        m_flywheel.setRPM(shootValues.flyRPM);
+        m_flywheel.setRPM(shootValues.flyRPM, allowFlywheelReset);
         m_hood.setAngle(shootValues.hoodAngle);
     }
 

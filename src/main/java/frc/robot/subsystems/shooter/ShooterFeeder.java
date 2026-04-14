@@ -6,6 +6,7 @@
 
 package frc.robot.subsystems.shooter;
 
+import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -20,6 +21,11 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
 public class ShooterFeeder extends SubsystemBase {
+    private static final double DEFAULT_KICKER_PULLBACK_RPM = -1200.0;
+    private static final double DEFAULT_KICKER_ON_TARGET_TOLERANCE_RPM = 250.0;
+
+    private static final String KICKER_PULLBACK_RPM_KEY = "kicker/pullbackRPM";
+    private static final String KICKER_ON_TARGET_TOLERANCE_RPM_KEY = "kicker/onTargetToleranceRPM";
     
     private static final double KICKER_K_P = 0.4;
     private static final double KICKER_K_I = 0.0; 
@@ -56,6 +62,9 @@ public class ShooterFeeder extends SubsystemBase {
     public ShooterFeeder() {
         m_motorKicker = new TalonFX(Constants.SHOOTER_KICKER_CAN_ID);
         m_motorFeeder = new TalonFX(Constants.SHOOTER_FEEDER_BELTS_CAN_ID);
+
+        SmartDashboard.setDefaultNumber(KICKER_PULLBACK_RPM_KEY, DEFAULT_KICKER_PULLBACK_RPM);
+        SmartDashboard.setDefaultNumber(KICKER_ON_TARGET_TOLERANCE_RPM_KEY, DEFAULT_KICKER_ON_TARGET_TOLERANCE_RPM);
 
         TalonFXConfiguration kickerConfig = new TalonFXConfiguration();  
         Slot0Configs kickerSlot0Configs = kickerConfig.Slot0;
@@ -116,6 +125,8 @@ public class ShooterFeeder extends SubsystemBase {
     public void periodic() {
         SmartDashboard.putNumber("kicker/currentRPM", getKickerRPM()); 
         SmartDashboard.putNumber("kicker/goalRPM", m_kickerGoalRPM);
+        SmartDashboard.putBoolean("kicker/onTarget", isKickerOnTarget());
+        SmartDashboard.putNumber("kicker/rpmRatePerSec", getKickerAccelerationRPMPerSec());
         SmartDashboard.putNumber("kicker/statorCurrent", m_motorKicker.getStatorCurrent().getValueAsDouble());
         SmartDashboard.putNumber("kicker/supplyCurrent", m_motorKicker.getSupplyCurrent().getValueAsDouble());
 
@@ -129,6 +140,21 @@ public class ShooterFeeder extends SubsystemBase {
     public double getKickerRPM(){
         return m_motorKicker.getVelocity().getValueAsDouble() * 60; //convert rps to rpm
     }
+
+    public double getKickerGoalRPM() {
+        return m_kickerGoalRPM;
+    }
+
+    public double getKickerAccelerationRPMPerSec() {
+        return m_motorKicker.getAcceleration().getValueAsDouble() * 60.0;
+    }
+
+    public double getLatencyCompensatedKickerRPM(double maxLatencySec) {
+        return BaseStatusSignal.getLatencyCompensatedValueAsDouble(
+                m_motorKicker.getVelocity(),
+                m_motorKicker.getAcceleration(),
+                maxLatencySec) * 60.0;
+    }
     
     public void setKickerVoltage(double voltage) {
         m_voltageControl.Output = voltage;
@@ -140,7 +166,18 @@ public class ShooterFeeder extends SubsystemBase {
         m_velocityControl.Velocity = m_kickerGoalRPM / 60;   // velocity is in rot/second
         m_motorKicker.setControl(m_velocityControl);
     }
-    
+
+    public void pullBackKicker() {
+        setKickerRPM(SmartDashboard.getNumber(KICKER_PULLBACK_RPM_KEY, DEFAULT_KICKER_PULLBACK_RPM));
+    }
+
+    public boolean isKickerOnTarget() {
+        double toleranceRPM = SmartDashboard.getNumber(
+                KICKER_ON_TARGET_TOLERANCE_RPM_KEY,
+                DEFAULT_KICKER_ON_TARGET_TOLERANCE_RPM);
+        return Math.abs(getKickerRPM() - m_kickerGoalRPM) < toleranceRPM;
+    }
+
     public double getFeederRPM(){
         return m_motorFeeder.getVelocity().getValueAsDouble() * 60; //convert rps to rpm
     }
