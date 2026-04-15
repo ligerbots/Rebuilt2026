@@ -39,14 +39,14 @@ public class Hopper extends SubsystemBase {
     private static final double K_FF = 0.0022;  // V/rpm
 
     private static final double INTAKE_RPM = 0.0;
-    private static final double FEED_RPM = 3600.0;
+    private static final double FEED_RPM = 4375.0;
     private static final double REVERSE_RPM = -3600.0;
 
     private static final String FEED_COMP_RPM_PER_MPS_KEY = "hopper/feedCompRPMPerMps";
     private static final String FEED_COMP_MAX_RPM_KEY = "hopper/feedCompMaxRPM";
 
-    private static final double DEFAULT_FEED_COMP_RPM_PER_MPS = 450.0;
-    private static final double DEFAULT_FEED_COMP_MAX_RPM = 1400.0;
+    private static final double DEFAULT_FEED_COMP_RPM_PER_MPS = 750.0;
+    private static final double DEFAULT_FEED_COMP_MAX_RPM = 2200.0;
     
     private final TalonFX m_motor;
     private final Supplier<ChassisSpeeds> m_robotRelativeSpeedsSupplier;

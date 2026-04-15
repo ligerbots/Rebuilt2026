@@ -32,10 +32,10 @@ public class Flywheel extends SubsystemBase {
     private static final double SPEED_TOLERANCE_RPM = 175.0;
     private static final double DEFAULT_JAM_TOTAL_TORQUE_CURRENT_AMPS = 17.5;
     private static final double DEFAULT_JAM_MIN_GOAL_RPM = 250.0;
-    private static final double DEFAULT_JAM_SPINUP_GRACE_SEC = 0.1;
+    private static final double DEFAULT_JAM_SPINUP_GRACE_SEC = 0.05;
     private static final double DEFAULT_JAM_SMOOTHING_WINDOW_SEC = 1.0;
     private static final double DEFAULT_SHOT_DETECTED_TORQUE_CURRENT_AMPS = 30.0;
-    private static final double DEFAULT_SHOT_DETECTED_ARM_DELAY_SEC = 0.0;
+    private static final double DEFAULT_SHOT_DETECTED_ARM_DELAY_SEC = .1;
 
     private static final String JAM_TOTAL_TORQUE_CURRENT_KEY = "flywheel/jamTorqueCurrentThresholdAmps";
     private static final String JAM_MIN_GOAL_RPM_KEY = "flywheel/jamMinGoalRPM";
@@ -240,7 +240,7 @@ public class Flywheel extends SubsystemBase {
     public boolean isCurrentJamDetected() {
         double now = Timer.getFPGATimestamp();
 
-        if((now - m_jamGrace) >= JAM_GRACE){
+        if((now - m_jamGrace) >= JAM_GRACE && m_shotDetectionArmed){
             return true;
         }
         return false;
