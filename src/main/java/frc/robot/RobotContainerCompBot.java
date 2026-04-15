@@ -25,7 +25,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.InternalButton;
@@ -74,7 +73,7 @@ public class RobotContainerCompBot extends RobotContainer {
     private final Turret m_turret = new Turret(m_logger.getField2d());
 
     private final Intake m_intake = new Intake();
-    private final Hopper m_hopper = new Hopper();
+    private final Hopper m_hopper;
 
     private final InternalButton m_virtualShootButton = new InternalButton();
 
@@ -97,6 +96,7 @@ public class RobotContainerCompBot extends RobotContainer {
             TunerConstantsCompBot.DrivetrainConstants,
             TunerConstantsCompBot.FrontLeft, TunerConstantsCompBot.FrontRight, TunerConstantsCompBot.BackLeft, TunerConstantsCompBot.BackRight
         );
+        m_hopper = new Hopper(m_drivetrain::getRobotCentricSpeeds); 
 
         m_drivetrain.setupPathPlanner();
 
