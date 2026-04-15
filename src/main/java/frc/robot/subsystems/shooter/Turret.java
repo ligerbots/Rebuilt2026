@@ -165,7 +165,7 @@ public class Turret extends SubsystemBase {
 
         // Driver-facing status
         SmartDashboard.putNumber("turret/currentAngle", currentAngle);
-        RateLimitedSmartDashboard.putNumber("turret/fudgeAngle", m_turretFudgeDegrees, LOW_PRIORITY_TELEMETRY_PERIOD_SEC);
+        SmartDashboard.putNumber("turret/fudgeAngle", m_turretFudgeDegrees);
 
         // Tracking state
         RobotLog.log("turret/angleError", goal - currentAngle);

@@ -7,6 +7,7 @@ package frc.robot.subsystems.shooter;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.utilities.RobotLog;
@@ -88,10 +89,10 @@ public class Hood extends SubsystemBase {
     @Override
     public void periodic() {
         // Driver-facing status
-        RateLimitedSmartDashboard.putNumber("hood/currentAngle", getAngle().getDegrees(), LOW_PRIORITY_TELEMETRY_PERIOD_SEC);
+        SmartDashboard.putNumber("hood/currentAngle", getAngle().getDegrees());
 
         // Commanded state
-        RobotLog.log("hood/goalAngle", m_goalDeg, LOW_PRIORITY_TELEMETRY_PERIOD_SEC);
+        RobotLog.log("hood/goalAngle", m_goalDeg);
 
         // Raw sensor/debug
         // RobotLog.log("hood/rawMotorAngle", m_motor.getPosition().getValueAsDouble());
