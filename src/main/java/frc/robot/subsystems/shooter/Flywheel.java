@@ -114,9 +114,10 @@ public class Flywheel extends SubsystemBase {
         // Driver-facing status
         SmartDashboard.putBoolean("flywheel/shotDetected", isShotDetected());
         SmartDashboard.putBoolean("flywheel/jammed", isCurrentJamDetected());
+        SmartDashboard.putNumber("flywheel/currentRPM", getRPM());
+
 
         // Speed and setpoint
-        RobotLog.log("flywheel/currentRPM", getRPM());
         RobotLog.log("flywheel/goalRPM", m_goalRPM);
 
         // Detection state

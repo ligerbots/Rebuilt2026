@@ -29,7 +29,6 @@ import frc.robot.utilities.RobotLog;
 import frc.robot.utilities.RateLimitedSmartDashboard;
 
 public class IntakePivot extends SubsystemBase {
-    private static final double LOW_PRIORITY_TELEMETRY_PERIOD_SEC = 0.2;
     private static final Current SUPPLY_CURRENT_LIMIT = Amps.of(20);
     private static final Current STATOR_CURRENT_LIMIT = Amps.of(40);
     
@@ -116,11 +115,11 @@ public class IntakePivot extends SubsystemBase {
     @Override
     public void periodic() {
         // Driver-facing status
-        RateLimitedSmartDashboard.putNumber("intake/deployAngle", getAngle().getDegrees(), LOW_PRIORITY_TELEMETRY_PERIOD_SEC);
-        RateLimitedSmartDashboard.putBoolean("intake/onTarget", onTarget(), LOW_PRIORITY_TELEMETRY_PERIOD_SEC);
+        SmartDashboard.putNumber("intake/deployAngle", getAngle().getDegrees());
+        SmartDashboard.putBoolean("intake/onTarget", onTarget());
 
         // Commanded state
-        RobotLog.log("intake/deployGoal", m_goal.getDegrees(), LOW_PRIORITY_TELEMETRY_PERIOD_SEC);
+        RobotLog.log("intake/deployGoal", m_goal.getDegrees());
 
         // Motor electrical data
         RobotLog.log("intake/supplyCurrent", m_motor.getSupplyCurrent().getValueAsDouble());

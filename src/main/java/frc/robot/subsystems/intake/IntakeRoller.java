@@ -93,11 +93,11 @@ public class IntakeRoller extends SubsystemBase {
         SmartDashboard.putNumber("intake/RPM", getRPM()); 
         
         // Commanded state
-        RobotLog.log("intake/goalRPM", m_goalRPM, LOW_PRIORITY_TELEMETRY_PERIOD_SEC);
-        RobotLog.log("intake/voltageFudge", m_intakeRPMScale, LOW_PRIORITY_TELEMETRY_PERIOD_SEC);
+        RobotLog.log("intake/goalRPM", m_goalRPM);
+        RobotLog.log("intake/voltageFudge", m_intakeRPMScale);
 
         // Motor electrical data
-        RobotLog.log("intake/voltage", m_motor.getMotorVoltage().getValueAsDouble(), LOW_PRIORITY_TELEMETRY_PERIOD_SEC);
+        RobotLog.log("intake/voltage", m_motor.getMotorVoltage().getValueAsDouble());
         RobotLog.log("intake/rollerSupply", m_motor.getSupplyCurrent().getValueAsDouble());
         RobotLog.log("intake/rollerStator", m_motor.getStatorCurrent().getValueAsDouble());
     }
