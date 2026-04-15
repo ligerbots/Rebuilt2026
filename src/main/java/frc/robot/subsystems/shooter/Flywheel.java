@@ -30,14 +30,14 @@ import frc.robot.Constants;
 
 public class Flywheel extends SubsystemBase {
     private static final double SPEED_TOLERANCE_RPM = 175.0;
-    private static final double DEFAULT_JAM_TOTAL_TORQUE_CURRENT_AMPS = 17.5;
+    // private static final double DEFAULT_JAM_TOTAL_TORQUE_CURRENT_AMPS = 17.5;
     private static final double DEFAULT_JAM_MIN_GOAL_RPM = 250.0;
     private static final double DEFAULT_JAM_SPINUP_GRACE_SEC = 0.05;
     private static final double DEFAULT_JAM_SMOOTHING_WINDOW_SEC = 1.0;
     private static final double DEFAULT_SHOT_DETECTED_TORQUE_CURRENT_AMPS = 30.0;
     private static final double DEFAULT_SHOT_DETECTED_ARM_DELAY_SEC = .1;
 
-    private static final String JAM_TOTAL_TORQUE_CURRENT_KEY = "flywheel/jamTorqueCurrentThresholdAmps";
+    // private static final String JAM_TOTAL_TORQUE_CURRENT_KEY = "flywheel/jamTorqueCurrentThresholdAmps";
     private static final String JAM_MIN_GOAL_RPM_KEY = "flywheel/jamMinGoalRPM";
     private static final String JAM_SPINUP_GRACE_KEY = "flywheel/jamSpinupGraceSec";
     private static final String JAM_SMOOTHING_WINDOW_KEY = "flywheel/jamSmoothingWindowSec";
@@ -98,7 +98,7 @@ public class Flywheel extends SubsystemBase {
         m_follower.setNeutralMode(NeutralModeValue.Coast);
         m_follower.setControl(new Follower(m_motor.getDeviceID(), MotorAlignmentValue.Opposed));
 
-        SmartDashboard.setDefaultNumber(JAM_TOTAL_TORQUE_CURRENT_KEY, DEFAULT_JAM_TOTAL_TORQUE_CURRENT_AMPS);
+        // SmartDashboard.setDefaultNumber(JAM_TOTAL_TORQUE_CURRENT_KEY, DEFAULT_JAM_TOTAL_TORQUE_CURRENT_AMPS);
         SmartDashboard.setDefaultNumber(JAM_MIN_GOAL_RPM_KEY, DEFAULT_JAM_MIN_GOAL_RPM);
         SmartDashboard.setDefaultNumber(JAM_SPINUP_GRACE_KEY, DEFAULT_JAM_SPINUP_GRACE_SEC);
         SmartDashboard.setDefaultNumber(JAM_SMOOTHING_WINDOW_KEY, DEFAULT_JAM_SMOOTHING_WINDOW_SEC);
@@ -119,9 +119,11 @@ public class Flywheel extends SubsystemBase {
 
     @Override
     public void periodic() {
-        updateTorqueCurrentAverage();
-        updateShotDetectionArming();
-        updateJamTime();        
+        double now = Timer.getFPGATimestamp();
+
+        updateTorqueCurrentAverage(now);
+        updateShotDetectionArming(now);
+        updateJamTime(now);        
         SmartDashboard.putNumber("flywheel/currentRPM", getRPM()); 
         SmartDashboard.putNumber("flywheel/goalRPM", m_goalRPM);
         SmartDashboard.putNumber("flywheel/jamGrace", m_jamGrace);
@@ -133,7 +135,7 @@ public class Flywheel extends SubsystemBase {
         SmartDashboard.putNumber("flywheel/followerTorqueCurrent", m_follower.getTorqueCurrent().getValueAsDouble());
         SmartDashboard.putNumber("flywheel/totalTorqueCurrent", getTotalTorqueCurrent());
         SmartDashboard.putNumber("flywheel/avgTorqueCurrent", getAverageTorqueCurrent());
-        SmartDashboard.putBoolean("flywheel/jamDetectionArmed", isJamDetectionArmed());
+        SmartDashboard.putBoolean("flywheel/jamDetectionArmed", isJamDetectionArmed(now));
         SmartDashboard.putBoolean("flywheel/shotDetectionArmed", m_shotDetectionArmed);
         SmartDashboard.putBoolean("flywheel/currentJamDetected", isCurrentJamDetected());
         SmartDashboard.putBoolean("flywheel/shotDetected", isShotDetected());
@@ -160,13 +162,12 @@ public class Flywheel extends SubsystemBase {
         return m_torqueCurrentSampleSum / m_torqueCurrentSamples.size();
     }
     
-
-
     public void setRPM(double rpm) {
         if (Math.abs(rpm - m_goalRPM) > SPEED_TOLERANCE_RPM) {
-            m_lastSpinupCommandTimeSec = Timer.getFPGATimestamp();
+            double now = Timer.getFPGATimestamp();
+            m_lastSpinupCommandTimeSec = now;
             resetTorqueCurrentAverage();
-            resetShotDetection();
+            resetShotDetection(now);
         }
 
         m_goalRPM = rpm;
@@ -193,18 +194,16 @@ public class Flywheel extends SubsystemBase {
         setVoltage(0);
         m_goalRPM = 0;
         resetTorqueCurrentAverage();
-        resetShotDetection();
+        resetShotDetection(Timer.getFPGATimestamp());
     }
 
-    private boolean isJamDetectionArmed() {
-        double now = Timer.getFPGATimestamp();
+    private boolean isJamDetectionArmed(double now) {
         return m_goalRPM >= getJamMinGoalRPM()
                 && now - m_lastSpinupCommandTimeSec >= getJamSpinupGraceSec()
                 && hasFilledSmoothingWindow(now);
     }
 
-    private void updateTorqueCurrentAverage() {
-        double now = Timer.getFPGATimestamp();
+    private void updateTorqueCurrentAverage(double now) {
         double current = getTotalTorqueCurrent();
         m_torqueCurrentSamples.addLast(new TorqueCurrentSample(now, current));
         m_torqueCurrentSampleSum += current;
@@ -230,8 +229,7 @@ public class Flywheel extends SubsystemBase {
                 && now - m_torqueCurrentSamples.peekFirst().timestampSec() >= getJamSmoothingWindowSec();
     }
 
-    private void updateJamTime(){
-        double now = Timer.getFPGATimestamp();
+    private void updateJamTime(double now){
         if (isShotDetected() == true){
                 m_jamGrace = now;
             }
@@ -240,17 +238,12 @@ public class Flywheel extends SubsystemBase {
     public boolean isCurrentJamDetected() {
         double now = Timer.getFPGATimestamp();
 
-        if((now - m_jamGrace) >= JAM_GRACE && m_shotDetectionArmed){
-            return true;
-        }
-        return false;
+        return (now - m_jamGrace) >= JAM_GRACE && m_shotDetectionArmed;
     }
 
-    private void updateShotDetectionArming() {
-        double now = Timer.getFPGATimestamp();
-
+    private void updateShotDetectionArming(double now) {
         if (m_goalRPM < getJamMinGoalRPM()) {
-            resetShotDetection();
+            resetShotDetection(now);
             m_onTargetStartTimeSec = now;
             return;
         }
@@ -266,14 +259,14 @@ public class Flywheel extends SubsystemBase {
         }
     }
 
-    private void resetShotDetection() {
+    private void resetShotDetection(double now) {
         m_shotDetectionArmed = false;
-        m_onTargetStartTimeSec = Timer.getFPGATimestamp();
+        m_onTargetStartTimeSec = now;
     }
 
-    private double getJamTorqueCurrentThresholdAmps() {
-        return SmartDashboard.getNumber(JAM_TOTAL_TORQUE_CURRENT_KEY, DEFAULT_JAM_TOTAL_TORQUE_CURRENT_AMPS);
-    }
+    // private double getJamTorqueCurrentThresholdAmps() {
+    //     return SmartDashboard.getNumber(JAM_TOTAL_TORQUE_CURRENT_KEY, DEFAULT_JAM_TOTAL_TORQUE_CURRENT_AMPS);
+    // }
 
     private double getJamMinGoalRPM() {
         return SmartDashboard.getNumber(JAM_MIN_GOAL_RPM_KEY, DEFAULT_JAM_MIN_GOAL_RPM);
