@@ -27,22 +27,15 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.utilities.RobotLog;
 
 public class Flywheel extends SubsystemBase {
     private static final double SPEED_TOLERANCE_RPM = 175.0;
-    // private static final double DEFAULT_JAM_TOTAL_TORQUE_CURRENT_AMPS = 17.5;
-    private static final double DEFAULT_JAM_MIN_GOAL_RPM = 250.0;
-    private static final double DEFAULT_JAM_SPINUP_GRACE_SEC = 0.05;
-    private static final double DEFAULT_JAM_SMOOTHING_WINDOW_SEC = 1.0;
-    private static final double DEFAULT_SHOT_DETECTED_TORQUE_CURRENT_AMPS = 30.0;
-    private static final double DEFAULT_SHOT_DETECTED_ARM_DELAY_SEC = .1;
-
-    // private static final String JAM_TOTAL_TORQUE_CURRENT_KEY = "flywheel/jamTorqueCurrentThresholdAmps";
-    private static final String JAM_MIN_GOAL_RPM_KEY = "flywheel/jamMinGoalRPM";
-    private static final String JAM_SPINUP_GRACE_KEY = "flywheel/jamSpinupGraceSec";
-    private static final String JAM_SMOOTHING_WINDOW_KEY = "flywheel/jamSmoothingWindowSec";
-    private static final String SHOT_DETECTED_TORQUE_CURRENT_KEY = "flywheel/shotDetectedTorqueCurrentAmps";
-    private static final String SHOT_DETECTED_ARM_DELAY_KEY = "flywheel/shotDetectedArmDelaySec";
+    private static final double JAM_MIN_GOAL_RPM = 250.0;
+    private static final double JAM_SPINUP_GRACE_SEC = 0.05;
+    private static final double JAM_SMOOTHING_WINDOW_SEC = 1.0;
+    private static final double SHOT_DETECTED_TORQUE_CURRENT_AMPS = 30.0;
+    private static final double SHOT_DETECTED_ARM_DELAY_SEC = 0.1;
 
     private record TorqueCurrentSample(double timestampSec, double currentAmps) {}
     
@@ -98,13 +91,6 @@ public class Flywheel extends SubsystemBase {
         m_follower.setNeutralMode(NeutralModeValue.Coast);
         m_follower.setControl(new Follower(m_motor.getDeviceID(), MotorAlignmentValue.Opposed));
 
-        // SmartDashboard.setDefaultNumber(JAM_TOTAL_TORQUE_CURRENT_KEY, DEFAULT_JAM_TOTAL_TORQUE_CURRENT_AMPS);
-        SmartDashboard.setDefaultNumber(JAM_MIN_GOAL_RPM_KEY, DEFAULT_JAM_MIN_GOAL_RPM);
-        SmartDashboard.setDefaultNumber(JAM_SPINUP_GRACE_KEY, DEFAULT_JAM_SPINUP_GRACE_SEC);
-        SmartDashboard.setDefaultNumber(JAM_SMOOTHING_WINDOW_KEY, DEFAULT_JAM_SMOOTHING_WINDOW_SEC);
-        SmartDashboard.setDefaultNumber(SHOT_DETECTED_TORQUE_CURRENT_KEY, DEFAULT_SHOT_DETECTED_TORQUE_CURRENT_AMPS);
-        SmartDashboard.setDefaultNumber(SHOT_DETECTED_ARM_DELAY_KEY, DEFAULT_SHOT_DETECTED_ARM_DELAY_SEC);
-
         // DO NOT mess with the update frequency on the motors. This can affect
         //  the leader/follower behavior. If we really need it, we will investigate.
         // https://www.chiefdelphi.com/t/setting-up-ctre-followers/512315/12
@@ -124,21 +110,32 @@ public class Flywheel extends SubsystemBase {
         updateTorqueCurrentAverage(now);
         updateShotDetectionArming(now);
         updateJamTime(now);        
-        SmartDashboard.putNumber("flywheel/currentRPM", getRPM()); 
-        SmartDashboard.putNumber("flywheel/goalRPM", m_goalRPM);
-        SmartDashboard.putNumber("flywheel/jamGrace", m_jamGrace);
-        SmartDashboard.putNumber("flywheel/leaderStator", m_motor.getStatorCurrent().getValueAsDouble());
-        SmartDashboard.putNumber("flywheel/followerStator", m_follower.getStatorCurrent().getValueAsDouble());
-        SmartDashboard.putNumber("flywheel/leaderSupply", m_motor.getSupplyCurrent().getValueAsDouble());
-        SmartDashboard.putNumber("flywheel/followerSupply", m_follower.getSupplyCurrent().getValueAsDouble());
-        SmartDashboard.putNumber("flywheel/leaderTorqueCurrent", m_motor.getTorqueCurrent().getValueAsDouble());
-        SmartDashboard.putNumber("flywheel/followerTorqueCurrent", m_follower.getTorqueCurrent().getValueAsDouble());
-        SmartDashboard.putNumber("flywheel/totalTorqueCurrent", getTotalTorqueCurrent());
-        SmartDashboard.putNumber("flywheel/avgTorqueCurrent", getAverageTorqueCurrent());
-        SmartDashboard.putBoolean("flywheel/jamDetectionArmed", isJamDetectionArmed(now));
-        SmartDashboard.putBoolean("flywheel/shotDetectionArmed", m_shotDetectionArmed);
-        SmartDashboard.putBoolean("flywheel/currentJamDetected", isCurrentJamDetected());
+
+        // Driver-facing status
         SmartDashboard.putBoolean("flywheel/shotDetected", isShotDetected());
+        SmartDashboard.putBoolean("flywheel/jammed", isCurrentJamDetected());
+
+        // Speed and setpoint
+        RobotLog.log("flywheel/currentRPM", getRPM());
+        RobotLog.log("flywheel/goalRPM", m_goalRPM);
+
+        // Detection state
+        RobotLog.log("flywheel/shotDetectionArmed", m_shotDetectionArmed);
+        RobotLog.log("flywheel/jamDetectionArmed", isJamDetectionArmed(now));
+        RobotLog.log("flywheel/jamGrace", m_jamGrace);
+        RobotLog.log("flywheel/currentJamDetected", isCurrentJamDetected());
+
+        // Motor electrical data
+        RobotLog.log("flywheel/leaderStator", m_motor.getStatorCurrent().getValueAsDouble());
+        RobotLog.log("flywheel/followerStator", m_follower.getStatorCurrent().getValueAsDouble());
+        RobotLog.log("flywheel/leaderSupply", m_motor.getSupplyCurrent().getValueAsDouble());
+        RobotLog.log("flywheel/followerSupply", m_follower.getSupplyCurrent().getValueAsDouble());
+        RobotLog.log("flywheel/leaderTorqueCurrent", m_motor.getTorqueCurrent().getValueAsDouble());
+        RobotLog.log("flywheel/followerTorqueCurrent", m_follower.getTorqueCurrent().getValueAsDouble());
+
+        // Derived current metrics
+        RobotLog.log("flywheel/totalTorqueCurrent", getTotalTorqueCurrent());
+        RobotLog.log("flywheel/avgTorqueCurrent", getAverageTorqueCurrent());
     }
     
     public void setVoltage(double voltage) {
@@ -264,28 +261,23 @@ public class Flywheel extends SubsystemBase {
         m_onTargetStartTimeSec = now;
     }
 
-    // private double getJamTorqueCurrentThresholdAmps() {
-    //     return SmartDashboard.getNumber(JAM_TOTAL_TORQUE_CURRENT_KEY, DEFAULT_JAM_TOTAL_TORQUE_CURRENT_AMPS);
-    // }
-
     private double getJamMinGoalRPM() {
-        return SmartDashboard.getNumber(JAM_MIN_GOAL_RPM_KEY, DEFAULT_JAM_MIN_GOAL_RPM);
+        return JAM_MIN_GOAL_RPM;
     }
 
     private double getJamSpinupGraceSec() {
-        return Math.max(0.0, SmartDashboard.getNumber(JAM_SPINUP_GRACE_KEY, DEFAULT_JAM_SPINUP_GRACE_SEC));
+        return JAM_SPINUP_GRACE_SEC;
     }
 
     private double getJamSmoothingWindowSec() {
-        return Math.max(1.0 / Constants.ROBOT_FREQUENCY_HZ,
-                SmartDashboard.getNumber(JAM_SMOOTHING_WINDOW_KEY, DEFAULT_JAM_SMOOTHING_WINDOW_SEC));
+        return Math.max(1.0 / Constants.ROBOT_FREQUENCY_HZ, JAM_SMOOTHING_WINDOW_SEC);
     }
 
     private double getShotDetectedTorqueCurrentThresholdAmps() {
-        return SmartDashboard.getNumber(SHOT_DETECTED_TORQUE_CURRENT_KEY, DEFAULT_SHOT_DETECTED_TORQUE_CURRENT_AMPS);
+        return SHOT_DETECTED_TORQUE_CURRENT_AMPS;
     }
 
     private double getShotDetectedArmDelaySec() {
-        return Math.max(0.0, SmartDashboard.getNumber(SHOT_DETECTED_ARM_DELAY_KEY, DEFAULT_SHOT_DETECTED_ARM_DELAY_SEC));
+        return SHOT_DETECTED_ARM_DELAY_SEC;
     }
 }

@@ -25,8 +25,8 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
 import frc.robot.Constants;
+import frc.robot.utilities.RobotLog;
 
 public class Hopper extends SubsystemBase {
     
@@ -42,11 +42,8 @@ public class Hopper extends SubsystemBase {
     private static final double FEED_RPM = 4375.0;
     private static final double REVERSE_RPM = -3600.0;
 
-    private static final String FEED_COMP_RPM_PER_MPS_KEY = "hopper/feedCompRPMPerMps";
-    private static final String FEED_COMP_MAX_RPM_KEY = "hopper/feedCompMaxRPM";
-
-    private static final double DEFAULT_FEED_COMP_RPM_PER_MPS = 750.0;
-    private static final double DEFAULT_FEED_COMP_MAX_RPM = 2200.0;
+    private static final double FEED_COMP_RPM_PER_MPS = 750.0;
+    private static final double FEED_COMP_MAX_RPM = 2200.0;
     
     private final TalonFX m_motor;
     private final Supplier<ChassisSpeeds> m_robotRelativeSpeedsSupplier;
@@ -83,8 +80,6 @@ public class Hopper extends SubsystemBase {
             optimizeCAN();
         }
 
-        SmartDashboard.setDefaultNumber(FEED_COMP_RPM_PER_MPS_KEY, DEFAULT_FEED_COMP_RPM_PER_MPS);
-        SmartDashboard.setDefaultNumber(FEED_COMP_MAX_RPM_KEY, DEFAULT_FEED_COMP_MAX_RPM);
     }
 
     private void optimizeCAN() {
@@ -95,13 +90,20 @@ public class Hopper extends SubsystemBase {
     
     @Override
     public void periodic() {
+        // Driver-facing status
         SmartDashboard.putNumber("hopper/RPM", getRPM());
-        SmartDashboard.putNumber("hopper/goalRPM", m_goalRPM);
-        SmartDashboard.putNumber("hopper/voltage", m_motor.getMotorVoltage().getValueAsDouble()); 
-        SmartDashboard.putNumber("hopper/statorCurrent", m_motor.getStatorCurrent().getValueAsDouble()); 
-        SmartDashboard.putNumber("hopper/supplyCurrent", m_motor.getSupplyCurrent().getValueAsDouble()); 
-        SmartDashboard.putNumber("hopper/feedCompPerpendicularSpeedMps", getPerpendicularIntakeSpeedMetersPerSecond());
-        SmartDashboard.putNumber("hopper/feedCompRPM", getFeedRPMCompensation());
+
+        // Commanded state
+        RobotLog.log("hopper/goalRPM", m_goalRPM);
+
+        // Motor electrical data
+        RobotLog.log("hopper/voltage", m_motor.getMotorVoltage().getValueAsDouble());
+        RobotLog.log("hopper/statorCurrent", m_motor.getStatorCurrent().getValueAsDouble());
+        RobotLog.log("hopper/supplyCurrent", m_motor.getSupplyCurrent().getValueAsDouble());
+
+        // Feed compensation
+        RobotLog.log("hopper/feedCompPerpendicularSpeedMps", getPerpendicularIntakeSpeedMetersPerSecond());
+        RobotLog.log("hopper/feedCompRPM", getFeedRPMCompensation());
     }
     
     public void intake(){
@@ -141,11 +143,9 @@ public class Hopper extends SubsystemBase {
 
     private double getFeedRPMCompensation() {
         double perpendicularSpeedMetersPerSecond = getPerpendicularIntakeSpeedMetersPerSecond();
-        double compensationRPM = -perpendicularSpeedMetersPerSecond
-                * SmartDashboard.getNumber(FEED_COMP_RPM_PER_MPS_KEY, DEFAULT_FEED_COMP_RPM_PER_MPS);
+        double compensationRPM = -perpendicularSpeedMetersPerSecond * FEED_COMP_RPM_PER_MPS;
 
-        double maxCompensationRPM = Math.abs(
-                SmartDashboard.getNumber(FEED_COMP_MAX_RPM_KEY, DEFAULT_FEED_COMP_MAX_RPM));
+        double maxCompensationRPM = Math.abs(FEED_COMP_MAX_RPM);
         return MathUtil.clamp(compensationRPM, -maxCompensationRPM, maxCompensationRPM);
     }
 

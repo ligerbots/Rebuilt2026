@@ -21,8 +21,10 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.utilities.RobotLog;
 
 public class IntakeRoller extends SubsystemBase {
+    private static final double LOW_PRIORITY_TELEMETRY_PERIOD_SEC = 0.2;
     private static final Current SUPPLY_CURRENT_LIMIT = Amps.of(40);
     private static final Current STATOR_CURRENT_LIMIT = Amps.of(80);
     
@@ -87,12 +89,17 @@ public class IntakeRoller extends SubsystemBase {
 
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("intake/voltage", m_motor.getMotorVoltage().getValueAsDouble()); 
+        // Driver-facing status
         SmartDashboard.putNumber("intake/RPM", getRPM()); 
-        SmartDashboard.putNumber("intake/goalRPM", m_goalRPM); 
-        SmartDashboard.putNumber("intake/voltageFudge", m_intakeRPMScale);
-        SmartDashboard.putNumber("intake/rollerSupply", m_motor.getSupplyCurrent().getValueAsDouble());
-        SmartDashboard.putNumber("intake/rollerStator", m_motor.getStatorCurrent().getValueAsDouble());
+        
+        // Commanded state
+        RobotLog.log("intake/goalRPM", m_goalRPM, LOW_PRIORITY_TELEMETRY_PERIOD_SEC);
+        RobotLog.log("intake/voltageFudge", m_intakeRPMScale, LOW_PRIORITY_TELEMETRY_PERIOD_SEC);
+
+        // Motor electrical data
+        RobotLog.log("intake/voltage", m_motor.getMotorVoltage().getValueAsDouble(), LOW_PRIORITY_TELEMETRY_PERIOD_SEC);
+        RobotLog.log("intake/rollerSupply", m_motor.getSupplyCurrent().getValueAsDouble());
+        RobotLog.log("intake/rollerStator", m_motor.getStatorCurrent().getValueAsDouble());
     }
          
     public double getRPM(){

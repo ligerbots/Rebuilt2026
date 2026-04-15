@@ -25,8 +25,11 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.Constants;
+import frc.robot.utilities.RobotLog;
+import frc.robot.utilities.RateLimitedSmartDashboard;
 
 public class IntakePivot extends SubsystemBase {
+    private static final double LOW_PRIORITY_TELEMETRY_PERIOD_SEC = 0.2;
     private static final Current SUPPLY_CURRENT_LIMIT = Amps.of(20);
     private static final Current STATOR_CURRENT_LIMIT = Amps.of(40);
     
@@ -112,13 +115,19 @@ public class IntakePivot extends SubsystemBase {
 
     @Override
     public void periodic() {
-        // This method will be called once per scheduler run
-        SmartDashboard.putNumber("intake/deployGoal", m_goal.getDegrees());
-        SmartDashboard.putNumber("intake/deployAngle", getAngle().getDegrees());
-        SmartDashboard.putNumber("intake/supplyCurrent", m_motor.getSupplyCurrent().getValueAsDouble());
-        SmartDashboard.putNumber("intake/statorCurrent", m_motor.getStatorCurrent().getValueAsDouble());
-        SmartDashboard.putBoolean("intake/onTarget", onTarget());
-        // SmartDashboard.putNumber("intake/rawMotorAngle",  m_pivotMotor.getPosition().getValueAsDouble());
+        // Driver-facing status
+        RateLimitedSmartDashboard.putNumber("intake/deployAngle", getAngle().getDegrees(), LOW_PRIORITY_TELEMETRY_PERIOD_SEC);
+        RateLimitedSmartDashboard.putBoolean("intake/onTarget", onTarget(), LOW_PRIORITY_TELEMETRY_PERIOD_SEC);
+
+        // Commanded state
+        RobotLog.log("intake/deployGoal", m_goal.getDegrees(), LOW_PRIORITY_TELEMETRY_PERIOD_SEC);
+
+        // Motor electrical data
+        RobotLog.log("intake/supplyCurrent", m_motor.getSupplyCurrent().getValueAsDouble());
+        RobotLog.log("intake/statorCurrent", m_motor.getStatorCurrent().getValueAsDouble());
+
+        // Raw sensor/debug
+        // RobotLog.log("intake/rawMotorAngle", m_motor.getPosition().getValueAsDouble());
     }
 
     public void setPositionToDeployed() {
