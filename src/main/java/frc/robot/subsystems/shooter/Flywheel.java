@@ -185,13 +185,6 @@ public class Flywheel extends SubsystemBase {
         return Math.abs(getRPM() - m_goalRPM) < SPEED_TOLERANCE_RPM;
     }
 
-    public boolean isCurrentJamDetected() {
-        if(m_jamGrace >= JAM_GRACE){
-            return true;
-        }
-        else return false;
-    }
-
     public boolean isShotDetected() {
         return m_shotDetectionArmed && getTotalTorqueCurrent() > getShotDetectedTorqueCurrentThresholdAmps();
     }
@@ -243,6 +236,15 @@ public class Flywheel extends SubsystemBase {
                 m_jamGrace = now;
             }
         }
+
+    public boolean isCurrentJamDetected() {
+        double now = Timer.getFPGATimestamp();
+
+        if((now - m_jamGrace) >= JAM_GRACE){
+            return true;
+        }
+        return false;
+    }
 
     private void updateShotDetectionArming() {
         double now = Timer.getFPGATimestamp();
