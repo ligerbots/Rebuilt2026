@@ -10,15 +10,15 @@ import frc.robot.subsystems.shooter.Turret;
 public class PulseHopper extends Command {
     private static final double DEFAULT_STARTUP_REVERSE_SPEED = -3000.0;
     private static final double DEFAULT_STARTUP_REVERSE_TIMEOUT_SEC = 0.125;
-    private static final double DEFAULT_PULSE_FORWARD_VOLTAGE = 6.0;
-    private static final double DEFAULT_PULSE_REVERSE_VOLTAGE = -10.0;
+    // private static final double DEFAULT_PULSE_FORWARD_VOLTAGE = 6.0;
+    // private static final double DEFAULT_PULSE_REVERSE_VOLTAGE = -10.0;
     private static final double DEFAULT_PULSE_FORWARD_SEC = 0.4;
     private static final double DEFAULT_PULSE_REVERSE_SEC = 0.2;
 
-    private static final String STARTUP_REVERSE_VOLTAGE_KEY = "hopper/startupReverseVoltage";
+    private static final String STARTUP_REVERSE_SPEED_KEY = "hopper/startupReverseSpeed";
     private static final String STARTUP_REVERSE_TIMEOUT_KEY = "hopper/startupReverseTimeoutSec";
-    private static final String PULSE_FORWARD_VOLTAGE_KEY = "hopper/pulseForwardVoltage";
-    private static final String PULSE_REVERSE_VOLTAGE_KEY = "hopper/pulseReverseVoltage";
+    // private static final String PULSE_FORWARD_VOLTAGE_KEY = "hopper/pulseForwardVoltage";
+    // private static final String PULSE_REVERSE_VOLTAGE_KEY = "hopper/pulseReverseVoltage";
     private static final String PULSE_FORWARD_SEC_KEY = "hopper/pulseForwardSec";
     private static final String PULSE_REVERSE_SEC_KEY = "hopper/pulseReverseSec";
 
@@ -36,10 +36,10 @@ public class PulseHopper extends Command {
         m_hopper = hopper;
         m_shooter = shooter;
 
-        SmartDashboard.setDefaultNumber(STARTUP_REVERSE_VOLTAGE_KEY, DEFAULT_STARTUP_REVERSE_SPEED);
+        SmartDashboard.setDefaultNumber(STARTUP_REVERSE_SPEED_KEY, DEFAULT_STARTUP_REVERSE_SPEED);
         SmartDashboard.setDefaultNumber(STARTUP_REVERSE_TIMEOUT_KEY, DEFAULT_STARTUP_REVERSE_TIMEOUT_SEC);
-        SmartDashboard.setDefaultNumber(PULSE_FORWARD_VOLTAGE_KEY, DEFAULT_PULSE_FORWARD_VOLTAGE);
-        SmartDashboard.setDefaultNumber(PULSE_REVERSE_VOLTAGE_KEY, DEFAULT_PULSE_REVERSE_VOLTAGE);
+        // SmartDashboard.setDefaultNumber(PULSE_FORWARD_VOLTAGE_KEY, DEFAULT_PULSE_FORWARD_VOLTAGE);
+        // SmartDashboard.setDefaultNumber(PULSE_REVERSE_VOLTAGE_KEY, DEFAULT_PULSE_REVERSE_VOLTAGE);
         SmartDashboard.setDefaultNumber(PULSE_FORWARD_SEC_KEY, DEFAULT_PULSE_FORWARD_SEC);
         SmartDashboard.setDefaultNumber(PULSE_REVERSE_SEC_KEY, DEFAULT_PULSE_REVERSE_SEC);
 
@@ -121,21 +121,21 @@ public class PulseHopper extends Command {
         }
     }
 
-    private double getPulseForwardVoltage() {
-        return SmartDashboard.getNumber(PULSE_FORWARD_VOLTAGE_KEY, DEFAULT_PULSE_FORWARD_VOLTAGE);
-    }
+    // private double getPulseForwardVoltage() {
+    //     return SmartDashboard.getNumber(PULSE_FORWARD_VOLTAGE_KEY, DEFAULT_PULSE_FORWARD_VOLTAGE);
+    // }
 
     private double getStartupReverseSpeed() {
-        return SmartDashboard.getNumber(STARTUP_REVERSE_VOLTAGE_KEY, DEFAULT_STARTUP_REVERSE_SPEED);
+        return SmartDashboard.getNumber(STARTUP_REVERSE_SPEED_KEY, DEFAULT_STARTUP_REVERSE_SPEED);
     }
 
     private double getStartupReverseTimeoutSec() {
         return Math.max(0.0, SmartDashboard.getNumber(STARTUP_REVERSE_TIMEOUT_KEY, DEFAULT_STARTUP_REVERSE_TIMEOUT_SEC));
     }
 
-    private double getPulseReverseVoltage() {
-        return SmartDashboard.getNumber(PULSE_REVERSE_VOLTAGE_KEY, DEFAULT_PULSE_REVERSE_VOLTAGE);
-    }
+    // private double getPulseReverseVoltage() {
+    //     return SmartDashboard.getNumber(PULSE_REVERSE_VOLTAGE_KEY, DEFAULT_PULSE_REVERSE_VOLTAGE);
+    // }
 
     private double getPulseForwardSec() {
         return Math.max(0.0, SmartDashboard.getNumber(PULSE_FORWARD_SEC_KEY, DEFAULT_PULSE_FORWARD_SEC));
