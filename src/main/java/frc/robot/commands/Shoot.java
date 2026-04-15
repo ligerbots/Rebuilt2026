@@ -146,7 +146,7 @@ public class Shoot extends Command {
 
         if (!m_shooterOnTarget || m_turret.inDeadZone()) {
             // if in the dead zone, turn off the feed
-            m_feeder.runFeederBelts();
+            m_feeder.stopFeederBelts();
         } else {
             // everything is good. Shoot!
             m_feeder.runFeederBelts();
