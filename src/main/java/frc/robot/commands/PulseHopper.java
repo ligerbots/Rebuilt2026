@@ -110,11 +110,12 @@ public class PulseHopper extends Command {
             return;
         }
 
-        if (m_pulsingForward && now - m_lastPulsePhaseTimeSec >= getPulseForwardSec()) {
+        double timeSinceLastPulsePhase = now - m_lastPulsePhaseTimeSec;
+        if (m_pulsingForward && timeSinceLastPulsePhase >= getPulseForwardSec()) {
             m_pulsingForward = false;
             m_lastPulsePhaseTimeSec = now;
             m_hopper.reverse();
-        } else if (!m_pulsingForward && now - m_lastPulsePhaseTimeSec >= getPulseReverseSec()) {
+        } else if (!m_pulsingForward && timeSinceLastPulsePhase >= getPulseReverseSec()) {
             m_pulsingForward = true;
             m_lastPulsePhaseTimeSec = now;
             m_hopper.feed();
