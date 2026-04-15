@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.utilities.HubShiftUtil;
 
 public class Robot extends TimedRobot {
     private Command m_autonomousCommand = null;
@@ -80,7 +81,9 @@ public class Robot extends TimedRobot {
     }
 
     @Override
-    public void disabledInit() {}
+    public void disabledInit() {
+        HubShiftUtil.disable();
+    }
 
     @Override
     public void disabledPeriodic() {
@@ -99,13 +102,18 @@ public class Robot extends TimedRobot {
             CommandSwerveDrivetrain driveTrain = m_robotContainer.getDriveTrain();
             if (driveTrain != null) driveTrain.setPose(m_robotContainer.getInitialPose());
         }
+
+        m_robotContainer.updateAutoPreviewActor();
     }
 
     @Override
-    public void disabledExit() {}
+    public void disabledExit() {
+        m_robotContainer.clearAutoPreview();
+    }
 
     @Override
     public void autonomousInit() {
+        HubShiftUtil.initialize();
         m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
         if (m_autonomousCommand != null) {
@@ -121,6 +129,8 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopInit() {
+        HubShiftUtil.initialize();
+        m_robotContainer.clearAutoPreview();
         if (m_autonomousCommand != null) {
             CommandScheduler.getInstance().cancel(m_autonomousCommand);
         }
@@ -134,6 +144,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void testInit() {
+        m_robotContainer.clearAutoPreview();
         CommandScheduler.getInstance().cancelAll();
     }
 
