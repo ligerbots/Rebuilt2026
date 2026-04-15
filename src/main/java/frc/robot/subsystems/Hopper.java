@@ -55,10 +55,6 @@ public class Hopper extends SubsystemBase {
     private double m_goalRPM;
 
     // Creates a new Hopper
-    public Hopper() {
-        this(null);
-    }
-
     public Hopper(Supplier<ChassisSpeeds> robotRelativeSpeedsSupplier) {
         m_robotRelativeSpeedsSupplier = robotRelativeSpeedsSupplier;
         m_motor = new TalonFX(Constants.HOPPER_TRANSFER_CAN_ID);
@@ -93,7 +89,7 @@ public class Hopper extends SubsystemBase {
 
     private void optimizeCAN() {
         m_motor.getVelocity().setUpdateFrequency(Constants.ROBOT_FREQUENCY_HZ);
-        m_motor.getMotorVoltage().setUpdateFrequency(Constants.ROBOT_FREQUENCY_HZ);
+        // m_motor.getMotorVoltage().setUpdateFrequency(Constants.ROBOT_FREQUENCY_HZ);
         m_motor.optimizeBusUtilization();
     }
     
