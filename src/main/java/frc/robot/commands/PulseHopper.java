@@ -9,8 +9,8 @@ import frc.robot.subsystems.shooter.Turret;
 import frc.robot.utilities.RobotLog;
 
 public class PulseHopper extends Command {
-    private static final double STARTUP_REVERSE_SPEED_RPM = -3000.0;
-    private static final double STARTUP_REVERSE_TIMEOUT_SEC = 0.125;
+    private static final double STARTUP_REVERSE_SPEED_RPM = -4500.0;
+    private static final double STARTUP_REVERSE_TIMEOUT_SEC = 0.75;
     private static final double PULSE_FORWARD_SEC = 0.4;
     private static final double PULSE_REVERSE_SEC = 0.2;
 
