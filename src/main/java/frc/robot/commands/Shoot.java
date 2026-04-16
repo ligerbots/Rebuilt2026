@@ -52,7 +52,7 @@ public class Shoot extends Command {
     // seem to need to scale the TOF numbers down
     private static final double TOF_SCALE = 0.75;
 
-    private static final double FLYWHEEL_SCALE = 1.0;
+    private static final double FLYWHEEL_SCALE = 0.98;
 
     // for fixed shot only
     private final Translation2d m_fixedShotVector;
