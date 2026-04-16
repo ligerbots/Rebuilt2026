@@ -22,15 +22,15 @@ import frc.robot.utilities.RobotLog;
 
 public class ShooterFeeder extends SubsystemBase {
     
-    private static final double KICKER_K_P = 0.4;
+    private static final double KICKER_K_P = 0.6;
     private static final double KICKER_K_I = 0.0; 
     private static final double KICKER_K_D = 0.0;
     private static final double KICKER_K_FF = 0.00217;  // V/rpm
 
     private static final double KICKER_SUPPLY_CURRENT_LIMIT = 35;
-    private static final double KICKER_STATOR_CURRENT_LIMIT = 80;
+    private static final double KICKER_STATOR_CURRENT_LIMIT = 90;
 
-    private static final double FEEDER_K_P = 0.4;
+    private static final double FEEDER_K_P = 0.8;
     private static final double FEEDER_K_I = 0.0; 
     private static final double FEEDER_K_D = 0.0;
     private static final double FEEDER_K_FF = 0.0022;  // V/rpm
