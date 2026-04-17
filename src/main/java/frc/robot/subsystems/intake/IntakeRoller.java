@@ -36,9 +36,9 @@ public class IntakeRoller extends SubsystemBase {
     // private static final double INTAKE_VOLTAGE = 7.0;  // was 9
     // private static final double OUTTAKE_VOLTAGE = -6.0;
 
-    private static final double INTAKE_RPM = 2625.0;
-    private static final double FAST_INTAKE_RPM_SCALE = 1.5;
-    private static final double OUTTAKE_RPM = -4000.0;
+    private static final double INTAKE_RPM = 2850.0;
+    private static final double FAST_INTAKE_RPM_SCALE = 1.75;
+    private static final double OUTTAKE_RPM = -5000.0;
 
     private final TalonFX m_motor;
 
@@ -93,7 +93,7 @@ public class IntakeRoller extends SubsystemBase {
         SmartDashboard.putNumber("intake/RPM", getRPM()); 
         
         // Commanded state
-        RobotLog.log("intake/goalRPM", m_goalRPM);
+        SmartDashboard.putNumber("intake/goalRPM", m_goalRPM);
         RobotLog.log("intake/voltageFudge", m_intakeRPMScale);
 
         // Motor electrical data
