@@ -35,7 +35,7 @@ public class Hood extends SubsystemBase {
     private static final Current SUPPLY_CURRENT_LIMIT = Amps.of(20);
     private static final Current STATOR_CURRENT_LIMIT = Amps.of(20);
     
-    private static final double K_P = 4.0;
+    private static final double K_P = 5.0;
     
     // private static final double MAX_VEL_ROT_PER_SEC = 12.0 / GEAR_RATIO;
     // private static final double MAX_ACC_ROT_PER_SEC = 20.0 / GEAR_RATIO;
