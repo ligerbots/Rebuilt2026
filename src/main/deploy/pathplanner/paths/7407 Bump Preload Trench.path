@@ -1,0 +1,81 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 3.6187179487179497,
+        "y": 5.895512820512821
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 2.3391397737382853,
+        "y": 5.895512820512821
+      },
+      "isLocked": false,
+      "linkedName": "Bump Start"
+    },
+    {
+      "anchor": {
+        "x": 4.107102564102565,
+        "y": 7.55
+      },
+      "prevControl": {
+        "x": 3.025679487179488,
+        "y": 7.581602564102564
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "Trench In"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [
+    {
+      "name": "Constraints Zone",
+      "minWaypointRelativePos": 0,
+      "maxWaypointRelativePos": 1.0,
+      "constraints": {
+        "maxVelocity": 0.75,
+        "maxAcceleration": 3.0,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 720.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    }
+  ],
+  "pointTowardsZones": [],
+  "eventMarkers": [
+    {
+      "name": "Shooter Running",
+      "waypointRelativePos": 0.0,
+      "endWaypointRelativePos": 0.7906976744186022,
+      "command": null
+    },
+    {
+      "name": "Run Intake",
+      "waypointRelativePos": 0.8239202657807335,
+      "endWaypointRelativePos": null,
+      "command": null
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 1.0,
+    "rotation": 0.0
+  },
+  "reversed": false,
+  "folder": "Pair Paths",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 0.0
+  },
+  "useDefaultConstraints": true
+}

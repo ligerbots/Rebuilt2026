@@ -1,0 +1,139 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 3.480452018425331,
+        "y": 5.481940106358129
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 2.538170860715209,
+        "y": 5.481940106358129
+      },
+      "isLocked": false,
+      "linkedName": "Bump In"
+    },
+    {
+      "anchor": {
+        "x": 0.6440312645330402,
+        "y": 5.963885481599589
+      },
+      "prevControl": {
+        "x": 3.055390939843736,
+        "y": 5.9499472317984115
+      },
+      "nextControl": {
+        "x": 0.39403544083247843,
+        "y": 5.965330518719379
+      },
+      "isLocked": false,
+      "linkedName": "Auto Depot Depth"
+    },
+    {
+      "anchor": {
+        "x": 1.3512179487169285,
+        "y": 5.964
+      },
+      "prevControl": {
+        "x": 1.0561498840592318,
+        "y": 5.946643055020135
+      },
+      "nextControl": {
+        "x": 1.6007865420106775,
+        "y": 5.978680505487868
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 4.107102564102565,
+        "y": 7.55
+      },
+      "prevControl": {
+        "x": 0.537243589737777,
+        "y": 7.674628205128205
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "Trench In"
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.88,
+      "rotationDegrees": 180.0
+    },
+    {
+      "waypointRelativePos": 2.068421052631589,
+      "rotationDegrees": 180.0
+    },
+    {
+      "waypointRelativePos": 2.8157894736842257,
+      "rotationDegrees": 0.0
+    }
+  ],
+  "constraintZones": [
+    {
+      "name": "Constraints Zone",
+      "minWaypointRelativePos": 0.87,
+      "maxWaypointRelativePos": 1.521594684385386,
+      "constraints": {
+        "maxVelocity": 0.25,
+        "maxAcceleration": 5.0,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 720.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    },
+    {
+      "name": "Constraints Zone",
+      "minWaypointRelativePos": 1.6544850498338834,
+      "maxWaypointRelativePos": 3.0,
+      "constraints": {
+        "maxVelocity": 2.0,
+        "maxAcceleration": 1.0,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 720.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    }
+  ],
+  "pointTowardsZones": [],
+  "eventMarkers": [
+    {
+      "name": "Run Intake",
+      "waypointRelativePos": 0.0,
+      "endWaypointRelativePos": null,
+      "command": null
+    },
+    {
+      "name": "Shooter Running",
+      "waypointRelativePos": 0.7707641196013157,
+      "endWaypointRelativePos": 2.8039867109634593,
+      "command": null
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 1.0,
+    "rotation": 0.0
+  },
+  "reversed": false,
+  "folder": "Pair Paths",
+  "idealStartingState": {
+    "velocity": 1.0,
+    "rotation": 180.0
+  },
+  "useDefaultConstraints": false
+}

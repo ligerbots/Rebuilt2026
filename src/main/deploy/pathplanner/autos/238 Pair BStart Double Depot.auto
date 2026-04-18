@@ -1,0 +1,43 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "238 Trench Depot"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "7407 First Swipe"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Swipe Shoot"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "238 Second Swipe"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Swipe Shoot Alt"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": "Pair Autos",
+  "choreoAuto": false
+}
