@@ -10,6 +10,7 @@ import edu.wpi.first.hal.HALUtil;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -113,12 +114,16 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousInit() {
+        // TODO: not needed?  Don't need timer for Auto?  but this should be very quick
         HubShiftUtil.initialize();
+
+        double startT = Timer.getFPGATimestamp();
         m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
         if (m_autonomousCommand != null) {
             CommandScheduler.getInstance().schedule(m_autonomousCommand);
         }
+        System.out.println("*** AutoInit took " + (Timer.getFPGATimestamp() - startT) + " seconds");
     }
 
     @Override
@@ -130,6 +135,7 @@ public class Robot extends TimedRobot {
     @Override
     public void teleopInit() {
         HubShiftUtil.initialize();
+        // TODO: not needed; use the Exit routines
         m_robotContainer.clearAutoPreview();
         if (m_autonomousCommand != null) {
             CommandScheduler.getInstance().cancel(m_autonomousCommand);
