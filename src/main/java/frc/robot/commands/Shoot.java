@@ -11,7 +11,6 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 
@@ -29,7 +28,9 @@ import frc.robot.utilities.ShooterLookupTable.ShootValue;
 * Manages turret aiming, shooter spin-up, and feeder activation.
 */
 public class Shoot extends Command {
-    private static final boolean PLOT_SHOT_VISUALIZATION = RobotBase.isSimulation();
+    // *** Use a fixed, compile-time value only. That allows the compiler to completely remove the code
+    private static final boolean PLOT_SHOT_VISUALIZATION = false;
+
     private static final double TEST_TIME_OF_FLIGHT_SEC = 0.0;
 
     private static record ShotSelection(Translation2d target, ShotType effectiveShotType) {}
@@ -91,7 +92,7 @@ public class Shoot extends Command {
 
     public Shoot(Shooter shooter, Turret turret, ShooterFeeder feeder,
                 Supplier<Pose2d> poseSupplier, Supplier<ChassisSpeeds> speeds, 
-                 double shotDistanceInches, Rotation2d turretHeading) {
+                double shotDistanceInches, Rotation2d turretHeading) {
         this(shooter, turret, feeder,
                 poseSupplier, speeds, ShotType.FIXED, shotDistanceInches, turretHeading);
     }
@@ -115,7 +116,7 @@ public class Shoot extends Command {
             shotVector = m_fixedShotVector;
             effectiveShotType = ShotType.HUB;
             
-            if (shouldPlotShotLocation()) {
+            if (PLOT_SHOT_VISUALIZATION) {
                 m_turret.plotShotVectors(robotPose, shotVector, Translation2d.kZero, Translation2d.kZero);
             }
         } else {    
@@ -149,14 +150,16 @@ public class Shoot extends Command {
         if (!m_shooterOnTarget || m_turret.inDeadZone()) {
             // if in the dead zone, turn off the feed
             m_feeder.stopFeederBelts();
+
+            if (PLOT_SHOT_VISUALIZATION) {
+                // stop shooting, so clear visualization
+                m_turret.clearShotVisualization();
+            }
         } else {
             // everything is good. Shoot!
             m_feeder.runFeederBelts();
         }
 
-        if (!shouldPlotShotLocation()) {
-            m_turret.clearShotVisualization();
-        }
     }
     
     @Override
@@ -166,7 +169,7 @@ public class Shoot extends Command {
         HubShiftUtil.clearShotContext();
 
         // erase our velocity vector scribblings
-        if (shouldPlotShotLocation()) {
+        if (PLOT_SHOT_VISUALIZATION) {
             m_turret.clearShotVisualization();
         }
     }
@@ -376,18 +379,13 @@ public class Shoot extends Command {
 
             if (Math.abs(targetDistance - previousTargetDistance) < 0.03) {
                 // if the target distance did not change much, we've converged enough
-                if (shouldPlotShotLocation()) {
-                    m_turret.plotShotVectors(futureRobotPose, 
-                            targetVector, robotVelVector.times(timeOfFlight),
-                            centripetalVelocity.times(timeOfFlight));
-                }                                   
                 break;
             }
 
             previousTargetDistance = targetDistance;
         }
 
-        if (shouldPlotShotLocation()) {
+        if (PLOT_SHOT_VISUALIZATION) {
             m_turret.plotShotVectors(futureRobotPose,
                     targetVector, robotVelVector.times(timeOfFlight),
                     centripetalVelocity.times(timeOfFlight));
@@ -432,9 +430,5 @@ public class Shoot extends Command {
                 SmartDashboard.getNumber("kicker/testRPM", 0.0),
                 Rotation2d.fromDegrees(SmartDashboard.getNumber("hood/testAngle", 0.0)),
                 TEST_TIME_OF_FLIGHT_SEC);
-    }
-
-    private static boolean shouldPlotShotLocation() {
-        return PLOT_SHOT_VISUALIZATION;
     }
 }
