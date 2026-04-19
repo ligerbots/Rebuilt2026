@@ -11,7 +11,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.utilities.RobotLog;
-import frc.robot.utilities.RateLimitedSmartDashboard;
 
 import static edu.wpi.first.units.Units.Amps;
 
@@ -23,8 +22,6 @@ import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 public class Hood extends SubsystemBase {
-    private static final double LOW_PRIORITY_TELEMETRY_PERIOD_SEC = 0.2;
-
     private static final double ANGLE_TOLERANCE_DEG = 2.0;
 
     private static final double MIN_ANGLE_DEG = 0.0;

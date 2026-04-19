@@ -26,7 +26,6 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.Constants;
 import frc.robot.utilities.RobotLog;
-import frc.robot.utilities.RateLimitedSmartDashboard;
 
 public class IntakePivot extends SubsystemBase {
     private static final Current SUPPLY_CURRENT_LIMIT = Amps.of(20);

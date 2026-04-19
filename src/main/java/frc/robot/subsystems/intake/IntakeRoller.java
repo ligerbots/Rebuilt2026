@@ -24,7 +24,6 @@ import frc.robot.Constants;
 import frc.robot.utilities.RobotLog;
 
 public class IntakeRoller extends SubsystemBase {
-    private static final double LOW_PRIORITY_TELEMETRY_PERIOD_SEC = 0.2;
     private static final Current SUPPLY_CURRENT_LIMIT = Amps.of(40);
     private static final Current STATOR_CURRENT_LIMIT = Amps.of(80);
     
