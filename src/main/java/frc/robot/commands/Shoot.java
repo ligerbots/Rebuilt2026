@@ -196,13 +196,6 @@ public class Shoot extends Command {
                 return new ShotSelection(
                         FieldConstants.flipTranslation(calculatePassTarget(selectionBlueLocation(robotPose))),
                         ShotType.OPPOSITE_ZONE);
-            case FULL_FIELD:
-                if (!FieldConstants.ENABLE_DYNAMIC_PASS_TARGETING) {
-                    return new ShotSelection(FieldConstants.flipTranslation(standardPassTarget(selectionBlueLocation(robotPose))), ShotType.PASS);
-                }
-                return new ShotSelection(
-                        FieldConstants.flipTranslation(calculatePassTarget(selectionBlueLocation(robotPose))),
-                        ShotType.FULL_FIELD);
             
             // needed to suppress the warning
             // case TEST:

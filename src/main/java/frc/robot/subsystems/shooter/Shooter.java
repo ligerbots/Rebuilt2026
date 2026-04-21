@@ -15,7 +15,6 @@ public class Shooter extends SubsystemBase {
         HUB,
         PASS,
         OPPOSITE_ZONE,
-        FULL_FIELD,
         TEST,    // test shot using SmartDashboard values. See Shoot cmd
         AUTO,    // auto select hub vs pass
         FIXED    // fixed distance and turret heading
@@ -131,8 +130,6 @@ public class Shooter extends SubsystemBase {
             return m_passShotLookupTable.getShootValues(distanceMeters);
         if (shotType == ShotType.OPPOSITE_ZONE)
             return m_oppositeZoneShotLookupTable.getShootValues(distanceMeters);
-        if (shotType == ShotType.FULL_FIELD)
-            return m_fullFieldLookupTable.getShootValues(distanceMeters);
 
         ShootValue shootValue = m_hubShotLookupTable.getShootValues(distanceMeters);
         shootValue.flyRPM *= m_flyFudge;
