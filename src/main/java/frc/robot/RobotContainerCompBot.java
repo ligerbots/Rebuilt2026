@@ -324,6 +324,8 @@ public class RobotContainerCompBot extends RobotContainer {
         m_farm.button(12).onTrue(new InstantCommand(m_intake.getRoller()::increaseIntakeFudge));
         m_farm.button(14).onTrue(new InstantCommand(m_intake.getRoller()::decreaseIntakeFudge));
 
+        m_farm.button(16).onTrue(new InstantCommand(() -> m_shooter.setPassNeutral(!m_shooter.getPassNeutral())));
+
         // Reset the field-centric heading on Start press.
         m_driverController.start().onTrue(m_drivetrain.runOnce(m_drivetrain::seedFieldCentric));
 
