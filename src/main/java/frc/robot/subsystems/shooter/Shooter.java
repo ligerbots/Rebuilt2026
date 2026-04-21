@@ -23,12 +23,12 @@ public class Shooter extends SubsystemBase {
     private static final String HUB_LOOKUP_TABLE_FILE = "hub_shot_lookup_table.csv"; 
     private static final String PASS_LOOKUP_TABLE_FILE = "pass_shot_lookup_table.csv";
     private static final String OPPOSITE_ZONE_LOOKUP_TABLE_FILE = "opposite_zone_shot_lookup_table.csv";
-    private static final String FULL_FIELD_LOOKUP_TABLE_FILE = "full_field_shot_lookup_table.csv";
 
     private final ShooterLookupTable m_hubShotLookupTable;
     private final ShooterLookupTable m_passShotLookupTable;
     private final ShooterLookupTable m_oppositeZoneShotLookupTable;
-    private final ShooterLookupTable m_fullFieldLookupTable;
+
+    private boolean m_passNeutral = true;
 
     // Manual adjust on the flywheel RPM
     // NOTE: this is a multiplicative change: +5%, +10%, etc
@@ -57,7 +57,6 @@ public class Shooter extends SubsystemBase {
         m_hubShotLookupTable = new ShooterLookupTable(HUB_LOOKUP_TABLE_FILE);
         m_passShotLookupTable = new ShooterLookupTable(PASS_LOOKUP_TABLE_FILE);
         m_oppositeZoneShotLookupTable = new ShooterLookupTable(OPPOSITE_ZONE_LOOKUP_TABLE_FILE);
-        m_fullFieldLookupTable = new ShooterLookupTable(FULL_FIELD_LOOKUP_TABLE_FILE);
 
         m_hood = new Hood();
         m_flywheel = new Flywheel();
@@ -117,6 +116,10 @@ public class Shooter extends SubsystemBase {
 
     public void decreaseHoodFudge() {
         m_hoodFudgeDegree -= HOOD_FUDGE_INCREMENT_DEGREES;
+    }
+
+    public void setPassNeutral(boolean passNeutral) {
+        m_passNeutral = passNeutral;
     }
 
     /**
