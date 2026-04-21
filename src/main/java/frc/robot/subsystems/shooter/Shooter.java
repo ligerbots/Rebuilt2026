@@ -122,6 +122,10 @@ public class Shooter extends SubsystemBase {
         m_passNeutral = passNeutral;
     }
 
+    public boolean getPassNeutral() {
+        return m_passNeutral;
+    }
+
     /**
     * Sets the target distance for the shooter to use when calculating ballistic parameters.
     * 

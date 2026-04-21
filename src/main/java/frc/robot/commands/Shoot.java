@@ -3,6 +3,7 @@
 // the WPILib BSD license file in the root directory of this project.
 
 package frc.robot.commands;
+import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -40,6 +41,7 @@ public class Shoot extends Command {
     private final ShooterFeeder m_feeder;
     private final Supplier<ChassisSpeeds> m_speedsSupplier;
     private final Supplier<Pose2d> m_poseSupplier;
+    private final Supplier<Boolean> m_passSupplier;
 
     private final Shooter.ShotType m_shotType;
 
@@ -59,8 +61,8 @@ public class Shoot extends Command {
     private PassSide m_latchedPassSide = null;
 
     private Shoot(Shooter shooter, Turret turret, ShooterFeeder feeder,
-            Supplier<Pose2d> poseSupplier, Supplier<ChassisSpeeds> speeds, Shooter.ShotType shotType,
-            double shotDistanceInches, Rotation2d turretHeading) {
+            Supplier<Pose2d> poseSupplier, Supplier<ChassisSpeeds> speeds, Supplier<Boolean> passSupplier, 
+            Shooter.ShotType shotType, double shotDistanceInches, Rotation2d turretHeading) {
         m_turret = turret;
         m_shooter = shooter;
         m_feeder = feeder;
@@ -68,6 +70,7 @@ public class Shoot extends Command {
         
         m_poseSupplier = poseSupplier;
         m_speedsSupplier = speeds;
+        m_passSupplier = passSupplier;
 
         m_shotType = shotType;
 
@@ -82,16 +85,16 @@ public class Shoot extends Command {
     }
 
     public Shoot(Shooter shooter, Turret turret, ShooterFeeder feeder,
-            Supplier<Pose2d> poseSupplier, Supplier<ChassisSpeeds> speeds, Shooter.ShotType shotType) {
+            Supplier<Pose2d> poseSupplier, Supplier<ChassisSpeeds> speeds, Supplier<Boolean> passSupplier, Shooter.ShotType shotType) {
         this(shooter, turret, feeder,
-                poseSupplier, speeds, shotType, 0.0, Rotation2d.kZero);
+                poseSupplier, speeds, passSupplier, shotType, 0.0, Rotation2d.kZero);
     }
 
     public Shoot(Shooter shooter, Turret turret, ShooterFeeder feeder,
-                Supplier<Pose2d> poseSupplier, Supplier<ChassisSpeeds> speeds, 
+                Supplier<Pose2d> poseSupplier, Supplier<ChassisSpeeds> speeds, Supplier<Boolean> passSupplier,
                  double shotDistanceInches, Rotation2d turretHeading) {
         this(shooter, turret, feeder,
-                poseSupplier, speeds, ShotType.FIXED, shotDistanceInches, turretHeading);
+                poseSupplier, speeds, passSupplier, ShotType.FIXED, shotDistanceInches, turretHeading);
     }
 
     
