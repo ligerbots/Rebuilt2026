@@ -107,23 +107,20 @@ public class Robot extends TimedRobot {
         m_robotContainer.updateAutoPreviewActor();
     }
 
-    @Override
-    public void disabledExit() {
-        m_robotContainer.clearAutoPreview();
-    }
+    // @Override
+    // public void disabledExit() {
+    //     m_robotContainer.clearAutoPreview();
+    // }
 
     @Override
     public void autonomousInit() {
-        // TODO: not needed?  Don't need timer for Auto?  but this should be very quick
-        HubShiftUtil.initialize();
-
-        double startT = Timer.getFPGATimestamp();
+        // double startT = Timer.getFPGATimestamp();
         m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
         if (m_autonomousCommand != null) {
             CommandScheduler.getInstance().schedule(m_autonomousCommand);
         }
-        System.out.println("*** AutoInit took " + (Timer.getFPGATimestamp() - startT) + " seconds");
+        // System.out.println("*** AutoInit took " + (Timer.getFPGATimestamp() - startT) + " seconds");
     }
 
     @Override
@@ -135,8 +132,9 @@ public class Robot extends TimedRobot {
     @Override
     public void teleopInit() {
         HubShiftUtil.initialize();
-        // TODO: not needed; use the Exit routines
+        // note: use this here, or in disabledExit(), but no need for both
         m_robotContainer.clearAutoPreview();
+
         if (m_autonomousCommand != null) {
             CommandScheduler.getInstance().cancel(m_autonomousCommand);
         }
@@ -150,7 +148,6 @@ public class Robot extends TimedRobot {
 
     @Override
     public void testInit() {
-        m_robotContainer.clearAutoPreview();
         CommandScheduler.getInstance().cancelAll();
     }
 

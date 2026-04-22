@@ -401,8 +401,6 @@ public class RobotContainerCompBot extends RobotContainer {
     public void clearAutoPreview() {
         m_logger.getField2d().getObject("selectedAutoPath").setPoses();
         m_logger.getField2d().getObject("selectedAutoActor").setPoses();
-        // TODO: don't do this. Causes Auto to be recreated at start of Autonomous
-        m_autoSelectionCode = Integer.MIN_VALUE;
     }
 
     @Override
@@ -422,13 +420,12 @@ public class RobotContainerCompBot extends RobotContainer {
         String selectedFieldSide = m_chosenFieldSide.getSelected();
         int currentAutoSelectionCode = Objects.hash(
             selectedAutoName,
-            selectedAutoPaths,  // TODO: get rid of this. Not clear it is needed, and is expensive
             selectedFieldSide,
             DriverStation.getAlliance());
 
         // Only call constructor if the auto selection inputs have changed
         if (m_autoSelectionCode != currentAutoSelectionCode) {
-            double startT = Timer.getFPGATimestamp();
+            // double startT = Timer.getFPGATimestamp();
 
             m_autoSelectionCode = currentAutoSelectionCode;
 
@@ -441,10 +438,10 @@ public class RobotContainerCompBot extends RobotContainer {
             m_autoPreviewStartTimeSec = Timer.getFPGATimestamp();
             SmartDashboard.putString("Selected Auto", selectedAutoName);
             m_logger.getField2d().getObject("selectedAutoPath").setPoses(m_autoPreviewPoses);
-            // TODO: remove this, maybe???
+
             updateAutoPreviewActor();
 
-            System.out.println("*** Build Auto command took " + (Timer.getFPGATimestamp() - startT) + " seconds");
+            // System.out.println("*** Build Auto command took " + (Timer.getFPGATimestamp() - startT) + " seconds");
         }
         
         return m_autoCommand;
