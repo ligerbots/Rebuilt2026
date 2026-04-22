@@ -41,7 +41,6 @@ public class Shoot extends Command {
     private final ShooterFeeder m_feeder;
     private final Supplier<ChassisSpeeds> m_speedsSupplier;
     private final Supplier<Pose2d> m_poseSupplier;
-    private final Supplier<Boolean> m_passSupplier;
 
     private final Shooter.ShotType m_shotType;
 
@@ -61,7 +60,7 @@ public class Shoot extends Command {
     private PassSide m_latchedPassSide = null;
 
     private Shoot(Shooter shooter, Turret turret, ShooterFeeder feeder,
-            Supplier<Pose2d> poseSupplier, Supplier<ChassisSpeeds> speeds, Supplier<Boolean> passSupplier, 
+            Supplier<Pose2d> poseSupplier, Supplier<ChassisSpeeds> speeds,
             Shooter.ShotType shotType, double shotDistanceInches, Rotation2d turretHeading) {
         m_turret = turret;
         m_shooter = shooter;
@@ -70,7 +69,6 @@ public class Shoot extends Command {
         
         m_poseSupplier = poseSupplier;
         m_speedsSupplier = speeds;
-        m_passSupplier = passSupplier;
 
         m_shotType = shotType;
 
@@ -85,16 +83,16 @@ public class Shoot extends Command {
     }
 
     public Shoot(Shooter shooter, Turret turret, ShooterFeeder feeder,
-            Supplier<Pose2d> poseSupplier, Supplier<ChassisSpeeds> speeds, Supplier<Boolean> passSupplier, Shooter.ShotType shotType) {
+            Supplier<Pose2d> poseSupplier, Supplier<ChassisSpeeds> speeds, Shooter.ShotType shotType) {
         this(shooter, turret, feeder,
-                poseSupplier, speeds, passSupplier, shotType, 0.0, Rotation2d.kZero);
+                poseSupplier, speeds, shotType, 0.0, Rotation2d.kZero);
     }
 
     public Shoot(Shooter shooter, Turret turret, ShooterFeeder feeder,
-                Supplier<Pose2d> poseSupplier, Supplier<ChassisSpeeds> speeds, Supplier<Boolean> passSupplier,
+                Supplier<Pose2d> poseSupplier, Supplier<ChassisSpeeds> speeds,
                  double shotDistanceInches, Rotation2d turretHeading) {
         this(shooter, turret, feeder,
-                poseSupplier, speeds, passSupplier, ShotType.FIXED, shotDistanceInches, turretHeading);
+                poseSupplier, speeds, ShotType.FIXED, shotDistanceInches, turretHeading);
     }
 
     
@@ -217,8 +215,16 @@ public class Shoot extends Command {
         if (FieldConstants.ENABLE_OPPOSITE_ZONE_SHOT
                 && blueLocation.getX() >= FieldConstants.OPPOSITE_ALLIANCE_ZONE_START_X_BLUE) {
             m_latchedPassSide = null;
-            target = oppositeAllianceZoneTarget(blueLocation);
-            shotType = ShotType.OPPOSITE_ZONE;
+            boolean passNeutral = m_shooter.getPassNeutral();
+
+            if (passNeutral) {
+                target = oppositeAllianceZoneTarget(blueLocation);
+                shotType = ShotType.OPPOSITE_ZONE;
+            } else {
+                target = standardPassTarget(blueLocation);
+                shotType = ShotType.PASS;
+            };
+            
         } else if (blueLocation.getX() < FieldConstants.HUB_POSITION_BLUE.getX()) {
             m_latchedPassSide = null;
             target = FieldConstants.HUB_POSITION_BLUE;
