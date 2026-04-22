@@ -107,10 +107,10 @@ public class Robot extends TimedRobot {
         m_robotContainer.updateAutoPreviewActor();
     }
 
-    // @Override
-    // public void disabledExit() {
-    //     m_robotContainer.clearAutoPreview();
-    // }
+    @Override
+    public void disabledExit() {
+        m_robotContainer.clearAutoPreview();
+    }
 
     @Override
     public void autonomousInit() {
@@ -133,7 +133,7 @@ public class Robot extends TimedRobot {
     public void teleopInit() {
         HubShiftUtil.initialize();
         // note: use this here, or in disabledExit(), but no need for both
-        m_robotContainer.clearAutoPreview();
+        // m_robotContainer.clearAutoPreview();
 
         if (m_autonomousCommand != null) {
             CommandScheduler.getInstance().cancel(m_autonomousCommand);
