@@ -235,7 +235,7 @@ public class RobotContainerCompBot extends RobotContainer {
 
     public Command getShootCommand() {
         return withHopperControl(
-                new Shoot(m_shooter, m_turret, m_shooterFeeder, m_drivetrain::getPose, m_drivetrain::getFieldCentricSpeeds, m_shooter::getPassNeutral, ShotType.AUTO));
+                new Shoot(m_shooter, m_turret, m_shooterFeeder, m_drivetrain::getPose, m_drivetrain::getFieldCentricSpeeds, ShotType.AUTO));
                         //     new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningShooter", true)));
     }
     
@@ -296,15 +296,15 @@ public class RobotContainerCompBot extends RobotContainer {
         // ladder - robot against the outside of the ladder, intake to the left for the dirver
         m_farm.button(11).whileTrue(withHopperControl(
                 new Shoot(m_shooter, m_turret, m_shooterFeeder,
-                        m_drivetrain::getPose, m_drivetrain::getFieldCentricSpeeds, m_shooter::getPassNeutral, 130.0, Rotation2d.kCCW_90deg)));
+                        m_drivetrain::getPose, m_drivetrain::getFieldCentricSpeeds, 130.0, Rotation2d.kCCW_90deg)));
 
         // corner shot
         m_farm.button(13).whileTrue(withHopperControl(
                 new Shoot(m_shooter, m_turret, m_shooterFeeder,
-                        m_drivetrain::getPose, m_drivetrain::getFieldCentricSpeeds, m_shooter::getPassNeutral, 210.0, Rotation2d.k180deg)));
+                        m_drivetrain::getPose, m_drivetrain::getFieldCentricSpeeds, 210.0, Rotation2d.k180deg)));
         m_farm.button(15).whileTrue(withHopperControl(
                 new Shoot(m_shooter, m_turret, m_shooterFeeder,
-                        m_drivetrain::getPose, m_drivetrain::getFieldCentricSpeeds, m_shooter::getPassNeutral, ShotType.TEST)));
+                        m_drivetrain::getPose, m_drivetrain::getFieldCentricSpeeds, ShotType.TEST)));
 
         m_farm.button(1).onTrue(new InstantCommand(m_shooter::increaseFlyFudge));
         m_farm.button(2).onTrue(new InstantCommand(m_shooter::decreaseFlyFudge));
