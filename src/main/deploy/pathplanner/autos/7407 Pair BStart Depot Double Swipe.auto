@@ -7,31 +7,31 @@
         {
           "type": "path",
           "data": {
-            "pathName": "3467 Bump Depot"
+            "pathName": "7407 Bump Preload Trench"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "3467 First Swipe Bump"
+            "pathName": "7407 First Swipe"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Bump Trench Shoot"
+            "pathName": "Swipe Shoot"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "3467 Second Swipe"
+            "pathName": "7407 Second Swipe"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Swipe Shoot Alt"
+            "pathName": "7407 Bump Depot Shoot"
           }
         }
       ]

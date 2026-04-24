@@ -11,6 +11,7 @@ import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.commands.FollowPathCommand;
 import com.pathplanner.lib.commands.PathfindingCommand;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
@@ -442,6 +443,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         // IF USING CUSTOM PATHFINDER ADD BEFORE THIS LINE
         
         CommandScheduler.getInstance().schedule(PathfindingCommand.warmupCommand());
+        CommandScheduler.getInstance().schedule(FollowPathCommand.warmupCommand());
+
     }
 
     /**

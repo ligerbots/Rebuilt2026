@@ -10,12 +10,14 @@ import edu.wpi.first.hal.HALUtil;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.utilities.HubShiftUtil;
 
 public class Robot extends TimedRobot {
     private Command m_autonomousCommand = null;
@@ -80,7 +82,9 @@ public class Robot extends TimedRobot {
     }
 
     @Override
-    public void disabledInit() {}
+    public void disabledInit() {
+        HubShiftUtil.disable();
+    }
 
     @Override
     public void disabledPeriodic() {
@@ -99,18 +103,24 @@ public class Robot extends TimedRobot {
             CommandSwerveDrivetrain driveTrain = m_robotContainer.getDriveTrain();
             if (driveTrain != null) driveTrain.setPose(m_robotContainer.getInitialPose());
         }
+
+        m_robotContainer.updateAutoPreviewActor();
     }
 
     @Override
-    public void disabledExit() {}
+    public void disabledExit() {
+        m_robotContainer.clearAutoPreview();
+    }
 
     @Override
     public void autonomousInit() {
+        // double startT = Timer.getFPGATimestamp();
         m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
         if (m_autonomousCommand != null) {
             CommandScheduler.getInstance().schedule(m_autonomousCommand);
         }
+        // System.out.println("*** AutoInit took " + (Timer.getFPGATimestamp() - startT) + " seconds");
     }
 
     @Override
@@ -121,6 +131,10 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopInit() {
+        HubShiftUtil.initialize();
+        // note: use this here, or in disabledExit(), but no need for both
+        // m_robotContainer.clearAutoPreview();
+
         if (m_autonomousCommand != null) {
             CommandScheduler.getInstance().cancel(m_autonomousCommand);
         }

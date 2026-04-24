@@ -8,17 +8,26 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
+import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.events.EventTrigger;
+import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.trajectory.PathPlannerTrajectory;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -45,6 +54,8 @@ import frc.robot.subsystems.shooter.ShooterFeeder;
 import frc.robot.subsystems.shooter.Turret;
 
 public class RobotContainerCompBot extends RobotContainer {
+    private record AutoPreviewData(List<Pose2d> poses, List<PathPlannerTrajectory> trajectories, double durationSec) {}
+
     private static final double SPEED_LIMIT = 1.0;
     private double MAX_SPEED = SPEED_LIMIT * TunerConstantsCompBot.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
     private double MAX_ANGULAR_RATE = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
@@ -82,9 +93,14 @@ public class RobotContainerCompBot extends RobotContainer {
     private final DataLogger m_dataLogger = new DataLogger();
 
     private final SendableChooser<String> m_chosenFieldSide = new SendableChooser<>();
-    private final SendableChooser<List<Object>> m_chosenAutoPaths = new SendableChooser<>();
+    private final SendableChooser<String> m_chosenAutoPaths = new SendableChooser<>();
+    private final Map<String, List<Object>> m_autoPathOptions = new LinkedHashMap<>();
+    private List<Pose2d> m_autoPreviewPoses = List.of();
+    private List<PathPlannerTrajectory> m_autoPreviewTrajectories = List.of();
+    private double m_autoPreviewDurationSec = 0.0;
+    private double m_autoPreviewStartTimeSec = 0.0;
 
-    private int m_autoSelectionCode; 
+    private int m_autoSelectionCode = Integer.MIN_VALUE; 
     
     public RobotContainerCompBot() {
         if (Robot.isSimulation()) {
@@ -112,21 +128,14 @@ public class RobotContainerCompBot extends RobotContainer {
         // not used by PathPlanner triggers
         m_virtualShootButton.whileTrue(getShootCommand());
 
-        m_chosenAutoPaths.setDefaultOption("Depot Double Swipe Blitz", List.of(
+        addAutoOption("Depot Double Swipe Blitz", List.of(
                 "First Swipe Blitz",
                 "Swipe Shoot",
                 "Depot Double Swipe Blitz",
                 "Depot Trench Run Out"
-                ));
+                ), true);
 
-        // "Depot Double Swipe Blitz.auto"
-        // "Depot Double Swipe Steal.auto"
-        // "Pass Blitz.auto"
-        // "Swing Depot Double Swipe Blitz.auto"
-        // "Triple Swipe Blitz.auto"
-        // "Triple Swipe Steal.auto"
-
-        m_chosenAutoPaths.addOption("BStart Depot Bump Only", List.of(
+        addAutoOption("BStart Depot Bump Only", List.of(
                 "Bump Preload Bump",
                 "BStart First Swipe Bump",
                 "Bump Bump Shoot",
@@ -134,7 +143,7 @@ public class RobotContainerCompBot extends RobotContainer {
                 "Bump Depot Shoot"
                 ));
 
-        m_chosenAutoPaths.addOption("BStart Depot Double Bump", List.of(
+        addAutoOption("BStart Depot Double Bump", List.of(
                 "Bump Preload Trench",
                 "Second Swipe Bump",
                 "Bump Trench Shoot",
@@ -142,22 +151,14 @@ public class RobotContainerCompBot extends RobotContainer {
                 "Bump Depot Shoot"
                 ));
 
-        m_chosenAutoPaths.addOption("BStart Depot Double Bump", List.of(
-                "Bump Preload Trench",
-                "Second Swipe Bump",
-                "Bump Trench Shoot",
-                "Second Swipe Bump",
-                "Bump Depot Shoot"
-                ));
-
-        m_chosenAutoPaths.addOption("Depot Double Swipe Bump", List.of(
+        addAutoOption("Depot Double Swipe Bump", List.of(
                 "First Swipe Bump",
                 "Bump Trench Shoot",
                 "Second Swipe Bump",
                 "Bump Depot Shoot"
                 ));
 
-        m_chosenAutoPaths.addOption("Depot Triple Swipe Bump", List.of(
+        addAutoOption("Depot Triple Swipe Bump", List.of(
                 "First Swipe Bump",
                 "Bump Trench Shoot",
                 "Second Swipe Bump",
@@ -166,7 +167,7 @@ public class RobotContainerCompBot extends RobotContainer {
                 "Bump Depot Shoot"
                 ));
 
-        m_chosenAutoPaths.addOption("Triple Swipe Bump", List.of(
+        addAutoOption("Triple Swipe Bump", List.of(
                 "First Swipe Bump",
                 "Bump Trench Shoot",
                 "Second Swipe Bump",
@@ -175,7 +176,7 @@ public class RobotContainerCompBot extends RobotContainer {
                 "Bump Trench Shoot"
                 ));
 
-        m_chosenAutoPaths.addOption("Triple Swipe Blitz", List.of(
+        addAutoOption("Triple Swipe Blitz", List.of(
                 "First Swipe Blitz",
                 "Swipe Shoot",
                 "Second Swipe",
@@ -184,31 +185,31 @@ public class RobotContainerCompBot extends RobotContainer {
                 "Swipe Shoot Alt"
                 ));
 
-        m_chosenAutoPaths.addOption("Pass Blitz", List.of(
+        addAutoOption("Pass Blitz", List.of(
                 "Pass Swipe",
                 "Pass Shoot"
                 ));
         
-        m_chosenAutoPaths.addOption("Center Auto", List.of(
+        addAutoOption("Center Auto", List.of(
                 "Center to First Shoot",
                 3.0, // shoot for 3 seconds to ensure all 8 balls are out
                 "First Shoot to Depot"
                 ));
 
-        m_chosenAutoPaths.addOption("Swing Depot Double Swipe Blitz", List.of(
+        addAutoOption("Swing Depot Double Swipe Blitz", List.of(
                 "Swing First Swipe Blitz",
                 "Swipe Shoot",
                 "Depot Double Swipe Blitz"
                 ));
 
-        m_chosenAutoPaths.addOption("Steal DOUBLE Swipe", List.of(
+        addAutoOption("Steal DOUBLE Swipe", List.of(
                 "First Swipe Steal",
                 "Swipe Shoot",
                 "Depot Double Swipe Blitz",
                 "Depot Trench Run Out"
                 ));
 
-        m_chosenAutoPaths.addOption("Steal TRIPLE Swipe", List.of(
+        addAutoOption("Steal TRIPLE Swipe", List.of(
                 "First Swipe Steal",
                 "Swipe Shoot",
                 "Second Swipe",
@@ -216,10 +217,6 @@ public class RobotContainerCompBot extends RobotContainer {
                 "Third Swipe",
                 "Swipe Shoot Alt"
                 ));
-
-        // m_chosenAutoPaths.addOption("Shoot While Moving", List.of(   
-        //         "Shoot While Moving"
-        // ));
 
         SmartDashboard.putData("Auto Choice", m_chosenAutoPaths);
 
@@ -382,19 +379,53 @@ public class RobotContainerCompBot extends RobotContainer {
         return m_drivetrain;
     }
 
+    @Override
+    public void clearAutoPreview() {
+        m_logger.getField2d().getObject("selectedAutoPath").setPoses();
+        m_logger.getField2d().getObject("selectedAutoActor").setPoses();
+    }
+
+    @Override
+    public void updateAutoPreviewActor() {
+        Pose2d previewPose = getAnimatedPreviewPose();
+        if (previewPose == null) {
+            m_logger.getField2d().getObject("selectedAutoActor").setPoses();
+            return;
+        }
+
+        m_logger.getField2d().getObject("selectedAutoActor").setPose(previewPose);
+    }
+
     public Command getAutonomousCommand() {
+        String selectedAutoName = m_chosenAutoPaths.getSelected();
+        List<Object> selectedAutoPaths = m_autoPathOptions.get(selectedAutoName);
+        String selectedFieldSide = m_chosenFieldSide.getSelected();
         int currentAutoSelectionCode = Objects.hash(
-            m_chosenAutoPaths.getSelected(),
-            m_chosenFieldSide.getSelected(),
+            selectedAutoName,
+            selectedFieldSide,
             DriverStation.getAlliance());
 
         // Only call constructor if the auto selection inputs have changed
         if (m_autoSelectionCode != currentAutoSelectionCode) {
+            // double startT = Timer.getFPGATimestamp();
+
             m_autoSelectionCode = currentAutoSelectionCode;
 
-            m_autoCommand = CoreAuto.getInstance(m_chosenAutoPaths.getSelected(), m_drivetrain,
-                    m_chosenFieldSide.getSelected().equals("Outpost Side"), m_virtualShootButton);
+            boolean isOutpostSide = selectedFieldSide.equals("Outpost Side");
+            m_autoCommand = CoreAuto.getInstance(selectedAutoPaths, m_drivetrain, isOutpostSide, m_virtualShootButton);
+            AutoPreviewData autoPreview = buildAutoPreview(selectedAutoPaths, isOutpostSide);
+            m_autoPreviewPoses = autoPreview.poses();
+            m_autoPreviewTrajectories = autoPreview.trajectories();
+            m_autoPreviewDurationSec = autoPreview.durationSec();
+            m_autoPreviewStartTimeSec = Timer.getFPGATimestamp();
+            SmartDashboard.putString("Selected Auto", selectedAutoName);
+            m_logger.getField2d().getObject("selectedAutoPath").setPoses(m_autoPreviewPoses);
+
+            updateAutoPreviewActor();
+
+            // System.out.println("*** Build Auto command took " + (Timer.getFPGATimestamp() - startT) + " seconds");
         }
+        
         return m_autoCommand;
     }
 
@@ -436,5 +467,135 @@ public class RobotContainerCompBot extends RobotContainer {
 
     private Command withHopperControl(Command shootCommand) {
         return shootCommand.alongWith(new PulseHopper(m_hopper, m_shooter, m_turret));
+    }
+
+    private AutoPreviewData buildAutoPreview(List<Object> pathSteps, boolean isOutpostSide) {
+        List<Pose2d> previewPoses = new ArrayList<>();
+        List<PathPlannerTrajectory> previewTrajectories = new ArrayList<>();
+        double previewDurationSec = 0.0;
+
+        if (pathSteps == null) {
+            return new AutoPreviewData(previewPoses, previewTrajectories, previewDurationSec);
+        }
+
+        RobotConfig robotConfig = loadAutoPreviewRobotConfig();
+
+        for (Object step : pathSteps) {
+            if (!(step instanceof String pathName)) {
+                continue;
+            }
+
+            PathPlannerPath path = CommandSwerveDrivetrain.loadPath(pathName);
+            if (path == null) {
+                continue;
+            }
+
+            if (isOutpostSide) {
+                path = path.mirrorPath();
+            }
+
+            for (Pose2d pose : path.getPathPoses()) {
+                previewPoses.add(FieldConstants.flipPose(pose));
+            }
+
+            if (robotConfig == null) {
+                continue;
+            }
+
+            PathPlannerTrajectory trajectory = buildAutoPreviewTrajectory(path, robotConfig);
+            if (trajectory == null) {
+                continue;
+            }
+
+            previewTrajectories.add(trajectory);
+            previewDurationSec += trajectory.getTotalTimeSeconds();
+        }
+
+        return new AutoPreviewData(previewPoses, previewTrajectories, previewDurationSec);
+    }
+
+    private void addAutoOption(String name, List<Object> pathSteps) {
+        addAutoOption(name, pathSteps, false);
+    }
+
+    private void addAutoOption(String name, List<Object> pathSteps, boolean isDefault) {
+        m_autoPathOptions.put(name, pathSteps);
+        if (isDefault) {
+            m_chosenAutoPaths.setDefaultOption(name, name);
+        } else {
+            m_chosenAutoPaths.addOption(name, name);
+        }
+    }
+
+    private RobotConfig loadAutoPreviewRobotConfig() {
+        try {
+            return RobotConfig.fromGUISettings();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private PathPlannerTrajectory buildAutoPreviewTrajectory(PathPlannerPath path, RobotConfig robotConfig) {
+        Rotation2d startingRotation = getPreviewStartingRotation(path);
+        double startingSpeedMps = path.getIdealStartingState() != null ? path.getIdealStartingState().velocityMPS() : 0.0;
+        Rotation2d pathHeading = getPathHeading(path);
+        Translation2d fieldVelocity = new Translation2d(startingSpeedMps, pathHeading);
+        ChassisSpeeds startingSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
+            fieldVelocity.getX(),
+            fieldVelocity.getY(),
+            0.0,
+            startingRotation);
+
+        return path.generateTrajectory(startingSpeeds, startingRotation, robotConfig);
+    }
+
+    private Rotation2d getPreviewStartingRotation(PathPlannerPath path) {
+        if (path.getIdealStartingState() != null) {
+            return path.getIdealStartingState().rotation();
+        }
+
+        return getPathHeading(path);
+    }
+
+    private Rotation2d getPathHeading(PathPlannerPath path) {
+        List<Pose2d> pathPoses = path.getPathPoses();
+        if (pathPoses.size() < 2) {
+            return Rotation2d.kZero;
+        }
+
+        Translation2d headingVector = pathPoses.get(1).getTranslation().minus(pathPoses.get(0).getTranslation());
+        if (headingVector.getNorm() < 1e-6) {
+            return Rotation2d.kZero;
+        }
+
+        return headingVector.getAngle();
+    }
+
+    private Pose2d getAnimatedPreviewPose() {
+        if (m_autoPreviewTrajectories.isEmpty()) {
+            if (m_autoPreviewPoses.isEmpty()) {
+                return null;
+            }
+
+            return m_autoPreviewPoses.get(0);
+        }
+
+        if (m_autoPreviewDurationSec <= 0.0) {
+            return FieldConstants.flipPose(m_autoPreviewTrajectories.get(m_autoPreviewTrajectories.size() - 1).getEndState().pose);
+        }
+
+        double elapsedSec = Timer.getFPGATimestamp() - m_autoPreviewStartTimeSec;
+        double previewTimeSec = elapsedSec % m_autoPreviewDurationSec;
+
+        for (PathPlannerTrajectory trajectory : m_autoPreviewTrajectories) {
+            double trajectoryDurationSec = trajectory.getTotalTimeSeconds();
+            if (previewTimeSec <= trajectoryDurationSec) {
+                return FieldConstants.flipPose(trajectory.sample(previewTimeSec).pose);
+            }
+
+            previewTimeSec -= trajectoryDurationSec;
+        }
+
+        return FieldConstants.flipPose(m_autoPreviewTrajectories.get(m_autoPreviewTrajectories.size() - 1).getEndState().pose);
     }
 }

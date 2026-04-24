@@ -32,32 +32,32 @@
     },
     {
       "anchor": {
-        "x": 6.598060240963856,
-        "y": 4.996638554216868
+        "x": 6.55010733452594,
+        "y": 4.318944543828264
       },
       "prevControl": {
-        "x": 6.313939759036145,
-        "y": 5.44467469879518
+        "x": 6.265986852598228,
+        "y": 4.766980688406576
       },
       "nextControl": {
-        "x": 6.850616261015846,
-        "y": 4.598377137981039
+        "x": 6.80266335457793,
+        "y": 3.9206831275924356
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 7.9640240963855415,
-        "y": 5.9364216867469874
+        "x": 8.12397137745975,
+        "y": 5.584525939177102
       },
       "prevControl": {
-        "x": 7.696472426968141,
-        "y": 5.520708818112399
+        "x": 7.856419708042349,
+        "y": 5.168813070542513
       },
       "nextControl": {
-        "x": 8.458964762854867,
-        "y": 6.7054440019876695
+        "x": 8.618912043929075,
+        "y": 6.353548254417784
       },
       "isLocked": false,
       "linkedName": null
@@ -197,8 +197,8 @@
   "constraintZones": [
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 1.3997785160575782,
-      "maxWaypointRelativePos": 3.331118493909193,
+      "minWaypointRelativePos": 1.5864406779661016,
+      "maxWaypointRelativePos": 2.227118644067796,
       "constraints": {
         "maxVelocity": 2.5,
         "maxAcceleration": 10.0,
@@ -210,8 +210,8 @@
     },
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 6.16,
-      "maxWaypointRelativePos": 9.0,
+      "minWaypointRelativePos": 6.07,
+      "maxWaypointRelativePos": 7.688135593220353,
       "constraints": {
         "maxVelocity": 0.25,
         "maxAcceleration": 1.0,
@@ -252,7 +252,7 @@
     {
       "name": "Shooter Running",
       "waypointRelativePos": 6.052667116812973,
-      "endWaypointRelativePos": 8.930232558139553,
+      "endWaypointRelativePos": 8.298305084745762,
       "command": null
     },
     {

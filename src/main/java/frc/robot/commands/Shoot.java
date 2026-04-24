@@ -12,7 +12,6 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 
@@ -21,6 +20,8 @@ import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.ShooterFeeder;
 import frc.robot.subsystems.shooter.Turret;
 import frc.robot.subsystems.shooter.Shooter.ShotType;
+import frc.robot.utilities.HubShiftUtil;
+import frc.robot.utilities.RobotLog;
 import frc.robot.utilities.ShooterLookupTable.ShootValue;
 
 /**
@@ -28,7 +29,10 @@ import frc.robot.utilities.ShooterLookupTable.ShootValue;
 * Manages turret aiming, shooter spin-up, and feeder activation.
 */
 public class Shoot extends Command {
-    private static final String PLOT_SHOT_LOCATION_KEY = "shoot/plotShotVisualization";
+    // *** Use a fixed, compile-time value only. That allows the compiler to completely remove the code
+    private static final boolean PLOT_SHOT_VISUALIZATION = false;
+
+    private static final double TEST_TIME_OF_FLIGHT_SEC = 0.0;
 
     private static record ShotSelection(Translation2d target, ShotType effectiveShotType) {}
     private enum PassSide {
@@ -50,7 +54,7 @@ public class Shoot extends Command {
     // seem to need to scale the TOF numbers down
     private static final double TOF_SCALE = 0.75;
 
-    private static final double FLYWHEEL_SCALE = 1.0;
+    private static final double FLYWHEEL_SCALE = 0.98;
 
     // for fixed shot only
     private final Translation2d m_fixedShotVector;
@@ -79,7 +83,6 @@ public class Shoot extends Command {
         SmartDashboard.putNumber("hood/testAngle", 0.0);
         SmartDashboard.putNumber("flywheel/testRPM", 0.0); 
         SmartDashboard.putNumber("kicker/testRPM", 0.0); 
-        SmartDashboard.setDefaultBoolean(PLOT_SHOT_LOCATION_KEY, RobotBase.isSimulation());
     }
 
     public Shoot(Shooter shooter, Turret turret, ShooterFeeder feeder,
@@ -89,8 +92,8 @@ public class Shoot extends Command {
     }
 
     public Shoot(Shooter shooter, Turret turret, ShooterFeeder feeder,
-                Supplier<Pose2d> poseSupplier, Supplier<ChassisSpeeds> speeds,
-                 double shotDistanceInches, Rotation2d turretHeading) {
+                Supplier<Pose2d> poseSupplier, Supplier<ChassisSpeeds> speeds, 
+                double shotDistanceInches, Rotation2d turretHeading) {
         this(shooter, turret, feeder,
                 poseSupplier, speeds, ShotType.FIXED, shotDistanceInches, turretHeading);
     }
@@ -114,7 +117,7 @@ public class Shoot extends Command {
             shotVector = m_fixedShotVector;
             effectiveShotType = ShotType.HUB;
             
-            if (shouldPlotShotLocation()) {
+            if (PLOT_SHOT_VISUALIZATION) {
                 m_turret.plotShotVectors(robotPose, shotVector, Translation2d.kZero, Translation2d.kZero);
             }
         } else {    
@@ -139,7 +142,7 @@ public class Shoot extends Command {
         m_shooter.setShootValues(shotValue);
         m_feeder.setKickerRPM(shotValue.feedRPM);
         
-        SmartDashboard.putNumber("shoot/shotAngle", angle.getDegrees());
+        RobotLog.log("shoot/shotAngle", angle.getDegrees());
 
         if (!m_shooterOnTarget && m_shooter.onTarget()) {
             m_shooterOnTarget = true;
@@ -148,23 +151,26 @@ public class Shoot extends Command {
         if (!m_shooterOnTarget || m_turret.inDeadZone()) {
             // if in the dead zone, turn off the feed
             m_feeder.stopFeederBelts();
+
+            if (PLOT_SHOT_VISUALIZATION) {
+                // stop shooting, so clear visualization
+                m_turret.clearShotVisualization();
+            }
         } else {
             // everything is good. Shoot!
             m_feeder.runFeederBelts();
         }
 
-        if (!shouldPlotShotLocation()) {
-            m_turret.clearShotVisualization();
-        }
     }
     
     @Override
     public void end(boolean interrupted) {
         m_shooter.stop();
         m_feeder.stop();
+        HubShiftUtil.clearShotContext();
 
         // erase our velocity vector scribblings
-        if (shouldPlotShotLocation()) {
+        if (PLOT_SHOT_VISUALIZATION) {
             m_turret.clearShotVisualization();
         }
     }
@@ -334,8 +340,8 @@ public class Shoot extends Command {
         ChassisSpeeds speedInformation = m_speedsSupplier.get();
         Translation2d robotVelVector = new Translation2d(speedInformation.vxMetersPerSecond, speedInformation.vyMetersPerSecond);
 
-        SmartDashboard.putNumber("shoot/robotVel", robotVelVector.getNorm());
-        SmartDashboard.putNumber("shoot/robotOmega", speedInformation.omegaRadiansPerSecond);
+        RobotLog.log("shoot/robotVel", robotVelVector.getNorm());
+        RobotLog.log("shoot/robotOmega", speedInformation.omegaRadiansPerSecond);
 
         Pose2d futureRobotPose = new Pose2d(
             currentPose.getTranslation().plus(robotVelVector.times(LATENCY_SECONDS_TRANSLATION)),
@@ -383,25 +389,22 @@ public class Shoot extends Command {
 
             if (Math.abs(targetDistance - previousTargetDistance) < 0.03) {
                 // if the target distance did not change much, we've converged enough
-                if (shouldPlotShotLocation()) {
-                    m_turret.plotShotVectors(futureRobotPose, 
-                            targetVector, robotVelVector.times(timeOfFlight),
-                            centripetalVelocity.times(timeOfFlight));
-                }                                   
                 break;
             }
 
             previousTargetDistance = targetDistance;
         }
 
-        if (shouldPlotShotLocation()) {
+        if (PLOT_SHOT_VISUALIZATION) {
             m_turret.plotShotVectors(futureRobotPose,
                     targetVector, robotVelVector.times(timeOfFlight),
                     centripetalVelocity.times(timeOfFlight));
         }
 
-        SmartDashboard.putNumber("shoot/tof", timeOfFlight);
-        SmartDashboard.putNumber("shoot/targetDistance", targetDistance);
+        HubShiftUtil.setShotContext(timeOfFlight, effectiveShotType == ShotType.HUB);
+
+        RobotLog.log("shoot/tof", timeOfFlight);
+        RobotLog.log("shoot/targetDistance", targetDistance);
 
         return targetVector;
     }
@@ -436,10 +439,6 @@ public class Shoot extends Command {
                 SmartDashboard.getNumber("flywheel/testRPM", 0.0),
                 SmartDashboard.getNumber("kicker/testRPM", 0.0),
                 Rotation2d.fromDegrees(SmartDashboard.getNumber("hood/testAngle", 0.0)),
-                SmartDashboard.getNumber("shooter/testTimeOfFlight", 0.0));
-    }
-
-    private static boolean shouldPlotShotLocation() {
-        return SmartDashboard.getBoolean(PLOT_SHOT_LOCATION_KEY, RobotBase.isSimulation());
+                TEST_TIME_OF_FLIGHT_SEC);
     }
 }

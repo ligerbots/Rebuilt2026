@@ -21,6 +21,7 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.utilities.RobotLog;
 
 public class IntakeRoller extends SubsystemBase {
     private static final Current SUPPLY_CURRENT_LIMIT = Amps.of(40);
@@ -34,9 +35,9 @@ public class IntakeRoller extends SubsystemBase {
     // private static final double INTAKE_VOLTAGE = 7.0;  // was 9
     // private static final double OUTTAKE_VOLTAGE = -6.0;
 
-    private static final double INTAKE_RPM = 2625.0;
-    private static final double FAST_INTAKE_RPM_SCALE = 1.5;
-    private static final double OUTTAKE_RPM = -4000.0;
+    private static final double INTAKE_RPM = 2850.0;
+    private static final double FAST_INTAKE_RPM_SCALE = 2.0;
+    private static final double OUTTAKE_RPM = -5000.0;
 
     private final TalonFX m_motor;
 
@@ -87,12 +88,17 @@ public class IntakeRoller extends SubsystemBase {
 
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("intake/voltage", m_motor.getMotorVoltage().getValueAsDouble()); 
+        // Driver-facing status
         SmartDashboard.putNumber("intake/RPM", getRPM()); 
-        SmartDashboard.putNumber("intake/goalRPM", m_goalRPM); 
-        SmartDashboard.putNumber("intake/voltageFudge", m_intakeRPMScale);
-        SmartDashboard.putNumber("intake/rollerSupply", m_motor.getSupplyCurrent().getValueAsDouble());
-        SmartDashboard.putNumber("intake/rollerStator", m_motor.getStatorCurrent().getValueAsDouble());
+        
+        // Commanded state
+        SmartDashboard.putNumber("intake/goalRPM", m_goalRPM);
+        RobotLog.log("intake/voltageFudge", m_intakeRPMScale);
+
+        // Motor electrical data
+        RobotLog.log("intake/voltage", m_motor.getMotorVoltage().getValueAsDouble());
+        RobotLog.log("intake/rollerSupply", m_motor.getSupplyCurrent().getValueAsDouble());
+        RobotLog.log("intake/rollerStator", m_motor.getStatorCurrent().getValueAsDouble());
     }
          
     public double getRPM(){

@@ -1,0 +1,122 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 4.43,
+        "y": 7.55
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 1.6768076923076936,
+        "y": 7.68625641025641
+      },
+      "isLocked": false,
+      "linkedName": "Auto Start Line Straight"
+    },
+    {
+      "anchor": {
+        "x": 0.6440312645330402,
+        "y": 5.963885481599589
+      },
+      "prevControl": {
+        "x": 2.676833333340479,
+        "y": 5.953653846146641
+      },
+      "nextControl": {
+        "x": 0.39403443119488674,
+        "y": 5.965143782396482
+      },
+      "isLocked": false,
+      "linkedName": "Auto Depot Depth"
+    },
+    {
+      "anchor": {
+        "x": 1.3512179487169285,
+        "y": 5.964
+      },
+      "prevControl": {
+        "x": 1.0561498840592318,
+        "y": 5.946643055020135
+      },
+      "nextControl": {
+        "x": 1.6007865420106775,
+        "y": 5.978680505487868
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 4.107102564102565,
+        "y": 7.55
+      },
+      "prevControl": {
+        "x": 1.4894208220407572,
+        "y": 7.313079226036572
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "Trench In"
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.88,
+      "rotationDegrees": 180.0
+    },
+    {
+      "waypointRelativePos": 1.7210526315789516,
+      "rotationDegrees": 180.0
+    }
+  ],
+  "constraintZones": [
+    {
+      "name": "Constraints Zone",
+      "minWaypointRelativePos": 0.8438538205980033,
+      "maxWaypointRelativePos": 1.521594684385386,
+      "constraints": {
+        "maxVelocity": 0.3,
+        "maxAcceleration": 1.0,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 720.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    }
+  ],
+  "pointTowardsZones": [],
+  "eventMarkers": [
+    {
+      "name": "Run Intake",
+      "waypointRelativePos": 0.27906976744185336,
+      "endWaypointRelativePos": null,
+      "command": null
+    },
+    {
+      "name": "Shooter Running",
+      "waypointRelativePos": 0.8239202657807316,
+      "endWaypointRelativePos": 2.398671096345499,
+      "command": null
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 5.0,
+    "maxAcceleration": 5.0,
+    "maxAngularVelocity": 1000.0,
+    "maxAngularAcceleration": 1000.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 3.0,
+    "rotation": 0.0
+  },
+  "reversed": false,
+  "folder": "Pair Paths",
+  "idealStartingState": {
+    "velocity": 1.5,
+    "rotation": 0.0
+  },
+  "useDefaultConstraints": false
+}

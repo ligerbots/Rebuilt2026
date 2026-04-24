@@ -10,6 +10,7 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.utilities.RobotLog;
 
 import static edu.wpi.first.units.Units.Amps;
 
@@ -21,7 +22,6 @@ import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 public class Hood extends SubsystemBase {
-
     private static final double ANGLE_TOLERANCE_DEG = 2.0;
 
     private static final double MIN_ANGLE_DEG = 0.0;
@@ -32,7 +32,7 @@ public class Hood extends SubsystemBase {
     private static final Current SUPPLY_CURRENT_LIMIT = Amps.of(20);
     private static final Current STATOR_CURRENT_LIMIT = Amps.of(20);
     
-    private static final double K_P = 4.0;
+    private static final double K_P = 5.0;
     
     // private static final double MAX_VEL_ROT_PER_SEC = 12.0 / GEAR_RATIO;
     // private static final double MAX_ACC_ROT_PER_SEC = 20.0 / GEAR_RATIO;
@@ -85,10 +85,14 @@ public class Hood extends SubsystemBase {
 
     @Override
     public void periodic() {
-        // This method will be called once per scheduler run
-        SmartDashboard.putNumber("hood/goalAngle", m_goalDeg);
+        // Driver-facing status
         SmartDashboard.putNumber("hood/currentAngle", getAngle().getDegrees());
-        // SmartDashboard.putNumber("hood/rawMotorAngle",  m_motor.getPosition().getValueAsDouble());
+
+        // Commanded state
+        RobotLog.log("hood/goalAngle", m_goalDeg);
+
+        // Raw sensor/debug
+        // RobotLog.log("hood/rawMotorAngle", m_motor.getPosition().getValueAsDouble());
     }
     
     public void setAngle(Rotation2d angle) {
