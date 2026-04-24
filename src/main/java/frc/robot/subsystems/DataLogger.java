@@ -9,6 +9,8 @@ import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.utilities.HubShiftUtil;
+import frc.robot.utilities.RobotLog;
 
 public class DataLogger extends SubsystemBase {
     // private final PowerDistribution m_powerDist = new PowerDistribution();
@@ -18,10 +20,32 @@ public class DataLogger extends SubsystemBase {
 
     @Override
     public void periodic() {
-        // SmartDashboard.putNumber("power/totalCurrent", m_powerDist.getTotalCurrent());  
-        SmartDashboard.putNumber("power/batteryVoltage", RobotController.getBatteryVoltage());  
+        // Power
+        // RobotLog.log("power/totalCurrent", m_powerDist.getTotalCurrent());
+        RobotLog.log("power/batteryVoltage", RobotController.getBatteryVoltage());
 
-        SmartDashboard.putNumber("network/CAN Bus Utilization",
+        // Network
+        RobotLog.log("network/CAN Bus Utilization",
                 RobotBase.isSimulation() ? 0.0 : RobotController.getCANStatus().percentBusUtilization);
+
+        HubShiftUtil.ShiftInfo officialShiftInfo = HubShiftUtil.getOfficialShiftInfo();
+        HubShiftUtil.ShiftInfo shiftedShiftInfo = HubShiftUtil.getShiftedShiftInfo(HubShiftUtil.getProjectileLeadTimeSec());
+        boolean hubTimingRelevant = HubShiftUtil.isHubTimingRelevant();
+        boolean hubActiveNow = officialShiftInfo.active();
+        boolean clearToShoot = hubTimingRelevant && shiftedShiftInfo.active();
+
+        // SmartDashboard
+        SmartDashboard.putNumber("shoot/matchElapsedSec", HubShiftUtil.getMatchElapsedSec());
+        SmartDashboard.putNumber("shoot/matchRemainingSec", HubShiftUtil.getMatchRemainingSec());
+        SmartDashboard.putNumber("shoot/hubShiftElapsedSec", shiftedShiftInfo.elapsedTimeSec());
+        SmartDashboard.putNumber("shoot/hubShiftRemainingSec", shiftedShiftInfo.remainingTimeSec());
+        SmartDashboard.putBoolean("shoot/hubActiveNow", hubActiveNow);
+        SmartDashboard.putBoolean("shoot/clearToShoot", clearToShoot);
+        SmartDashboard.putBoolean("shoot/hubTimingRelevant", hubTimingRelevant);
+
+        // RobotLog
+        RobotLog.log("shoot/hubShiftState", officialShiftInfo.currentShift().name());
+        RobotLog.log("shoot/shiftedHubShiftState", shiftedShiftInfo.currentShift().name());
+        RobotLog.log("shoot/projectileLeadTimeSec", HubShiftUtil.getProjectileLeadTimeSec());
     }
 }

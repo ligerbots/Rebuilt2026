@@ -18,18 +18,19 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.utilities.RobotLog;
 
 public class ShooterFeeder extends SubsystemBase {
     
-    private static final double KICKER_K_P = 0.4;
+    private static final double KICKER_K_P = 0.6;
     private static final double KICKER_K_I = 0.0; 
     private static final double KICKER_K_D = 0.0;
     private static final double KICKER_K_FF = 0.00217;  // V/rpm
 
     private static final double KICKER_SUPPLY_CURRENT_LIMIT = 35;
-    private static final double KICKER_STATOR_CURRENT_LIMIT = 80;
+    private static final double KICKER_STATOR_CURRENT_LIMIT = 90;
 
-    private static final double FEEDER_K_P = 0.4;
+    private static final double FEEDER_K_P = 0.8;
     private static final double FEEDER_K_I = 0.0; 
     private static final double FEEDER_K_D = 0.0;
     private static final double FEEDER_K_FF = 0.0022;  // V/rpm
@@ -40,7 +41,7 @@ public class ShooterFeeder extends SubsystemBase {
     // private static double FEEDER_BELT_FEED_VOLTAGE = 10.0;
     // private static double FEEDER_BELT_UNJAM_VOLTAGE = -6.0;
 
-    private static double FEEDER_BELT_FEED_RPM = 4000.0;  // was 4250
+    private static double FEEDER_BELT_FEED_RPM = 4500.0;  // was 4250
     private static double FEEDER_BELT_UNJAM_RPM = -2700.0;
 
     private final TalonFX m_motorKicker;
@@ -114,16 +115,20 @@ public class ShooterFeeder extends SubsystemBase {
 
     @Override
     public void periodic() {
+        // Driver-facing status
         SmartDashboard.putNumber("kicker/currentRPM", getKickerRPM()); 
-        SmartDashboard.putNumber("kicker/goalRPM", m_kickerGoalRPM);
-        SmartDashboard.putNumber("kicker/statorCurrent", m_motorKicker.getStatorCurrent().getValueAsDouble());
-        SmartDashboard.putNumber("kicker/supplyCurrent", m_motorKicker.getSupplyCurrent().getValueAsDouble());
-
-        SmartDashboard.putNumber("feeder/statorCurrent", m_motorFeeder.getStatorCurrent().getValueAsDouble());
-        SmartDashboard.putNumber("feeder/supplyCurrent", m_motorFeeder.getSupplyCurrent().getValueAsDouble());
-        SmartDashboard.putNumber("feeder/voltage", m_motorFeeder.getMotorVoltage().getValueAsDouble());
         SmartDashboard.putNumber("feeder/currentRPM", getFeederRPM()); 
-        SmartDashboard.putNumber("feeder/goalRPM", m_feederGoalRPM);
+        
+        // Kicker state
+        RobotLog.log("kicker/goalRPM", m_kickerGoalRPM);
+        RobotLog.log("kicker/statorCurrent", m_motorKicker.getStatorCurrent().getValueAsDouble());
+        RobotLog.log("kicker/supplyCurrent", m_motorKicker.getSupplyCurrent().getValueAsDouble());
+
+        // Feeder state
+        RobotLog.log("feeder/goalRPM", m_feederGoalRPM);
+        RobotLog.log("feeder/statorCurrent", m_motorFeeder.getStatorCurrent().getValueAsDouble());
+        RobotLog.log("feeder/supplyCurrent", m_motorFeeder.getSupplyCurrent().getValueAsDouble());
+        RobotLog.log("feeder/voltage", m_motorFeeder.getMotorVoltage().getValueAsDouble());
     }
     
     public double getKickerRPM(){

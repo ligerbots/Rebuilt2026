@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.utilities.RobotLog;
 
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
@@ -31,7 +32,6 @@ import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 
 public class Turret extends SubsystemBase {
-    
     // public for the Shoot command - not the greatest, but a pain otherwise
     public static final Translation2d TURRET_OFFSET = new Translation2d(Units.inchesToMeters(-2.5626),  Units.inchesToMeters(-4.875));
     private static final double TURRET_HEADING_OFFSET_DEG = 180.0;
@@ -159,14 +159,18 @@ public class Turret extends SubsystemBase {
     public void periodic() {    
         double goal = getGoalDeg();
         double currentAngle = getAngle().getDegrees();
-        SmartDashboard.putNumber("turret/currentAngle", currentAngle);
-        SmartDashboard.putNumber("turret/angleError", goal - currentAngle);
 
+        // Driver-facing status
+        SmartDashboard.putNumber("turret/currentAngle", currentAngle);
         SmartDashboard.putNumber("turret/fudgeAngle", m_turretFudgeDegrees);
 
-        SmartDashboard.putNumber("turret/voltage", m_turretMotor.getMotorVoltage().getValueAsDouble());
-        SmartDashboard.putNumber("turret/velocityRPS", m_turretMotor.getVelocity().getValueAsDouble());
-        SmartDashboard.putNumber("turret/accelRPS2", m_turretMotor.getAcceleration().getValueAsDouble());
+        // Tracking state
+        RobotLog.log("turret/angleError", goal - currentAngle);
+
+        // Motor electrical/motion data
+        RobotLog.log("turret/voltage", m_turretMotor.getMotorVoltage().getValueAsDouble());
+        RobotLog.log("turret/velocityRPS", m_turretMotor.getVelocity().getValueAsDouble());
+        RobotLog.log("turret/accelRPS2", m_turretMotor.getAcceleration().getValueAsDouble());
 
         // Values for testing and tuning
         // SmartDashboard.putNumber("turret/crtAngleRaw",getCRTAngleRaw().getDegrees());   
@@ -201,8 +205,8 @@ public class Turret extends SubsystemBase {
         m_turretMotor.setControl(m_positionControl);
 
         // update these log items right away
-        SmartDashboard.putNumber("turret/shootAngle", m_shootAngle + TURRET_HEADING_OFFSET_DEG);
-        SmartDashboard.putNumber("turret/goalAngle", m_goalDeg + TURRET_HEADING_OFFSET_DEG);
+        RobotLog.log("turret/shootAngle", m_shootAngle + TURRET_HEADING_OFFSET_DEG);
+        RobotLog.log("turret/goalAngle", m_goalDeg + TURRET_HEADING_OFFSET_DEG);
     }
     
     // get angle of turret
