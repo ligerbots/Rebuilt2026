@@ -46,13 +46,6 @@ public class DataLogger extends SubsystemBase {
         // RobotLog
         RobotLog.log("shoot/hubShiftState", officialShiftInfo.currentShift().name());
         RobotLog.log("shoot/shiftedHubShiftState", shiftedShiftInfo.currentShift().name());
-        RobotLog.log("shoot/hubActiveNow", hubActiveNow);
-        RobotLog.log("shoot/clearToShoot", clearToShoot);
-        RobotLog.log("shoot/hubTimingRelevant", hubTimingRelevant);
-        RobotLog.log("shoot/matchElapsedSec", HubShiftUtil.getMatchElapsedSec());
-        RobotLog.log("shoot/matchRemainingSec", HubShiftUtil.getMatchRemainingSec());
-        RobotLog.log("shoot/hubShiftElapsedSec", shiftedShiftInfo.elapsedTimeSec());
-        RobotLog.log("shoot/hubShiftRemainingSec", shiftedShiftInfo.remainingTimeSec());
         RobotLog.log("shoot/projectileLeadTimeSec", HubShiftUtil.getProjectileLeadTimeSec());
     }
 }
