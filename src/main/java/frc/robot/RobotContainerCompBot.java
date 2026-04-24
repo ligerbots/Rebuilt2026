@@ -135,26 +135,11 @@ public class RobotContainerCompBot extends RobotContainer {
                 "Depot Trench Run Out"
                 ), true);
 
-        // "Depot Double Swipe Blitz.auto"
-        // "Depot Double Swipe Steal.auto"
-        // "Pass Blitz.auto"
-        // "Swing Depot Double Swipe Blitz.auto"
-        // "Triple Swipe Blitz.auto"
-        // "Triple Swipe Steal.auto"
-
         addAutoOption("BStart Depot Bump Only", List.of(
                 "Bump Preload Bump",
                 "BStart First Swipe Bump",
                 "Bump Bump Shoot",
                 "BStart First Swipe Bump",
-                "Bump Depot Shoot"
-                ));
-
-        addAutoOption("BStart Depot Double Bump", List.of(
-                "Bump Preload Trench",
-                "Second Swipe Bump",
-                "Bump Trench Shoot",
-                "Second Swipe Bump",
                 "Bump Depot Shoot"
                 ));
 
@@ -232,10 +217,6 @@ public class RobotContainerCompBot extends RobotContainer {
                 "Third Swipe",
                 "Swipe Shoot Alt"
                 ));
-
-        // m_chosenAutoPaths.addOption("Shoot While Moving", List.of(   
-        //         "Shoot While Moving"
-        // ));
 
         SmartDashboard.putData("Auto Choice", m_chosenAutoPaths);
 
