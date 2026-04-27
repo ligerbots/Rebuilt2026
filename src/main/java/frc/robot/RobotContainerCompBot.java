@@ -299,7 +299,6 @@ public class RobotContainerCompBot extends RobotContainer {
         m_farm.button(13).whileTrue(withHopperControl(
                 new Shoot(m_shooter, m_turret, m_shooterFeeder,
                         m_drivetrain::getPose, m_drivetrain::getFieldCentricSpeeds, 210.0, Rotation2d.k180deg)));
-
         m_farm.button(15).whileTrue(withHopperControl(
                 new Shoot(m_shooter, m_turret, m_shooterFeeder,
                         m_drivetrain::getPose, m_drivetrain::getFieldCentricSpeeds, ShotType.TEST)));
@@ -321,6 +320,9 @@ public class RobotContainerCompBot extends RobotContainer {
 
         m_farm.button(12).onTrue(new InstantCommand(m_intake.getRoller()::increaseIntakeFudge));
         m_farm.button(14).onTrue(new InstantCommand(m_intake.getRoller()::decreaseIntakeFudge));
+
+        m_farm.button(3).onTrue(new InstantCommand(() -> m_shooter.setPassNeutral(true)));
+        m_farm.button(8).onTrue(new InstantCommand(() -> m_shooter.setPassNeutral(false)));
 
         // Reset the field-centric heading on Start press.
         m_driverController.start().onTrue(m_drivetrain.runOnce(m_drivetrain::seedFieldCentric));
