@@ -7,25 +7,31 @@
         {
           "type": "path",
           "data": {
-            "pathName": "3467 Bump Preload Trench"
+            "pathName": "First Swipe Swing"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "3467 First Swipe"
+            "pathName": "Swipe Shoot"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "3467 Swipe Shoot"
+            "pathName": "Second Swipe"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "3467 Second Swipe"
+            "pathName": "Swipe Shoot Alt"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Third Swipe"
           }
         },
         {
@@ -38,6 +44,6 @@
     }
   },
   "resetOdom": true,
-  "folder": "Pair Autos",
+  "folder": null,
   "choreoAuto": false
 }

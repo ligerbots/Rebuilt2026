@@ -7,13 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "7407 Bump Preload Trench"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "7407 First Swipe"
+            "pathName": "First Swipe Swing"
           }
         },
         {
@@ -25,19 +19,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "7407 Second Swipe"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "7407 Bump Depot Shoot"
+            "pathName": "Depot Double Swipe Blitz"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": "Pair Autos",
+  "folder": null,
   "choreoAuto": false
 }
