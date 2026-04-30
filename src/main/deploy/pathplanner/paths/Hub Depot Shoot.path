@@ -20,17 +20,37 @@
         "y": 5.963885481599589
       },
       "prevControl": {
-        "x": 3.735000000000001,
-        "y": 6.023423076923077
+        "x": 2.8013583814546754,
+        "y": 6.022540610899553
+      },
+      "nextControl": {
+        "x": 0.3941236171698588,
+        "y": 5.957090793277099
+      },
+      "isLocked": false,
+      "linkedName": "Auto Depot Depth"
+    },
+    {
+      "anchor": {
+        "x": 1.9258676207513492,
+        "y": 7.515348837202637
+      },
+      "prevControl": {
+        "x": 2.0069946332737105,
+        "y": 5.3735957066122975
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Auto Depot Depth"
+      "linkedName": null
     }
   ],
   "rotationTargets": [
     {
       "waypointRelativePos": 0.8789473684210564,
+      "rotationDegrees": 180.0
+    },
+    {
+      "waypointRelativePos": 1.583166332665331,
       "rotationDegrees": 180.0
     }
   ],
@@ -38,7 +58,7 @@
     {
       "name": "Constraints Zone",
       "minWaypointRelativePos": 0.897009966777407,
-      "maxWaypointRelativePos": 1.5,
+      "maxWaypointRelativePos": 1.7857142857142851,
       "constraints": {
         "maxVelocity": 0.25,
         "maxAcceleration": 1.0,
@@ -60,7 +80,7 @@
     {
       "name": "Shooter Running",
       "waypointRelativePos": 0.8571428571428554,
-      "endWaypointRelativePos": 1.0,
+      "endWaypointRelativePos": 1.6666666666666679,
       "command": null
     }
   ],
@@ -74,7 +94,7 @@
   },
   "goalEndState": {
     "velocity": 0.0,
-    "rotation": 180.0
+    "rotation": 0.0
   },
   "reversed": false,
   "folder": null,

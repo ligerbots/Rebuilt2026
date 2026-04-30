@@ -154,7 +154,7 @@ public class RobotContainerCompBot extends RobotContainer {
                 "Bump Preload Trench",
                 "Second Swipe Bump",
                 "Bump Trench Shoot",
-                "Second Swipe Bump",
+                "Third Swipe Bump",
                 "Bump Depot Shoot"
                 ));
 
@@ -206,10 +206,8 @@ public class RobotContainerCompBot extends RobotContainer {
                 "Pass Shoot"
                 ));
         
-        addAutoOption("Center Auto", List.of(
-                "Center to First Shoot",
-                3.0, // shoot for 3 seconds to ensure all 8 balls are out
-                "First Shoot to Depot"
+        addAutoOption("Center Depot Simple Auto", List.of(
+                "Hub Depot Shoot"
                 ));
 
         addAutoOption("Swing Depot Double Swipe Blitz", List.of(
