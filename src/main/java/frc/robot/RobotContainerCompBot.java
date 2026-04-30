@@ -134,6 +134,13 @@ public class RobotContainerCompBot extends RobotContainer {
                 "Depot Double Swipe Blitz",
                 "Depot Trench Run Out"
                 ), true);
+        
+        addAutoOption("Depot Double Swipe Swing", List.of(
+                "First Swipe Swing",
+                "Swipe Shoot",
+                "Depot Double Swipe Blitz",
+                "Depot Trench Run Out"
+                ));
 
         addAutoOption("BStart Depot Bump Only", List.of(
                 "Bump Preload Bump",
@@ -178,6 +185,15 @@ public class RobotContainerCompBot extends RobotContainer {
 
         addAutoOption("Triple Swipe Blitz", List.of(
                 "First Swipe Blitz",
+                "Swipe Shoot",
+                "Second Swipe",
+                "Swipe Shoot Alt",
+                "Third Swipe",
+                "Swipe Shoot Alt"
+                ));
+
+        addAutoOption("Triple Swipe Swing", List.of(
+                "First Swipe Swing",
                 "Swipe Shoot",
                 "Second Swipe",
                 "Swipe Shoot Alt",
