@@ -35,8 +35,8 @@ public class IntakeRoller extends SubsystemBase {
     // private static final double INTAKE_VOLTAGE = 7.0;  // was 9
     // private static final double OUTTAKE_VOLTAGE = -6.0;
 
-    private static final double INTAKE_RPM = 2850.0;
-    private static final double FAST_INTAKE_RPM_SCALE = 2.0;
+    private static final double INTAKE_RPM = 3500.0;
+    private static final double FAST_INTAKE_RPM_SCALE = 1.57;
     private static final double OUTTAKE_RPM = -5000.0;
 
     private final TalonFX m_motor;
@@ -51,7 +51,7 @@ public class IntakeRoller extends SubsystemBase {
 
     private double m_goalRPM;
 
-    // Creates a new IntakeRoller
+    // Creates a new IntakeRollerZA
     public IntakeRoller() {
         m_motor = new TalonFX(Constants.INTAKE_ROLLER_CAN_ID);
         

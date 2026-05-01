@@ -201,6 +201,14 @@ public class RobotContainerCompBot extends RobotContainer {
                 "Swipe Shoot Alt"
                 ));
 
+        addAutoOption("Triple Swipe Pass", List.of(
+                "First Swipe Blitz",
+                "Swipe Shoot",
+                "Second Swipe",
+                "Swipe Shoot Alt",
+                "Third Swipe Pass"
+                ));
+
         addAutoOption("Pass Blitz", List.of(
                 "Pass Swipe",
                 "Pass Shoot"
@@ -225,6 +233,15 @@ public class RobotContainerCompBot extends RobotContainer {
 
         addAutoOption("Steal TRIPLE Swipe", List.of(
                 "First Swipe Steal",
+                "Swipe Shoot",
+                "Second Swipe",
+                "Swipe Shoot Alt",
+                "Third Swipe",
+                "Swipe Shoot Alt"
+                ));
+
+         addAutoOption("4946 Triple Swipe Blitz", List.of(
+                "4946 First Swipe Blitz",
                 "Swipe Shoot",
                 "Second Swipe",
                 "Swipe Shoot Alt",
