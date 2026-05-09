@@ -29,7 +29,7 @@ import frc.robot.utilities.ShooterLookupTable.ShootValue;
 */
 public class Shoot extends Command {
     // *** Use a fixed, compile-time value only. That allows the compiler to completely remove the code
-    private static final boolean PLOT_SHOT_VISUALIZATION = false;
+    private static final boolean PLOT_SHOT_VISUALIZATION = true;
 
     private static final double TEST_TIME_OF_FLIGHT_SEC = 0.0;
 
@@ -151,10 +151,10 @@ public class Shoot extends Command {
             // if in the dead zone, turn off the feed
             m_feeder.stopFeederBelts();
 
-            if (PLOT_SHOT_VISUALIZATION) {
-                // stop shooting, so clear visualization
-                m_turret.clearShotVisualization();
-            }
+            // if (PLOT_SHOT_VISUALIZATION) {
+            //     // stop shooting, so clear visualization
+            //     m_turret.clearShotVisualization();
+            // }
         } else {
             // everything is good. Shoot!
             m_feeder.runFeederBelts();

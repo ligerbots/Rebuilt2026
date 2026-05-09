@@ -26,7 +26,7 @@ public class Robot extends TimedRobot {
     public static final String COMPBOT_SERIAL_NUMBER = "030fc268";
 
     public enum RobotType {
-        TESTBOT, COMPBOT
+        TESTBOT, COMPBOT, DEMO_MODE
     }
     // we want this to be static so that it is easy for subsystems to query the robot type
     private static RobotType m_robotType;
@@ -50,13 +50,19 @@ public class Robot extends TimedRobot {
         //   code to run.
         String serialNum = HALUtil.getSerialNumber();
         SmartDashboard.putString("rioSerialNumber", serialNum);
-        if (serialNum.equals(TESTBOT_SERIAL_NUMBER)) {
-            m_robotType = RobotType.TESTBOT;
-        } else if (serialNum.equals(COMPBOT_SERIAL_NUMBER)) {
-            m_robotType = RobotType.COMPBOT;
+
+        if (Constants.DEMO_MODE) {
+            // DEMO_MODE overrides all
+            m_robotType = RobotType.DEMO_MODE;
         } else {
-            // default to the Test robot unless we're running in simulation
-            m_robotType = isSimulation() ? RobotType.COMPBOT : RobotType.TESTBOT;
+            if (serialNum.equals(TESTBOT_SERIAL_NUMBER)) {
+                m_robotType = RobotType.TESTBOT;
+            } else if (serialNum.equals(COMPBOT_SERIAL_NUMBER)) {
+                m_robotType = RobotType.COMPBOT;
+            } else {
+                // default to the Test robot unless we're running in simulation
+                m_robotType = isSimulation() ? RobotType.COMPBOT : RobotType.TESTBOT;
+            }
         }
         SmartDashboard.putString("robotType", m_robotType.toString());
 
@@ -64,6 +70,8 @@ public class Robot extends TimedRobot {
         // autonomous chooser on the dashboard.
         if (m_robotType == RobotType.TESTBOT) {
             m_robotContainer = new RobotContainerTestBot();
+        } else if (m_robotType == RobotType.DEMO_MODE) {
+            m_robotContainer = new RobotContainerDemoMode();
         } else {
             m_robotContainer = new RobotContainerCompBot();
         }

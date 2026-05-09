@@ -1,6 +1,8 @@
 package frc.robot;
 
 public class Constants {
+    public static final boolean DEMO_MODE = true;
+    
     // main robot loop frequency
     public static final double ROBOT_FREQUENCY_HZ = 50.0;
 
