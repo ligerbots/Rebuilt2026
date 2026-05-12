@@ -22,6 +22,7 @@ import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.trajectory.PathPlannerTrajectory;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -101,6 +102,10 @@ public class RobotContainerCompBot extends RobotContainer {
     private double m_autoPreviewStartTimeSec = 0.0;
 
     private int m_autoSelectionCode = Integer.MIN_VALUE; 
+
+    private SlewRateLimiter m_xLimiter = new SlewRateLimiter(3);
+    private SlewRateLimiter m_yLimiter = new SlewRateLimiter(3);
+    private SlewRateLimiter m_rotationLimiter = new SlewRateLimiter(3);
     
     public RobotContainerCompBot() {
         if (Robot.isSimulation()) {
@@ -472,16 +477,17 @@ public class RobotContainerCompBot extends RobotContainer {
         // Right stick X axis -> rotation
 
         return m_drivetrain.applyRequest(() ->
-                m_driveRequest.withVelocityX(-conditionAxis(m_driverController.getLeftY()) * MAX_SPEED)
-                    .withVelocityY(-conditionAxis(m_driverController.getLeftX()) * MAX_SPEED)
-                    .withRotationalRate(-conditionAxis(m_driverController.getRightX()) * MAX_ANGULAR_RATE)
+                m_driveRequest.withVelocityX(-conditionAxis(m_driverController.getLeftY(), m_xLimiter) * MAX_SPEED)
+                    .withVelocityY(-conditionAxis(m_driverController.getLeftX(), m_yLimiter) * MAX_SPEED)
+                    .withRotationalRate(-conditionAxis(m_driverController.getRightX(), m_rotationLimiter) * MAX_ANGULAR_RATE)
                 );
     }
 
-    private double conditionAxis(double value) {
+    private double conditionAxis(double value, SlewRateLimiter limiter) {
         value = MathUtil.applyDeadband(value, JOYSTICK_DEADBAND);
         // Square the axis, retaining the sign
-        return Math.abs(value) * value;
+        double squared = Math.abs(value) * value;
+        return limiter.calculate(squared);
     }
 
     private Command UnJamCommand() {
