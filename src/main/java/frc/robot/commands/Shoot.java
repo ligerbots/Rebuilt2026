@@ -19,6 +19,7 @@ import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.ShooterFeeder;
 import frc.robot.subsystems.shooter.Turret;
 import frc.robot.subsystems.shooter.Shooter.ShotType;
+import frc.robot.subsystems.shooter.Hood;
 import frc.robot.utilities.HubShiftUtil;
 import frc.robot.utilities.RobotLog;
 import frc.robot.utilities.ShooterLookupTable.ShootValue;
@@ -42,6 +43,7 @@ public class Shoot extends Command {
     private final Shooter m_shooter;
     private final Turret m_turret;
     private final ShooterFeeder m_feeder;
+    private final Hood m_hood;
     private final Supplier<ChassisSpeeds> m_speedsSupplier;
     private final Supplier<Pose2d> m_poseSupplier;
 
@@ -62,13 +64,14 @@ public class Shoot extends Command {
     private boolean m_shooterOnTarget = false;
     private PassSide m_latchedPassSide = null;
 
-    private Shoot(Shooter shooter, Turret turret, ShooterFeeder feeder,
+    private Shoot(Shooter shooter, Turret turret, ShooterFeeder feeder, Hood hood,
             Supplier<Pose2d> poseSupplier, Supplier<ChassisSpeeds> speeds,
             Shooter.ShotType shotType, double shotDistanceInches, Rotation2d turretHeading) {
+        m_hood = hood;
         m_turret = turret;
         m_shooter = shooter;
         m_feeder = feeder;
-        addRequirements(shooter, turret, feeder);
+        addRequirements(shooter, turret, feeder, hood);
         
         m_poseSupplier = poseSupplier;
         m_speedsSupplier = speeds;
@@ -84,16 +87,16 @@ public class Shoot extends Command {
         SmartDashboard.putNumber("kicker/testRPM", 0.0); 
     }
 
-    public Shoot(Shooter shooter, Turret turret, ShooterFeeder feeder,
+    public Shoot(Shooter shooter, Turret turret, ShooterFeeder feeder, Hood hood,
             Supplier<Pose2d> poseSupplier, Supplier<ChassisSpeeds> speeds, Shooter.ShotType shotType) {
-        this(shooter, turret, feeder,
+        this(shooter, turret, feeder, hood,
                 poseSupplier, speeds, shotType, 0.0, Rotation2d.kZero);
     }
 
-    public Shoot(Shooter shooter, Turret turret, ShooterFeeder feeder,
+    public Shoot(Shooter shooter, Turret turret, ShooterFeeder feeder, Hood hood,
                 Supplier<Pose2d> poseSupplier, Supplier<ChassisSpeeds> speeds, 
                 double shotDistanceInches, Rotation2d turretHeading) {
-        this(shooter, turret, feeder,
+        this(shooter, turret, feeder, hood,
                 poseSupplier, speeds, ShotType.FIXED, shotDistanceInches, turretHeading);
     }
 
@@ -110,6 +113,10 @@ public class Shoot extends Command {
         // Pose is needed for plotting, so fetch it once here
         Pose2d robotPose = m_poseSupplier.get();
 
+        if (robotPose.getX() == 182.11 && (robotPose.getY() < 51 || robotPose.getY() > 266)) { //change to more precise values later
+            m_hood.setAngle(Rotation2d.kZero);
+        }
+            
         ShotType effectiveShotType;
         Translation2d shotVector;
         if (m_shotType == ShotType.FIXED) {

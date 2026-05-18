@@ -53,6 +53,7 @@ import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.Shooter.ShotType;
 import frc.robot.subsystems.shooter.ShooterFeeder;
 import frc.robot.subsystems.shooter.Turret;
+import frc.robot.subsystems.shooter.Hood;
 
 public class RobotContainerCompBot extends RobotContainer {
     private record AutoPreviewData(List<Pose2d> poses, List<PathPlannerTrajectory> trajectories, double durationSec) {}
@@ -83,6 +84,7 @@ public class RobotContainerCompBot extends RobotContainer {
     private final ShooterFeeder m_shooterFeeder = new ShooterFeeder();
     private final Shooter m_shooter = new Shooter();
     private final Turret m_turret = new Turret(m_logger.getField2d());
+    private final Hood m_hood = new Hood();
 
     private final Intake m_intake = new Intake();
     private final Hopper m_hopper;
@@ -268,7 +270,7 @@ public class RobotContainerCompBot extends RobotContainer {
 
     public Command getShootCommand() {
         return withHopperControl(
-                new Shoot(m_shooter, m_turret, m_shooterFeeder, m_drivetrain::getPose, m_drivetrain::getFieldCentricSpeeds, ShotType.AUTO));
+                new Shoot(m_shooter, m_turret, m_shooterFeeder, m_hood, m_drivetrain::getPose, m_drivetrain::getFieldCentricSpeeds, ShotType.AUTO));
                         //     new InstantCommand(() -> SmartDashboard.putBoolean("autoStatus/runningShooter", true)));
     }
     
@@ -328,15 +330,15 @@ public class RobotContainerCompBot extends RobotContainer {
         // fixed shots - distance in inches, plus ROBOT angle of turret
         // ladder - robot against the outside of the ladder, intake to the left for the dirver
         m_farm.button(11).whileTrue(withHopperControl(
-                new Shoot(m_shooter, m_turret, m_shooterFeeder,
+                new Shoot(m_shooter, m_turret, m_shooterFeeder, m_hood, 
                         m_drivetrain::getPose, m_drivetrain::getFieldCentricSpeeds, 130.0, Rotation2d.kCCW_90deg)));
 
         // corner shot
         m_farm.button(13).whileTrue(withHopperControl(
-                new Shoot(m_shooter, m_turret, m_shooterFeeder,
+                new Shoot(m_shooter, m_turret, m_shooterFeeder, m_hood,
                         m_drivetrain::getPose, m_drivetrain::getFieldCentricSpeeds, 210.0, Rotation2d.k180deg)));
         m_farm.button(15).whileTrue(withHopperControl(
-                new Shoot(m_shooter, m_turret, m_shooterFeeder,
+                new Shoot(m_shooter, m_turret, m_shooterFeeder, m_hood,
                         m_drivetrain::getPose, m_drivetrain::getFieldCentricSpeeds, ShotType.TEST)));
 
         m_farm.button(1).onTrue(new InstantCommand(m_shooter::increaseFlyFudge));
