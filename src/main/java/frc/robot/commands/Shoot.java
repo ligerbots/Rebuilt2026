@@ -119,8 +119,9 @@ public class Shoot extends Command {
         Pose2d robotPose = m_poseSupplier.get();
         Translation2d robotTranslation = robotPose.getTranslation();
 
-        if (inTrenchZone(robotTranslation) == true) {
+        if (inTrenchZone(robotTranslation)) {
             m_shooter.getHood().setAngle(Rotation2d.kZero);
+            m_feeder.stopFeederBelts();
             return; 
         }
             
@@ -457,24 +458,22 @@ public class Shoot extends Command {
 
     private boolean inTrenchZone(Translation2d robotTranslation) {
         ChassisSpeeds speedInformation = m_speedsSupplier.get();
-        double xVel = speedInformation.vxMetersPerSecond;
-        double yVel = speedInformation.vyMetersPerSecond;
-        Translation2d nextRobotTranslation = new Translation2d(robotTranslation.getX() + TIME * xVel, robotTranslation.getY() + TIME * yVel);
+        Translation2d velocity = new Translation2d(speedInformation.vxMetersPerSecond, speedInformation.vyMetersPerSecond);
+        Translation2d nextRobotTranslation = robotTranslation.plus(velocity.times(TIME))
+    
+        Translation2d currentBlue = FieldConstants.flipTranslation(robotTranslation);
+        Translation2d nextBlue = FieldConstants.flipTranslation(nextRobotTranslation);
 
-        if (nextRobotTranslation.getX() > (TRENCH_X_POS - TRENCH_REGION_TOLERANCE) && nextRobotTranslation.getX() < (TRENCH_X_POS + TRENCH_REGION_TOLERANCE)) {
-            if (nextRobotTranslation.getY() < BOTTOM_TRENCH_Y_POS || nextRobotTranslation.getY() > TOP_TRENCH_Y_POS) {
-                //if robot is within trench region
-                return true;
-            }
+        double currentX = currentBlue.getX();
+        double nextX = nextBlue.getX();
+        if (!(Math.min(currentX, nextX) < TRENCH_X_POS && Math.max(currentX, nextX) > TRENCH_X_POS)) {
+            return false;
         } 
-
-        if (nextRobotTranslation.getY() < BOTTOM_TRENCH_Y_POS || nextRobotTranslation.getY() > TOP_TRENCH_Y_POS) { //TODO maybe fix this to predict future if y value will be in region
-            if ((robotTranslation.getX() < TRENCH_X_POS && nextRobotTranslation.getX() > TRENCH_X_POS) || (robotTranslation.getX() > TRENCH_X_POS && nextRobotTranslation.getX() < TRENCH_X_POS)) {
-                //if robot will cross trench in between current position and next position
-                return true;
-            }
+        double currentY = currentBlue.getY();
+        double nextY = nextBlue.getY();
+        if (Math.max(currentY, nextY) > TOP_TRENCH_Y_POS || Math.min(currentY, nextY) < BOTTOM_TRENCH_Y_POS) {
+            return true;
         }
-
         return false;
     }
 }
