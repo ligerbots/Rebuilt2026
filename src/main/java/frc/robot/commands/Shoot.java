@@ -7,6 +7,7 @@ import java.util.function.Supplier;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
@@ -19,7 +20,6 @@ import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.ShooterFeeder;
 import frc.robot.subsystems.shooter.Turret;
 import frc.robot.subsystems.shooter.Shooter.ShotType;
-import frc.robot.subsystems.shooter.Hood;
 import frc.robot.utilities.HubShiftUtil;
 import frc.robot.utilities.RobotLog;
 import frc.robot.utilities.ShooterLookupTable.ShootValue;
@@ -43,7 +43,6 @@ public class Shoot extends Command {
     private final Shooter m_shooter;
     private final Turret m_turret;
     private final ShooterFeeder m_feeder;
-    private final Hood m_hood;
     private final Supplier<ChassisSpeeds> m_speedsSupplier;
     private final Supplier<Pose2d> m_poseSupplier;
 
@@ -64,14 +63,20 @@ public class Shoot extends Command {
     private boolean m_shooterOnTarget = false;
     private PassSide m_latchedPassSide = null;
 
-    private Shoot(Shooter shooter, Turret turret, ShooterFeeder feeder, Hood hood,
+    //TODO constants for trench protection, adjust values later
+    private static final double TIME = 1.0;
+    private static final double TRENCH_X_POS = 182.11;
+    private static final double TOP_TRENCH_Y_POS = 0.0;
+    private static final double BOTTOM_TRENCH_Y_POS = 0.0;
+    private static final double TRENCH_REGION_TOLERANCE = 6.0;
+
+    private Shoot(Shooter shooter, Turret turret, ShooterFeeder feeder,
             Supplier<Pose2d> poseSupplier, Supplier<ChassisSpeeds> speeds,
             Shooter.ShotType shotType, double shotDistanceInches, Rotation2d turretHeading) {
-        m_hood = hood;
         m_turret = turret;
         m_shooter = shooter;
         m_feeder = feeder;
-        addRequirements(shooter, turret, feeder, hood);
+        addRequirements(shooter, turret, feeder);
         
         m_poseSupplier = poseSupplier;
         m_speedsSupplier = speeds;
@@ -87,16 +92,16 @@ public class Shoot extends Command {
         SmartDashboard.putNumber("kicker/testRPM", 0.0); 
     }
 
-    public Shoot(Shooter shooter, Turret turret, ShooterFeeder feeder, Hood hood,
+    public Shoot(Shooter shooter, Turret turret, ShooterFeeder feeder,
             Supplier<Pose2d> poseSupplier, Supplier<ChassisSpeeds> speeds, Shooter.ShotType shotType) {
-        this(shooter, turret, feeder, hood,
+        this(shooter, turret, feeder,
                 poseSupplier, speeds, shotType, 0.0, Rotation2d.kZero);
     }
 
-    public Shoot(Shooter shooter, Turret turret, ShooterFeeder feeder, Hood hood,
+    public Shoot(Shooter shooter, Turret turret, ShooterFeeder feeder,
                 Supplier<Pose2d> poseSupplier, Supplier<ChassisSpeeds> speeds, 
                 double shotDistanceInches, Rotation2d turretHeading) {
-        this(shooter, turret, feeder, hood,
+        this(shooter, turret, feeder,
                 poseSupplier, speeds, ShotType.FIXED, shotDistanceInches, turretHeading);
     }
 
@@ -112,9 +117,11 @@ public class Shoot extends Command {
     public void execute() {
         // Pose is needed for plotting, so fetch it once here
         Pose2d robotPose = m_poseSupplier.get();
+        Translation2d robotTranslation = robotPose.getTranslation();
 
-        if (robotPose.getX() == 182.11 && (robotPose.getY() < 51 || robotPose.getY() > 266)) { //change to more precise values later
-            m_hood.setAngle(Rotation2d.kZero);
+        if (inTrenchZone(robotTranslation) == true) {
+            m_shooter.getHood().setAngle(Rotation2d.kZero);
+            return; 
         }
             
         ShotType effectiveShotType;
@@ -446,5 +453,28 @@ public class Shoot extends Command {
                 SmartDashboard.getNumber("kicker/testRPM", 0.0),
                 Rotation2d.fromDegrees(SmartDashboard.getNumber("hood/testAngle", 0.0)),
                 TEST_TIME_OF_FLIGHT_SEC);
+    }
+
+    private boolean inTrenchZone(Translation2d robotTranslation) {
+        ChassisSpeeds speedInformation = m_speedsSupplier.get();
+        double xVel = speedInformation.vxMetersPerSecond;
+        double yVel = speedInformation.vyMetersPerSecond;
+        Translation2d nextRobotTranslation = new Translation2d(robotTranslation.getX() + TIME * xVel, robotTranslation.getY() + TIME * yVel);
+
+        if (nextRobotTranslation.getX() > (TRENCH_X_POS - TRENCH_REGION_TOLERANCE) && nextRobotTranslation.getX() < (TRENCH_X_POS + TRENCH_REGION_TOLERANCE)) {
+            if (nextRobotTranslation.getY() < BOTTOM_TRENCH_Y_POS || nextRobotTranslation.getY() > TOP_TRENCH_Y_POS) {
+                //if robot is within trench region
+                return true;
+            }
+        } 
+
+        if (nextRobotTranslation.getY() < BOTTOM_TRENCH_Y_POS || nextRobotTranslation.getY() > TOP_TRENCH_Y_POS) { //TODO maybe fix this to predict future if y value will be in region
+            if ((robotTranslation.getX() < TRENCH_X_POS && nextRobotTranslation.getX() > TRENCH_X_POS) || (robotTranslation.getX() > TRENCH_X_POS && nextRobotTranslation.getX() < TRENCH_X_POS)) {
+                //if robot will cross trench in between current position and next position
+                return true;
+            }
+        }
+
+        return false;
     }
 }
