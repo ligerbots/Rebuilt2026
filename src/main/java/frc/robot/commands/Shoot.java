@@ -64,10 +64,11 @@ public class Shoot extends Command {
     private PassSide m_latchedPassSide = null;
 
     //TODO adjust values
-    private static final double TIME = 1.0;
-    private static final double TRENCH_X_POS = 182.11;
-    private static final double TOP_TRENCH_Y_POS = 0.0;
-    private static final double BOTTOM_TRENCH_Y_POS = 0.0;
+    private static final double TIME = 1.5;
+    private static final double TRENCH_X_POS = Units.inchesToMeters(182.11);
+    private static final double BOTTOM_TRENCH_UPPER_Y = Units.inchesToMeters(50.0);
+    private static final double TOP_TRENCH_LOWER_Y = FieldConstants.FIELD_WIDTH - BOTTOM_TRENCH_UPPER_Y;
+    private static final double TRENCH_X_TOLERANCE = Units.inchesToMeters(12.0);
 
     private Shoot(Shooter shooter, Turret turret, ShooterFeeder feeder,
             Supplier<Pose2d> poseSupplier, Supplier<ChassisSpeeds> speeds,
@@ -467,13 +468,16 @@ public class Shoot extends Command {
 
         double currentX = currentBlue.getX();
         double nextX = nextBlue.getX();
-        if (!(Math.min(currentX, nextX) < TRENCH_X_POS && Math.max(currentX, nextX) > TRENCH_X_POS)) {
+
+        boolean crossingTrench = Math.min(currentX, nextX) < TRENCH_X_POS && Math.max(currentX, nextX) > TRENCH_X_POS;
+        boolean inTrench = Math.abs(currentX - TRENCH_X_POS) < TRENCH_X_TOLERANCE;
+        if (!crossingTrench && !inTrench) {
             return false;
         } 
 
         double currentY = currentBlue.getY();
         double nextY = nextBlue.getY();
-        if (Math.max(currentY, nextY) > TOP_TRENCH_Y_POS || Math.min(currentY, nextY) < BOTTOM_TRENCH_Y_POS) {
+        if (Math.max(currentY, nextY) > TOP_TRENCH_LOWER_Y || Math.min(currentY, nextY) < BOTTOM_TRENCH_UPPER_Y) {
             return true;
         }
 
