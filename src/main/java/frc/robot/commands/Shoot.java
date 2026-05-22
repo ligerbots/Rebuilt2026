@@ -459,7 +459,7 @@ public class Shoot extends Command {
     private boolean inTrenchZone(Translation2d robotTranslation) {
         ChassisSpeeds speedInformation = m_speedsSupplier.get();
         Translation2d velocity = new Translation2d(speedInformation.vxMetersPerSecond, speedInformation.vyMetersPerSecond);
-        Translation2d nextRobotTranslation = robotTranslation.plus(velocity.times(TIME))
+        Translation2d nextRobotTranslation = robotTranslation.plus(velocity.times(TIME));
     
         Translation2d currentBlue = FieldConstants.flipTranslation(robotTranslation);
         Translation2d nextBlue = FieldConstants.flipTranslation(nextRobotTranslation);
