@@ -63,12 +63,11 @@ public class Shoot extends Command {
     private boolean m_shooterOnTarget = false;
     private PassSide m_latchedPassSide = null;
 
-    //TODO constants for trench protection, adjust values later
+    //TODO adjust values
     private static final double TIME = 1.0;
     private static final double TRENCH_X_POS = 182.11;
     private static final double TOP_TRENCH_Y_POS = 0.0;
     private static final double BOTTOM_TRENCH_Y_POS = 0.0;
-    private static final double TRENCH_REGION_TOLERANCE = 6.0;
 
     private Shoot(Shooter shooter, Turret turret, ShooterFeeder feeder,
             Supplier<Pose2d> poseSupplier, Supplier<ChassisSpeeds> speeds,
@@ -120,6 +119,7 @@ public class Shoot extends Command {
         Translation2d robotTranslation = robotPose.getTranslation();
 
         if (inTrenchZone(robotTranslation)) {
+            //lower hood and stop feeder belts if robot is going under trench
             m_shooter.getHood().setAngle(Rotation2d.kZero);
             m_feeder.stopFeederBelts();
             return; 
@@ -455,7 +455,8 @@ public class Shoot extends Command {
                 Rotation2d.fromDegrees(SmartDashboard.getNumber("hood/testAngle", 0.0)),
                 TEST_TIME_OF_FLIGHT_SEC);
     }
-
+    
+    //returns true if robot is going under the trench
     private boolean inTrenchZone(Translation2d robotTranslation) {
         ChassisSpeeds speedInformation = m_speedsSupplier.get();
         Translation2d velocity = new Translation2d(speedInformation.vxMetersPerSecond, speedInformation.vyMetersPerSecond);
@@ -469,11 +470,13 @@ public class Shoot extends Command {
         if (!(Math.min(currentX, nextX) < TRENCH_X_POS && Math.max(currentX, nextX) > TRENCH_X_POS)) {
             return false;
         } 
+
         double currentY = currentBlue.getY();
         double nextY = nextBlue.getY();
         if (Math.max(currentY, nextY) > TOP_TRENCH_Y_POS || Math.min(currentY, nextY) < BOTTOM_TRENCH_Y_POS) {
             return true;
         }
+
         return false;
     }
 }
