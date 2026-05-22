@@ -7,31 +7,37 @@
         {
           "type": "path",
           "data": {
-            "pathName": "6329 Bump Preload Trench"
+            "pathName": "4946 First Swipe Blitz"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "6329 First Swipe"
+            "pathName": "Swipe Shoot"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "6329 Long Swipe Shoot"
+            "pathName": "Second Swipe"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "6329 Second Swipe"
+            "pathName": "Swipe Shoot Alt"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "6329 Swipe Shoot"
+            "pathName": "Third Swipe"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Swipe Shoot Alt"
           }
         }
       ]

@@ -30,7 +30,7 @@ import frc.robot.utilities.RobotLog;
 
 public class Hopper extends SubsystemBase {
     
-    private static final Current SUPPLY_CURRENT_LIMIT = Amps.of(35);
+    private static final Current SUPPLY_CURRENT_LIMIT = Amps.of(30);
     private static final Current STATOR_CURRENT_LIMIT =  Amps.of(50);
 
     private static final double K_P = 0.1;
@@ -42,8 +42,8 @@ public class Hopper extends SubsystemBase {
     private static final double FEED_RPM = 4625.0;
     private static final double REVERSE_RPM = -4500.0;
 
-    private static final double FEED_COMP_RPM_PER_MPS = 750.0;
-    private static final double FEED_COMP_MAX_RPM = 1500.0;
+    private static final double FEED_COMP_RPM_PER_MPS = 0.0;
+    private static final double FEED_COMP_MAX_RPM = 1000.0;
     
     private final TalonFX m_motor;
     private final Supplier<ChassisSpeeds> m_robotRelativeSpeedsSupplier;

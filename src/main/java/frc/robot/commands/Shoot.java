@@ -63,8 +63,8 @@ public class Shoot extends Command {
     private PassSide m_latchedPassSide = null;
 
     private Shoot(Shooter shooter, Turret turret, ShooterFeeder feeder,
-            Supplier<Pose2d> poseSupplier, Supplier<ChassisSpeeds> speeds, Shooter.ShotType shotType,
-            double shotDistanceInches, Rotation2d turretHeading) {
+            Supplier<Pose2d> poseSupplier, Supplier<ChassisSpeeds> speeds,
+            Shooter.ShotType shotType, double shotDistanceInches, Rotation2d turretHeading) {
         m_turret = turret;
         m_shooter = shooter;
         m_feeder = feeder;
@@ -202,6 +202,7 @@ public class Shoot extends Command {
                 return new ShotSelection(
                         FieldConstants.flipTranslation(calculatePassTarget(selectionBlueLocation(robotPose))),
                         ShotType.OPPOSITE_ZONE);
+            
             // needed to suppress the warning
             // case TEST:
             //     return FieldConstants.flipTranslation(FieldConstants.HUB_POSITION_BLUE);
@@ -219,8 +220,16 @@ public class Shoot extends Command {
         if (FieldConstants.ENABLE_OPPOSITE_ZONE_SHOT
                 && blueLocation.getX() >= FieldConstants.OPPOSITE_ALLIANCE_ZONE_START_X_BLUE) {
             m_latchedPassSide = null;
-            target = oppositeAllianceZoneTarget(blueLocation);
-            shotType = ShotType.OPPOSITE_ZONE;
+            boolean passNeutral = m_shooter.getPassNeutral();
+
+            if (passNeutral) {
+                target = oppositeAllianceZoneTarget(blueLocation);
+                shotType = ShotType.OPPOSITE_ZONE;
+            } else {
+                target = standardPassTarget(blueLocation);
+                shotType = ShotType.PASS;
+            };
+            
         } else if (blueLocation.getX() < FieldConstants.HUB_POSITION_BLUE.getX()) {
             m_latchedPassSide = null;
             target = FieldConstants.HUB_POSITION_BLUE;

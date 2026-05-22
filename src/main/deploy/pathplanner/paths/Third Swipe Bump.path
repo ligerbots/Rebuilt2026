@@ -20,60 +20,76 @@
         "y": 7.5
       },
       "prevControl": {
-        "x": 5.484512916755301,
-        "y": 7.598898157683099
+        "x": 5.477053449531129,
+        "y": 7.57138334853512
       },
       "nextControl": {
-        "x": 6.939071651712812,
-        "y": 7.135331734458236
+        "x": 6.932756410256412,
+        "y": 7.244384615384615
       },
       "isLocked": false,
       "linkedName": "Trench Out"
     },
     {
       "anchor": {
-        "x": 5.95598717948718,
-        "y": 2.523333333333334
+        "x": 6.246692307692309,
+        "y": 4.407102564102564
       },
       "prevControl": {
-        "x": 5.906195567331656,
-        "y": 2.7683247522829655
+        "x": 5.633506449966015,
+        "y": 4.522319906775792
       },
       "nextControl": {
-        "x": 6.00589066897784,
-        "y": 2.2777914404003012
+        "x": 7.404227272727272,
+        "y": 4.1896022727272735
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 5.794831291689409,
-        "y": 7.5
+        "x": 8.063863636363637,
+        "y": 6.405568181818182
       },
       "prevControl": {
-        "x": 6.905743759472276,
-        "y": 7.560262360525055
+        "x": 8.353619442927178,
+        "y": 6.182679099846228
       },
       "nextControl": {
-        "x": 5.545198308055578,
-        "y": 7.486458453483099
+        "x": 7.661897727272727,
+        "y": 6.714772727272727
       },
       "isLocked": false,
-      "linkedName": "Trench Out Alt"
+      "linkedName": null
     },
     {
       "anchor": {
-        "x": 4.107102564102565,
-        "y": 7.55
+        "x": 5.721752771601292,
+        "y": 5.481940106358129
       },
       "prevControl": {
-        "x": 4.618743589743591,
-        "y": 7.523461538461538
+        "x": 6.919806818181818,
+        "y": 5.467647727272727
+      },
+      "nextControl": {
+        "x": 5.4717705593052655,
+        "y": 5.48492230950075
+      },
+      "isLocked": false,
+      "linkedName": "Bump Out"
+    },
+    {
+      "anchor": {
+        "x": 3.480452018425331,
+        "y": 5.481940106358129
+      },
+      "prevControl": {
+        "x": 3.9920930440663573,
+        "y": 5.455401644819667
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Trench In Alt"
+      "linkedName": "Bump In"
     }
   ],
   "rotationTargets": [
@@ -82,19 +98,33 @@
       "rotationDegrees": 0.4109090176258215
     },
     {
-      "waypointRelativePos": 1.4298245614035066,
-      "rotationDegrees": -96.19882814732017
+      "waypointRelativePos": 1.578947368421057,
+      "rotationDegrees": -89.90488958431575
     },
     {
-      "waypointRelativePos": 1.7105263157894806,
-      "rotationDegrees": -109.44253046773714
+      "waypointRelativePos": 2.701754385964914,
+      "rotationDegrees": 87.38670773353306
     },
     {
-      "waypointRelativePos": 2.8,
+      "waypointRelativePos": 3.6315789473684075,
       "rotationDegrees": 179.28234042071816
     }
   ],
-  "constraintZones": [],
+  "constraintZones": [
+    {
+      "name": "Bump",
+      "minWaypointRelativePos": 3.776301218161671,
+      "maxWaypointRelativePos": 4.617940199335514,
+      "constraints": {
+        "maxVelocity": 2.0,
+        "maxAcceleration": 10.0,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 720.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    }
+  ],
   "pointTowardsZones": [],
   "eventMarkers": [
     {
@@ -117,7 +147,7 @@
     "rotation": 180.0
   },
   "reversed": false,
-  "folder": "Pair Paths",
+  "folder": null,
   "idealStartingState": {
     "velocity": 1.0,
     "rotation": 0.0

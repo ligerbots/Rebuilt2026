@@ -134,6 +134,13 @@ public class RobotContainerCompBot extends RobotContainer {
                 "Depot Double Swipe Blitz",
                 "Depot Trench Run Out"
                 ), true);
+        
+        addAutoOption("Depot Double Swipe Swing", List.of(
+                "First Swipe Swing",
+                "Swipe Shoot",
+                "Depot Double Swipe Blitz",
+                "Depot Trench Run Out"
+                ));
 
         addAutoOption("BStart Depot Bump Only", List.of(
                 "Bump Preload Bump",
@@ -147,7 +154,7 @@ public class RobotContainerCompBot extends RobotContainer {
                 "Bump Preload Trench",
                 "Second Swipe Bump",
                 "Bump Trench Shoot",
-                "Second Swipe Bump",
+                "Third Swipe Bump",
                 "Bump Depot Shoot"
                 ));
 
@@ -185,15 +192,30 @@ public class RobotContainerCompBot extends RobotContainer {
                 "Swipe Shoot Alt"
                 ));
 
+        addAutoOption("Triple Swipe Swing", List.of(
+                "First Swipe Swing",
+                "Swipe Shoot",
+                "Second Swipe",
+                "Swipe Shoot Alt",
+                "Third Swipe",
+                "Swipe Shoot Alt"
+                ));
+
+        addAutoOption("Triple Swipe Pass", List.of(
+                "First Swipe Blitz",
+                "Swipe Shoot",
+                "Second Swipe",
+                "Swipe Shoot Alt",
+                "Third Swipe Pass"
+                ));
+
         addAutoOption("Pass Blitz", List.of(
                 "Pass Swipe",
                 "Pass Shoot"
                 ));
         
-        addAutoOption("Center Auto", List.of(
-                "Center to First Shoot",
-                3.0, // shoot for 3 seconds to ensure all 8 balls are out
-                "First Shoot to Depot"
+        addAutoOption("Center Depot Simple Auto", List.of(
+                "Hub Depot Shoot"
                 ));
 
         addAutoOption("Swing Depot Double Swipe Blitz", List.of(
@@ -211,6 +233,15 @@ public class RobotContainerCompBot extends RobotContainer {
 
         addAutoOption("Steal TRIPLE Swipe", List.of(
                 "First Swipe Steal",
+                "Swipe Shoot",
+                "Second Swipe",
+                "Swipe Shoot Alt",
+                "Third Swipe",
+                "Swipe Shoot Alt"
+                ));
+
+         addAutoOption("4946 Triple Swipe Blitz", List.of(
+                "4946 First Swipe Blitz",
                 "Swipe Shoot",
                 "Second Swipe",
                 "Swipe Shoot Alt",
@@ -299,7 +330,6 @@ public class RobotContainerCompBot extends RobotContainer {
         m_farm.button(13).whileTrue(withHopperControl(
                 new Shoot(m_shooter, m_turret, m_shooterFeeder,
                         m_drivetrain::getPose, m_drivetrain::getFieldCentricSpeeds, 210.0, Rotation2d.k180deg)));
-
         m_farm.button(15).whileTrue(withHopperControl(
                 new Shoot(m_shooter, m_turret, m_shooterFeeder,
                         m_drivetrain::getPose, m_drivetrain::getFieldCentricSpeeds, ShotType.TEST)));
@@ -321,6 +351,9 @@ public class RobotContainerCompBot extends RobotContainer {
 
         m_farm.button(12).onTrue(new InstantCommand(m_intake.getRoller()::increaseIntakeFudge));
         m_farm.button(14).onTrue(new InstantCommand(m_intake.getRoller()::decreaseIntakeFudge));
+
+        m_farm.button(3).onTrue(new InstantCommand(() -> m_shooter.setPassNeutral(true)));
+        m_farm.button(8).onTrue(new InstantCommand(() -> m_shooter.setPassNeutral(false)));
 
         // Reset the field-centric heading on Start press.
         m_driverController.start().onTrue(m_drivetrain.runOnce(m_drivetrain::seedFieldCentric));

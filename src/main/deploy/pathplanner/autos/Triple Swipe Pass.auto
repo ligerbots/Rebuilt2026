@@ -7,25 +7,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "3467 Bump Preload Trench"
+            "pathName": "First Swipe Blitz"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "3467 First Swipe"
+            "pathName": "Swipe Shoot"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "3467 Swipe Shoot"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "3467 Second Swipe"
+            "pathName": "Second Swipe"
           }
         },
         {
@@ -33,11 +27,17 @@
           "data": {
             "pathName": "Swipe Shoot Alt"
           }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Third Swipe Pass"
+          }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": "Pair Autos",
+  "folder": null,
   "choreoAuto": false
 }

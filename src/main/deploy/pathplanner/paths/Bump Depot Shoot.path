@@ -20,20 +20,36 @@
         "y": 5.963885481599589
       },
       "prevControl": {
-        "x": 2.390710799113105,
+        "x": 1.8573889313851981,
+        "y": 6.033082904384873
+      },
+      "nextControl": {
+        "x": 0.39443682384809364,
+        "y": 5.949651185720667
+      },
+      "isLocked": false,
+      "linkedName": "Auto Depot Depth"
+    },
+    {
+      "anchor": {
+        "x": 1.591181818181818,
         "y": 5.963885481599589
+      },
+      "prevControl": {
+        "x": 0.6697983099875859,
+        "y": 6.022083463199178
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Auto Depot Depth"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],
   "constraintZones": [
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 0.897009966777407,
-      "maxWaypointRelativePos": 1.5,
+      "minWaypointRelativePos": 0.7468581687612207,
+      "maxWaypointRelativePos": 2.0,
       "constraints": {
         "maxVelocity": 0.25,
         "maxAcceleration": 1.0,
