@@ -7,7 +7,6 @@ import java.util.function.Supplier;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
@@ -63,9 +62,10 @@ public class Shoot extends Command {
     private boolean m_shooterOnTarget = false;
     private PassSide m_latchedPassSide = null;
 
-    //TODO adjust values
+    // Values for the trensh-area lockout code
     private static final double TIME = 1.5;
-    private static final double TRENCH_X_POS = Units.inchesToMeters(182.11);
+    private static final double TRENCH_X_POS_BLUE = Units.inchesToMeters(182.11);
+    private static final double TRENCH_X_POS_RED = FieldConstants.FIELD_LENGTH - TRENCH_X_POS_BLUE;
     private static final double BOTTOM_TRENCH_UPPER_Y = Units.inchesToMeters(50.0);
     private static final double TOP_TRENCH_LOWER_Y = FieldConstants.FIELD_WIDTH - BOTTOM_TRENCH_UPPER_Y;
     private static final double TRENCH_X_TOLERANCE = Units.inchesToMeters(12.0);
@@ -90,6 +90,7 @@ public class Shoot extends Command {
         SmartDashboard.putNumber("hood/testAngle", 0.0);
         SmartDashboard.putNumber("flywheel/testRPM", 0.0); 
         SmartDashboard.putNumber("kicker/testRPM", 0.0); 
+        SmartDashboard.putBoolean("shoot/inTrenchZone", false);
     }
 
     public Shoot(Shooter shooter, Turret turret, ShooterFeeder feeder,
@@ -119,7 +120,9 @@ public class Shoot extends Command {
         Pose2d robotPose = m_poseSupplier.get();
         Translation2d robotTranslation = robotPose.getTranslation();
 
-        if (inTrenchZone(robotTranslation)) {
+        boolean inTrench = inTrenchZone(robotTranslation);
+        SmartDashboard.putBoolean("shoot/inTrenchZone", inTrench);
+        if (inTrench) {
             //lower hood and stop feeder belts if robot is going under trench
             m_shooter.getHood().setAngle(Rotation2d.kZero);
             m_feeder.stopFeederBelts();
@@ -469,8 +472,10 @@ public class Shoot extends Command {
         double currentX = currentBlue.getX();
         double nextX = nextBlue.getX();
 
-        boolean crossingTrench = Math.min(currentX, nextX) < TRENCH_X_POS && Math.max(currentX, nextX) > TRENCH_X_POS;
-        boolean inTrench = Math.abs(currentX - TRENCH_X_POS) < TRENCH_X_TOLERANCE;
+        System.out.println("realX = " + robotTranslation.getX() + " flipX = " + currentX + " nextX = " + nextX);
+
+        boolean crossingTrench = Math.min(currentX, nextX) < TRENCH_X_POS_BLUE && Math.max(currentX, nextX) > TRENCH_X_POS_BLUE;
+        boolean inTrench = Math.abs(currentX - TRENCH_X_POS_BLUE) < TRENCH_X_TOLERANCE;
         if (!crossingTrench && !inTrench) {
             return false;
         } 
