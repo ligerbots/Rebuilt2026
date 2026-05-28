@@ -468,24 +468,26 @@ public class Shoot extends Command {
 
         double currentX = robotTranslation.getX();
         double nextX = nextRobotTranslation.getX();
-
-        System.out.println("realX = " + robotTranslation.getX() + " flipX = " + currentX + " nextX = " + nextX);
-
         double currentY = robotTranslation.getY();
         double nextY = nextRobotTranslation.getY();
 
-        if (!(Math.max(currentY, nextY) > TOP_TRENCH_LOWER_Y && Math.min(currentY, nextY) < BOTTOM_TRENCH_UPPER_Y)) {
-            //if robot is not in y region
+        System.out.println("realX = " + robotTranslation.getX() + " flipX = " + currentX + " nextX = " + nextX);
+
+        boolean inTrenchYRegions = Math.max(currentY, nextY) > TOP_TRENCH_LOWER_Y && Math.min(currentY, nextY) < BOTTOM_TRENCH_UPPER_Y;
+        if (!inTrenchYRegions) {
             return false;
         }
 
-        boolean crossingTrench = Math.min(currentX, nextX) < TRENCH_X_POS_BLUE && Math.max(currentX, nextX) > TRENCH_X_POS_BLUE;
-        boolean inTrench = Math.abs(currentX - TRENCH_X_POS_BLUE) < TRENCH_X_TOLERANCE;
-        if (!crossingTrench && !inTrench) {
+        boolean crossingBlueTrench = Math.min(currentX, nextX) < TRENCH_X_POS_BLUE && Math.max(currentX, nextX) > TRENCH_X_POS_BLUE;
+        boolean inBlueTrench = Math.abs(currentX - TRENCH_X_POS_BLUE) < TRENCH_X_TOLERANCE;
+        boolean crossingRedTrench = Math.min(currentX, nextX) < TRENCH_X_POS_RED && Math.max(currentX, nextX) > TRENCH_X_POS_RED;
+        boolean inRedTrench = Math.abs(currentX - TRENCH_X_POS_RED) < TRENCH_X_TOLERANCE;
+
+        if (!crossingBlueTrench && !inBlueTrench && !crossingRedTrench && !inRedTrench) {
             return false;
         }
 
         return true;
-        
+
         }
     }
