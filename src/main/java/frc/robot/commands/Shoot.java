@@ -465,27 +465,27 @@ public class Shoot extends Command {
         ChassisSpeeds speedInformation = m_speedsSupplier.get();
         Translation2d velocity = new Translation2d(speedInformation.vxMetersPerSecond, speedInformation.vyMetersPerSecond);
         Translation2d nextRobotTranslation = robotTranslation.plus(velocity.times(TIME));
-    
-        Translation2d currentBlue = FieldConstants.flipTranslation(robotTranslation);
-        Translation2d nextBlue = FieldConstants.flipTranslation(nextRobotTranslation);
 
-        double currentX = currentBlue.getX();
-        double nextX = nextBlue.getX();
+        double currentX = robotTranslation.getX();
+        double nextX = nextRobotTranslation.getX();
 
         System.out.println("realX = " + robotTranslation.getX() + " flipX = " + currentX + " nextX = " + nextX);
+
+        double currentY = robotTranslation.getY();
+        double nextY = nextRobotTranslation.getY();
+
+        if (!(Math.max(currentY, nextY) > TOP_TRENCH_LOWER_Y && Math.min(currentY, nextY) < BOTTOM_TRENCH_UPPER_Y)) {
+            //if robot is not in y region
+            return false;
+        }
 
         boolean crossingTrench = Math.min(currentX, nextX) < TRENCH_X_POS_BLUE && Math.max(currentX, nextX) > TRENCH_X_POS_BLUE;
         boolean inTrench = Math.abs(currentX - TRENCH_X_POS_BLUE) < TRENCH_X_TOLERANCE;
         if (!crossingTrench && !inTrench) {
             return false;
-        } 
-
-        double currentY = currentBlue.getY();
-        double nextY = nextBlue.getY();
-        if (Math.max(currentY, nextY) > TOP_TRENCH_LOWER_Y || Math.min(currentY, nextY) < BOTTOM_TRENCH_UPPER_Y) {
-            return true;
         }
 
-        return false;
+        return true;
+        
+        }
     }
-}
