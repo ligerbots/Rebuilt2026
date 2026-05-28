@@ -473,7 +473,7 @@ public class Shoot extends Command {
 
         System.out.println("realX = " + robotTranslation.getX() + " flipX = " + currentX + " nextX = " + nextX);
 
-        boolean inTrenchYRegions = Math.max(currentY, nextY) > TOP_TRENCH_LOWER_Y && Math.min(currentY, nextY) < BOTTOM_TRENCH_UPPER_Y;
+        boolean inTrenchYRegions = Math.max(currentY, nextY) > TOP_TRENCH_LOWER_Y || Math.min(currentY, nextY) < BOTTOM_TRENCH_UPPER_Y;
         if (!inTrenchYRegions) {
             return false;
         }
@@ -489,5 +489,5 @@ public class Shoot extends Command {
 
         return true;
 
-        }
     }
+}
