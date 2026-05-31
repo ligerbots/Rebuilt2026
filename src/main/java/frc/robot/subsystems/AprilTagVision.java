@@ -42,13 +42,15 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import frc.robot.Constants;
+import frc.robot.Robot.RobotType;
 
 public class AprilTagVision {
-    static final AprilTagFields APRILTAG_FIELD = AprilTagFields.k2026RebuiltAndymark;
+    static final AprilTagFields APRILTAG_FIELD = AprilTagFields.k2026RebuiltWelded;
 
     // static final String CUSTOM_FIELD = "2025-reefscape-andymark_custom.json"; // old
 
@@ -60,18 +62,12 @@ public class AprilTagVision {
     static final boolean PLOT_POSE_SOLUTIONS = true;
     // static final boolean PLOT_ALTERNATE_POSES = false;
 
+    // throw away single tags with high ambiguity
+    static final double SINGLE_TAG_AMBIGUITY_THRESHOLD = 0.4;
+
     // Base standard deviations for vision results
     static final Matrix<N3, N1> SINGLE_TAG_BASE_STDDEV = VecBuilder.fill(0.9, 0.9, 0.9);
     static final Matrix<N3, N1> MULTI_TAG_BASE_STDDEV = VecBuilder.fill(0.45, 0.45, 0.45);
-
-    private enum Cam {
-        FRONT_RIGHT(0);
-        // FRONT_LEFT(1);
-        // BACK(2);
-
-        int idx;
-        Cam(int idx) { this.idx = idx; }
-    }
 
     private class Camera {
         PhotonCamera photonCamera;
@@ -115,12 +111,13 @@ public class AprilTagVision {
     };
 
     private AprilTagFieldLayout m_aprilTagFieldLayout;
+    private final Field2d m_field;
 
     // Simulation support
     private VisionSystemSim m_visionSim;
-    private boolean m_isSimulation;
+    private boolean m_isRealRobot;   // ie not a simulation
 
-    public AprilTagVision() {
+    public AprilTagVision(RobotType robotType, Field2d field) {
         try {
             m_aprilTagFieldLayout = AprilTagFieldLayout.loadField(APRILTAG_FIELD);
             SmartDashboard.putString("aprilTagVision/field", APRILTAG_FIELD.toString());
@@ -137,42 +134,54 @@ public class AprilTagVision {
         //     m_aprilTagFieldLayout = null;
         // }
 
+        // used to publish found tags, etc
+        m_field = field;
+
         // initialize cameras
-        m_cameras = new Camera[Cam.values().length];
-
-        // Test Bot
-        m_cameras[Cam.FRONT_RIGHT.idx] = new Camera("ArducamFrontRight", new Transform3d(
-            new Translation3d(Units.inchesToMeters(9.32), Units.inchesToMeters(-9.5), Units.inchesToMeters(10.53)),
-            new Rotation3d(0.0, Math.toRadians(-10), 0)
-                .rotateBy(new Rotation3d(0, 0, Math.toRadians(12.5)))
-        ));
-
-        // m_cameras[Cam.FRONT_LEFT.idx] = new Camera("ArducamFrontLeft", new Transform3d(
-        //     new Translation3d(Units.inchesToMeters(9.82), Units.inchesToMeters(10.0), Units.inchesToMeters(10.53)),
-        //     new Rotation3d(0.0, Math.toRadians(-10), 0)
-        //         .rotateBy(new Rotation3d(0, 0, Math.toRadians(-12.5)))
-        //     ));
-
-        // m_cameras[Cam.BACK.idx] = new Camera("ArducamBack", new Transform3d(
-        //         new Translation3d(Units.inchesToMeters(-9.85), Units.inchesToMeters(11.05), Units.inchesToMeters(9.3)),
-        //         new Rotation3d(0.0, Math.toRadians(-20), 0)
-        //             .rotateBy(new Rotation3d(0, 0, Math.toRadians(180)))
-        //         ));
+        if (robotType == RobotType.TESTBOT) {
+            // Test Bot
+            m_cameras = new Camera[] {
+                    new Camera("ArducamFrontRight", new Transform3d(
+                            new Translation3d(Units.inchesToMeters(9.32), Units.inchesToMeters(-9.5),
+                                    Units.inchesToMeters(10.53)),
+                            new Rotation3d(0.0, Math.toRadians(-10), 0)
+                                    .rotateBy(new Rotation3d(0, 0, Math.toRadians(12.5)))))
+            };
+        } 
+        else
+        {
+            m_cameras = new Camera[] {
+                    new Camera("ArducamBack", new Transform3d(
+                            new Translation3d(Units.inchesToMeters(-8.89), Units.inchesToMeters(-12.07),
+                                    Units.inchesToMeters(15.08)),
+                            new Rotation3d(0.0, Math.toRadians(-10), 0)
+                                    .rotateBy(new Rotation3d(0, 0, Math.toRadians(180.0))))),
+                    new Camera("ArducamLeft", new Transform3d(
+                            new Translation3d(Units.inchesToMeters(-6.56), Units.inchesToMeters(12.87),
+                                    Units.inchesToMeters(17.27)),
+                            new Rotation3d(0.0, Math.toRadians(-10), 0)
+                                    .rotateBy(new Rotation3d(0, 0, Math.toRadians(90.0))))),
+                    new Camera("ArducamRight", new Transform3d(
+                            new Translation3d(Units.inchesToMeters(-4.94), Units.inchesToMeters(-12.75),
+                                    Units.inchesToMeters(14.74)),
+                            new Rotation3d(0.0, Math.toRadians(-10), 0)
+                                    .rotateBy(new Rotation3d(0, 0, Math.toRadians(-90.0)))))
+            };
+        }
     
-        m_isSimulation = RobotBase.isSimulation();
-        if (Constants.SIMULATION_SUPPORT && m_isSimulation) {
+        m_isRealRobot = RobotBase.isReal();
+        if (Constants.SIMULATION_SUPPORT && !m_isRealRobot) {
             // initialize a simulated camera. Must be done after creating the tag layout
             initializeSimulation();
         }
     }
 
-    // TODO: enable this and fix with swervedrivetrain instead of swervedrive
     public void updateSimulation(CommandSwerveDrivetrain swerve) {    
-        m_visionSim.update(swerve.getState().Pose);
+        m_visionSim.update(swerve.getPose());
     }
     
     // Update all Pose estimates with the vision measurements
-    public void addVisionMeasurements(CommandSwerveDrivetrain swerve, Field2d field) {
+    public void addVisionMeasurements(CommandSwerveDrivetrain swerve) {
         // Cannot do anything if there is no field layout
         if (m_aprilTagFieldLayout == null)
             return;
@@ -181,6 +190,8 @@ public class AprilTagVision {
         // Accumulate the results, and then plot them at the end
         ArrayList<Pose2d> visibleTags = new ArrayList<Pose2d>();
         ArrayList<Pose2d> globalMeasurements = new ArrayList<Pose2d>();
+
+        Pose2d currentPose = swerve.getState().Pose;
 
         try {
             // First collect all the camera measurements into a list
@@ -191,6 +202,9 @@ public class AprilTagVision {
                 if (!isConnected)
                     continue;
 
+                // estimatePnpDistanceTrigSolvePose needs a history of the robot heading
+                cam.poseEstimator.addHeadingData(Timer.getFPGATimestamp(), currentPose.getRotation());
+
                 for (PhotonPipelineResult pipeRes : cam.photonCamera.getAllUnreadResults()) {
                     camFrames.add(new CameraMeasurement(cam, pipeRes));
                 }
@@ -198,8 +212,6 @@ public class AprilTagVision {
 
             // Sort the frames in time order
             Collections.sort(camFrames);
-
-            Pose2d currentPose = swerve.getState().Pose;
 
             // Work through all the available frames, in time order, and use any measurements
             for (CameraMeasurement frame : camFrames) {
@@ -220,17 +232,39 @@ public class AprilTagVision {
 
                 // find the best global pose estimate, and update the odometry
                 try {
-                    Optional<EstimatedRobotPose> estPose = frame.camera.poseEstimator.estimateCoprocMultiTagPose(frame.pipelineResult);
-                    // if we got not estimate, try single tag method
+                    final PhotonPipelineResult pipelineResult = frame.pipelineResult;
+
+                    // Find the average distance for the tags
+                    final int numTags = pipelineResult.targets.size();
+                    if (numTags == 0) continue;
+                    double avgDist = 0;
+                    for (PhotonTrackedTarget tgt : pipelineResult.targets) {
+                        avgDist += tgt.getBestCameraToTarget().getTranslation().getNorm();
+                    }
+                    avgDist /= numTags;
+
+                    Optional<EstimatedRobotPose> estPose = frame.camera.poseEstimator.estimateCoprocMultiTagPose(pipelineResult);
+                    // if we got no estimate, try single tag method
                     if (estPose.isEmpty()) {
-                        estPose = closestToReferenceHeading(frame, currentPose.getRotation().getRadians());
-                        // System.out.println("single tag:" + estPose.isEmpty());
+                        // this is affect by the gyro, if it is wrong
+                        // estPose = closestToReferenceHeading(frame, currentPose.getRotation().getRadians());
+
+                        if (avgDist < 2.5) {
+                            // not affected by gyro, but poor accuracy at longer distances
+                            // needs a Pose3d though
+                            estPose = frame.camera.poseEstimator.estimateClosestToReferencePose(pipelineResult, new Pose3d(currentPose));
+                        } else {
+                            // PnPDistanceTrigSolve combines the distance estimate and the robot heading
+                            // Much more accurate at longer distances, but cannot change the robot heading
+                            // this is affect by the gyro, if it is wrong
+                            estPose = frame.camera.poseEstimator.estimatePnpDistanceTrigSolvePose(pipelineResult);
+                        }
                     }
                     if (estPose.isEmpty())
                         continue;
 
                     EstimatedRobotPose poseEstimate = estPose.get();
-                    Optional<Matrix<N3, N1>> estStdDev = estimateStdDev(poseEstimate);
+                    Optional<Matrix<N3, N1>> estStdDev = estimateStdDev(poseEstimate, numTags, avgDist);
                     if (estStdDev.isPresent()) {
                         // Everything succeeded. Update the main poseEstimator with the vision result
                         // Make sure to use the timestamp of this result
@@ -238,11 +272,16 @@ public class AprilTagVision {
 
                         // For simulation, the robot just drifts across the field,
                         //  because vision seems to be slightly biased
-                        // TODO: remove the test we get a physics-based robot sim
-                        if (!m_isSimulation)
+                        // TODO: remove the test if/when we get a physics-based robot sim
+                        if (m_isRealRobot)
                             swerve.addVisionMeasurement(pose, poseEstimate.timestampSeconds, estStdDev.get());
                             
                         globalMeasurements.add(pose);
+
+                        // // Debugging logging
+                        // SmartDashboard.putNumber("aprilTagVision/poseEstDX", pose.getX() - currentPose.getX());
+                        // SmartDashboard.putNumber("aprilTagVision/poseEstDY", pose.getY() - currentPose.getY());
+                        // SmartDashboard.putNumber("aprilTagVision/poseEstDR", pose.getRotation().getDegrees() - currentPose.getRotation().getDegrees());
                     }
                 } catch (Exception e) {
                     // bad! log this and keep going
@@ -254,10 +293,10 @@ public class AprilTagVision {
         }
 
         if (PLOT_VISIBLE_TAGS) {
-            plotPoses(field, "visibleTags", visibleTags);
+            plotPoses(m_field, "visibleTags", visibleTags);
         }
         if (PLOT_POSE_SOLUTIONS) {
-            plotPoses(field, "visionPoses", globalMeasurements);
+            plotPoses(m_field, "visionPoses", globalMeasurements);
         }
     }
 
@@ -275,46 +314,54 @@ public class AprilTagVision {
     // Calculates "confidence" in the pose estimate
     // This algorithm is a heuristic that creates dynamic standard deviations based
     // on number of tags, estimation strategy, and distance from the tags.
-    private Optional<Matrix<N3, N1>> estimateStdDev(EstimatedRobotPose poseEst) {
-        int numTags = poseEst.targetsUsed.size();
-        // Should not happen, but protect against divide by zero
-        if (numTags == 0)
-            return Optional.empty();
-
+    private Optional<Matrix<N3, N1>> estimateStdDev(EstimatedRobotPose poseEst, int numTags, double avgDist) {
         boolean usedMultitag = poseEst.strategy == PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR
-                || poseEst.strategy == PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR;
+                || poseEst.strategy == PoseStrategy.MULTI_TAG_PNP_ON_RIO;
         
         // if there are >1 tag and we did not use MultiTag, BAD
         if (numTags > 1 && !usedMultitag)
             return Optional.empty();
 
-        // Pose present. Start running Heuristic
+        // discard if not on the field
+        // double x = poseEst.estimatedPose.getX();
+        // double y = poseEst.estimatedPose.getY();
+        // allow measurements slightly off the field. 
+        // This prevents bias of the average result being further onto the field than the robot really is
+        // if (x < -0.5 || x > (FieldConstants.FIELD_LENGTH + 0.5) || y < -0.5 || y > (FieldConstants.FIELD_WIDTH + 0.5))
+        //     return Optional.empty();
 
-        // Find the average distance for the tags used
-        double avgDist = 0;
-        for (PhotonTrackedTarget tgt : poseEst.targetsUsed) {
-            avgDist += tgt.getBestCameraToTarget().getTranslation().getNorm();;
-        }
-        avgDist /= numTags;
+        // Pose present. Start running Heuristics
 
         // Single tags further away than 4 meter (~13 ft) are useless
-        if (numTags == 1 && avgDist > 4.0) 
-            return Optional.empty();
+        // 2026-03-10: upper routine use different methods based on distance, so this is not needed??
+        // if (numTags == 1 && avgDist > 4.0) 
+        //     return Optional.empty();
 
         // Starting estimate = multitag or not
-        Matrix<N3, N1> estStdDev = poseEst.strategy == PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR
-                ? SINGLE_TAG_BASE_STDDEV
-                : MULTI_TAG_BASE_STDDEV;
+        Matrix<N3, N1> estStdDev;
+        if (usedMultitag)
+            estStdDev = MULTI_TAG_BASE_STDDEV;
+        else
+            estStdDev = SINGLE_TAG_BASE_STDDEV;
 
         // Increase std devs based on (average) distance
         // This is taken from YAGSL vision example.
         // TODO figure out why
-        estStdDev = estStdDev.times(1.0 + avgDist * avgDist / 30.0);
+        double scaleFactor = 1.0 + avgDist * avgDist / 30.0;
+
+        // Mechanical Advantage version
+        // Includes a downscale for more tags, so start from a single Matrix
+        // 2026-03-10: seems pretty agressive, so don't use for now.
+        // Matrix<N3, N1> estStdDev = SINGLE_TAG_BASE_STDDEV;
+        // double scaleFactor = Math.pow(avgDist, 1.2) / Math.pow(numTags, 2.0);
+
+        estStdDev = estStdDev.times(scaleFactor);
 
         return Optional.of(estStdDev);
     }
 
     // Implement a Closest To Reference *Heading* strategy for single tag results
+    @SuppressWarnings("unused")
     private Optional<EstimatedRobotPose> closestToReferenceHeading(CameraMeasurement frame, final double refHeadingRad)
     {
         Camera cam = frame.camera;
@@ -329,31 +376,41 @@ public class AprilTagVision {
             if (targetPosition.isEmpty())
                 continue;
 
+            // check ambiguity ratio
+            double ambiguity = target.getPoseAmbiguity();
+            if (ambiguity > SINGLE_TAG_AMBIGUITY_THRESHOLD)
+                continue;
+
             // Check the 2 possible vision poses
-            Pose3d pose = targetPosition.get()
+            Pose3d pose1 = targetPosition.get()
                     .transformBy(target.getBestCameraToTarget().inverse())
                     .transformBy(cam.robotToCam.inverse());
 
             // Use MathUtil.angleModulus() to map the difference to -PI --> PI
-            double diff = Math.abs(MathUtil.angleModulus(pose.toPose2d().getRotation().getRadians() - refHeadingRad));
+            double diff1 = Math.abs(MathUtil.angleModulus(pose1.toPose2d().getRotation().getRadians() - refHeadingRad));
 
-            if (diff < bestDiff) {
-                bestDiff = diff;
+            if (diff1 < bestDiff) {
+                bestDiff = diff1;
                 bestTarget = target;
-                bestPose = pose;
+                bestPose = pose1;
             }
 
             // also need to check the altPose
-            pose = targetPosition.get()
+            Pose3d pose2 = targetPosition.get()
                     .transformBy(target.getAlternateCameraToTarget().inverse())
                     .transformBy(cam.robotToCam.inverse());
-            diff = Math.abs(MathUtil.angleModulus(pose.toPose2d().getRotation().getRadians() - refHeadingRad));
+            double diff2 = Math.abs(MathUtil.angleModulus(pose2.toPose2d().getRotation().getRadians() - refHeadingRad));
 
-            if (diff < bestDiff) {
-                bestDiff = diff;
+            if (diff2 < bestDiff) {
+                bestDiff = diff2;
                 bestTarget = target;
-                bestPose = pose;
+                bestPose = pose2;
             }
+
+            // System.out.println("refHeading " + Math.toDegrees(MathUtil.angleModulus(refHeadingRad)));
+            // System.out.println("pose1 " + pose1.toPose2d());
+            // System.out.println("pose2 " + pose2.toPose2d());
+            // System.out.println("single tag: " + ambiguity + " d1 =" + Math.toDegrees(diff1) + " d2=" + Math.toDegrees(diff2));
         }
 
         // return the closest pose, if there is one

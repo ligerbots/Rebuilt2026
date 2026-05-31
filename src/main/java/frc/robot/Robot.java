@@ -16,16 +16,17 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.utilities.HubShiftUtil;
 
 public class Robot extends TimedRobot {
     private Command m_autonomousCommand = null;
     private boolean m_prevIsRedAlliance = true;
 
-    public static final String TESTBOT_SERIAL_NUMBER = "0313baff";
-    public static final String COMP_V1_SERIAL_NUMBER = "0313bb3a";
+    public static final String TESTBOT_SERIAL_NUMBER = "0313baff";  // TODO: real value?
+    public static final String COMPBOT_SERIAL_NUMBER = "030fc268";
 
     public enum RobotType {
-        TESTBOT, COMP_V1
+        TESTBOT, COMPBOT
     }
     // we want this to be static so that it is easy for subsystems to query the robot type
     private static RobotType m_robotType;
@@ -51,22 +52,21 @@ public class Robot extends TimedRobot {
         SmartDashboard.putString("rioSerialNumber", serialNum);
         if (serialNum.equals(TESTBOT_SERIAL_NUMBER)) {
             m_robotType = RobotType.TESTBOT;
-        } else if (serialNum.equals(COMP_V1_SERIAL_NUMBER)) {
-            m_robotType = RobotType.COMP_V1;
+        } else if (serialNum.equals(COMPBOT_SERIAL_NUMBER)) {
+            m_robotType = RobotType.COMPBOT;
         } else {
-            // default to the Test robot for now
-            m_robotType = RobotType.TESTBOT;
+            // default to the Test robot unless we're running in simulation
+            m_robotType = isSimulation() ? RobotType.COMPBOT : RobotType.TESTBOT;
         }
         SmartDashboard.putString("robotType", m_robotType.toString());
 
         // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
         // autonomous chooser on the dashboard.
-        // if (m_robotType == RobotType.TESTBOT) {
-        // m_robotContainer = new KitbotRobotContainer();
-        // } else if (m_robotType == RobotType.COMP_V1) {
-        // m_robotContainer = new CompRobotContainer();
-        // } else
-        m_robotContainer = new RobotContainer();
+        if (m_robotType == RobotType.TESTBOT) {
+            m_robotContainer = new RobotContainerTestBot();
+        } else {
+            m_robotContainer = new RobotContainerCompBot();
+        }
     }
 
     // Useful if a subsystem needs to know which chassis
@@ -81,7 +81,9 @@ public class Robot extends TimedRobot {
     }
 
     @Override
-    public void disabledInit() {}
+    public void disabledInit() {
+        HubShiftUtil.disable();
+    }
 
     @Override
     public void disabledPeriodic() {
@@ -100,18 +102,24 @@ public class Robot extends TimedRobot {
             CommandSwerveDrivetrain driveTrain = m_robotContainer.getDriveTrain();
             if (driveTrain != null) driveTrain.setPose(m_robotContainer.getInitialPose());
         }
+
+        m_robotContainer.updateAutoPreviewActor();
     }
 
     @Override
-    public void disabledExit() {}
+    public void disabledExit() {
+        m_robotContainer.clearAutoPreview();
+    }
 
     @Override
     public void autonomousInit() {
+        // double startT = Timer.getFPGATimestamp();
         m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
         if (m_autonomousCommand != null) {
             CommandScheduler.getInstance().schedule(m_autonomousCommand);
         }
+        // System.out.println("*** AutoInit took " + (Timer.getFPGATimestamp() - startT) + " seconds");
     }
 
     @Override
@@ -122,6 +130,10 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopInit() {
+        HubShiftUtil.initialize();
+        // note: use this here, or in disabledExit(), but no need for both
+        // m_robotContainer.clearAutoPreview();
+
         if (m_autonomousCommand != null) {
             CommandScheduler.getInstance().cancel(m_autonomousCommand);
         }
