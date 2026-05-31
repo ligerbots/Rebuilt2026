@@ -62,12 +62,9 @@ public class Shoot extends Command {
     private boolean m_shooterOnTarget = false;
     private PassSide m_latchedPassSide = null;
 
-    // Values for the trensh-area lockout code
-    private static final double TIME = 1.5;
-    private static final double TRENCH_X_POS_BLUE = Units.inchesToMeters(182.11);
-    private static final double TRENCH_X_POS_RED = FieldConstants.FIELD_LENGTH - TRENCH_X_POS_BLUE;
-    private static final double BOTTOM_TRENCH_UPPER_Y = Units.inchesToMeters(50.0);
-    private static final double TOP_TRENCH_LOWER_Y = FieldConstants.FIELD_WIDTH - BOTTOM_TRENCH_UPPER_Y;
+    // Values for the trench-area lockout code
+    // time to use when computing "danger" of velocity
+    private static final double TRENCH_SPEED_TIME_SEC = 1.0;
     private static final double TRENCH_X_TOLERANCE = Units.inchesToMeters(12.0);
 
     private Shoot(Shooter shooter, Turret turret, ShooterFeeder feeder,
@@ -464,30 +461,35 @@ public class Shoot extends Command {
     private boolean inTrenchZone(Translation2d robotTranslation) {
         ChassisSpeeds speedInformation = m_speedsSupplier.get();
         Translation2d velocity = new Translation2d(speedInformation.vxMetersPerSecond, speedInformation.vyMetersPerSecond);
-        Translation2d nextRobotTranslation = robotTranslation.plus(velocity.times(TIME));
+        // robot position after TRENCH_SPEED_TIME_SEC, given current velocity
+        Translation2d nextRobotTranslation = robotTranslation.plus(velocity.times(TRENCH_SPEED_TIME_SEC));
 
-        double currentX = robotTranslation.getX();
-        double nextX = nextRobotTranslation.getX();
+        // check if the Y values are in the trench areas
         double currentY = robotTranslation.getY();
         double nextY = nextRobotTranslation.getY();
 
-        System.out.println("realX = " + robotTranslation.getX() + " flipX = " + currentX + " nextX = " + nextX);
-
-        boolean inTrenchYRegions = Math.max(currentY, nextY) > TOP_TRENCH_LOWER_Y || Math.min(currentY, nextY) < BOTTOM_TRENCH_UPPER_Y;
+        boolean inTrenchYRegions = Math.max(currentY, nextY) > FieldConstants.TOP_TRENCH_LOWER_Y
+                || Math.min(currentY, nextY) < FieldConstants.BOTTOM_TRENCH_UPPER_Y;
         if (!inTrenchYRegions) {
             return false;
         }
 
-        boolean crossingBlueTrench = Math.min(currentX, nextX) < TRENCH_X_POS_BLUE && Math.max(currentX, nextX) > TRENCH_X_POS_BLUE;
-        boolean inBlueTrench = Math.abs(currentX - TRENCH_X_POS_BLUE) < TRENCH_X_TOLERANCE;
-        boolean crossingRedTrench = Math.min(currentX, nextX) < TRENCH_X_POS_RED && Math.max(currentX, nextX) > TRENCH_X_POS_RED;
-        boolean inRedTrench = Math.abs(currentX - TRENCH_X_POS_RED) < TRENCH_X_TOLERANCE;
+        // check if the X values are near the trench
+        //  or if the robot will cross the trench in the next TRENCH_SPEED_TIME_SEC seconds
+        double currentX = robotTranslation.getX();
+        double nextX = nextRobotTranslation.getX();
+
+        boolean crossingBlueTrench = Math.min(currentX, nextX) < FieldConstants.TRENCH_X_POS_BLUE
+                && Math.max(currentX, nextX) > FieldConstants.TRENCH_X_POS_BLUE;
+        boolean inBlueTrench = Math.abs(currentX - FieldConstants.TRENCH_X_POS_BLUE) < TRENCH_X_TOLERANCE;
+        boolean crossingRedTrench = Math.min(currentX, nextX) < FieldConstants.TRENCH_X_POS_RED
+                && Math.max(currentX, nextX) > FieldConstants.TRENCH_X_POS_RED;
+        boolean inRedTrench = Math.abs(currentX - FieldConstants.TRENCH_X_POS_RED) < TRENCH_X_TOLERANCE;
 
         if (!crossingBlueTrench && !inBlueTrench && !crossingRedTrench && !inRedTrench) {
             return false;
         }
 
         return true;
-
     }
 }
