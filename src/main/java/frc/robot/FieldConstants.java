@@ -30,6 +30,11 @@ public class FieldConstants {
     public static final double OPPOSITE_ALLIANCE_ZONE_FAR_TARGET_DISTANCE = Units.inchesToMeters(350.0);//Far is relative to driverstation. Number is taken from cad as the distance to the end of the bump
     public static final double OPPOSITE_ALLIANCE_ZONE_CLOSE_TARGET_DISTANCE = Units.inchesToMeters(280.0);//Far is relative to driverstation. Number is roughly distance from wall to 4th side wall support strut
 
+    public static final double TRENCH_X_POS_BLUE = Units.inchesToMeters(182.11);
+    public static final double TRENCH_X_POS_RED = FieldConstants.FIELD_LENGTH - TRENCH_X_POS_BLUE;
+    public static final double BOTTOM_TRENCH_UPPER_Y = Units.inchesToMeters(50.0);
+    public static final double TOP_TRENCH_LOWER_Y = FieldConstants.FIELD_WIDTH - BOTTOM_TRENCH_UPPER_Y;
+
     
     public static final Translation2d HUB_POSITION_BLUE = new Translation2d(Units.inchesToMeters(182.11),Units.inchesToMeters(158.84));
     public static final Translation2d PASSING_TARGET_LEFT_BLUE = new Translation2d(Units.inchesToMeters(91.6), Units.inchesToMeters(66));

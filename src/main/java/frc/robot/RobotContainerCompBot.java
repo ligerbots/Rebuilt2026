@@ -22,6 +22,7 @@ import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.trajectory.PathPlannerTrajectory;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -101,6 +102,16 @@ public class RobotContainerCompBot extends RobotContainer {
     private double m_autoPreviewStartTimeSec = 0.0;
 
     private int m_autoSelectionCode = Integer.MIN_VALUE; 
+
+    // Joystick slew rate limiters
+    // higher value means faster change and more jumpy robot
+    // max rate of 3 means maximum change = "3/sec"
+    // so stick value will change 0 -> 1 in 0.33 seconds
+    // remember that joysticks are -1 --> 1
+    private static double JOYSTICK_MAX_SLEW_RATE = 3.0;
+    private SlewRateLimiter m_xLimiter = new SlewRateLimiter(JOYSTICK_MAX_SLEW_RATE);
+    private SlewRateLimiter m_yLimiter = new SlewRateLimiter(JOYSTICK_MAX_SLEW_RATE);
+    private SlewRateLimiter m_rotationLimiter = new SlewRateLimiter(JOYSTICK_MAX_SLEW_RATE);
     
     public RobotContainerCompBot() {
         if (Robot.isSimulation()) {
@@ -323,7 +334,7 @@ public class RobotContainerCompBot extends RobotContainer {
         // fixed shots - distance in inches, plus ROBOT angle of turret
         // ladder - robot against the outside of the ladder, intake to the left for the dirver
         m_farm.button(11).whileTrue(withHopperControl(
-                new Shoot(m_shooter, m_turret, m_shooterFeeder,
+                new Shoot(m_shooter, m_turret, m_shooterFeeder, 
                         m_drivetrain::getPose, m_drivetrain::getFieldCentricSpeeds, 130.0, Rotation2d.kCCW_90deg)));
 
         // corner shot
@@ -472,16 +483,17 @@ public class RobotContainerCompBot extends RobotContainer {
         // Right stick X axis -> rotation
 
         return m_drivetrain.applyRequest(() ->
-                m_driveRequest.withVelocityX(-conditionAxis(m_driverController.getLeftY()) * MAX_SPEED)
-                    .withVelocityY(-conditionAxis(m_driverController.getLeftX()) * MAX_SPEED)
-                    .withRotationalRate(-conditionAxis(m_driverController.getRightX()) * MAX_ANGULAR_RATE)
+                m_driveRequest.withVelocityX(-conditionAxis(m_driverController.getLeftY(), m_xLimiter) * MAX_SPEED)
+                    .withVelocityY(-conditionAxis(m_driverController.getLeftX(), m_yLimiter) * MAX_SPEED)
+                    .withRotationalRate(-conditionAxis(m_driverController.getRightX(), m_rotationLimiter) * MAX_ANGULAR_RATE)
                 );
     }
 
-    private double conditionAxis(double value) {
+    private double conditionAxis(double value, SlewRateLimiter limiter) {
         value = MathUtil.applyDeadband(value, JOYSTICK_DEADBAND);
         // Square the axis, retaining the sign
-        return Math.abs(value) * value;
+        double squared = Math.abs(value) * value;
+        return limiter.calculate(squared);
     }
 
     private Command UnJamCommand() {

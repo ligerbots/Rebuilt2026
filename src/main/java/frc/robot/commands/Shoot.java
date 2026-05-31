@@ -62,6 +62,11 @@ public class Shoot extends Command {
     private boolean m_shooterOnTarget = false;
     private PassSide m_latchedPassSide = null;
 
+    // Values for the trench-area lockout code
+    // time to use when computing "danger" of velocity
+    private static final double TRENCH_SPEED_TIME_SEC = 1.0;
+    private static final double TRENCH_X_TOLERANCE = Units.inchesToMeters(12.0);
+
     private Shoot(Shooter shooter, Turret turret, ShooterFeeder feeder,
             Supplier<Pose2d> poseSupplier, Supplier<ChassisSpeeds> speeds,
             Shooter.ShotType shotType, double shotDistanceInches, Rotation2d turretHeading) {
@@ -82,6 +87,7 @@ public class Shoot extends Command {
         SmartDashboard.putNumber("hood/testAngle", 0.0);
         SmartDashboard.putNumber("flywheel/testRPM", 0.0); 
         SmartDashboard.putNumber("kicker/testRPM", 0.0); 
+        SmartDashboard.putBoolean("shoot/inTrenchZone", false);
     }
 
     public Shoot(Shooter shooter, Turret turret, ShooterFeeder feeder,
@@ -109,7 +115,17 @@ public class Shoot extends Command {
     public void execute() {
         // Pose is needed for plotting, so fetch it once here
         Pose2d robotPose = m_poseSupplier.get();
+        Translation2d robotTranslation = robotPose.getTranslation();
 
+        boolean inTrench = inTrenchZone(robotTranslation);
+        SmartDashboard.putBoolean("shoot/inTrenchZone", inTrench);
+        if (inTrench) {
+            //lower hood and stop feeder belts if robot is going under trench
+            m_shooter.getHood().setAngle(Rotation2d.kZero);
+            m_feeder.stopFeederBelts();
+            return; 
+        }
+            
         ShotType effectiveShotType;
         Translation2d shotVector;
         if (m_shotType == ShotType.FIXED) {
@@ -439,5 +455,41 @@ public class Shoot extends Command {
                 SmartDashboard.getNumber("kicker/testRPM", 0.0),
                 Rotation2d.fromDegrees(SmartDashboard.getNumber("hood/testAngle", 0.0)),
                 TEST_TIME_OF_FLIGHT_SEC);
+    }
+    
+    //returns true if robot is going under the trench
+    private boolean inTrenchZone(Translation2d robotTranslation) {
+        ChassisSpeeds speedInformation = m_speedsSupplier.get();
+        Translation2d velocity = new Translation2d(speedInformation.vxMetersPerSecond, speedInformation.vyMetersPerSecond);
+        // robot position after TRENCH_SPEED_TIME_SEC, given current velocity
+        Translation2d nextRobotTranslation = robotTranslation.plus(velocity.times(TRENCH_SPEED_TIME_SEC));
+
+        // check if the Y values are in the trench areas
+        double currentY = robotTranslation.getY();
+        double nextY = nextRobotTranslation.getY();
+
+        boolean inTrenchYRegions = Math.max(currentY, nextY) > FieldConstants.TOP_TRENCH_LOWER_Y
+                || Math.min(currentY, nextY) < FieldConstants.BOTTOM_TRENCH_UPPER_Y;
+        if (!inTrenchYRegions) {
+            return false;
+        }
+
+        // check if the X values are near the trench
+        //  or if the robot will cross the trench in the next TRENCH_SPEED_TIME_SEC seconds
+        double currentX = robotTranslation.getX();
+        double nextX = nextRobotTranslation.getX();
+
+        boolean crossingBlueTrench = Math.min(currentX, nextX) < FieldConstants.TRENCH_X_POS_BLUE
+                && Math.max(currentX, nextX) > FieldConstants.TRENCH_X_POS_BLUE;
+        boolean inBlueTrench = Math.abs(currentX - FieldConstants.TRENCH_X_POS_BLUE) < TRENCH_X_TOLERANCE;
+        boolean crossingRedTrench = Math.min(currentX, nextX) < FieldConstants.TRENCH_X_POS_RED
+                && Math.max(currentX, nextX) > FieldConstants.TRENCH_X_POS_RED;
+        boolean inRedTrench = Math.abs(currentX - FieldConstants.TRENCH_X_POS_RED) < TRENCH_X_TOLERANCE;
+
+        if (!crossingBlueTrench && !inBlueTrench && !crossingRedTrench && !inRedTrench) {
+            return false;
+        }
+
+        return true;
     }
 }
