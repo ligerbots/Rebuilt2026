@@ -108,10 +108,11 @@ public class RobotContainerCompBot extends RobotContainer {
     // max rate of 3 means maximum change = "3/sec"
     // so stick value will change 0 -> 1 in 0.33 seconds
     // remember that joysticks are -1 --> 1
-    private static double JOYSTICK_MAX_SLEW_RATE = 3.0;
+    private static double JOYSTICK_MAX_SLEW_RATE = 2.0;
+    private static double ROTATION_MAX_SLEW_RATE = 5.0;
     private SlewRateLimiter m_xLimiter = new SlewRateLimiter(JOYSTICK_MAX_SLEW_RATE);
     private SlewRateLimiter m_yLimiter = new SlewRateLimiter(JOYSTICK_MAX_SLEW_RATE);
-    private SlewRateLimiter m_rotationLimiter = new SlewRateLimiter(JOYSTICK_MAX_SLEW_RATE);
+    private SlewRateLimiter m_rotationLimiter = new SlewRateLimiter(ROTATION_MAX_SLEW_RATE);
     
     public RobotContainerCompBot() {
         if (Robot.isSimulation()) {
