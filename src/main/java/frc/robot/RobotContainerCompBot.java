@@ -140,6 +140,22 @@ public class RobotContainerCompBot extends RobotContainer {
         // not used by PathPlanner triggers
         m_virtualShootButton.whileTrue(getShootCommand());
 
+        addAutoOption("Double Swipe BC Dot Center", List.of(
+                "First Swipe Blitz",
+                "Swipe Shoot",
+                "Second Swipe",
+                "Swipe Shoot Alt",
+                "BC Dot Center"
+                ));
+
+        addAutoOption("Double Swipe BC Dot Trench", List.of(
+                "First Swipe Blitz",
+                "Swipe Shoot",
+                "Second Swipe",
+                "Swipe Shoot Alt",
+                "BC Dot Trench"
+                ));
+
         addAutoOption("Depot Double Swipe Blitz", List.of(
                 "First Swipe Blitz",
                 "Swipe Shoot",
@@ -202,22 +218,6 @@ public class RobotContainerCompBot extends RobotContainer {
                 "Swipe Shoot Alt",
                 "Third Swipe",
                 "Swipe Shoot Alt"
-                ));
-        
-        addAutoOption("Double Swipe BC Dot Center", List.of(
-                "First Swipe Blitz",
-                "Swipe Shoot",
-                "Second Swipe",
-                "Swipe Shoot Alt",
-                "BC Dot Center"
-                ));
-
-        addAutoOption("Double Swipe BC Dot Trench", List.of(
-                "First Swipe Blitz",
-                "Swipe Shoot",
-                "Second Swipe",
-                "Swipe Shoot Alt",
-                "BC Dot Trench"
                 ));
 
         addAutoOption("Triple Swipe Swing", List.of(
