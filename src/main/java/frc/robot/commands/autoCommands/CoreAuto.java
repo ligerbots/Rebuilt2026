@@ -2,6 +2,7 @@ package frc.robot.commands.autoCommands;
 
 import java.util.List;
 
+import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -9,6 +10,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.InternalButton;
 import frc.robot.FieldConstants;
@@ -18,6 +20,9 @@ public class CoreAuto extends AutoCommandInterface {
 
     protected Pose2d m_initPose;
     private CommandSwerveDrivetrain m_driveTrain;
+
+        // set the swerve wheels in an X pattern
+    private final SwerveRequest.SwerveDriveBrake m_brakeRequest = new SwerveRequest.SwerveDriveBrake();
 
     PathConstraints constraints = new PathConstraints(
             4.0, 2.0,
@@ -56,7 +61,10 @@ public class CoreAuto extends AutoCommandInterface {
                     DriverStation.reportError("Invalid auto step: " + step.toString(), true);
                 }
             }
-            // Clmber code goes here, but we don't have a climber yet so we'll leave it out for now
+            // lock wheels as a last step, to hold our spot on BattleCry Dot
+            addCommands(new InstantCommand(() -> driveTrain.applyRequest(() -> m_brakeRequest)));
+
+
         } catch (Exception e) {
             DriverStation.reportError("Unable to load PP path Test", true);
             m_initPose = new Pose2d();
