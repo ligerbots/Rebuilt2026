@@ -62,7 +62,7 @@ public class CoreAuto extends AutoCommandInterface {
                 }
             }
             // lock wheels as a last step, to hold our spot on BattleCry Dot
-            addCommands(new InstantCommand(() -> driveTrain.applyRequest(() -> m_brakeRequest)));
+            addCommands(new RunCommand(() -> driveTrain.applyRequest(() -> m_brakeRequest)));
 
 
         } catch (Exception e) {
