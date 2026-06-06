@@ -340,6 +340,7 @@ public class RobotContainerCompBot extends RobotContainer {
 
         // lock wheels
         m_driverController.back().whileTrue(m_drivetrain.applyRequest(() -> m_brakeRequest));
+        m_farm.button(15).whileTrue(m_drivetrain.applyRequest(() -> m_brakeRequest));
 
         // Unjam
         m_farm.button(21).whileTrue(UnJamCommand());
@@ -358,9 +359,9 @@ public class RobotContainerCompBot extends RobotContainer {
         m_farm.button(13).whileTrue(withHopperControl(
                 new Shoot(m_shooter, m_turret, m_shooterFeeder,
                         m_drivetrain::getPose, m_drivetrain::getFieldCentricSpeeds, 210.0, Rotation2d.k180deg)));
-        m_farm.button(15).whileTrue(withHopperControl(
-                new Shoot(m_shooter, m_turret, m_shooterFeeder,
-                        m_drivetrain::getPose, m_drivetrain::getFieldCentricSpeeds, ShotType.TEST)));
+        // m_farm.button(15).whileTrue(withHopperControl(
+        //         new Shoot(m_shooter, m_turret, m_shooterFeeder,
+        //                 m_drivetrain::getPose, m_drivetrain::getFieldCentricSpeeds, ShotType.TEST)));
 
         m_farm.button(1).onTrue(new InstantCommand(m_shooter::increaseFlyFudge));
         m_farm.button(2).onTrue(new InstantCommand(m_shooter::decreaseFlyFudge));
